@@ -228,3 +228,71 @@ void VBlankIntrWait(void)
 {
     Platform_UpdateInput();
 }
+void BgAffineSet(struct BgAffineSrcData *src, struct BgAffineDstData *dest, s32 count)
+{
+    for (s32 i = 0; i < count; i++)
+    {
+        s32 cx = src[i].texX;
+        s32 cy = src[i].texY;
+        s16 dispx = src[i].scrX;
+        s16 dispy = src[i].scrY;
+        s16 rx = src[i].sx;
+        s16 ry = src[i].sy;
+        u16 theta = src[i].alpha >> 8;
+        s32 a = (s32)(cos((double)theta * (2.0 * M_PI / 256.0)) * 16384.0);
+        s32 b = (s32)(sin((double)theta * (2.0 * M_PI / 256.0)) * 16384.0);
+
+        s16 dx = (rx * a) >> 14;
+        s16 dmx = (rx * b) >> 14;
+        s16 dy = (ry * b) >> 14;
+        s16 dmy = (ry * a) >> 14;
+
+        dest[i].pa = dx;
+        dest[i].pb = -dmx;
+        dest[i].pc = dy;
+        dest[i].pd = dmy;
+
+        s32 startx = cx - dx * dispx + dmx * dispy;
+        s32 starty = cy - dy * dispx - dmy * dispy;
+
+        dest[i].dx = startx;
+        dest[i].dy = starty;
+    }
+}
+
+void ObjAffineSet(struct ObjAffineSrcData *src, void *dest, s32 count, s32 offset)
+{
+    u8 *dst = (u8 *)dest;
+    for (s32 i = 0; i < count; i++)
+    {
+        s16 rx = src[i].xScale;
+        s16 ry = src[i].yScale;
+        u16 theta = src[i].rotation >> 8;
+
+        s32 a = (s32)(cos((double)theta * (2.0 * M_PI / 256.0)) * 16384.0);
+        s32 b = (s32)(sin((double)theta * (2.0 * M_PI / 256.0)) * 16384.0);
+
+        s16 dx = (rx * a) >> 14;
+        s16 dmx = (rx * b) >> 14;
+        s16 dy = (ry * b) >> 14;
+        s16 dmy = (ry * a) >> 14;
+
+        *(s16 *)dst = dx;
+        dst += offset;
+        *(s16 *)dst = -dmx;
+        dst += offset;
+        *(s16 *)dst = dy;
+        dst += offset;
+        *(s16 *)dst = dmy;
+        dst += offset;
+    }
+}
+
+void AGBAssert(const char *file, int line, const char *expression, int stopProgram)
+{
+    fprintf(stderr, "ASSERTION FAILED: %s:%d: %s\n", file, line, expression);
+    if (stopProgram)
+        abort();
+}
+
+void AGBPrintInit(void) {}
