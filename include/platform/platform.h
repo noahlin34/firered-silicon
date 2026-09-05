@@ -25,6 +25,7 @@ void Platform_MainLoop(void);
 void Platform_UpdateInput(void);
 void Platform_PresentFrame(const uint16_t *framebuffer);
 void Platform_RenderAndPresent(void);
+void Platform_SaveScreenshot(const char *filename);
 void Platform_Cleanup(void);
 
 #endif // GUARD_PLATFORM_H
