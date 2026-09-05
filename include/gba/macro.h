@@ -31,6 +31,30 @@
 
 #define CpuFastCopy(src, dest, size) CpuFastSet(src, dest, ((size)/(32/8) & 0x1FFFFF))
 
+#ifdef PORTABLE
+static inline void PortableDmaFill(const void *src, void *dest, size_t size, int unitSize) {
+    if (unitSize == 2) {
+        uint16_t val = *(const uint16_t *)src;
+        uint16_t *d = (uint16_t *)dest;
+        size_t count = size / 2;
+        for (size_t i = 0; i < count; i++) d[i] = val;
+    } else {
+        uint32_t val = *(const uint32_t *)src;
+        uint32_t *d = (uint32_t *)dest;
+        size_t count = size / 4;
+        for (size_t i = 0; i < count; i++) d[i] = val;
+    }
+}
+static inline void PortableDmaCopy(const void *src, void *dest, size_t size) {
+    memcpy(dest, src, size);
+}
+#define DmaSet(dmaNum, src, dest, control) do {} while (0)
+#define DMA_FILL(dmaNum, value, dest, size, bit)                                              \
+{                                                                                             \
+    vu##bit tmp = (vu##bit)(value);                                                           \
+    PortableDmaFill((const void *)&tmp, (void *)(dest), (size), (bit) / 8);                   \
+}
+#else
 #define DmaSet(dmaNum, src, dest, control)        \
 {                                                 \
     vu32 *dmaRegs = (vu32 *)REG_ADDR_DMA##dmaNum; \
@@ -49,7 +73,7 @@
            (DMA_ENABLE | DMA_START_NOW | DMA_##bit##BIT | DMA_SRC_FIXED | DMA_DEST_INC) << 16 \
          | ((size)/(bit/8)));                                                                 \
 }
-
+#endif
 #define DmaFill16(dmaNum, value, dest, size) DMA_FILL(dmaNum, value, dest, size, 16)
 #define DmaFill32(dmaNum, value, dest, size) DMA_FILL(dmaNum, value, dest, size, 32)
 
@@ -68,13 +92,19 @@
 #define DmaClear16(dmaNum, dest, size) DMA_CLEAR(dmaNum, dest, size, 16)
 #define DmaClear32(dmaNum, dest, size) DMA_CLEAR(dmaNum, dest, size, 32)
 
+#ifdef PORTABLE
+#define DMA_COPY(dmaNum, src, dest, size, bit)                                              \
+{                                                                                             \
+    PortableDmaCopy((const void *)(src), (void *)(dest), (size));                            \
+}
+#else
 #define DMA_COPY(dmaNum, src, dest, size, bit)                                              \
     DmaSet(dmaNum,                                                                          \
            src,                                                                             \
            dest,                                                                            \
            (DMA_ENABLE | DMA_START_NOW | DMA_##bit##BIT | DMA_SRC_INC | DMA_DEST_INC) << 16 \
          | ((size)/(bit/8)))
-
+#endif
 #define DmaCopy16(dmaNum, src, dest, size) DMA_COPY(dmaNum, src, dest, size, 16)
 #define DmaCopy32(dmaNum, src, dest, size) DMA_COPY(dmaNum, src, dest, size, 32)
 
