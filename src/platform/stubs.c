@@ -7,6 +7,9 @@
 #include "save_failed_screen.h"
 #include "help_system.h"
 #include "load_save.h"
+#include "bg.h"
+#include "malloc.h"
+#include "decompress.h"
 // M4A Sound Engine Stubs
 void m4aSoundInit(void) {}
 void m4aSoundMain(void) {}
@@ -105,3 +108,97 @@ __attribute__((weak)) void CB2_InitCopyrightScreenAfterBootup(void)
 {
     printf("[Engine] CB2_InitCopyrightScreenAfterBootup called! State = %d\n", gMain.state);
 }
+
+// Title Screen & Background Helper Stubs
+static void *sTempTileDataBuffers[32] = {NULL};
+static u8 sTempTileDataBufferCursor = 0;
+
+void ResetTempTileDataBuffers(void)
+{
+    for (int i = 0; i < 32; i++)
+        sTempTileDataBuffers[i] = NULL;
+    sTempTileDataBufferCursor = 0;
+}
+
+bool8 FreeTempTileDataBuffersIfPossible(void)
+{
+    if (sTempTileDataBufferCursor)
+    {
+        for (int i = 0; i < sTempTileDataBufferCursor; i++)
+            FREE_AND_SET_NULL(sTempTileDataBuffers[i]);
+        sTempTileDataBufferCursor = 0;
+    }
+    return FALSE;
+}
+void *MallocAndDecompress(const void *src, u32 *size)
+{
+    const u8 *srcBytes = (const u8 *)src;
+    u32 uncompressedSize = srcBytes[1] | (srcBytes[2] << 8) | (srcBytes[3] << 16);
+    if (size)
+        *size = uncompressedSize;
+    void *ptr = Alloc(uncompressedSize);
+    if (ptr)
+        LZ77UnCompWram(src, ptr);
+    return ptr;
+}
+
+
+void *DecompressAndCopyTileDataToVram(u8 bgId, const void *src, u32 size, u16 offset, u8 mode)
+{
+    if (sTempTileDataBufferCursor < 32)
+    {
+        u32 sizeOut = 0;
+        void *ptr = MallocAndDecompress(src, &sizeOut);
+        if (!size)
+            size = sizeOut;
+        if (ptr)
+        {
+            if (mode == 0)
+            {
+                u32 charBase = GetBgControlAttribute(bgId, BG_CTRL_ATTR_CHARBASEINDEX);
+                u8 *dest = (u8 *)BG_CHAR_ADDR(charBase) + offset;
+                memcpy(dest, ptr, size);
+            }
+            else
+            {
+                u32 mapBase = GetBgControlAttribute(bgId, BG_CTRL_ATTR_MAPBASEINDEX);
+                u8 *dest = (u8 *)BG_SCREEN_ADDR(mapBase) + (offset * 32);
+                memcpy(dest, ptr, size);
+            }
+            sTempTileDataBuffers[sTempTileDataBufferCursor++] = ptr;
+        }
+        return ptr;
+    }
+    return NULL;
+}
+
+void ResetBgPositions(void)
+{
+    ChangeBgX(0, 0, 0);
+    ChangeBgX(1, 0, 0);
+    ChangeBgX(2, 0, 0);
+    ChangeBgX(3, 0, 0);
+    ChangeBgY(0, 0, 0);
+    ChangeBgY(1, 0, 0);
+    ChangeBgY(2, 0, 0);
+    ChangeBgY(3, 0, 0);
+}
+
+// Title Screen Transitions & State Stubs
+void CB2_InitBerryFixProgram(void) {}
+void CB2_InitCopyrightScreenAfterTitleScreen(void) {}
+void CB2_InitMainMenu(void) { printf("[Engine] CB2_InitMainMenu invoked!\n"); }
+void CB2_SaveClearScreen_Init(void) {}
+void PlayCry_Normal(u16 species, s8 pan) { (void)species; (void)pan; }
+void FadeOutMapMusic(u8 speed) { (void)speed; }
+bool8 IsNotWaitingForBGMStop(void) { return TRUE; }
+u8 LoadGameSave(u8 saveType) { (void)saveType; return 0; }
+void Save_ResetSaveCounters(void) {}
+void Sav2_ClearSetDefault(void) {}
+void SetSaveBlocksPointers(void) {}
+void ResetMenuAndMonGlobals(void) {}
+u8 gSaveFileStatus = 0;
+void SetPokemonCryStereo(u32 mode) { (void)mode; }
+void HelpSystem_Disable(void) {}
+void HelpSystem_Enable(void) {}
+void SetHelpContext(u8 helpContext) { (void)helpContext; }
