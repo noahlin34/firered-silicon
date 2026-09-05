@@ -122,13 +122,13 @@ static void SetupPpuTestScene(void)
         }
     }
 
-    // 3. Setup ScreenBase 0 Tilemap (32x32 = 1024 u16 entries)
-    uint16_t *bgMap = (uint16_t *)BG_SCREEN_ADDR(0);
+    // 3. Setup ScreenBase 28 Tilemap (offset 28 * 0x800 = 0xE000, safe from CharBase 0)
+    uint16_t *bgMap = (uint16_t *)BG_SCREEN_ADDR(28);
     for (int y = 0; y < 32; y++)
     {
         for (int x = 0; x < 32; x++)
         {
-            // Checkerboard pattern of Tile 0 (empty backdrop) and Tile 1 (brick)
+            // Checkerboard pattern of Tile 0 (backdrop) and Tile 1 (FireRed brick)
             if ((x >= 2 && x < 28) && (y >= 2 && y < 18) && ((x + y) % 2 == 0))
                 bgMap[y * 32 + x] = 1; // Tile 1, palette 0
             else
@@ -136,8 +136,8 @@ static void SetupPpuTestScene(void)
         }
     }
 
-    // Configure BG0
-    REG_BG0CNT = BGCNT_PRIORITY(1) | BGCNT_CHARBASE(0) | BGCNT_SCREENBASE(0) | BGCNT_16COLOR | BGCNT_TXT256x256;
+    // Configure BG0 with ScreenBase 28 and CharBase 0
+    REG_BG0CNT = BGCNT_PRIORITY(1) | BGCNT_CHARBASE(0) | BGCNT_SCREENBASE(28) | BGCNT_16COLOR | BGCNT_TXT256x256;
     REG_BG0HOFS = 0;
     REG_BG0VOFS = 0;
 
@@ -217,10 +217,9 @@ int main(int argc, char **argv)
         Platform_RenderAndPresent();
         SDL_Delay(16); // 60 FPS
     }
-
+    Platform_SaveScreenshot("ppu_test_output.bmp");
     printf("[SmokeTest] PPU rendered 120 frames successfully!\n");
     printf("[SmokeTest] Software GBA PPU is fully operational!\n");
-
     Platform_Cleanup();
     return 0;
 }
