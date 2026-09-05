@@ -203,6 +203,24 @@ void Platform_RenderAndPresent(void)
     PPU_RenderFrame(sFramebuffer);
     Platform_PresentFrame(sFramebuffer);
 }
+
+void Platform_SaveScreenshot(const char *filename)
+{
+    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormatFrom(
+        (void *)sFramebuffer,
+        GBA_SCREEN_WIDTH,
+        GBA_SCREEN_HEIGHT,
+        16,
+        GBA_SCREEN_WIDTH * sizeof(uint16_t),
+        SDL_PIXELFORMAT_BGR555
+    );
+    if (surface)
+    {
+        SDL_SaveBMP(surface, filename);
+        SDL_FreeSurface(surface);
+        printf("[PPU] Saved screenshot to %s\n", filename);
+    }
+}
 void Platform_Cleanup(void)
 {
     if (sTexture)
