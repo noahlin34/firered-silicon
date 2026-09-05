@@ -1,12 +1,29 @@
 CC := clang
-CFLAGS := -Wall -Wextra -std=c11 -O2 -DPORTABLE -DMODERN=1 -DFIRERED -Iinclude $(shell /opt/homebrew/bin/sdl2-config --cflags)
+CFLAGS := -Wall -Wextra -std=c11 -O2 -DPORTABLE -DMODERN=1 -DFIRERED -DENGLISH -DREVISION=0 -Iinclude \
+          $(shell /opt/homebrew/bin/sdl2-config --cflags) \
+          -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-sign-compare
 LDFLAGS := $(shell /opt/homebrew/bin/sdl2-config --libs)
 
 PLATFORM_SRCS := src/platform/system.c \
                  src/platform/bios.c \
                  src/platform/ppu.c \
                  src/platform/sdl2.c \
+                 src/platform/stubs.c \
                  src/platform/main.c
+
+ENGINE_SRCS := src/main.c \
+               src/gpu_regs.c \
+               src/palette.c \
+               src/task.c \
+               src/sprite.c \
+               src/malloc.c \
+               src/scanline_effect.c \
+               src/dma3_manager.c \
+               src/bg.c \
+               src/random.c \
+               src/trig.c \
+               src/decompress.c \
+               src/blend_palette.c
 
 TARGET := firered-native
 
@@ -14,7 +31,7 @@ TARGET := firered-native
 
 all: $(TARGET)
 
-$(TARGET): $(PLATFORM_SRCS)
+$(TARGET): $(PLATFORM_SRCS) $(ENGINE_SRCS)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 run: $(TARGET)
