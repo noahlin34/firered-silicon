@@ -69,3 +69,5 @@ CMakeLists.txt
 compile_commands.json
 firered-native
 compile_flags.txt
+*.bmp
+*.png
