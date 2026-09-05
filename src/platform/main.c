@@ -3,9 +3,10 @@
 #include <string.h>
 #include <assert.h>
 #include <SDL.h>
-
 #include "global.h"
 #include "platform/platform.h"
+
+extern void AgbMain(void);
 
 // Simple smoke test to verify GBA Hardware Abstraction Layer on Apple Silicon
 static void TestBiosSyscalls(void)
@@ -201,25 +202,32 @@ int main(int argc, char **argv)
         fprintf(stderr, "Failed to initialize platform window.\n");
         return 1;
     }
-
-    SetupPpuTestScene();
-
-    printf("[SmokeTest] Rendering simulated GBA scene through PPU...\n");
-
-    // Render 120 frames (~2 seconds of interactive 60 FPS video)
-    for (int frame = 0; frame < 120; frame++)
+    if (argc > 1 && strcmp(argv[1], "--test") == 0)
     {
-        Platform_UpdateInput();
-
-        // Animate BG0 scroll slightly to verify dynamic scanline updates
-        REG_BG0HOFS = frame / 2;
-
-        Platform_RenderAndPresent();
-        SDL_Delay(16); // 60 FPS
+        SetupPpuTestScene();
+        printf("[SmokeTest] Rendering simulated GBA scene through PPU...\n");
+        for (int frame = 0; frame < 120; frame++)
+        {
+            Platform_UpdateInput();
+            REG_BG0HOFS = frame / 2;
+            Platform_RenderAndPresent();
+            SDL_Delay(16);
+        }
+        Platform_SaveScreenshot("ppu_test_output.bmp");
+        printf("[SmokeTest] PPU rendered 120 frames successfully!\n");
+        Platform_Cleanup();
+        return 0;
     }
-    Platform_SaveScreenshot("ppu_test_output.bmp");
-    printf("[SmokeTest] PPU rendered 120 frames successfully!\n");
-    printf("[SmokeTest] Software GBA PPU is fully operational!\n");
+
+    if (argc > 1 && strcmp(argv[1], "--boot-test") == 0)
+    {
+        extern int gEngineMaxFrames;
+        gEngineMaxFrames = 60;
+        printf("[Engine] Running boot test for 60 frames...\n");
+    }
+
+    printf("[Engine] Booting Pokemon FireRed CPU Engine (AgbMain)...\n");
+    AgbMain();
     Platform_Cleanup();
     return 0;
 }
