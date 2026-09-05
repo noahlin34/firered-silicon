@@ -13,7 +13,7 @@ extern uint8_t REG_BASE[0x400];
 extern uint8_t PLTT_[0x400];
 extern uint8_t VRAM_[0x18000];
 extern uint8_t OAM_[0x400];
-extern uint8_t FLASH_BASE[131072];
+extern uint8_t FLASH_BASE_[131072];
 
 extern uint16_t INTR_CHECK;
 extern void *INTR_VECTOR;
