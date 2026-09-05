@@ -222,8 +222,8 @@ int main(int argc, char **argv)
     if (argc > 1 && strcmp(argv[1], "--boot-test") == 0)
     {
         extern int gEngineMaxFrames;
-        gEngineMaxFrames = 60;
-        printf("[Engine] Running boot test for 60 frames...\n");
+        gEngineMaxFrames = (argc > 2) ? atoi(argv[2]) : 240;
+        printf("[Engine] Running boot test for %d frames...\n", gEngineMaxFrames);
     }
 
     printf("[Engine] Booting Pokemon FireRed CPU Engine (AgbMain)...\n");
