@@ -2,18 +2,24 @@
 #define GUARD_GBA_DEFINES
 
 #include <stddef.h>
+#include <stdint.h>
 
 #define TRUE  1
 #define FALSE 0
 
-#if defined(__APPLE__)
+#ifdef PORTABLE
+#define IWRAM_DATA
+#define EWRAM_DATA
+#define COMMON_DATA
+#elif defined(__APPLE__)
 #define IWRAM_DATA __attribute__((section("__DATA,iwram_data")))
 #define EWRAM_DATA __attribute__((section("__DATA,ewram_data")))
+#define COMMON_DATA __attribute__((section("common_data")))
 #else
 #define IWRAM_DATA __attribute__((section("iwram_data")))
 #define EWRAM_DATA __attribute__((section("ewram_data")))
-#endif
 #define COMMON_DATA __attribute__((section("common_data")))
+#endif
 
 #if MODERN
 #define NOINLINE __attribute__((noinline))
@@ -23,25 +29,41 @@
 
 #define ALIGNED(n) __attribute__((aligned(n)))
 
+#ifdef PORTABLE
+extern struct SoundInfo *SOUND_INFO_PTR;
+extern uint16_t INTR_CHECK;
+extern void *INTR_VECTOR;
+#else
 #define SOUND_INFO_PTR (*(struct SoundInfo **)0x3007FF0)
 #define INTR_CHECK     (*(u16 *)0x3007FF8)
 #define INTR_VECTOR    (*(void **)0x3007FFC)
+#endif
 
 #define EWRAM_START 0x02000000
 #define EWRAM_END   (EWRAM_START + 0x40000)
 #define IWRAM_START 0x03000000
 #define IWRAM_END   (IWRAM_START + 0x8000)
 
-#define PLTT          0x5000000
-#define BG_PLTT       PLTT
 #define BG_PLTT_SIZE  0x200
-#define OBJ_PLTT      (PLTT + BG_PLTT_SIZE)
 #define OBJ_PLTT_SIZE 0x200
 #define PLTT_SIZE     (BG_PLTT_SIZE + OBJ_PLTT_SIZE)
 
-#define VRAM      0x6000000
-#define VRAM_SIZE 0x18000
+#ifdef PORTABLE
+extern uint8_t PLTT_[0x400];
+#define PLTT          ((uintptr_t)PLTT_)
+#else
+#define PLTT          0x5000000
+#endif
+#define BG_PLTT       PLTT
+#define OBJ_PLTT      (PLTT + BG_PLTT_SIZE)
 
+#define VRAM_SIZE 0x18000
+#ifdef PORTABLE
+extern uint8_t VRAM_[VRAM_SIZE];
+#define VRAM          ((uintptr_t)VRAM_)
+#else
+#define VRAM      0x6000000
+#endif
 #define BG_VRAM           VRAM
 #define BG_VRAM_SIZE      0x10000
 #define BG_CHAR_SIZE      0x4000
@@ -62,9 +84,13 @@
 #define OBJ_VRAM1      (void *)(VRAM + 0x14000)
 #define OBJ_VRAM1_SIZE 0x4000
 
-#define OAM      0x7000000
 #define OAM_SIZE 0x400
-
+#ifdef PORTABLE
+extern uint8_t OAM_[OAM_SIZE];
+#define OAM      ((uintptr_t)OAM_)
+#else
+#define OAM      0x7000000
+#endif
 #define ROM_HEADER_SIZE   0xC0
 
 #define DISPLAY_WIDTH  240
