@@ -1,0 +1,24 @@
+CC := clang
+CFLAGS := -Wall -Wextra -std=c11 -O2 -DPORTABLE -DMODERN=1 -DFIRERED -Iinclude $(shell /opt/homebrew/bin/sdl2-config --cflags)
+LDFLAGS := $(shell /opt/homebrew/bin/sdl2-config --libs)
+
+PLATFORM_SRCS := src/platform/system.c \
+                 src/platform/bios.c \
+                 src/platform/ppu.c \
+                 src/platform/sdl2.c \
+                 src/platform/main.c
+
+TARGET := firered-native
+
+.PHONY: all clean run
+
+all: $(TARGET)
+
+$(TARGET): $(PLATFORM_SRCS)
+	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
+
+run: $(TARGET)
+	./$(TARGET)
+
+clean:
+	rm -f $(TARGET)
