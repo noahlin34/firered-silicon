@@ -1,4 +1,6 @@
 CC := clang
+PREPROC := tools/preproc/preproc
+
 CFLAGS := -Wall -Wextra -std=c11 -O2 -DPORTABLE -DMODERN=1 -DFIRERED -DENGLISH -DREVISION=0 -Iinclude \
           $(shell /opt/homebrew/bin/sdl2-config --cflags) \
           -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-sign-compare
@@ -25,17 +27,64 @@ ENGINE_SRCS := src/main.c \
                src/decompress.c \
                src/blend_palette.c
 
+PREPROC_SRCS := src/title_screen.c \
+                src/platform/title_screen_graphics.c
+
+OBJ_DIR := build/native
+OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
+
 TARGET := firered-native
 
-.PHONY: all clean run
+.PHONY: all clean run assets
 
-all: $(TARGET)
+all: assets $(TARGET)
 
-$(TARGET): $(PLATFORM_SRCS) $(ENGINE_SRCS)
+assets:
+	@mkdir -p $(OBJ_DIR)/platform
+	@tools/gbagfx/gbagfx graphics/title_screen/border_bg.png graphics/title_screen/border_bg.4bpp
+	@tools/gbagfx/gbagfx graphics/title_screen/border_bg.4bpp graphics/title_screen/border_bg.4bpp.lz
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/border_bg.bin graphics/title_screen/firered/border_bg.bin.lz
+	@tools/gbagfx/gbagfx graphics/title_screen/slash.png graphics/title_screen/slash.4bpp
+	@tools/gbagfx/gbagfx graphics/title_screen/slash.4bpp graphics/title_screen/slash.4bpp.lz
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/slash.pal graphics/title_screen/firered/slash.gbapal
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/flames.png graphics/title_screen/firered/flames.gbapal
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/flames.png graphics/title_screen/firered/flames.4bpp
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/flames.4bpp graphics/title_screen/firered/flames.4bpp.lz
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/blank_flames.png graphics/title_screen/firered/blank_flames.4bpp
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/blank_flames.4bpp graphics/title_screen/firered/blank_flames.4bpp.lz
+	@tools/gbagfx/gbagfx graphics/title_screen/blank_sprite.png graphics/title_screen/blank_sprite.4bpp
+	@tools/gbagfx/gbagfx graphics/title_screen/blank_sprite.4bpp graphics/title_screen/blank_sprite.4bpp.lz
+	@for i in 1 2 3 4 5 6; do tools/gbagfx/gbagfx graphics/title_screen/unused$$i.bin graphics/title_screen/unused$$i.bin.lz; done
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/game_title_logo.pal graphics/title_screen/firered/game_title_logo.gbapal
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/game_title_logo.png graphics/title_screen/firered/game_title_logo.8bpp
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/game_title_logo.8bpp graphics/title_screen/firered/game_title_logo.8bpp.lz
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/game_title_logo.bin graphics/title_screen/firered/game_title_logo.bin.lz
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/box_art_mon.pal graphics/title_screen/firered/box_art_mon.gbapal
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/box_art_mon.png graphics/title_screen/firered/box_art_mon.4bpp -num_tiles 135 -Wnum_tiles
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/box_art_mon.4bpp graphics/title_screen/firered/box_art_mon.4bpp.lz
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/box_art_mon.bin graphics/title_screen/firered/box_art_mon.bin.lz
+	@tools/gbagfx/gbagfx graphics/title_screen/firered/background.pal graphics/title_screen/firered/background.gbapal
+	@tools/gbagfx/gbagfx graphics/title_screen/copyright_press_start.png graphics/title_screen/copyright_press_start.4bpp
+	@tools/gbagfx/gbagfx graphics/title_screen/copyright_press_start.4bpp graphics/title_screen/copyright_press_start.4bpp.lz
+	@tools/gbagfx/gbagfx graphics/title_screen/copyright_press_start.bin graphics/title_screen/copyright_press_start.bin.lz
+
+$(OBJ_DIR)/%.o: src/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/title_screen.o: src/title_screen.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/platform/title_screen_graphics.o: src/platform/title_screen_graphics.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 run: $(TARGET)
 	./$(TARGET)
 
 clean:
-	rm -f $(TARGET)
+	rm -rf $(OBJ_DIR) $(TARGET)
