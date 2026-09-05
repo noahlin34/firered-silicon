@@ -16,8 +16,16 @@
 #include "save_failed_screen.h"
 #include "quest_log.h"
 #include "sloopsvc.h"
-
+#ifdef PORTABLE
+#include "platform/platform.h"
+int printf(const char *, ...);
+void exit(int);
+int gEngineMaxFrames = 0;
+static int sEngineFrameCount = 0;
+#endif
+#ifndef PORTABLE
 extern u32 intr_main[];
+#endif
 
 static void VBlankIntr(void);
 static void HBlankIntr(void);
@@ -106,6 +114,7 @@ void AgbMain()
     // Modern compilers are liberal with the stack on entry to this function,
     // so RegisterRamReset may crash if it resets IWRAM.
     RegisterRamReset(RESET_ALL & ~RESET_IWRAM);
+#ifndef PORTABLE
     asm("mov\tr1, #0xC0\n"
         "\tlsl\tr1, r1, #0x12\n"
         "\tmov\tr2, #0xFC\n"
@@ -130,6 +139,7 @@ void AgbMain()
         :
         : "r0", "r1", "r2", "r3", "r4", "r5", "memory"
     );
+#endif
 #else
     RegisterRamReset(RESET_ALL);
 #endif //MODERN
@@ -344,9 +354,11 @@ void InitIntrHandlers(void)
     for (i = 0; i < INTR_COUNT; i++)
         gIntrTable[i] = gIntrTableTemplate[i];
 
+#ifndef PORTABLE
     DmaCopy32(3, intr_main, IntrMain_Buffer, sizeof(IntrMain_Buffer));
 
     INTR_VECTOR = IntrMain_Buffer;
+#endif
 
     SetVBlankCallback(NULL);
     SetHBlankCallback(NULL);
@@ -461,10 +473,23 @@ static void IntrDummy(void)
 
 static void WaitForVBlank(void)
 {
+#ifndef PORTABLE
     gMain.intrCheck &= ~INTR_FLAG_VBLANK;
 
     while (!(gMain.intrCheck & INTR_FLAG_VBLANK))
         ;
+#else
+    Platform_UpdateInput();
+    VBlankIntr();
+    Platform_RenderAndPresent();
+    if (gEngineMaxFrames > 0 && ++sEngineFrameCount >= gEngineMaxFrames)
+    {
+        printf("[Engine] Reached %d frames in boot test! Saving screenshot...\n", sEngineFrameCount);
+        Platform_SaveScreenshot("engine_boot_output.bmp");
+        printf("[Engine] Engine boot test successful!\n");
+        exit(0);
+    }
+#endif
 }
 
 void SetVBlankCounter1Ptr(u32 *ptr)
