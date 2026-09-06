@@ -748,6 +748,7 @@ static void SetTitleScreenScene_Cry(s16 *data)
     }
 }
 
+
 #undef tSceneNum
 #undef tState
 #undef tHasCreatedBlankSprite
