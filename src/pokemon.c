@@ -1349,10 +1349,10 @@ static const u16 sHoennToNationalOrder[NUM_SPECIES - 1] =
 
 static const struct SpindaSpot sSpindaSpotGraphics[] =
 {
-    {.x = 16, .y = 7, .image = INCBIN_U16("graphics/spinda_spots/spot_0.bin")},
-    {.x = 40, .y = 8, .image = INCBIN_U16("graphics/spinda_spots/spot_1.bin")},
-    {.x = 22, .y = 25, .image = INCBIN_U16("graphics/spinda_spots/spot_2.bin")},
-    {.x = 34, .y = 26, .image = INCBIN_U16("graphics/spinda_spots/spot_3.bin")}
+    {.x = 16, .y = 7, .image = {0x0070,0x01FC,0x03FE,0x07FE,0x07FF,0x0FFF,0x0FFF,0x0FFF,0x07FE,0x07FE,0x03FC,0x01E0,0x0000,0x0000,0x0000,0x0000}},
+    {.x = 40, .y = 8, .image = {0x01E0,0x03F8,0x07FC,0x0FFE,0x0FFE,0x1FFF,0x1FFF,0x1FFF,0x0FFE,0x0FFE,0x07FC,0x07F8,0x00E0,0x0000,0x0000,0x0000}},
+    {.x = 22, .y = 25, .image = {0x001C,0x003E,0x007F,0x007F,0x007F,0x007F,0x007F,0x003E,0x001C,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000}},
+    {.x = 34, .y = 26, .image = {0x003C,0x007E,0x00FF,0x00FF,0x00FF,0x00FF,0x00FF,0x007E,0x003C,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000}}
 };
 
 #include "data/pokemon/item_effects.h"
@@ -2967,7 +2967,7 @@ u32 GetMonData3(struct Pokemon *mon, s32 field, u8 *data)
     return ret;
 }
 
-u32 GetMonData2(struct Pokemon *mon, s32 field) __attribute__((alias("GetMonData3")));
+u32 GetMonData2(struct Pokemon *mon, s32 field) { return GetMonData3(mon, field, NULL); }
 
 /* GameFreak called GetBoxMonData with either 2 or 3 arguments, for type
  * safety we have a GetBoxMonData macro (in include/pokemon.h) which
@@ -3329,7 +3329,7 @@ u32 GetBoxMonData3(struct BoxPokemon *boxMon, s32 field, u8 *data)
     return retVal;
 }
 
-u32 GetBoxMonData2(struct BoxPokemon *boxMon, s32 field) __attribute__((alias("GetBoxMonData3")));
+u32 GetBoxMonData2(struct BoxPokemon *boxMon, s32 field) { return GetBoxMonData3(boxMon, field, NULL); }
 
 #define SET8(lhs) (lhs) = *data
 #define SET16(lhs) (lhs) = data[0] + (data[1] << 8)
