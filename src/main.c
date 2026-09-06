@@ -485,22 +485,16 @@ static void WaitForVBlank(void)
         ;
 #else
     Platform_UpdateInput();
-    if (gEngineMaxFrames > 0 && sEngineFrameCount >= 5 && sEngineFrameCount <= 10)
+    if (gEngineMaxFrames > 0)
     {
-        REG_KEYINPUT &= ~(1 << 3); // START button
+        if (sEngineFrameCount >= 5 && sEngineFrameCount <= 10)
+            REG_KEYINPUT &= ~(1 << 3); // START to skip intro fade
+        if (sEngineFrameCount >= 30 && sEngineFrameCount <= 35)
+            REG_KEYINPUT &= ~(1 << 3); // START to enter game from title screen
     }
+    REG_VCOUNT = 160; // Start of VBlank
     VBlankIntr();
     Platform_RenderAndPresent();
-    if (sEngineFrameCount == 29)
-    {
-        printf("[Frame 29] DISPCNT=0x%04X, BG0CNT=0x%04X, BG1CNT=0x%04X, BG2CNT=0x%04X, BG3CNT=0x%04X, BLDCNT=0x%04X\n",
-               REG_DISPCNT,
-               *(uint16_t *)(REG_ADDR_BG0CNT),
-               *(uint16_t *)(REG_ADDR_BG1CNT),
-               *(uint16_t *)(REG_ADDR_BG2CNT),
-               *(uint16_t *)(REG_ADDR_BG3CNT),
-               REG_BLDCNT);
-    }
     if (gEngineMaxFrames > 0 && ++sEngineFrameCount >= gEngineMaxFrames)
     {
         printf("[Engine] Reached %d frames in boot test! Saving screenshot...\n", sEngineFrameCount);
