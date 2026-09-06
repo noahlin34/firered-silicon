@@ -244,7 +244,6 @@ static void Task_SetWin0BldRegsAndCheckSaveFile(u8 taskId)
             gTasks[taskId].func = Task_SetWin0BldRegsNoSaveFileCheck;
             break;
         case SAVE_STATUS_INVALID:
-            SetStdFrame0OnBg(0);
             gTasks[taskId].tMenuType = MAIN_MENU_NEWGAME;
             PrintSaveErrorStatus(taskId, gText_SaveFileHasBeenDeleted);
             break;
@@ -302,7 +301,6 @@ static void Task_SaveErrorStatus_RunPrinterThenWaitButton(u8 taskId)
         }
     }
 }
-
 static void Task_SetWin0BldRegsNoSaveFileCheck(u8 taskId)
 {
     if (!gPaletteFade.active)
@@ -324,17 +322,12 @@ static void Task_SetWin0BldRegsNoSaveFileCheck(u8 taskId)
 static void Task_WaitFadeAndPrintMainMenuText(u8 taskId)
 {
     if (!gPaletteFade.active)
-    {
         Task_PrintMainMenuText(taskId);
-    }
 }
 
 static void Task_PrintMainMenuText(u8 taskId)
 {
     u16 pal;
-    SetGpuReg(REG_OFFSET_WIN0H, 0);
-    SetGpuReg(REG_OFFSET_WIN0V, 0);
-    SetGpuReg(REG_OFFSET_WININ, 0x0001);
     SetGpuReg(REG_OFFSET_WINOUT, 0x0021);
     SetGpuReg(REG_OFFSET_BLDCNT, BLDCNT_TGT1_BG0 | BLDCNT_TGT1_BG1 | BLDCNT_TGT1_BG2 | BLDCNT_TGT1_BG3 | BLDCNT_TGT1_OBJ | BLDCNT_TGT1_BD | BLDCNT_EFFECT_DARKEN);
     SetGpuReg(REG_OFFSET_BLDALPHA, BLDALPHA_BLEND(0, 0));
