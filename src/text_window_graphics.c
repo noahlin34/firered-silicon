@@ -64,6 +64,4 @@ const struct TextWindowGraphics *GetUserWindowGraphics(u8 idx)
         return &gUserFrames[idx];
 }
 
-const u16 gMenuMessageWindow_Gfx[] = INCBIN_U16("graphics/text_window/menu_message.4bpp");
-const u16 gStandardMenuPalette[] = INCBIN_U16("graphics/interface/std_menu.gbapal");
 const u8 gHelpMessageWindow_Gfx[] = INCBIN_U8("graphics/help_system/msg_window.4bpp");
