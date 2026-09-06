@@ -48,8 +48,27 @@ This repository is based on **pokefirered** (the pret decompilation of *Pokémon
 - [x] **Title Screen Scene (`src/title_screen.c`):**
   - Charizard box art sprite, FireRed title logo, copyright bar, "PRESS START", and animated flame particles fully rendered and animating at 60 FPS in SDL2.
   - Native `INCBIN` asset pipeline using `tools/gbagfx` and `tools/preproc/preproc`.
+- [x] **Main Menu Scene (`src/main_menu.c`):**
+  - Pressing START/A on the Title Screen transitions through `SetTitleScreenScene_Cry` into `CB2_InitMainMenu`.
+  - Renders "CONTINUE" (PLAYER / TIME / BADGES stats) and "NEW GAME" windows with user-frame tiles.
+  - Text rendering engine linked: `text.c`, `text_printer.c`, `text_window.c`, `text_window_graphics.c`, `string_util.c`, `strings.c`, `menu2.c`, `blit.c`.
 
 > **Note on Intro Sequence:** The opening intro sequence (`src/intro.c` — Copyright screen, GameFreak star shooting animation, and Nidorino vs. Gengar battle) is temporarily bypassed in `src/main.c` (`InitMainCallbacks()` boots directly to `CB2_InitTitleScreen`). This was done deliberately to expedite reaching gameplay, and the intro cinematic will be linked back in at a later point in time.
+
+### Critical 64-Bit Portability Fixes (Learned the Hard Way)
+These bugs are subtle and WILL recur if new engine files are linked. Understand them before adding `ENGINE_SRCS`:
+
+1. **GBA address-range checks break on host pointers.** Any engine code comparing a pointer against GBA constants (`IWRAM_END`, `EWRAM_START`, etc.) is wrong on 64-bit macOS — host pointers always compare "greater". Guard with `#ifdef PORTABLE` and check for `NULL` instead. Example: `IsTileMapOutsideWram` in `src/bg.c`.
+2. **GameFreak string literals MUST go through `tools/preproc`.** The engine uses a custom charmap (`charmap.txt`), not ASCII. Strings are encoded bytes terminated by `EOS` (0xFF). If `_(x)` expands to `(x)` (plain ASCII), strings never terminate and `StringAppend`/text rendering walk off buffers and hang. All sources containing `_("...")` or `INCBIN_*` must be listed in `PREPROC_SRCS` in `Makefile.native` (piped through `clang -E | preproc | clang`), NOT plain `CFLAGS` compilation. Affected so far: `title_screen.c`, `sprite.c`, `text.c`, `text_window.c`, `text_window_graphics.c`, `strings.c`, `string_util.c`, `main_menu.c`, `platform/title_screen_graphics.c`.
+3. **DMA3 must be synchronous in PORTABLE mode.** `RequestDma3Copy`/`RequestDma3Fill` in `src/dma3_manager.c` perform instant `memcpy` and return immediately; `WaitDma3Request` always reports idle. The GBA queue-based path is guarded with `#else`.
+4. **REG_VCOUNT must be 160 before `VBlankIntr()`.** `ProcessDma3Requests` and other engine code check `REG_VCOUNT > 224` to detect end-of-VBlank. `PPU_RenderFrame` leaves VCOUNT at 227; `src/main.c` `WaitForVBlank()` resets it to 160 each frame.
+5. **`gFonts` must be initialized before any text is printed.** `SetDefaultFontsPointer()` in `src/platform/stubs.c` installs the real `gFontInfos` table. If text prints with `gFonts == NULL`, `AddTextPrinter` silently no-ops or downstream code hangs.
+6. **Save file status is hardcoded** to `SAVE_STATUS_OK` (1) in `src/platform/stubs.c` (`gSaveFileStatus`) so the Main Menu shows CONTINUE. Set to 0 (`SAVE_STATUS_EMPTY`) for a fresh-game flow.
+
+### Debugging Tips
+- Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses START at frames 5–10 (skip intro fade) and 30–35 (enter game from Title Screen).
+- A `SIGSEGV`/`SIGBUS` backtrace handler is installed in `src/platform/main.c` (`CrashHandler`) — crashes print a symbolized stack trace.
+- `compile_flags.txt` at repo root configures clangd with `-DPORTABLE -DMODERN=1 -DFIRERED`; keep it in sync with `Makefile.native` CFLAGS.
 ---
 
 ## 4. Key Files & Structure
@@ -64,14 +83,17 @@ openfirered/
 │       └── ppu.h              # Software PPU interface
 ├── src/
 │   ├── main.c                 # GBA main loop & AgbMain() entry point
+│   ├── main_menu.c            # Main Menu scene (CONTINUE / NEW GAME)
+│   ├── title_screen.c         # Title screen scene
 │   ├── platform/
-│   │   ├── system.c           # Memory buffer allocations (REG_BASE, VRAM_, PLTT_, etc.)
+│   │   ├── system.c           # Memory buffer allocations (REG_BASE, VRAM_, PLTT_, gHeap, SaveBlocks)
 │   │   ├── bios.c             # Portable C implementations of GBA BIOS SWI routines
 │   │   ├── ppu.c              # Software scanline rasterizer (BGs, sprites, blending)
 │   │   ├── sdl2.c             # SDL2 windowing, texture streaming, and input handling
-│   │   ├── stubs.c            # Clean stubs for M4A audio, wireless RFU, link serial
-│   │   └── main.c             # Native entry point (main) calling Platform_Init & AgbMain
-│   └── [engine subsystems]    # gpu_regs.c, palette.c, task.c, sprite.c, malloc.c, etc.
+│   │   ├── stubs.c            # M4A audio, link, font table (gFontInfos), save status, and scene-transition stubs
+│   │   ├── title_screen_graphics.c  # INCBIN'd Title Screen palettes/tilemaps
+│   │   └── main.c             # Native entry point (main) with crash backtrace handler
+│   └── [engine subsystems]    # gpu_regs.c, palette.c, task.c, sprite.c, malloc.c, text.c, etc.
 ```
 
 ---
@@ -105,16 +127,17 @@ make -f Makefile.native
 
 ---
 
-## 6. Immediate Next Steps: Main Menu & "NEW GAME"
+## 6. Immediate Next Steps: "NEW GAME" → Oak's Speech
 
-The current milestone is transitioning from the Title Screen into the **Main Menu** (`src/main_menu.c`) and starting a **"NEW GAME"**:
-1. **Main Menu Scene (`src/main_menu.c`):**
-   - Triggered when the player presses **START** or **A** on the Title Screen (`CB2_InitMainMenu`).
-   - Renders menu options: "NEW GAME", "OPTION", "MYSTERY GIFTS".
-2. **Text & Window Engine:**
-   - Link core UI subsystems: `src/text.c`, `src/window.c`, `src/string_util.c`, `src/menu.c`.
-3. **New Game Transition:**
-   - Selecting "NEW GAME" calls `SetMainCallback2(CB2_InitOakSpeech)` to enter Professor Oak's intro sequence (`src/oak_speech.c`).
+The current milestone is transitioning from the **Main Menu** into the **New Game flow**:
+1. **NEW GAME selection (`src/main_menu.c`):**
+   - Selecting "NEW GAME" calls `StartNewGameScene()` (currently a stub in `src/platform/stubs.c` that prints a log line).
+   - Real implementation lives in `src/oak_speech.c` (`StartNewGameScene` → `CB2_InitOakSpeech`).
+2. **Oak's Speech Scene (`src/oak_speech.c`):**
+   - Professor Oak intro, player name entry, gender selection, starter choice.
+   - Requires linking `src/oak_speech.c` to `PREPROC_SRCS` (it contains `_("...")` strings and `INCBIN` assets).
+3. **After Oak's Speech:**
+   - Transitions into the overworld (`src/overworld.c`), which is the gateway to full gameplay.
 ---
 
 ## 7. Git & Commit Guidelines
