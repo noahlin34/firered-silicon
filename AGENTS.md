@@ -51,22 +51,31 @@ This repository is based on **pokefirered** (the pret decompilation of *Pokémon
 - [x] **Main Menu Scene (`src/main_menu.c`):**
   - Pressing START/A on the Title Screen transitions through `SetTitleScreenScene_Cry` into `CB2_InitMainMenu`.
   - Renders "CONTINUE" (PLAYER / TIME / BADGES stats) and "NEW GAME" windows with user-frame tiles.
-  - Text rendering engine linked: `text.c`, `text_printer.c`, `text_window.c`, `text_window_graphics.c`, `string_util.c`, `strings.c`, `menu2.c`, `blit.c`.
-
+- [x] **Oak's Speech Scene (`src/oak_speech.c`):**
+  - Pressing DOWN+A on the Main Menu selects NEW GAME, transitioning through `StartNewGameScene` → `Task_NewGameScene` → Controls Guide (3 pages) → Pikachu intro → Oak's speech.
+  - Professor Oak's speech text renders with dialog windows; controls guide pages and Pikachu intro fully working.
+  - Battle engine NOT linked — `src/platform/battle_engine_stubs.c` provides blank data tables (`BattleScript_*`, battle EWRAM) and empty functions for symbols referenced by non-battle scenes. Real battle engine files (`battle_util.c`, `battle_controllers.c`, `battle_script_commands.c`, etc.) are intentionally EXCLUDED from the build: they depend on assembly battle scripts (`data/battle_scripts_1.s`) that cannot be assembled for the host.
+  - Asset pipeline: all `graphics/pokemon/*`, `graphics/trainers/*`, `graphics/items/*`, `graphics/interface/*`, `graphics/battle_*` INCBIN assets regenerated via `gbagfx`; split sprite sheets (`_0.png.._N.png`) must be combined vertically with width padding to 64px before 4bpp conversion.
+  - `src/platform/ppu.c` now renders text BGs in video MODE 1 (Oak's Speech uses `InitBgsFromTemplates(1, ...)`; BG0/BG1 are text layers, BG2 affine).
 > **Note on Intro Sequence:** The opening intro sequence (`src/intro.c` — Copyright screen, GameFreak star shooting animation, and Nidorino vs. Gengar battle) is temporarily bypassed in `src/main.c` (`InitMainCallbacks()` boots directly to `CB2_InitTitleScreen`). This was done deliberately to expedite reaching gameplay, and the intro cinematic will be linked back in at a later point in time.
 
 ### Critical 64-Bit Portability Fixes (Learned the Hard Way)
 These bugs are subtle and WILL recur if new engine files are linked. Understand them before adding `ENGINE_SRCS`:
 
 1. **GBA address-range checks break on host pointers.** Any engine code comparing a pointer against GBA constants (`IWRAM_END`, `EWRAM_START`, etc.) is wrong on 64-bit macOS — host pointers always compare "greater". Guard with `#ifdef PORTABLE` and check for `NULL` instead. Example: `IsTileMapOutsideWram` in `src/bg.c`.
-2. **GameFreak string literals MUST go through `tools/preproc`.** The engine uses a custom charmap (`charmap.txt`), not ASCII. Strings are encoded bytes terminated by `EOS` (0xFF). If `_(x)` expands to `(x)` (plain ASCII), strings never terminate and `StringAppend`/text rendering walk off buffers and hang. All sources containing `_("...")` or `INCBIN_*` must be listed in `PREPROC_SRCS` in `Makefile.native` (piped through `clang -E | preproc | clang`), NOT plain `CFLAGS` compilation. Affected so far: `title_screen.c`, `sprite.c`, `text.c`, `text_window.c`, `text_window_graphics.c`, `strings.c`, `string_util.c`, `main_menu.c`, `platform/title_screen_graphics.c`.
+2. **GameFreak string literals MUST go through `tools/preproc`.** The engine uses a custom charmap (`charmap.txt`), not ASCII. Strings are encoded bytes terminated by `EOS` (0xFF). If `_(x)` expands to `(x)` (plain ASCII), strings never terminate and `StringAppend`/text rendering walk off buffers and hang. All sources containing `_("...")` or `INCBIN_*` must be listed in `PREPROC_SRCS` in `Makefile.native` (piped through `clang -E | preproc | clang`), NOT plain `CFLAGS` compilation. Affected so far: `title_screen.c`, `sprite.c`, `text.c`, `text_window.c`, `text_window_graphics.c`, `strings.c`, `string_util.c`, `main_menu.c`, `new_menu_helpers.c`, `oak_speech.c`, `naming_screen.c`, `pokemon.c`, `battle_message.c`, `keyboard_text.c`, `util.c`, `battle_main.c`, `pokemon_icon.c`, `pokemon_storage_system_data.c`, `graphics.c`, `data.c`.
 3. **DMA3 must be synchronous in PORTABLE mode.** `RequestDma3Copy`/`RequestDma3Fill` in `src/dma3_manager.c` perform instant `memcpy` and return immediately; `WaitDma3Request` always reports idle. The GBA queue-based path is guarded with `#else`.
 4. **REG_VCOUNT must be 160 before `VBlankIntr()`.** `ProcessDma3Requests` and other engine code check `REG_VCOUNT > 224` to detect end-of-VBlank. `PPU_RenderFrame` leaves VCOUNT at 227; `src/main.c` `WaitForVBlank()` resets it to 160 each frame.
-5. **`gFonts` must be initialized before any text is printed.** `SetDefaultFontsPointer()` in `src/platform/stubs.c` installs the real `gFontInfos` table. If text prints with `gFonts == NULL`, `AddTextPrinter` silently no-ops or downstream code hangs.
+5. **`gFonts` must be initialized before any text is printed.** `SetDefaultFontsPointer()` now lives in the real `src/new_menu_helpers.c` (called via `InitTextBoxGfxAndPrinters`). If text prints with `gFonts == NULL`, `AddTextPrinter` silently no-ops or downstream code hangs.
 6. **Save file status is hardcoded** to `SAVE_STATUS_OK` (1) in `src/platform/stubs.c` (`gSaveFileStatus`) so the Main Menu shows CONTINUE. Set to 0 (`SAVE_STATUS_EMPTY`) for a fresh-game flow.
+7. **Software PPU video MODE 1.** The PPU compositor (`src/platform/ppu.c`) only rendered MODE 0. Oak's Speech calls `InitBgsFromTemplates(1, ...)` (bgMode 1); BG0/BG1 are still text layers in MODE 1 — `PPU_RenderScanline` now renders them for `mode <= 1`. Affine BG2 (used for the Oak speech backdrop scroll) is not yet composited.
+8. **Duplicate symbols when linking real engine files.** `src/platform/stubs.c` previously defined functions/data (`SetDefaultFontsPointer`, `DrawSpindaSpots`, `gMonFrontPicTable`, `gBattle_BG0_X`, etc.) now provided by linked engine files (`new_menu_helpers.c`, `pokemon.c`, `graphics.c`). When linking a real implementation, DELETE the stub version — never the reverse.
+9. **Split sprite-sheet PNGs** (`name_0.png`, `name_1.png`, …) in `graphics/battle_anims/sprites/` must be combined into ONE png (vertically stacked, padded to width 64) before `gbagfx` 4bpp conversion; `gbagfx` cannot read them individually.
+10. **`gbagfx` palette sources:** `INCBIN_U16("...gbapal")` sources are `.pal` (JASC) files, not PNGs. Convert `.pal → .gbapal → .gbapal.lz`.
 
 ### Debugging Tips
-- Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses START at frames 5–10 (skip intro fade) and 30–35 (enter game from Title Screen).
+- Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses: START at frames 5–10 (skip intro fade), 30–35 (enter game from Title Screen), DOWN at 230–231 + A at 240–245 (select NEW GAME), then A at 320–325 / 360–365 / 400–405 / 520–525 / 560–565 (advance Controls Guide → Pikachu intro → Oak speech). With `--boot-test 700` you land mid-Oak-speech with dialog text rendering.
+- Missing-symbol workflow: `make -f Makefile.native` then extract `grep -oE '"_[A-Za-z0-9_]+"'` from linker output; find real definitions with `grep -rln "SymbolName" src/*.c`; add that file to ENGINE_SRCS (or PREPROC_SRCS if it has `INCBIN`/`_()`) and DELETE the stub version from `stubs.c`. Symbols from the battle engine go into `src/platform/battle_engine_stubs.c` instead (generated from header prototypes).
 - A `SIGSEGV`/`SIGBUS` backtrace handler is installed in `src/platform/main.c` (`CrashHandler`) — crashes print a symbolized stack trace.
 - `compile_flags.txt` at repo root configures clangd with `-DPORTABLE -DMODERN=1 -DFIRERED`; keep it in sync with `Makefile.native` CFLAGS.
 ---
@@ -85,13 +94,17 @@ openfirered/
 │   ├── main.c                 # GBA main loop & AgbMain() entry point
 │   ├── main_menu.c            # Main Menu scene (CONTINUE / NEW GAME)
 │   ├── title_screen.c         # Title screen scene
+│   ├── oak_speech.c           # Oak's Speech scene (NEW GAME flow)
+│   ├── naming_screen.c        # Player/rival name entry (linked, not yet reached in flow)
+│   ├── pokemon.c              # Pokemon data, MonSpritesGfxManager, Spinda spots
 │   ├── platform/
 │   │   ├── system.c           # Memory buffer allocations (REG_BASE, VRAM_, PLTT_, gHeap, SaveBlocks)
 │   │   ├── bios.c             # Portable C implementations of GBA BIOS SWI routines
-│   │   ├── ppu.c              # Software scanline rasterizer (BGs, sprites, blending)
+│   │   ├── ppu.c              # Software scanline rasterizer (BGs, sprites, blending; MODE 0 and 1 text BGs)
 │   │   ├── sdl2.c             # SDL2 windowing, texture streaming, and input handling
-│   │   ├── stubs.c            # M4A audio, link, font table (gFontInfos), save status, and scene-transition stubs
-│   │   ├── title_screen_graphics.c  # INCBIN'd Title Screen palettes/tilemaps
+│   │   ├── stubs.c            # M4A audio, link, save status, and remaining scene-transition stubs
+│   │   ├── battle_engine_stubs.c  # Blank battle-engine symbols (battle scripts are ARM asm; engine not linked)
+│   │   ├── new_game_intro_text.c  # Charmap-encoded text tables from data/text/new_game_intro.inc
 │   │   └── main.c             # Native entry point (main) with crash backtrace handler
 │   └── [engine subsystems]    # gpu_regs.c, palette.c, task.c, sprite.c, malloc.c, text.c, etc.
 ```
@@ -127,17 +140,14 @@ make -f Makefile.native
 
 ---
 
-## 6. Immediate Next Steps: "NEW GAME" → Oak's Speech
+## 6. Immediate Next Steps: Finish Oak's Speech → Overworld
 
-The current milestone is transitioning from the **Main Menu** into the **New Game flow**:
-1. **NEW GAME selection (`src/main_menu.c`):**
-   - Selecting "NEW GAME" calls `StartNewGameScene()` (currently a stub in `src/platform/stubs.c` that prints a log line).
-   - Real implementation lives in `src/oak_speech.c` (`StartNewGameScene` → `CB2_InitOakSpeech`).
-2. **Oak's Speech Scene (`src/oak_speech.c`):**
-   - Professor Oak intro, player name entry, gender selection, starter choice.
-   - Requires linking `src/oak_speech.c` to `PREPROC_SRCS` (it contains `_("...")` strings and `INCBIN` assets).
+Oak's Speech intro text renders. The remaining flow inside `src/oak_speech.c` (already linked):
+1. **Text advancement & scenes:** Pressing A through Oak's dialogue works; next come Oak's portrait scene (`Task_OakSpeech_WelcomeToTheWorld` onward — needs affine BG2 backdrop composited in the PPU for the scrolling background), gender selection (`Task_OakSpeech_ShowGenderOptions`), and the naming screen (`src/naming_screen.c` — already linked via PREPROC_SRCS).
+2. **Pokeball/Nidoran F sprites:** `Task_OakSpeech_ReleaseNidoranFFromPokeBall` uses `src/pokeball.c` (linked) and `gMonFrontPicTable` — verify `graphics/pokemon/nidoran_f/` assets load and the sprite composites.
 3. **After Oak's Speech:**
-   - Transitions into the overworld (`src/overworld.c`), which is the gateway to full gameplay.
+   - `CB2_NewGame` in `src/overworld.c` calls `NewGameInitData()` (`src/new_game.c`) then enters the overworld loop (`CB2_Overworld`).
+   - Linking `src/overworld.c` drags in map/field engine (`field_*.c`, `map_*.c`, `script.c`, `wild_encounter.c`) — the next big dependency wave, same pattern as before.
 ---
 
 ## 7. Git & Commit Guidelines
