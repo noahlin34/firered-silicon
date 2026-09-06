@@ -86,7 +86,45 @@ void ProcessDma3Requests(void)
             gDma3RequestCursor = 0;
     }
 }
+#ifdef PORTABLE
+#include <string.h>
 
+s16 RequestDma3Copy(const void *src, void *dest, u16 size, u8 mode)
+{
+    (void)mode;
+    if (src && dest && size)
+        memcpy(dest, src, size);
+    return 0;
+}
+
+s16 RequestDma3Fill(s32 value, void *dest, u16 size, u8 mode)
+{
+    if (dest && size)
+    {
+        if (mode == DMA3_32BIT)
+        {
+            u32 val32 = (u32)value;
+            u32 *d = (u32 *)dest;
+            for (u32 i = 0; i < size / 4; i++)
+                d[i] = val32;
+        }
+        else
+        {
+            u16 val16 = (u16)value;
+            u16 *d = (u16 *)dest;
+            for (u32 i = 0; i < size / 2; i++)
+                d[i] = val16;
+        }
+    }
+    return 0;
+}
+
+s16 WaitDma3Request(s16 index)
+{
+    (void)index;
+    return 0;
+}
+#else
 s16 RequestDma3Copy(const void *src, void *dest, u16 size, u8 mode)
 {
     int cursor;
@@ -180,3 +218,4 @@ s16 WaitDma3Request(s16 index)
 
     return 0;
 }
+#endif
