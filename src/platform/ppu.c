@@ -135,6 +135,63 @@ static void RenderBGScanline(int bgNum, uint16_t control, uint16_t hoffs, uint16
         }
     }
 }
+static int32_t ReadAffineReference(const void *address)
+{
+    uint32_t raw;
+
+    memcpy(&raw, address, sizeof(raw));
+    raw &= 0x0FFFFFFF;
+    if (raw & 0x08000000)
+        raw |= 0xF0000000;
+    return (int32_t)raw;
+}
+
+static void RenderAffineBGScanline(uint16_t control, int lineNum, uint16_t *line)
+{
+    static const unsigned int sAffineBgSizes[] = {128, 256, 512, 1024};
+    unsigned int charBaseBlock = (control >> 2) & 3;
+    unsigned int screenBaseBlock = (control >> 8) & 0x1F;
+    unsigned int size = sAffineBgSizes[control >> 14];
+    unsigned int mapWidth = size / 8;
+    const uint8_t *bgtiles = (const uint8_t *)BG_CHAR_ADDR(charBaseBlock);
+    const uint8_t *bgmap = (const uint8_t *)BG_SCREEN_ADDR(screenBaseBlock);
+    const uint16_t *pal = (const uint16_t *)PLTT;
+    int32_t pa = (int16_t)REG_BG2PA;
+    int32_t pb = (int16_t)REG_BG2PB;
+    int32_t pc = (int16_t)REG_BG2PC;
+    int32_t pd = (int16_t)REG_BG2PD;
+    int32_t refX = ReadAffineReference(REG_ADDR_BG2X);
+    int32_t refY = ReadAffineReference(REG_ADDR_BG2Y);
+
+    if (control & BGCNT_MOSAIC)
+        lineNum = applyBGVerticalMosaicEffect(lineNum);
+
+    refX += pb * lineNum;
+    refY += pd * lineNum;
+    for (int x = 0; x < DISPLAY_WIDTH; x++)
+    {
+        int screenX = (control & BGCNT_MOSAIC) ? applyBGHorizontalMosaicEffect(x) : x;
+        int32_t texX = (refX + pa * screenX) >> 8;
+        int32_t texY = (refY + pc * screenX) >> 8;
+
+        if (control & BGCNT_WRAP)
+        {
+            texX &= size - 1;
+            texY &= size - 1;
+        }
+        else if (texX < 0 || texY < 0 || texX >= (int32_t)size || texY >= (int32_t)size)
+        {
+            continue;
+        }
+
+        uint8_t tileNum = bgmap[(texY / 8) * mapWidth + texX / 8];
+        uint8_t pixel = bgtiles[tileNum * 64 + (texY & 7) * 8 + (texX & 7)];
+
+        if (pixel != 0)
+            line[x] = pal[pixel] | 0x8000;
+    }
+}
+
 
 static uint16_t alphaBlendColor(uint16_t targetA, uint16_t targetB)
 {
@@ -374,17 +431,31 @@ void PPU_RenderScanline(uint16_t *pixels, int vcount)
         scanline.prioritySortedBgsCount[priority]++;
     }
 
-    if (mode == 0 || mode == 1) /* MODE 1: BG0/BG1 are text layers (used by Oak's Speech) */
+    if (mode == 0)
     {
         for (int bgnum = 3; bgnum >= 0; bgnum--)
         {
-            if (isbgEnabled(bgnum) && (mode == 0 || bgnum <= 1))
+            if (isbgEnabled(bgnum))
             {
                 uint16_t bghoffs = *(uint16_t *)(REG_ADDR_BG0HOFS + bgnum * 4);
                 uint16_t bgvoffs = *(uint16_t *)(REG_ADDR_BG0VOFS + bgnum * 4);
                 RenderBGScanline(bgnum, scanline.bgcnts[bgnum], bghoffs, bgvoffs, vcount, scanline.layers[bgnum]);
             }
         }
+    }
+    else if (mode == 1)
+    {
+        for (int bgnum = 1; bgnum >= 0; bgnum--)
+        {
+            if (isbgEnabled(bgnum))
+            {
+                uint16_t bghoffs = *(uint16_t *)(REG_ADDR_BG0HOFS + bgnum * 4);
+                uint16_t bgvoffs = *(uint16_t *)(REG_ADDR_BG0VOFS + bgnum * 4);
+                RenderBGScanline(bgnum, scanline.bgcnts[bgnum], bghoffs, bgvoffs, vcount, scanline.layers[bgnum]);
+            }
+        }
+        if (isbgEnabled(2))
+            RenderAffineBGScanline(scanline.bgcnts[2], vcount, scanline.layers[2]);
     }
 
     if (REG_DISPCNT & DISPCNT_OBJ_ON)
