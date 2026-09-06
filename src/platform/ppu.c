@@ -58,7 +58,6 @@ static const uint8_t spriteSizes[][2] =
 
 static void RenderBGScanline(int bgNum, uint16_t control, uint16_t hoffs, uint16_t voffs, int lineNum, uint16_t *line)
 {
-    (void)bgNum;
     unsigned int charBaseBlock = (control >> 2) & 3;
     unsigned int screenBaseBlock = (control >> 8) & 0x1F;
     unsigned int bitsPerPixel = ((control >> 7) & 1) ? 8 : 4;
@@ -375,11 +374,11 @@ void PPU_RenderScanline(uint16_t *pixels, int vcount)
         scanline.prioritySortedBgsCount[priority]++;
     }
 
-    if (mode == 0)
+    if (mode == 0 || mode == 1) /* MODE 1: BG0/BG1 are text layers (used by Oak's Speech) */
     {
         for (int bgnum = 3; bgnum >= 0; bgnum--)
         {
-            if (isbgEnabled(bgnum))
+            if (isbgEnabled(bgnum) && (mode == 0 || bgnum <= 1))
             {
                 uint16_t bghoffs = *(uint16_t *)(REG_ADDR_BG0HOFS + bgnum * 4);
                 uint16_t bgvoffs = *(uint16_t *)(REG_ADDR_BG0VOFS + bgnum * 4);
