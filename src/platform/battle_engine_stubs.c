@@ -1,4 +1,6 @@
-#include "global.h"
+#include <stdio.h>
+#include <stdlib.h>
+
 
 #include "battle.h"
 
@@ -22,6 +24,16 @@
 /* Auto-generated battle-engine stubs: the GBA battle engine (assembly scripts +
  * battle controllers) is not linked in the native port. Only data symbols and
  * entry points referenced by non-battle scenes are provided. */
+
+/* Tripwire: the battle engine is unreachable until the overworld links
+ * (CB2_NewGame -> wild encounter). If any of these get called before the
+ * real engine is linked, fail loudly instead of silently no-op'ing. */
+static void BattleStubHit(const char *name)
+{
+    printf("[FATAL] Battle engine stub called: %s\n", name);
+    fflush(stdout);
+    abort();
+}
 
 
 /* ---- data ---- */
@@ -203,11 +215,11 @@ u8 AnimateBallOpenParticles(u8 x, u8 y, u8 priority, u8 subpriority, u8 ballId) 
 void AnimateBoxScrollArrows(bool8 species) { (void)species; }
 void BackupHelpContext(void) {}
 void BattleAI_HandleItemUseBeforeAISetup(void) {}
-s8 BattleAnimAdjustPanning(s8 pan) { return 0; }
-void BattleControllerDummy(void) {}
-bool8 BattleInitAllSprites(u8 *state, u8 *battlerId) { return 0; }
+s8 BattleAnimAdjustPanning(s8 pan) { BattleStubHit("BattleAnimAdjustPanning"); return 0; }
+void BattleControllerDummy(void) { BattleStubHit("BattleControllerDummy"); }
+bool8 BattleInitAllSprites(u8 *state, u8 *battlerId) { BattleStubHit("BattleInitAllSprites"); return 0; }
 void BattleInterfaceSetWindowPals(void) {}
-u8 BattleSetup_GetTerrainId(void) { return 0; }
+u8 BattleSetup_GetTerrainId(void) { BattleStubHit("BattleSetup_GetTerrainId"); return 0; }
 void BattleStopLowHpSound(void) {}
 void BeginEvolutionScene(struct Pokemon* mon, u16 speciesToEvolve, u8, u8 partyId) {}
 u8 BitmaskAllOtherLinkPlayers(void) { return 0; }
@@ -398,7 +410,7 @@ const u8 gText_Sleep[] = {0xFF};
 void AllocateBattleResources(void) {}
 bool8 AnimTranslateLinear(struct Sprite *sprite) { return 0; }
 bool8 AreAllMovesUnusable(void) { return 0; }
-void BattleScriptExecute(const u8 *BS_ptr) {}
+void BattleScriptExecute(const u8 *BS_ptr) { BattleStubHit("BattleScriptExecute"); }
 u32 BattleStringExpandPlaceholders(const u8 *src, u8 *dst) { return 0; }
 u32 BattleStringExpandPlaceholdersToDisplayedString(const u8 *src) { return 0; }
 void BtlController_EmitChooseAction(u8 bufferId, u8 action, u16 itemId) {}
@@ -431,7 +443,7 @@ bool8 HandleFaintedMonActions(void) { return 0; }
 void HandleLinkBattleSetup(void) {}
 bool8 HandleWishPerishSongOnTurnEnd(void) { return 0; }
 void InitAnimArcTranslation(struct Sprite *sprite) {}
-void InitBattleControllers(void) {}
+void InitBattleControllers(void) { BattleStubHit("InitBattleControllers"); }
 bool8 IsDoubleBattle(void) { return 0; }
 u8 ItemBattleEffects(u8 caseID, u8 battlerId, bool8 moveTurn) { return 0; }
 void MarkBattlerForControllerExec(u8 battlerId) {}
