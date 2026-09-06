@@ -196,18 +196,6 @@ u16 gSpecialVar_MonBoxId;
 u16 gSpecialVar_MonBoxPos;
 u16 gSpecialVar_Result;
 struct PokemonStorageSystemData *gStorage;
-const u8 gText_NamingScreenKeyboard_01234[];
-const u8 gText_NamingScreenKeyboard_56789[];
-const u8 gText_NamingScreenKeyboard_ABCDEF[];
-const u8 gText_NamingScreenKeyboard_GHIJKL[];
-const u8 gText_NamingScreenKeyboard_MNOPQRS[];
-const u8 gText_NamingScreenKeyboard_Symbols1[];
-const u8 gText_NamingScreenKeyboard_Symbols2[];
-const u8 gText_NamingScreenKeyboard_TUVWXYZ[];
-const u8 gText_NamingScreenKeyboard_abcdef[];
-const u8 gText_NamingScreenKeyboard_ghijkl[];
-const u8 gText_NamingScreenKeyboard_mnopqrs[];
-const u8 gText_NamingScreenKeyboard_tuvwxyz[];
 u16 gTrainerBattleOpponent_A;
 
 /* ---- functions ---- */
