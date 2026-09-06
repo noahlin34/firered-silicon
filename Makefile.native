@@ -12,6 +12,8 @@ PLATFORM_SRCS := src/platform/system.c \
                  src/platform/ppu.c \
                  src/platform/sdl2.c \
                  src/platform/stubs.c \
+                 src/platform/new_game_intro_text.c \
+                 src/platform/battle_engine_stubs.c \
                  src/platform/main.c
 
 ENGINE_SRCS := src/main.c \
@@ -23,24 +25,36 @@ ENGINE_SRCS := src/main.c \
                src/dma3_manager.c \
                src/bg.c \
                src/random.c \
+               src/string_util.c \
+               src/pokeball.c \
+               src/math_util.c \
                src/trig.c \
                src/decompress.c \
                src/blend_palette.c \
                src/blit.c \
                src/window.c \
                src/menu2.c \
-               src/text_printer.c
+               src/text_printer.c \
+               src/list_menu.c \
+               src/menu_helpers.c \
 
 PREPROC_SRCS := src/title_screen.c \
-                src/platform/title_screen_graphics.c \
                 src/sprite.c \
                 src/text.c \
                 src/text_window.c \
                 src/text_window_graphics.c \
                 src/strings.c \
-                src/string_util.c \
-                src/main_menu.c
-
+                src/main_menu.c \
+                src/graphics.c \
+                src/data.c \
+                src/new_menu_helpers.c \
+                src/oak_speech.c \
+                src/naming_screen.c \
+                src/pokemon.c \
+                src/util.c \
+                src/battle_main.c \
+                src/pokemon_icon.c \
+ 
 OBJ_DIR := build/native
 OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
 
@@ -113,10 +127,6 @@ $(OBJ_DIR)/title_screen.o: src/title_screen.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
 
-$(OBJ_DIR)/platform/title_screen_graphics.o: src/platform/title_screen_graphics.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
 $(OBJ_DIR)/sprite.o: src/sprite.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
@@ -130,6 +140,46 @@ $(OBJ_DIR)/text_window.o: src/text_window.c
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
 
 $(OBJ_DIR)/text_window_graphics.o: src/text_window_graphics.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/naming_screen.o: src/naming_screen.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/graphics.o: src/graphics.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/data.o: src/data.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/pokemon.o: src/pokemon.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/util.o: src/util.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/battle_main.o: src/battle_main.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/pokemon_icon.o: src/pokemon_icon.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/keyboard_text.o: src/keyboard_text.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/new_menu_helpers.o: src/new_menu_helpers.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/oak_speech.o: src/oak_speech.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
 
