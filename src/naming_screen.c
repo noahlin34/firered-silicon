@@ -721,6 +721,7 @@ static bool8 MainState_Exit(void)
         if (sNamingScreen->templateNum == NAMING_SCREEN_PLAYER)
             SeedRngAndSetTrainerId();
         SetMainCallback2(sNamingScreen->returnCallback);
+        ResetVHBlank();
         DestroyTask(FindTaskIdByFunc(Task_NamingScreen));
         FreeAllWindowBuffers();
         FREE_AND_SET_NULL(sNamingScreen);
@@ -1099,6 +1100,7 @@ static void SpriteCB_InputArrow(struct Sprite *sprite)
 
 static void SpriteCB_Underscore(struct Sprite *sprite)
 {
+
     const s16 y[] = {2, 3, 2, 1};
     u8 pos = GetTextEntryPosition();
 
@@ -2000,6 +2002,8 @@ static void PrintControls(void)
 static void CB2_NamingScreen(void)
 {
     RunTasks();
+    if (sNamingScreen == NULL)
+        return;
     AnimateSprites();
     BuildOamBuffer();
     UpdatePaletteFade();
