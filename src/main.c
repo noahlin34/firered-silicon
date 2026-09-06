@@ -491,6 +491,20 @@ static void WaitForVBlank(void)
             REG_KEYINPUT &= ~(1 << 3); // START to skip intro fade
         if (sEngineFrameCount >= 30 && sEngineFrameCount <= 35)
             REG_KEYINPUT &= ~(1 << 3); // START to enter game from title screen
+        if (sEngineFrameCount >= 230 && sEngineFrameCount <= 231)
+            REG_KEYINPUT &= ~(1 << 7); // DOWN to move cursor to NEW GAME
+        if (sEngineFrameCount >= 240 && sEngineFrameCount <= 245)
+            REG_KEYINPUT &= ~(1 << 0); // A to confirm NEW GAME
+        if (sEngineFrameCount >= 320 && sEngineFrameCount <= 325)
+            REG_KEYINPUT &= ~(1 << 0); // A to advance Controls Guide page 2
+        if (sEngineFrameCount >= 360 && sEngineFrameCount <= 365)
+            REG_KEYINPUT &= ~(1 << 0); // A to advance Controls Guide page 3
+        if (sEngineFrameCount >= 400 && sEngineFrameCount <= 405)
+            REG_KEYINPUT &= ~(1 << 0); // A to exit Controls Guide into Pikachu intro
+        if (sEngineFrameCount >= 520 && sEngineFrameCount <= 525)
+            REG_KEYINPUT &= ~(1 << 0); // A: advance Pikachu intro page
+        if (sEngineFrameCount >= 560 && sEngineFrameCount <= 565)
+            REG_KEYINPUT &= ~(1 << 0); // A: advance to Oak speech
     }
     REG_VCOUNT = 160; // Start of VBlank
     VBlankIntr();
