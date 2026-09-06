@@ -216,7 +216,13 @@ void RegisterRamReset(u32 resetFlags)
     if (resetFlags & RESET_OAM)
         memset(OAM_, 0, sizeof(OAM_));
     if (resetFlags & RESET_REGS)
+    {
         memset(REG_BASE, 0, sizeof(REG_BASE));
+        REG_BG2PA = 0x100;
+        REG_BG2PD = 0x100;
+        REG_BG3PA = 0x100;
+        REG_BG3PD = 0x100;
+    }
 }
 
 void SoftReset(u32 resetFlags)
