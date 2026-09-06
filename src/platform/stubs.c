@@ -10,7 +10,7 @@
 #include "bg.h"
 #include "malloc.h"
 #include "decompress.h"
-// M4A Sound Engine Stubs
+#include "text.h"
 void m4aSoundInit(void) {}
 void m4aSoundMain(void) {}
 void m4aSoundVSync(void) {}
@@ -88,7 +88,94 @@ void MapMusicMain(void) {}
 struct PokemonCrySong gPokemonCrySongs[1] = {{0}};
 struct SoundInfo gSoundInfo = {0};
 void PlayTimeCounter_Update(void) {}
-void SetDefaultFontsPointer(void) {}
+static const struct FontInfo gFontInfos[] = 
+{
+    [FONT_SMALL] = {
+        .fontFunction = FontFunc_Small,
+        .maxLetterWidth = 8,
+        .maxLetterHeight = 13,
+        .letterSpacing = 0,
+        .lineSpacing = 0,
+        .fgColor = 2,
+        .bgColor = 1,
+        .shadowColor = 3,
+    },
+    [FONT_NORMAL_COPY_1] = {
+        .fontFunction = FontFunc_NormalCopy1,
+        .maxLetterWidth = 8,
+        .maxLetterHeight = 14,
+        .letterSpacing = 0,
+        .lineSpacing = 0,
+        .fgColor = 2,
+        .bgColor = 1,
+        .shadowColor = 3,
+    },
+    [FONT_NORMAL] = {
+        .fontFunction = FontFunc_Normal,
+        .maxLetterWidth = 10,
+        .maxLetterHeight = 14,
+        .letterSpacing = 1,
+        .lineSpacing = 0,
+        .fgColor = 2,
+        .bgColor = 1,
+        .shadowColor = 3,
+    },
+    [FONT_NORMAL_COPY_2] = {
+        .fontFunction = FontFunc_NormalCopy2,
+        .maxLetterWidth = 10,
+        .maxLetterHeight = 14,
+        .letterSpacing = 1,
+        .lineSpacing = 0,
+        .fgColor = 2,
+        .bgColor = 1,
+        .shadowColor = 3,
+    },
+    [FONT_MALE] = {
+        .fontFunction = FontFunc_Male,
+        .maxLetterWidth = 10,
+        .maxLetterHeight = 14,
+        .letterSpacing = 0,
+        .lineSpacing = 0,
+        .fgColor = 2,
+        .bgColor = 1,
+        .shadowColor = 3,
+    },
+    [FONT_FEMALE] = {
+        .fontFunction = FontFunc_Female,
+        .maxLetterWidth = 10,
+        .maxLetterHeight = 14,
+        .letterSpacing = 0,
+        .lineSpacing = 0,
+        .fgColor = 2,
+        .bgColor = 1,
+        .shadowColor = 3,
+    },
+    [FONT_BRAILLE] = {
+        .fontFunction = NULL,
+        .maxLetterWidth = 8,
+        .maxLetterHeight = 16,
+        .letterSpacing = 0,
+        .lineSpacing = 2,
+        .fgColor = 2,
+        .bgColor = 1,
+        .shadowColor = 3,
+    },
+    [FONT_BOLD] = {
+        .fontFunction = NULL,
+        .maxLetterWidth = 8,
+        .maxLetterHeight = 12,
+        .letterSpacing = 0,
+        .lineSpacing = 0,
+        .fgColor = 2,
+        .bgColor = 1,
+        .shadowColor = 3,
+    }
+};
+
+void SetDefaultFontsPointer(void)
+{
+    SetFontsPointer(&gFontInfos[0]);
+}
 u8 gQuestLogPlaybackState = 0;
 bool8 gHelpSystemEnabled = FALSE;
 
@@ -187,7 +274,6 @@ void ResetBgPositions(void)
 // Title Screen Transitions & State Stubs
 void CB2_InitBerryFixProgram(void) {}
 void CB2_InitCopyrightScreenAfterTitleScreen(void) {}
-void CB2_InitMainMenu(void) { printf("[Engine] CB2_InitMainMenu invoked!\n"); }
 void CB2_SaveClearScreen_Init(void) {}
 void PlayCry_Normal(u16 species, s8 pan) { (void)species; (void)pan; }
 void FadeOutMapMusic(u8 speed) { (void)speed; }
@@ -197,8 +283,62 @@ void Save_ResetSaveCounters(void) {}
 void Sav2_ClearSetDefault(void) {}
 void SetSaveBlocksPointers(void) {}
 void ResetMenuAndMonGlobals(void) {}
-u8 gSaveFileStatus = 0;
+u16 gSaveFileStatus = 1; // SAVE_STATUS_OK
 void SetPokemonCryStereo(u32 mode) { (void)mode; }
 void HelpSystem_Disable(void) {}
 void HelpSystem_Enable(void) {}
 void SetHelpContext(u8 helpContext) { (void)helpContext; }
+
+// Font & UI Stubs
+u8 GetFontAttribute(u8 fontId, u8 attributeId)
+{
+    int result = 0;
+    if (gFonts)
+    {
+        switch (attributeId)
+        {
+        case FONTATTR_MAX_LETTER_WIDTH:
+            result = gFonts[fontId].maxLetterWidth;
+            break;
+        case FONTATTR_MAX_LETTER_HEIGHT:
+            result = gFonts[fontId].maxLetterHeight;
+            break;
+        case FONTATTR_LETTER_SPACING:
+            result = gFonts[fontId].letterSpacing;
+            break;
+        case FONTATTR_LINE_SPACING:
+            result = gFonts[fontId].lineSpacing;
+            break;
+        case FONTATTR_UNKNOWN:
+            result = gFonts[fontId].unk;
+            break;
+        case FONTATTR_COLOR_FOREGROUND:
+            result = gFonts[fontId].fgColor;
+            break;
+        case FONTATTR_COLOR_BACKGROUND:
+            result = gFonts[fontId].bgColor;
+            break;
+        case FONTATTR_COLOR_SHADOW:
+            result = gFonts[fontId].shadowColor;
+            break;
+        }
+    }
+    return result;
+}
+
+bool8 FlagGet(u16 flag) { (void)flag; return FALSE; }
+u16 GetKantoPokedexCount(u8 caseId) { (void)caseId; return 0; }
+u16 GetNationalPokedexCount(u8 caseId) { (void)caseId; return 0; }
+bool8 IsNationalPokedexEnabled(void) { return FALSE; }
+s32 GetGlyphWidth_Braille(u16 fontId, bool32 isJapanese) { (void)fontId; (void)isJapanese; return 0; }
+u8 GetUnownLetterByPersonalityLoByte(u32 personality) { (void)personality; return 0; }
+const u8 *DynamicPlaceholderTextUtil_GetPlaceholderPtr(u8 id) { (void)id; return NULL; }
+struct MusicPlayerInfo gMPlayInfo_BGM = {0};
+u8 gQuestLogState = 0;
+bool8 gExitStairsMovementDisabled = FALSE;
+const struct OamData gOamData_AffineOff_ObjNormal_16x16 = {0};
+void StartNewGameScene(void) { printf("[Engine] StartNewGameScene called! Transitioning to Oak's Speech...\n"); }
+void CB2_InitMysteryGift(void) {}
+bool8 IsMysteryGiftEnabled(void) { return FALSE; }
+bool8 IsWirelessAdapterConnected(void) { return FALSE; }
+void TryStartQuestLogPlayback(u8 taskId) { (void)taskId; }
