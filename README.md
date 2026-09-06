@@ -10,6 +10,10 @@ This is very much a work in progress. It is a research and entertainment project
 
 I also cannot promise that I will ever publish prebuilt binaries, release artifacts, or complete compilation instructions. Please treat this repository as an evolving experiment rather than a supported distribution.
 
+## Contributions
+
+Contributions and pull requests of all kinds are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for the current review process.
+
 ## What this is—and isn't
 
 - An unofficial, independent native-port experiment for Apple Silicon
