@@ -54,7 +54,7 @@ PREPROC_SRCS := src/title_screen.c \
                 src/util.c \
                 src/battle_main.c \
                 src/pokemon_icon.c \
- 
+                src/keyboard_text.c
 OBJ_DIR := build/native
 OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
 
