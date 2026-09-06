@@ -55,6 +55,7 @@ enum {
     GFXTAG_CURSOR_FILLED,
     GFXTAG_INPUT_ARROW,
     GFXTAG_UNDERSCORE,
+    GFXTAG_PLAYER_ICON = 254,
     GFXTAG_RIVAL = 255,
 };
 
@@ -67,6 +68,7 @@ enum {
     PALTAG_CURSOR,
     PALTAG_BACK_BUTTON,
     PALTAG_OK_BUTTON,
+    PALTAG_PLAYER_ICON = 254,
     PALTAG_RIVAL = 255,
 };
 
@@ -281,6 +283,10 @@ static const struct SpriteTemplate sSpriteTemplate_Cursor;
 static const struct SpriteTemplate sSpriteTemplate_InputArrow;
 static const struct SpriteTemplate sSpriteTemplate_Underscore;
 static const struct SpriteTemplate sSpriteTemplate_PCIcon;
+static const struct OamData sOam_16x32;
+static const union AnimCmd *const sAnims_Player[];
+static const struct SpriteFrameImage sImageTable_PlayerMale[];
+static const struct SpriteFrameImage sImageTable_PlayerFemale[];
 static const u8 *const sNamingScreenKeyboardText[][KBROW_COUNT];
 static const struct SpriteSheet sSpriteSheets[];
 static const struct SpritePalette sSpritePalettes[];
@@ -289,6 +295,9 @@ static const struct NamingScreenTemplate *const sNamingScreenTemplates[];
 static const u16 sPCIconOff_Gfx[] = INCBIN_U16("graphics/naming_screen/pc_icon_off.4bpp");
 static const u16 sPCIconOn_Gfx[] = INCBIN_U16("graphics/naming_screen/pc_icon_on.4bpp");
 static const u16 sRival_Gfx[] = INCBIN_U16("graphics/naming_screen/rival.4bpp");
+static const u16 sPlayerMale_Gfx[] = INCBIN_U16("graphics/object_events/pics/people/red_normal.4bpp");
+static const u16 sPlayerFemale_Gfx[] = INCBIN_U16("graphics/object_events/pics/people/green_normal.4bpp");
+static const u16 sPlayerIcon_Pal[] = INCBIN_U16("graphics/object_events/palettes/player.gbapal");
 
 static const u8 *const sTransferredToPCMessages[] =
 {
@@ -1400,13 +1409,29 @@ static void NamingScreen_NoIcon(void)
 
 static void NamingScreen_CreatePlayerIcon(void)
 {
-    u8 rivalGfxId;
+    const struct SpritePalette palette = {
+        sPlayerIcon_Pal, PALTAG_PLAYER_ICON
+    };
+    const struct SpriteTemplate template = {
+        .tileTag = TAG_NONE,
+        .paletteTag = palette.tag,
+        .oam = &sOam_16x32,
+        .anims = sAnims_Player,
+        .images = sNamingScreen->monSpecies == FEMALE
+            ? sImageTable_PlayerFemale
+            : sImageTable_PlayerMale,
+        .affineAnims = gDummySpriteAffineAnimTable,
+        .callback = SpriteCallbackDummy,
+    };
     u8 spriteId;
 
-    rivalGfxId = GetRivalAvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, sNamingScreen->monSpecies);
-    spriteId = CreateObjectGraphicsSprite(rivalGfxId, SpriteCallbackDummy, 56, 37, 0);
-    gSprites[spriteId].oam.priority = 3;
-    StartSpriteAnim(&gSprites[spriteId], ANIM_STD_GO_SOUTH);
+    LoadSpritePalette(&palette);
+    spriteId = CreateSprite(&template, 56, 37, 0);
+    if (spriteId != MAX_SPRITES)
+    {
+        gSprites[spriteId].oam.priority = 3;
+        StartSpriteAnim(&gSprites[spriteId], ANIM_STD_GO_SOUTH);
+    }
 }
 
 static void NamingScreen_CreatePCIcon(void)
@@ -1447,19 +1472,21 @@ static void NamingScreen_CreateRivalIcon(void)
     const struct SpritePalette palette = {
         gNamingScreenRival_Pal, PALTAG_RIVAL
     };
-    struct SpriteTemplate template;
-    const struct SubspriteTable * tables_p;
+    const struct SpriteTemplate template = {
+        .tileTag = GFXTAG_RIVAL,
+        .paletteTag = PALTAG_RIVAL,
+        .oam = &sOam_16x32,
+        .anims = sAnims_Rival,
+        .images = NULL,
+        .affineAnims = gDummySpriteAffineAnimTable,
+        .callback = SpriteCallbackDummy,
+    };
     u8 spriteId;
-
-    CopyObjectGraphicsInfoToSpriteTemplate(OBJ_EVENT_GFX_RED_NORMAL, SpriteCallbackDummy, &template, &tables_p);
-
-    template.tileTag = sheet.tag;
-    template.paletteTag = palette.tag;
-    template.anims = sAnims_Rival;
     LoadSpriteSheet(&sheet);
     LoadSpritePalette(&palette);
     spriteId = CreateSprite(&template, 56, 37, 0);
-    gSprites[spriteId].oam.priority = 3;
+    if (spriteId != MAX_SPRITES)
+        gSprites[spriteId].oam.priority = 3;
 }
 
 static bool8 (*const sKeyboardKeyHandlers[])(u8) =
@@ -2157,6 +2184,19 @@ static const struct OamData sOam_16x16 = {
     .priority = 0,
     .paletteNum = 0,
 };
+static const struct OamData sOam_16x32 = {
+    .y = 0,
+    .affineMode = ST_OAM_AFFINE_OFF,
+    .objMode = ST_OAM_OBJ_NORMAL,
+    .bpp = ST_OAM_4BPP,
+    .shape = SPRITE_SHAPE(16x32),
+    .x = 0,
+    .size = SPRITE_SIZE(16x32),
+    .tileNum = 0,
+    .priority = 0,
+    .paletteNum = 0,
+};
+
 
 static const struct OamData sOam_32x16 = {
     .y = 0,
@@ -2336,6 +2376,51 @@ static const struct SubspriteTable sSubspriteTable_Button[] = {
 
 static const struct SubspriteTable sSubspriteTable_PCIcon[] = {
     {ARRAY_COUNT(sSubsprites_PCIcon), sSubsprites_PCIcon}
+};
+
+static const struct SpriteFrameImage sImageTable_PlayerMale[] = {
+    {sPlayerMale_Gfx + 0x000, 0x100},
+    {sPlayerMale_Gfx + 0x080, 0x100},
+    {sPlayerMale_Gfx + 0x100, 0x100},
+    {sPlayerMale_Gfx + 0x180, 0x100},
+    {sPlayerMale_Gfx + 0x200, 0x100},
+    {sPlayerMale_Gfx + 0x280, 0x100},
+    {sPlayerMale_Gfx + 0x300, 0x100},
+    {sPlayerMale_Gfx + 0x380, 0x100},
+    {sPlayerMale_Gfx + 0x400, 0x100},
+};
+
+static const struct SpriteFrameImage sImageTable_PlayerFemale[] = {
+    {sPlayerFemale_Gfx + 0x000, 0x100},
+    {sPlayerFemale_Gfx + 0x080, 0x100},
+    {sPlayerFemale_Gfx + 0x100, 0x100},
+    {sPlayerFemale_Gfx + 0x180, 0x100},
+    {sPlayerFemale_Gfx + 0x200, 0x100},
+    {sPlayerFemale_Gfx + 0x280, 0x100},
+    {sPlayerFemale_Gfx + 0x300, 0x100},
+    {sPlayerFemale_Gfx + 0x380, 0x100},
+    {sPlayerFemale_Gfx + 0x400, 0x100},
+};
+
+static const union AnimCmd sAnim_PlayerFaceSouth[] = {
+    ANIMCMD_FRAME(0, 16),
+    ANIMCMD_JUMP(0),
+};
+
+static const union AnimCmd sAnim_PlayerGoSouth[] = {
+    ANIMCMD_FRAME(3, 8),
+    ANIMCMD_FRAME(0, 8),
+    ANIMCMD_FRAME(4, 8),
+    ANIMCMD_FRAME(0, 8),
+    ANIMCMD_JUMP(0),
+};
+
+static const union AnimCmd *const sAnims_Player[] = {
+    [ANIM_STD_FACE_SOUTH] = sAnim_PlayerFaceSouth,
+    [ANIM_STD_FACE_NORTH] = sAnim_PlayerFaceSouth,
+    [ANIM_STD_FACE_WEST] = sAnim_PlayerFaceSouth,
+    [ANIM_STD_FACE_EAST] = sAnim_PlayerFaceSouth,
+    [ANIM_STD_GO_SOUTH] = sAnim_PlayerGoSouth,
 };
 
 static const struct SpriteFrameImage sImageTable_PCIcon[] = {
