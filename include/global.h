@@ -23,13 +23,8 @@
 #define asm __asm__
 #endif
 
-// IDE & Portable string literal support
-#if defined(PORTABLE) || defined(__APPLE__) || defined(__CYGWIN__) || defined(__INTELLISENSE__)
-#define _(x)        (x)
-#define __(x)       (x)
-#endif
-
-#if (defined(__APPLE__) || defined(__CYGWIN__) || defined(__INTELLISENSE__)) && !defined(PORTABLE)
+// IDE support
+#if (defined(__CYGWIN__) || defined(__INTELLISENSE__)) && !defined(PORTABLE)
 #define _(x)        (x)
 #define __(x)       (x)
 #define INCBIN(...) {0}
