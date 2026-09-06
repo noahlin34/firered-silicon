@@ -118,8 +118,8 @@ assets:
 	@tools/gbagfx/gbagfx graphics/text_window/quest_log.png graphics/text_window/quest_log.4bpp
 	@for i in 1 2 3 4 5 6 7 8 9 10; do tools/gbagfx/gbagfx graphics/text_window/type$$i.png graphics/text_window/type$$i.4bpp; tools/gbagfx/gbagfx graphics/text_window/type$$i.png graphics/text_window/type$$i.gbapal; done
 	@for i in 0 1 2 3 4; do tools/gbagfx/gbagfx graphics/text_window/stdpal_$$i.pal graphics/text_window/stdpal_$$i.gbapal; done
-	@tools/gbagfx/gbagfx graphics/object_events/pics/people/red_normal.png graphics/object_events/pics/people/red_normal.4bpp
-	@tools/gbagfx/gbagfx graphics/object_events/pics/people/green_normal.png graphics/object_events/pics/people/green_normal.4bpp
+	@tools/gbagfx/gbagfx graphics/object_events/pics/people/red_normal.png graphics/object_events/pics/people/red_normal.4bpp -mwidth 2 -mheight 4
+	@tools/gbagfx/gbagfx graphics/object_events/pics/people/green_normal.png graphics/object_events/pics/people/green_normal.4bpp -mwidth 2 -mheight 4
 	@tools/gbagfx/gbagfx graphics/object_events/palettes/player.pal graphics/object_events/palettes/player.gbapal
 
 $(OBJ_DIR)/%.o: src/%.c
