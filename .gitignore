@@ -71,3 +71,4 @@ firered-native
 compile_flags.txt
 *.bmp
 *.png
+firered-asan
