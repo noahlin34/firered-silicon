@@ -3,7 +3,8 @@ PREPROC := tools/preproc/preproc
 
 CFLAGS := -Wall -Wextra -std=c11 -O2 -DPORTABLE -DMODERN=1 -DFIRERED -DENGLISH -DREVISION=0 -Iinclude \
           $(shell /opt/homebrew/bin/sdl2-config --cflags) \
-          -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-sign-compare
+          -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable \
+          -Wno-sign-compare -Wno-unknown-escape-sequence
 LDFLAGS := $(shell /opt/homebrew/bin/sdl2-config --libs)
 
 PLATFORM_SRCS := src/platform/system.c \
@@ -17,7 +18,6 @@ ENGINE_SRCS := src/main.c \
                src/gpu_regs.c \
                src/palette.c \
                src/task.c \
-               src/sprite.c \
                src/malloc.c \
                src/scanline_effect.c \
                src/dma3_manager.c \
@@ -25,10 +25,21 @@ ENGINE_SRCS := src/main.c \
                src/random.c \
                src/trig.c \
                src/decompress.c \
-               src/blend_palette.c
+               src/blend_palette.c \
+               src/blit.c \
+               src/window.c \
+               src/menu2.c \
+               src/text_printer.c
 
 PREPROC_SRCS := src/title_screen.c \
-                src/platform/title_screen_graphics.c
+                src/platform/title_screen_graphics.c \
+                src/sprite.c \
+                src/text.c \
+                src/text_window.c \
+                src/text_window_graphics.c \
+                src/strings.c \
+                src/string_util.c \
+                src/main_menu.c
 
 OBJ_DIR := build/native
 OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
@@ -67,6 +78,32 @@ assets:
 	@tools/gbagfx/gbagfx graphics/title_screen/copyright_press_start.png graphics/title_screen/copyright_press_start.4bpp
 	@tools/gbagfx/gbagfx graphics/title_screen/copyright_press_start.4bpp graphics/title_screen/copyright_press_start.4bpp.lz
 	@tools/gbagfx/gbagfx graphics/title_screen/copyright_press_start.bin graphics/title_screen/copyright_press_start.bin.lz
+	@tools/gbagfx/gbagfx graphics/main_menu/bg.pal graphics/main_menu/bg.gbapal
+	@tools/gbagfx/gbagfx graphics/main_menu/textbox.pal graphics/main_menu/textbox.gbapal
+	@tools/gbagfx/gbagfx graphics/text_window/unused.png graphics/text_window/unused.4bpp
+	@tools/gbagfx/gbagfx graphics/text_window/menu_message.png graphics/text_window/menu_message.4bpp
+	@tools/gbagfx/gbagfx graphics/interface/std_menu.pal graphics/interface/std_menu.gbapal
+	@tools/gbagfx/gbagfx graphics/fonts/down_arrows.png graphics/fonts/down_arrows.4bpp
+	@tools/gbagfx/gbagfx graphics/fonts/down_arrow_3.png graphics/fonts/down_arrow_3.4bpp
+	@tools/gbagfx/gbagfx graphics/fonts/down_arrow_4.png graphics/fonts/down_arrow_4.4bpp
+	@tools/gbagfx/gbagfx graphics/fonts/keypad_icons.png graphics/fonts/keypad_icons.4bpp
+	@tools/gbagfx/gbagfx graphics/fonts/latin_small.png graphics/fonts/latin_small.hwlatfont
+	@tools/gbagfx/gbagfx graphics/fonts/japanese_small.png graphics/fonts/japanese_small.fwjpnfont
+	@tools/gbagfx/gbagfx graphics/fonts/japanese_tall.png graphics/fonts/japanese_tall.fwjpnfont
+	@tools/gbagfx/gbagfx graphics/fonts/latin_normal.png graphics/fonts/latin_normal.fwlatfont
+	@tools/gbagfx/gbagfx graphics/fonts/japanese_normal.png graphics/fonts/japanese_normal.fwjpnfont
+	@tools/gbagfx/gbagfx graphics/fonts/latin_male.png graphics/fonts/latin_male.fwlatfont
+	@tools/gbagfx/gbagfx graphics/fonts/japanese_male.png graphics/fonts/japanese_male.fwjpnfont
+	@tools/gbagfx/gbagfx graphics/fonts/latin_female.png graphics/fonts/latin_female.fwlatfont
+	@tools/gbagfx/gbagfx graphics/fonts/japanese_female.png graphics/fonts/japanese_female.fwjpnfont
+	@tools/gbagfx/gbagfx graphics/fonts/braille.png graphics/fonts/braille.fwjpnfont
+	@tools/gbagfx/gbagfx graphics/fonts/japanese_bold.png graphics/fonts/japanese_bold.fwjpnfont
+	@tools/gbagfx/gbagfx graphics/help_system/msg_window.png graphics/help_system/msg_window.4bpp
+	@tools/gbagfx/gbagfx graphics/text_window/std.png graphics/text_window/std.4bpp
+	@tools/gbagfx/gbagfx graphics/text_window/signpost.png graphics/text_window/signpost.4bpp
+	@tools/gbagfx/gbagfx graphics/text_window/quest_log.png graphics/text_window/quest_log.4bpp
+	@for i in 1 2 3 4 5 6 7 8 9 10; do tools/gbagfx/gbagfx graphics/text_window/type$$i.png graphics/text_window/type$$i.4bpp; tools/gbagfx/gbagfx graphics/text_window/type$$i.png graphics/text_window/type$$i.gbapal; done
+	@for i in 0 1 2 3 4; do tools/gbagfx/gbagfx graphics/text_window/stdpal_$$i.pal graphics/text_window/stdpal_$$i.gbapal; done
 
 $(OBJ_DIR)/%.o: src/%.c
 	@mkdir -p $(dir $@)
@@ -79,6 +116,34 @@ $(OBJ_DIR)/title_screen.o: src/title_screen.c
 $(OBJ_DIR)/platform/title_screen_graphics.o: src/platform/title_screen_graphics.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/sprite.o: src/sprite.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/text.o: src/text.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/text_window.o: src/text_window.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/text_window_graphics.o: src/text_window_graphics.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/strings.o: src/strings.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
+$(OBJ_DIR)/main_menu.o: src/main_menu.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/string_util.o: src/string_util.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
