@@ -63,9 +63,6 @@ bool32 RunSaveFailedScreen(void) { return FALSE; }
 void SetNotInSaveFailedScreen(void) {}
 
 // Decompress / Mon pic stubs
-void DrawSpindaSpots(u16 species, u32 personality, u8 *dest, bool8 isFrontPic) { (void)species; (void)personality; (void)dest; (void)isFrontPic; }
-const struct CompressedSpriteSheet gMonFrontPicTable[1] = {{0}};
-const struct CompressedSpriteSheet gMonBackPicTable[1] = {{0}};
 bool8 RunHelpSystemCallback(void) { return FALSE; }
 
 // SLoop Service Stub
@@ -172,22 +169,10 @@ static const struct FontInfo gFontInfos[] =
     }
 };
 
-void SetDefaultFontsPointer(void)
-{
-    SetFontsPointer(&gFontInfos[0]);
-}
 u8 gQuestLogPlaybackState = 0;
 bool8 gHelpSystemEnabled = FALSE;
 
 // Battle BG offsets referenced by scanline_effect.c
-u16 gBattle_BG0_X = 0;
-u16 gBattle_BG0_Y = 0;
-u16 gBattle_BG1_X = 0;
-u16 gBattle_BG1_Y = 0;
-u16 gBattle_BG2_X = 0;
-u16 gBattle_BG2_Y = 0;
-u16 gBattle_BG3_X = 0;
-u16 gBattle_BG3_Y = 0;
 
 void QuestLog_CutPlayback(void) {}
 
@@ -200,76 +185,10 @@ __attribute__((weak)) void CB2_InitCopyrightScreenAfterBootup(void)
 static void *sTempTileDataBuffers[32] = {NULL};
 static u8 sTempTileDataBufferCursor = 0;
 
-void ResetTempTileDataBuffers(void)
-{
-    for (int i = 0; i < 32; i++)
-        sTempTileDataBuffers[i] = NULL;
-    sTempTileDataBufferCursor = 0;
-}
-
-bool8 FreeTempTileDataBuffersIfPossible(void)
-{
-    if (sTempTileDataBufferCursor)
-    {
-        for (int i = 0; i < sTempTileDataBufferCursor; i++)
-            FREE_AND_SET_NULL(sTempTileDataBuffers[i]);
-        sTempTileDataBufferCursor = 0;
-    }
-    return FALSE;
-}
-void *MallocAndDecompress(const void *src, u32 *size)
-{
-    const u8 *srcBytes = (const u8 *)src;
-    u32 uncompressedSize = srcBytes[1] | (srcBytes[2] << 8) | (srcBytes[3] << 16);
-    if (size)
-        *size = uncompressedSize;
-    void *ptr = Alloc(uncompressedSize);
-    if (ptr)
-        LZ77UnCompWram(src, ptr);
-    return ptr;
-}
 
 
-void *DecompressAndCopyTileDataToVram(u8 bgId, const void *src, u32 size, u16 offset, u8 mode)
-{
-    if (sTempTileDataBufferCursor < 32)
-    {
-        u32 sizeOut = 0;
-        void *ptr = MallocAndDecompress(src, &sizeOut);
-        if (!size)
-            size = sizeOut;
-        if (ptr)
-        {
-            if (mode == 0)
-            {
-                u32 charBase = GetBgControlAttribute(bgId, BG_CTRL_ATTR_CHARBASEINDEX);
-                u8 *dest = (u8 *)BG_CHAR_ADDR(charBase) + offset;
-                memcpy(dest, ptr, size);
-            }
-            else
-            {
-                u32 mapBase = GetBgControlAttribute(bgId, BG_CTRL_ATTR_MAPBASEINDEX);
-                u8 *dest = (u8 *)BG_SCREEN_ADDR(mapBase) + (offset * 32);
-                memcpy(dest, ptr, size);
-            }
-            sTempTileDataBuffers[sTempTileDataBufferCursor++] = ptr;
-        }
-        return ptr;
-    }
-    return NULL;
-}
 
-void ResetBgPositions(void)
-{
-    ChangeBgX(0, 0, 0);
-    ChangeBgX(1, 0, 0);
-    ChangeBgX(2, 0, 0);
-    ChangeBgX(3, 0, 0);
-    ChangeBgY(0, 0, 0);
-    ChangeBgY(1, 0, 0);
-    ChangeBgY(2, 0, 0);
-    ChangeBgY(3, 0, 0);
-}
+
 
 // Title Screen Transitions & State Stubs
 void CB2_InitBerryFixProgram(void) {}
@@ -290,41 +209,6 @@ void HelpSystem_Enable(void) {}
 void SetHelpContext(u8 helpContext) { (void)helpContext; }
 
 // Font & UI Stubs
-u8 GetFontAttribute(u8 fontId, u8 attributeId)
-{
-    int result = 0;
-    if (gFonts)
-    {
-        switch (attributeId)
-        {
-        case FONTATTR_MAX_LETTER_WIDTH:
-            result = gFonts[fontId].maxLetterWidth;
-            break;
-        case FONTATTR_MAX_LETTER_HEIGHT:
-            result = gFonts[fontId].maxLetterHeight;
-            break;
-        case FONTATTR_LETTER_SPACING:
-            result = gFonts[fontId].letterSpacing;
-            break;
-        case FONTATTR_LINE_SPACING:
-            result = gFonts[fontId].lineSpacing;
-            break;
-        case FONTATTR_UNKNOWN:
-            result = gFonts[fontId].unk;
-            break;
-        case FONTATTR_COLOR_FOREGROUND:
-            result = gFonts[fontId].fgColor;
-            break;
-        case FONTATTR_COLOR_BACKGROUND:
-            result = gFonts[fontId].bgColor;
-            break;
-        case FONTATTR_COLOR_SHADOW:
-            result = gFonts[fontId].shadowColor;
-            break;
-        }
-    }
-    return result;
-}
 
 bool8 FlagGet(u16 flag) { (void)flag; return FALSE; }
 u16 GetKantoPokedexCount(u8 caseId) { (void)caseId; return 0; }
@@ -337,7 +221,6 @@ struct MusicPlayerInfo gMPlayInfo_BGM = {0};
 u8 gQuestLogState = 0;
 bool8 gExitStairsMovementDisabled = FALSE;
 const struct OamData gOamData_AffineOff_ObjNormal_16x16 = {0};
-void StartNewGameScene(void) { printf("[Engine] StartNewGameScene called! Transitioning to Oak's Speech...\n"); }
 void CB2_InitMysteryGift(void) {}
 bool8 IsMysteryGiftEnabled(void) { return FALSE; }
 bool8 IsWirelessAdapterConnected(void) { return FALSE; }
