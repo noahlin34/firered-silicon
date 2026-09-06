@@ -9,6 +9,8 @@
 #include "data.h"
 
 #include "util.h"
+#include "palette.h"
+
 
 #include "task.h"
 
@@ -297,9 +299,11 @@ void InitTrainerTowerBattleStruct(void) {}
 bool8 IsActiveItemMoving(void) { return 0; }
 bool8 IsBGMPlaying(void) { return 0; }
 bool8 IsBattlerSpriteVisible(u8 battlerId) { return 0; }
-bool8 IsCryFinished(void) { return 0; }
-bool8 IsCryPlaying(void) { return 0; }
-bool8 IsCryPlayingOrClearCrySongs(void) { return 0; }
+/* Audio engine (m4a_1.s) is not ported; cries never start, so "finished"
+ * must report TRUE or Task_OakSpeech_IsInhabitedFarAndWide spins forever. */
+bool8 IsCryFinished(void) { return TRUE; }
+bool8 IsCryPlaying(void) { return FALSE; }
+bool8 IsCryPlayingOrClearCrySongs(void) { return FALSE; }
 bool8 IsDestinationBoxFull(void) { return 0; }
 bool32 IsEnigmaBerryValid(void) { return 0; }
 bool8 IsItemIconAnimActive(void) { return 0; }
@@ -333,7 +337,22 @@ void MoveSaveBlocks_ResetHeap(void) {}
 bool8 MultiMove_CanPlaceSelection(void) { return 0; }
 u8 MultiMove_GetOriginPosition(void) { return 0; }
 bool8 MultiMove_TryMoveGroup(u8 dir) { return 0; }
-void MultiplyInvertedPaletteRGBComponents(u16 i, u8 r, u8 g, u8 b) {}
+/* Real implementation from field_effect.c (not linked): fades one palette
+ * entry toward white; used by the naming-screen cursor flash. */
+void MultiplyInvertedPaletteRGBComponents(u16 i, u8 r, u8 g, u8 b)
+{
+    u16 outPal = gPlttBufferUnfaded[i];
+    int curRed = outPal & 0x1f;
+    int curGreen = (outPal & (0x1f << 5)) >> 5;
+    int curBlue = (outPal & (0x1f << 10)) >> 10;
+    curRed += (((0x1f - curRed) * r) >> 4);
+    curGreen += (((0x1f - curGreen) * g) >> 4);
+    curBlue += (((0x1f - curBlue) * b) >> 4);
+    outPal = curRed;
+    outPal |= curGreen << 5;
+    outPal |= curBlue << 10;
+    gPlttBufferFaded[i] = outPal;
+}
 bool32 Overworld_LinkRecvQueueLengthMoreThan2(void) { return 0; }
 void PlayCry_ByMode(u16 species, s8 pan, u8 mode) {}
 void PlayCry_ReleaseDouble(u16 species, s8 pan, u8 mode) {}
