@@ -505,6 +505,8 @@ static void WaitForVBlank(void)
             REG_KEYINPUT &= ~(1 << 0); // A: advance Pikachu intro page
         if (sEngineFrameCount >= 560 && sEngineFrameCount <= 565)
             REG_KEYINPUT &= ~(1 << 0); // A: advance to Oak speech
+        if (sEngineFrameCount >= 620 && ((sEngineFrameCount - 620) % 90) < 6)
+            REG_KEYINPUT &= ~(1 << 0); // A: advance Oak speech dialog pages periodically
     }
     REG_VCOUNT = 160; // Start of VBlank
     VBlankIntr();
