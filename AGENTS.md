@@ -45,8 +45,11 @@ This repository is based on **pokefirered** (the pret decompilation of *Pokémon
   - `src/main.c` has its 32-bit assembly guarded and `WaitForVBlank()` hooked into the platform tick (`Platform_UpdateInput()`, `VBlankIntr()`, `Platform_RenderAndPresent()`).
   - Core subsystems linked: `gpu_regs.c`, `palette.c`, `task.c`, `sprite.c`, `malloc.c`, `scanline_effect.c`, `dma3_manager.c`, `bg.c`, `random.c`, `trig.c`, `decompress.c`, `blend_palette.c`.
   - Hardware stubs for sound (M4A) and link communications in `src/platform/stubs.c`.
-  - Verified with `--boot-test`: `AgbMain()` initializes, runs 60 frames, and executes `CB2_InitCopyrightScreenAfterBootup`.
+- [x] **Title Screen Scene (`src/title_screen.c`):**
+  - Charizard box art sprite, FireRed title logo, copyright bar, "PRESS START", and animated flame particles fully rendered and animating at 60 FPS in SDL2.
+  - Native `INCBIN` asset pipeline using `tools/gbagfx` and `tools/preproc/preproc`.
 
+> **Note on Intro Sequence:** The opening intro sequence (`src/intro.c` — Copyright screen, GameFreak star shooting animation, and Nidorino vs. Gengar battle) is temporarily bypassed in `src/main.c` (`InitMainCallbacks()` boots directly to `CB2_InitTitleScreen`). This was done deliberately to expedite reaching gameplay, and the intro cinematic will be linked back in at a later point in time.
 ---
 
 ## 4. Key Files & Structure
@@ -102,18 +105,16 @@ make -f Makefile.native
 
 ---
 
-## 6. Immediate Next Steps: Reaching the Title Screen
+## 6. Immediate Next Steps: Main Menu & "NEW GAME"
 
-The next milestone is displaying the actual **Title Screen** (`src/title_screen.c`):
-1. **Asset Generation:** Ensure title screen graphic files (Charizard sprite, logo, "PRESS START", background tilesets) are generated from `graphics/title_screen/` using `tools/gbagfx`.
-2. **Intro Sequence (`src/intro.c`):**
-   - Replace the weak `CB2_InitCopyrightScreenAfterBootup` stub in `src/platform/stubs.c` by compiling `src/intro.c`.
-   - The boot sequence is:
-     `CB2_InitCopyrightScreenAfterBootup` $\to$ `CB2_SetUpIntro` $\to$ `CB2_InitTitleScreen`.
-3. **Title Screen Scene (`src/title_screen.c`):**
-   - Add `src/title_screen.c` and its dependencies (`src/text.c`, `src/window.c`, `src/string_util.c`) to `ENGINE_SRCS` in `Makefile.native`.
-   - Boot `./firered-native` and confirm Charizard, the logo, and the title screen animate at 60 FPS in the SDL2 window.
-
+The current milestone is transitioning from the Title Screen into the **Main Menu** (`src/main_menu.c`) and starting a **"NEW GAME"**:
+1. **Main Menu Scene (`src/main_menu.c`):**
+   - Triggered when the player presses **START** or **A** on the Title Screen (`CB2_InitMainMenu`).
+   - Renders menu options: "NEW GAME", "OPTION", "MYSTERY GIFTS".
+2. **Text & Window Engine:**
+   - Link core UI subsystems: `src/text.c`, `src/window.c`, `src/string_util.c`, `src/menu.c`.
+3. **New Game Transition:**
+   - Selecting "NEW GAME" calls `SetMainCallback2(CB2_InitOakSpeech)` to enter Professor Oak's intro sequence (`src/oak_speech.c`).
 ---
 
 ## 7. Git & Commit Guidelines
