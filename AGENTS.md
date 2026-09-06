@@ -37,7 +37,7 @@ This repository is based on **pokefirered** (the pret decompilation of *Pokémon
   - Scanline compositor for Mode 0 text backgrounds ($32\times32$, $64\times32$, $32\times64$, $64\times64$ tilemaps with 4bpp/8bpp tiles, flipping, and scrolling).
   - 128 OAM sprite compositor with transparency, priority sorting, and 4bpp/8bpp palettes.
   - Alpha blending (`REG_BLDCNT`, `REG_BLDALPHA`) and brightness increase/decrease (`REG_BLDY`).
-  - Mode 1 affine BG2 compositor implemented for Oak's scrolling/zooming backdrop; build verified, runtime/visual verification pending.
+  - Mode 1 affine BG2 compositor renders Oak's scrolling/zooming backdrop and trainer portraits; verified through Oak and the selected player portrait.
 - [x] **SDL2 Platform Host Runner (`src/platform/sdl2.c`, `include/platform/platform.h`):**
   - Resizable 3× scaled window ($720\times480$) with high-DPI support.
   - Keyboard mapping (WASD/Arrows, Z/X/J/K, Enter, Tab/Backspace) mapped to active-low `REG_KEYINPUT`.
@@ -57,10 +57,11 @@ This repository is based on **pokefirered** (the pret decompilation of *Pokémon
   - Professor Oak's speech text renders with dialog windows; controls guide pages and Pikachu intro fully working.
   - Battle engine NOT linked — `src/platform/battle_engine_stubs.c` provides blank data tables (`BattleScript_*`, battle EWRAM), loud-failure tripwires for battle-only entry points, and temporary substitutes required by non-battle scenes. Real battle engine files (`battle_util.c`, `battle_controllers.c`, `battle_script_commands.c`, etc.) are intentionally EXCLUDED from the build: they depend on assembly battle scripts (`data/battle_scripts_1.s`) that cannot be assembled for the host.
   - Asset pipeline: all `graphics/pokemon/*`, `graphics/trainers/*`, `graphics/items/*`, `graphics/interface/*`, `graphics/battle_*` INCBIN assets regenerated via `gbagfx`; split sprite sheets (`_0.png.._N.png`) must be combined vertically with width padding to 64px before 4bpp conversion.
-  - Mode 1 BG0/BG1 text rendering is working. An affine BG2 path has been added for Oak's backdrop and shrink transition but still needs runtime/visual verification.
+  - Mode 1 BG0/BG1 text and affine BG2 rendering are working. Oak, Nidoran F, and the selected player portrait are visually verified in boot-test captures.
 - [x] **Player Naming Flow (`src/naming_screen.c`):**
   - Boot automation reaches gender selection, enters the player naming screen, accepts a player name, and returns to Oak's speech without crashing.
   - Naming-screen teardown now disables VBlank before freeing `sNamingScreen`; `CB2_NamingScreen` stops the same frame when its task frees that state.
+  - Naming keyboard letters and punctuation render from the real charmap-encoded `src/keyboard_text.c`; the blank battle-stub definitions were removed.
 - [ ] **Rival Naming Flow:**
   - Oak's post-player-name dialogue reaches the rival naming screen.
   - Current blocker: the placeholder `CreateObjectGraphicsSprite` in `src/platform/battle_engine_stubs.c` does not provide a valid object-event sprite. Returning sprite ID 0 lets `NamingScreen_CreatePlayerIcon` overwrite an unrelated sprite via `StartSpriteAnim`; a replacement must return a valid allocated sprite with animation index `ANIM_STD_GO_SOUTH` (4), or the real object-event graphics implementation must be linked.
@@ -75,12 +76,14 @@ These bugs are subtle and WILL recur if new engine files are linked. Understand 
 4. **REG_VCOUNT must be 160 before `VBlankIntr()`.** `ProcessDma3Requests` and other engine code check `REG_VCOUNT > 224` to detect end-of-VBlank. `PPU_RenderFrame` leaves VCOUNT at 227; `src/main.c` `WaitForVBlank()` resets it to 160 each frame.
 5. **`gFonts` must be initialized before any text is printed.** `SetDefaultFontsPointer()` now lives in the real `src/new_menu_helpers.c` (called via `InitTextBoxGfxAndPrinters`). If text prints with `gFonts == NULL`, `AddTextPrinter` silently no-ops or downstream code hangs.
 6. **Save file status is hardcoded** to `SAVE_STATUS_OK` (1) in `src/platform/stubs.c` (`gSaveFileStatus`) so the Main Menu shows CONTINUE. Set to 0 (`SAVE_STATUS_EMPTY`) for a fresh-game flow.
-7. **Software PPU video MODE 1.** Oak's Speech calls `InitBgsFromTemplates(1, ...)`: BG0/BG1 are text layers and BG2 is affine. `PPU_RenderScanline` now has separate Mode 1 text and affine paths. The affine BG2 implementation builds successfully but still requires runtime/visual verification through Oak's scrolling and player-shrink scenes.
+7. **Software PPU video MODE 1.** Oak's Speech calls `InitBgsFromTemplates(1, ...)`: BG0/BG1 are text layers and BG2 is affine. `PPU_RenderScanline` has separate Mode 1 text and affine paths. Oak and the selected player portrait are visually verified; the player-shrink transition remains to be checked when the rival naming blocker is cleared.
 8. **Duplicate symbols when linking real engine files.** `src/platform/stubs.c` previously defined functions/data (`SetDefaultFontsPointer`, `DrawSpindaSpots`, `gMonFrontPicTable`, `gBattle_BG0_X`, etc.) now provided by linked engine files (`new_menu_helpers.c`, `pokemon.c`, `graphics.c`). When linking a real implementation, DELETE the stub version — never the reverse.
 9. **Split sprite-sheet PNGs** (`name_0.png`, `name_1.png`, …) in `graphics/battle_anims/sprites/` must be combined into ONE png (vertically stacked, padded to width 64) before `gbagfx` 4bpp conversion; `gbagfx` cannot read them individually.
 10. **`gbagfx` palette sources:** `INCBIN_U16("...gbapal")` sources are `.pal` (JASC) files, not PNGs. Convert `.pal → .gbapal → .gbapal.lz`.
 11. **Naming-screen teardown spans the rest of the current frame.** `MainState_Exit` runs inside `RunTasks()`, changes the main callback, and frees `sNamingScreen`, but the old `CB2_NamingScreen` frame would otherwise continue into sprite animation and VBlank. Disable VBlank before freeing the state and return from `CB2_NamingScreen` immediately after `RunTasks()` when `sNamingScreen == NULL`.
 12. **Stubbed sprite factories must return real sprite IDs.** Returning 0 from `CreateObjectGraphicsSprite` is not a harmless no-op: callers mutate `gSprites[spriteId]`, so this corrupts whichever real sprite owns slot 0. Returning `MAX_SPRITES` is also unsafe when callers index without checking. Use a genuinely allocated compatible sprite or link the real graphics path.
+13. **`RegisterRamReset(RESET_REGS)` must restore affine identity matrices.** Clearing `REG_BASE` to zero collapses affine BG2/BG3 to one source pixel, hiding Oak and the player/rival portraits even though their tiles and maps are valid. After clearing registers, initialize `REG_BG2PA`, `REG_BG2PD`, `REG_BG3PA`, and `REG_BG3PD` to `0x100`.
+14. **Real text tables must replace blank stubs completely.** The naming keyboard was blank because `battle_engine_stubs.c` supplied one-byte zero-filled `gText_NamingScreenKeyboard_*` arrays while `src/keyboard_text.c` was not linked. Add text-bearing sources to `PREPROC_SRCS` and delete every duplicate stub definition.
 
 ### Debugging Tips
 - Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses: START at frames 5–10 (skip intro fade), 30–35 (enter game from Title Screen), DOWN at 230–231 + A at 240–245 (select NEW GAME), then A at 320–325 / 360–365 / 400–405 / 520–525 / 560–565 (advance Controls Guide → Pikachu intro → Oak speech). Starting at frame 620 it also presses A for 6 frames every 90 frames. This periodic input advances Oak's dialogue, gender selection, player naming, and the post-name rival introduction. The current run reaches the rival naming screen, where the object-graphics sprite stub is the active blocker.
@@ -151,11 +154,10 @@ make -f Makefile.native
 
 ## 6. Immediate Next Steps: Finish Rival Naming → Overworld
 
-The automated flow completes player naming and reaches the rival naming screen. Remaining work:
+The automated flow completes player naming and reaches the rival naming screen. Oak, Nidoran F, the selected player portrait, and naming keyboard glyphs are visually verified. Remaining work:
 1. **Fix rival naming icon creation:** replace the invalid `CreateObjectGraphicsSprite` behavior with a valid allocated sprite compatible with `StartSpriteAnim(..., ANIM_STD_GO_SOUTH)`, or link the real object-event graphics dependency chain. Verify `--boot-test 6500` no longer crashes.
-2. **Verify affine BG2 visually:** exercise Oak's scrolling backdrop and player-shrink transition, confirming affine coordinates, wrapping, priority, and blending in `src/platform/ppu.c`.
-3. **Complete rival naming and Oak's speech:** extend the boot test through rival-name confirmation and `Task_OakSpeech_LetsGo`.
-4. **Enter the overworld:**
+2. **Complete rival naming and Oak's speech:** extend the boot test through rival-name confirmation, `Task_OakSpeech_LetsGo`, and the player-shrink transition.
+3. **Enter the overworld:**
    - Replace the temporary `CB2_NewGame` stub by linking `src/overworld.c` and `src/new_game.c`; `CB2_NewGame` calls `NewGameInitData()` and enters `CB2_Overworld`.
    - Linking `src/overworld.c` pulls in the map/field engine (`field_*.c`, `map_*.c`, `script.c`, `wild_encounter.c`) and begins the next dependency wave.
 ---
