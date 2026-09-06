@@ -2,9 +2,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <signal.h>
+#include <execinfo.h>
 #include <SDL.h>
 #include "global.h"
 #include "platform/platform.h"
+
+static void CrashHandler(int sig)
+{
+    void *callstack[128];
+    int frames = backtrace(callstack, 128);
+    char **strs = backtrace_symbols(callstack, frames);
+    fprintf(stderr, "\n[FATAL] Caught signal %d (%s)!\n", sig, strsignal(sig));
+    if (strs)
+    {
+        for (int i = 0; i < frames; ++i)
+            fprintf(stderr, "  %s\n", strs[i]);
+        free(strs);
+    }
+    exit(sig);
+}
 
 extern void AgbMain(void);
 
@@ -188,6 +205,10 @@ static void SetupPpuTestScene(void)
 
 int main(int argc, char **argv)
 {
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stderr, NULL, _IONBF, 0);
+    signal(SIGBUS, CrashHandler);
+    signal(SIGSEGV, CrashHandler);
     printf("=========================================\n");
     printf(" Pokemon FireRed - Apple Silicon Native  \n");
     printf(" Architecture: ARM64 Mach-O             \n");
