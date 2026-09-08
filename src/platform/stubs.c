@@ -52,11 +52,6 @@ u8 GetLinkPlayerCount(void) { return 1; }
 bool8 IsLinkMaster(void) { return TRUE; }
 void DestroyWirelessStatusIndicatorSprite(void) {}
 
-// Flash Memory Stub
-void CheckForFlashMemory(void)
-{
-    gFlashMemoryPresent = TRUE;
-}
 
 // Save Failed Screen Stub
 bool32 RunSaveFailedScreen(void) { return FALSE; }
@@ -72,8 +67,6 @@ u8 SetSLoopSvc(void) { return 0; }
 void LinkVSync(void) {}
 void RfuVSync(void) {}
 bool8 HandleLinkConnection(void) { return FALSE; }
-bool8 Overworld_RecvKeysFromLinkIsRunning(void) { return FALSE; }
-bool8 Overworld_SendKeysToLinkIsRunning(void) { return FALSE; }
 bool32 TryReceiveLinkBattleData(void) { return FALSE; }
 void UpdateWirelessStatusIndicatorSprite(void) {}
 void rfu_REQ_stopMode(void) {}
@@ -84,7 +77,6 @@ void SetFlashTimerIntr(bool8 enable) { (void)enable; }
 void MapMusicMain(void) {}
 struct PokemonCrySong gPokemonCrySongs[1] = {{0}};
 struct SoundInfo gSoundInfo = {0};
-void PlayTimeCounter_Update(void) {}
 static const struct FontInfo gFontInfos[] = 
 {
     [FONT_SMALL] = {
@@ -199,9 +191,6 @@ void FadeOutMapMusic(u8 speed) { (void)speed; }
 bool8 IsNotWaitingForBGMStop(void) { return TRUE; }
 u8 LoadGameSave(u8 saveType) { (void)saveType; return 0; }
 void Save_ResetSaveCounters(void) {}
-void Sav2_ClearSetDefault(void) {}
-void SetSaveBlocksPointers(void) {}
-void ResetMenuAndMonGlobals(void) {}
 u16 gSaveFileStatus = 1; // SAVE_STATUS_OK
 void SetPokemonCryStereo(u32 mode) { (void)mode; }
 void HelpSystem_Disable(void) {}
@@ -210,18 +199,11 @@ void SetHelpContext(u8 helpContext) { (void)helpContext; }
 
 // Font & UI Stubs
 
-bool8 FlagGet(u16 flag) { (void)flag; return FALSE; }
-u16 GetKantoPokedexCount(u8 caseId) { (void)caseId; return 0; }
-u16 GetNationalPokedexCount(u8 caseId) { (void)caseId; return 0; }
-bool8 IsNationalPokedexEnabled(void) { return FALSE; }
 s32 GetGlyphWidth_Braille(u16 fontId, bool32 isJapanese) { (void)fontId; (void)isJapanese; return 0; }
-u8 GetUnownLetterByPersonalityLoByte(u32 personality) { (void)personality; return 0; }
 const u8 *DynamicPlaceholderTextUtil_GetPlaceholderPtr(u8 id) { (void)id; return NULL; }
 struct MusicPlayerInfo gMPlayInfo_BGM = {0};
 u8 gQuestLogState = 0;
-bool8 gExitStairsMovementDisabled = FALSE;
 const struct OamData gOamData_AffineOff_ObjNormal_16x16 = {0};
 void CB2_InitMysteryGift(void) {}
-bool8 IsMysteryGiftEnabled(void) { return FALSE; }
 bool8 IsWirelessAdapterConnected(void) { return FALSE; }
 void TryStartQuestLogPlayback(u8 taskId) { (void)taskId; }
