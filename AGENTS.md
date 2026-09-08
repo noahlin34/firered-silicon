@@ -67,6 +67,13 @@ This repository is based on **pokefirered** (the pret decompilation of *Pokémon
   - Player and rival naming icons render cleanly using fully initialized local sprite templates.
   - Oak confirms the rival name, delivers his farewell dialogue, and triggers the exit animation (`Task_OakSpeech_ShrinkPlayerPic` affine Mode 1 BG2 shrink and fade-to-black).
   - Oak's speech resources are freed and cleanly hand off execution to `CB2_NewGame` (`[Engine] Successfully completed Oak's speech and reached CB2_NewGame!`).
+- [x] **Overworld Map Engine & Player Spawn (`src/overworld.c`, `src/new_game.c`, `src/fieldmap.c`, `src/maps.c`):**
+  - Replaced `CB2_NewGame` stub with real engine initialization (`NewGameInitData()`).
+  - Implemented 64-bit safe C map data generator (`tools/gen_map_data.py`) producing native 64-bit struct layouts (`src/data/layouts_data.h`) and map headers (`src/data/maps_data.h`), avoiding 32-bit GBA assembly pointer truncation.
+  - Linked real field engine subsystems: `fieldmap.c`, `field_camera.c`, `field_player_avatar.c`, `event_object_movement.c`, `field_control_avatar.c`, `field_tasks.c`, `field_weather.c`, `field_weather_effects.c`, `field_fadetransition.c`, `metatile_behavior.c`, `bike.c`, `wild_encounter.c`, `script.c`, `scrcmd.c`, `tilesets.c`, `field_door.c`, `field_effect.c`, `maps.c`.
+  - Converted all 67 game tilesets to `4bpp.lz` and 1,072 tileset palettes to `.gbapal`.
+  - Fixed saveblock pointer ASLR under `PORTABLE` in `src/load_save.c`.
+  - Boot automation at frame 9200 successfully executes `CB2_NewGame`, initializes save data, warps to `MAP_PALLET_TOWN_PLAYERS_HOUSE_2F`, draws the complete bedroom map view (bed, rug, TV/NES, PC, desk, stairs), spawns the player avatar facing North, and enters `CB2_Overworld` running at 60 FPS in SDL2.
 > **Note on Intro Sequence:** The opening intro sequence (`src/intro.c` — Copyright screen, GameFreak star shooting animation, and Nidorino vs. Gengar battle) is temporarily bypassed in `src/main.c` (`InitMainCallbacks()` boots directly to `CB2_InitTitleScreen`). This was done deliberately to expedite reaching gameplay, and the intro cinematic will be linked back in at a later point in time.
 
 ### Critical 64-Bit Portability Fixes (Learned the Hard Way)
@@ -86,9 +93,12 @@ These bugs are subtle and WILL recur if new engine files are linked. Understand 
 12. **Stubbed sprite factories are unsafe for real scenes.** Returning 0 from `CreateObjectGraphicsSprite` is not a harmless no-op: callers mutate `gSprites[spriteId]`, corrupting whichever real sprite owns slot 0. Returning `MAX_SPRITES` is also unsafe when callers index without checking. Naming screens now create their icons from local, fully initialized templates; future callers must do the same or link the real object-event graphics path.
 13. **`RegisterRamReset(RESET_REGS)` must restore affine identity matrices.** Clearing `REG_BASE` to zero collapses affine BG2/BG3 to one source pixel, hiding Oak and the player/rival portraits even though their tiles and maps are valid. After clearing registers, initialize `REG_BG2PA`, `REG_BG2PD`, `REG_BG3PA`, and `REG_BG3PD` to `0x100`.
 14. **Real text tables must replace blank stubs completely.** The naming keyboard was blank because `battle_engine_stubs.c` supplied one-byte zero-filled `gText_NamingScreenKeyboard_*` arrays while `src/keyboard_text.c` was not linked. Add text-bearing sources to `PREPROC_SRCS` and delete every duplicate stub definition.
+15. **Map headers, layouts, and script tables must use 64-bit host pointers.** GBA assembly `.4byte` pointers truncate 64-bit pointers on macOS ARM64. `tools/gen_map_data.py` compiles map layouts, headers, and event structures directly as native C structs in `src/maps.c`, where pointers are natively 64-bit (`sizeof(void *) == 8`).
+16. **SaveBlock ASLR offset must be zero in PORTABLE mode.** GBA `SetSaveBlocksPointers` randomizes offsets up to 128 bytes assuming EWRAM padding. On macOS, save blocks are exact C struct buffers; adding an offset walks past buffer boundaries.
+17. **Script command table (`gScriptCmdTable`) requires native function pointer sizing.** Script command dispatch indexes function pointers; on 64-bit architectures, this table must contain 8-byte pointers generated in C (`src/data/script_cmd_table.h`).
 
 ### Debugging Tips
-- Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses: START at frames 5–10 (skip intro fade), 30–35 (enter game from Title Screen), DOWN at 230–231 + A at 240–245 (select NEW GAME), then A at 320–325 / 360–365 / 400–405 / 520–525 / 560–565 (advance Controls Guide → Pikachu intro → Oak speech). Starting at frame 620 it also presses A for 6 frames every 90 frames. This periodic input advances Oak's dialogue, gender selection, player naming, rival naming (frames 6500–7200), farewell speech (frame 8600), and completes the player-shrink transition into `CB2_NewGame` by frame ~8900–9000.
+- Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses: START at frames 5–10 (skip intro fade), 30–35 (enter game from Title Screen), DOWN at 230–231 + A at 240–245 (select NEW GAME), then A at 320–325 / 360–365 / 400–405 / 520–525 / 560–565 (advance Controls Guide → Pikachu intro → Oak speech). Starting at frame 620 it also presses A for 6 frames every 90 frames. This periodic input advances Oak's dialogue, gender selection, player naming, rival naming (frames 6500–7200), farewell speech (frame 8600), hands off to `CB2_NewGame` by frame ~8900–9000, and spawns into the player's bedroom in Pallet Town (`CB2_Overworld`) by frame 9200.
 - Missing-symbol workflow: `make -f Makefile.native` then extract `grep -oE '"_[A-Za-z0-9_]+"'` from linker output; find real definitions with `grep -rln "SymbolName" src/*.c`; add that file to ENGINE_SRCS (or PREPROC_SRCS if it has `INCBIN`/`_()`) and DELETE the stub version from `stubs.c`. Symbols from the battle engine go into `src/platform/battle_engine_stubs.c` instead (generated from header prototypes).
 - A `SIGSEGV`/`SIGBUS` backtrace handler is installed in `src/platform/main.c` (`CrashHandler`) — crashes print a symbolized stack trace.
 - `compile_flags.txt` at repo root configures clangd with `-DPORTABLE -DMODERN=1 -DFIRERED`; keep it in sync with `Makefile.native` CFLAGS.
@@ -154,13 +164,14 @@ make -f Makefile.native
 
 ---
 
-## 6. Immediate Next Steps: Enter the Overworld
+## 6. Immediate Next Steps: Overworld Exploration & Interaction
 
-Rival naming, Oak's speech, and the player shrink transition into `CB2_NewGame` are complete and verified. Remaining work:
-1. **Replace `CB2_NewGame` stub:**
-   - Link `src/new_game.c` and `src/overworld.c`; `CB2_NewGame` initializes save data (`NewGameInitData()`), player avatar state, and enters `CB2_Overworld`.
-2. **Link Map & Field Engine:**
-   - Resolve symbols pulled in by `src/overworld.c`: map/field engine (`field_*.c`, `map_*.c`, `fieldmap.c`, `script.c`, `wild_encounter.c`, `event_object_movement.c`).
+The engine successfully loads the player's bedroom map and enters `CB2_Overworld`. Remaining work:
+1. **Player Movement & Warps:**
+   - Test D-pad movement in the overworld, descending the stairs to 1F, and exiting to Pallet Town exterior.
+   - Verify map transition and connection rendering when stepping outside into Pallet Town.
+2. **Overworld Scripts & Interaction:**
+   - Link signpost, PC, and NPC interaction scripts (`PalletTown_PlayersHouse_2F_EventScript_PC`, Mom dialogue on 1F, Oak triggering when entering tall grass).
 ---
 
 ## 7. Git & Commit Guidelines
