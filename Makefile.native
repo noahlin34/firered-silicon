@@ -14,6 +14,7 @@ PLATFORM_SRCS := src/platform/system.c \
                  src/platform/stubs.c \
                  src/platform/new_game_intro_text.c \
                  src/platform/battle_engine_stubs.c \
+                 src/platform/overworld_stubs.c \
                  src/platform/main.c
 
 ENGINE_SRCS := src/main.c \
@@ -37,6 +38,31 @@ ENGINE_SRCS := src/main.c \
                src/text_printer.c \
                src/list_menu.c \
                src/menu_helpers.c \
+               src/play_time.c \
+               src/money.c \
+               src/event_data.c \
+               src/load_save.c \
+               src/mail_data.c \
+               src/pokemon_storage_system.c \
+               src/pokemon_size_record.c \
+               src/renewable_hidden_items.c \
+               src/roamer.c \
+               src/pokedex.c \
+               src/item_use.c \
+               src/overworld.c \
+               src/fieldmap.c \
+               src/field_camera.c \
+               src/field_control_avatar.c \
+               src/field_tasks.c \
+               src/metatile_behavior.c \
+               src/script.c \
+               src/field_weather_effects.c \
+               src/field_fadetransition.c \
+               src/bike.c \
+               src/wild_encounter.c \
+               src/field_message_box.c \
+               src/coord_event_weather.c \
+               src/new_game.c
 
 PREPROC_SRCS := src/title_screen.c \
                 src/sprite.c \
@@ -54,7 +80,17 @@ PREPROC_SRCS := src/title_screen.c \
                 src/util.c \
                 src/battle_main.c \
                 src/pokemon_icon.c \
-                src/keyboard_text.c
+                src/keyboard_text.c \
+                src/item.c \
+                src/move_descriptions.c \
+                src/field_player_avatar.c \
+                src/event_object_movement.c \
+                src/field_weather.c \
+                src/tilesets.c \
+                src/field_effect.c \
+                src/field_door.c \
+                src/maps.c \
+                src/scrcmd.c
 OBJ_DIR := build/native
 OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
 
@@ -194,6 +230,36 @@ $(OBJ_DIR)/main_menu.o: src/main_menu.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
 $(OBJ_DIR)/string_util.o: src/string_util.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/item.o: src/item.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/move_descriptions.o: src/move_descriptions.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/field_player_avatar.o: src/field_player_avatar.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/event_object_movement.o: src/event_object_movement.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/field_weather.o: src/field_weather.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/tilesets.o: src/tilesets.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/maps.o: src/maps.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/field_effect.o: src/field_effect.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/field_door.o: src/field_door.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/scrcmd.o: src/scrcmd.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
 
