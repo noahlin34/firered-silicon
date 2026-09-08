@@ -37,7 +37,31 @@ EWRAM_DATA u8 sSpecialFlags[SPECIAL_FLAGS_SIZE] = {};
 
 COMMON_DATA u16 gLastQuestLogStoredFlagOrVarIdx = 0;
 
-extern u16 *const gSpecialVars[];
+u16 gSpecialVar_ItemId = 0;
+
+u16 *const gSpecialVars[] = {
+    &gSpecialVar_0x8000,
+    &gSpecialVar_0x8001,
+    &gSpecialVar_0x8002,
+    &gSpecialVar_0x8003,
+    &gSpecialVar_0x8004,
+    &gSpecialVar_0x8005,
+    &gSpecialVar_0x8006,
+    &gSpecialVar_0x8007,
+    &gSpecialVar_0x8008,
+    &gSpecialVar_0x8009,
+    &gSpecialVar_0x800A,
+    &gSpecialVar_0x800B,
+    &gSpecialVar_Facing,
+    &gSpecialVar_Result,
+    &gSpecialVar_ItemId,
+    &gSpecialVar_LastTalked,
+    &gSpecialVar_MonBoxId,
+    &gSpecialVar_MonBoxPos,
+    &gSpecialVar_TextColor,
+    &gSpecialVar_PrevTextColor,
+    &gSpecialVar_0x8014
+};
 
 void InitEventData(void)
 {
