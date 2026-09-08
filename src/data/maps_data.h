@@ -13,6 +13,7 @@
 
 #include "constants/event_bg.h"
 static const u8 sDummyScript[] = { 0x02 };
+static const u8 sEmptyMapScripts[] = { 0x00 };
 
 static const struct ObjectEventTemplate BattleColosseum_2P_ObjectEvents[] = {
     {
@@ -90,7 +91,7 @@ extern const struct MapEvents BattleColosseum_2P_MapEvents;
 const struct MapHeader BattleColosseum_2P = {
     .mapLayout = &BattleColosseum_2P_Layout,
     .events = &BattleColosseum_2P_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_BATTLE_COLOSSEUM_2P,
@@ -182,7 +183,7 @@ extern const struct MapEvents TradeCenter_MapEvents;
 const struct MapHeader TradeCenter = {
     .mapLayout = &TradeCenter_Layout,
     .events = &TradeCenter_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_TRADE_CENTER,
@@ -306,7 +307,7 @@ extern const struct MapEvents RecordCorner_MapEvents;
 const struct MapHeader RecordCorner = {
     .mapLayout = &RecordCorner_Layout,
     .events = &RecordCorner_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_RECORD_CORNER,
@@ -408,7 +409,7 @@ extern const struct MapEvents BattleColosseum_4P_MapEvents;
 const struct MapHeader BattleColosseum_4P = {
     .mapLayout = &BattleColosseum_4P_Layout,
     .events = &BattleColosseum_4P_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_BATTLE_COLOSSEUM_4P,
@@ -625,7 +626,7 @@ extern const struct MapEvents UnionRoom_MapEvents;
 const struct MapHeader UnionRoom = {
     .mapLayout = &UnionRoom_Layout,
     .events = &UnionRoom_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_UNION_ROOM,
     .mapLayoutId = LAYOUT_UNION_ROOM,
@@ -979,7 +980,7 @@ extern const struct MapEvents ViridianForest_MapEvents;
 const struct MapHeader ViridianForest = {
     .mapLayout = &ViridianForest_Layout,
     .events = &ViridianForest_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_VIRIDIAN_FOREST,
@@ -1325,7 +1326,7 @@ extern const struct MapEvents MtMoon_1F_MapEvents;
 const struct MapHeader MtMoon_1F = {
     .mapLayout = &MtMoon_1F_Layout,
     .events = &MtMoon_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_MT_MOON,
     .mapLayoutId = LAYOUT_MT_MOON_1F,
@@ -1469,7 +1470,7 @@ extern const struct MapEvents MtMoon_B1F_MapEvents;
 const struct MapHeader MtMoon_B1F = {
     .mapLayout = &MtMoon_B1F_Layout,
     .events = &MtMoon_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_MT_MOON,
     .mapLayoutId = LAYOUT_MT_MOON_B1F,
@@ -1776,7 +1777,7 @@ extern const struct MapEvents MtMoon_B2F_MapEvents;
 const struct MapHeader MtMoon_B2F = {
     .mapLayout = &MtMoon_B2F_Layout,
     .events = &MtMoon_B2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_MT_MOON,
     .mapLayoutId = LAYOUT_MT_MOON_B2F,
@@ -1883,7 +1884,7 @@ extern const struct MapEvents SSAnne_Exterior_MapEvents;
 const struct MapHeader SSAnne_Exterior = {
     .mapLayout = &SSAnne_Exterior_Layout,
     .events = &SSAnne_Exterior_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_EXTERIOR,
@@ -2063,7 +2064,7 @@ extern const struct MapEvents SSAnne_1F_Corridor_MapEvents;
 const struct MapHeader SSAnne_1F_Corridor = {
     .mapLayout = &SSAnne_1F_Corridor_Layout,
     .events = &SSAnne_1F_Corridor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_1F_CORRIDOR,
@@ -2238,7 +2239,7 @@ extern const struct MapEvents SSAnne_2F_Corridor_MapEvents;
 const struct MapHeader SSAnne_2F_Corridor = {
     .mapLayout = &SSAnne_2F_Corridor_Layout,
     .events = &SSAnne_2F_Corridor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_2F_CORRIDOR,
@@ -2319,7 +2320,7 @@ extern const struct MapEvents SSAnne_3F_Corridor_MapEvents;
 const struct MapHeader SSAnne_3F_Corridor = {
     .mapLayout = &SSAnne_3F_Corridor_Layout,
     .events = &SSAnne_3F_Corridor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_3F_CORRIDOR,
@@ -2412,7 +2413,7 @@ extern const struct MapEvents SSAnne_B1F_Corridor_MapEvents;
 const struct MapHeader SSAnne_B1F_Corridor = {
     .mapLayout = &SSAnne_B1F_Corridor_Layout,
     .events = &SSAnne_B1F_Corridor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_B1F_CORRIDOR,
@@ -2561,7 +2562,7 @@ extern const struct MapEvents SSAnne_Deck_MapEvents;
 const struct MapHeader SSAnne_Deck = {
     .mapLayout = &SSAnne_Deck_Layout,
     .events = &SSAnne_Deck_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_DECK,
@@ -2783,7 +2784,7 @@ extern const struct MapEvents SSAnne_Kitchen_MapEvents;
 const struct MapHeader SSAnne_Kitchen = {
     .mapLayout = &SSAnne_Kitchen_Layout,
     .events = &SSAnne_Kitchen_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_KITCHEN,
@@ -2872,7 +2873,7 @@ extern const struct MapEvents SSAnne_CaptainsOffice_MapEvents;
 const struct MapHeader SSAnne_CaptainsOffice = {
     .mapLayout = &SSAnne_CaptainsOffice_Layout,
     .events = &SSAnne_CaptainsOffice_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_CAPTAINS_OFFICE,
@@ -2937,7 +2938,7 @@ extern const struct MapEvents SSAnne_1F_Room1_MapEvents;
 const struct MapHeader SSAnne_1F_Room1 = {
     .mapLayout = &SSAnne_Room1_Layout,
     .events = &SSAnne_1F_Room1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM1,
@@ -3059,7 +3060,7 @@ extern const struct MapEvents SSAnne_1F_Room2_MapEvents;
 const struct MapHeader SSAnne_1F_Room2 = {
     .mapLayout = &SSAnne_Room1_Layout,
     .events = &SSAnne_1F_Room2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM1,
@@ -3162,7 +3163,7 @@ extern const struct MapEvents SSAnne_1F_Room3_MapEvents;
 const struct MapHeader SSAnne_1F_Room3 = {
     .mapLayout = &SSAnne_Room1_Layout,
     .events = &SSAnne_1F_Room3_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM1,
@@ -3227,7 +3228,7 @@ extern const struct MapEvents SSAnne_1F_Room4_MapEvents;
 const struct MapHeader SSAnne_1F_Room4 = {
     .mapLayout = &SSAnne_Room1_Layout,
     .events = &SSAnne_1F_Room4_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM1,
@@ -3292,7 +3293,7 @@ extern const struct MapEvents SSAnne_1F_Room5_MapEvents;
 const struct MapHeader SSAnne_1F_Room5 = {
     .mapLayout = &SSAnne_Room1_Layout,
     .events = &SSAnne_1F_Room5_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM1,
@@ -3357,7 +3358,7 @@ extern const struct MapEvents SSAnne_1F_Room7_MapEvents;
 const struct MapHeader SSAnne_1F_Room7 = {
     .mapLayout = &SSAnne_Room1_Layout,
     .events = &SSAnne_1F_Room7_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM1,
@@ -3422,7 +3423,7 @@ extern const struct MapEvents SSAnne_2F_Room1_MapEvents;
 const struct MapHeader SSAnne_2F_Room1 = {
     .mapLayout = &SSAnne_Room2_Layout,
     .events = &SSAnne_2F_Room1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM2,
@@ -3525,7 +3526,7 @@ extern const struct MapEvents SSAnne_2F_Room2_MapEvents;
 const struct MapHeader SSAnne_2F_Room2 = {
     .mapLayout = &SSAnne_Room2_Layout,
     .events = &SSAnne_2F_Room2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM2,
@@ -3609,7 +3610,7 @@ extern const struct MapEvents SSAnne_2F_Room3_MapEvents;
 const struct MapHeader SSAnne_2F_Room3 = {
     .mapLayout = &SSAnne_Room2_Layout,
     .events = &SSAnne_2F_Room3_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM2,
@@ -3712,7 +3713,7 @@ extern const struct MapEvents SSAnne_2F_Room4_MapEvents;
 const struct MapHeader SSAnne_2F_Room4 = {
     .mapLayout = &SSAnne_Room2_Layout,
     .events = &SSAnne_2F_Room4_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM2,
@@ -3796,7 +3797,7 @@ extern const struct MapEvents SSAnne_2F_Room5_MapEvents;
 const struct MapHeader SSAnne_2F_Room5 = {
     .mapLayout = &SSAnne_Room2_Layout,
     .events = &SSAnne_2F_Room5_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM2,
@@ -3880,7 +3881,7 @@ extern const struct MapEvents SSAnne_2F_Room6_MapEvents;
 const struct MapHeader SSAnne_2F_Room6 = {
     .mapLayout = &SSAnne_Room2_Layout,
     .events = &SSAnne_2F_Room6_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM2,
@@ -3964,7 +3965,7 @@ extern const struct MapEvents SSAnne_B1F_Room1_MapEvents;
 const struct MapHeader SSAnne_B1F_Room1 = {
     .mapLayout = &SSAnne_Room2_Layout,
     .events = &SSAnne_B1F_Room1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM2,
@@ -4048,7 +4049,7 @@ extern const struct MapEvents SSAnne_B1F_Room2_MapEvents;
 const struct MapHeader SSAnne_B1F_Room2 = {
     .mapLayout = &SSAnne_Room2_Layout,
     .events = &SSAnne_B1F_Room2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM2,
@@ -4132,7 +4133,7 @@ extern const struct MapEvents SSAnne_B1F_Room3_MapEvents;
 const struct MapHeader SSAnne_B1F_Room3 = {
     .mapLayout = &SSAnne_Room2_Layout,
     .events = &SSAnne_B1F_Room3_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM2,
@@ -4216,7 +4217,7 @@ extern const struct MapEvents SSAnne_B1F_Room4_MapEvents;
 const struct MapHeader SSAnne_B1F_Room4 = {
     .mapLayout = &SSAnne_Room2_Layout,
     .events = &SSAnne_B1F_Room4_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM2,
@@ -4319,7 +4320,7 @@ extern const struct MapEvents SSAnne_B1F_Room5_MapEvents;
 const struct MapHeader SSAnne_B1F_Room5 = {
     .mapLayout = &SSAnne_Room2_Layout,
     .events = &SSAnne_B1F_Room5_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM2,
@@ -4384,7 +4385,7 @@ extern const struct MapEvents SSAnne_1F_Room6_MapEvents;
 const struct MapHeader SSAnne_1F_Room6 = {
     .mapLayout = &SSAnne_Room1_Layout,
     .events = &SSAnne_1F_Room6_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SS_ANNE,
     .mapLayoutId = LAYOUT_SSANNE_ROOM1,
@@ -4473,7 +4474,7 @@ extern const struct MapEvents UndergroundPath_NorthEntrance_MapEvents;
 const struct MapHeader UndergroundPath_NorthEntrance = {
     .mapLayout = &UndergroundPath_Entrance_Layout,
     .events = &UndergroundPath_NorthEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_UNDERGROUND_PATH_ENTRANCE,
@@ -4576,7 +4577,7 @@ extern const struct MapEvents UndergroundPath_NorthSouthTunnel_MapEvents;
 const struct MapHeader UndergroundPath_NorthSouthTunnel = {
     .mapLayout = &UndergroundPath_NorthSouthTunnel_Layout,
     .events = &UndergroundPath_NorthSouthTunnel_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE1,
     .mapLayoutId = LAYOUT_UNDERGROUND_PATH_NORTH_SOUTH_TUNNEL,
@@ -4665,7 +4666,7 @@ extern const struct MapEvents UndergroundPath_SouthEntrance_MapEvents;
 const struct MapHeader UndergroundPath_SouthEntrance = {
     .mapLayout = &UndergroundPath_Entrance_Layout,
     .events = &UndergroundPath_SouthEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_UNDERGROUND_PATH_ENTRANCE,
@@ -4754,7 +4755,7 @@ extern const struct MapEvents UndergroundPath_WestEntrance_MapEvents;
 const struct MapHeader UndergroundPath_WestEntrance = {
     .mapLayout = &UndergroundPath_Entrance_Layout,
     .events = &UndergroundPath_WestEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_UNDERGROUND_PATH_ENTRANCE,
@@ -4857,7 +4858,7 @@ extern const struct MapEvents UndergroundPath_EastWestTunnel_MapEvents;
 const struct MapHeader UndergroundPath_EastWestTunnel = {
     .mapLayout = &UndergroundPath_EastWestTunnel_Layout,
     .events = &UndergroundPath_EastWestTunnel_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE1,
     .mapLayoutId = LAYOUT_UNDERGROUND_PATH_EAST_WEST_TUNNEL,
@@ -4946,7 +4947,7 @@ extern const struct MapEvents UndergroundPath_EastEntrance_MapEvents;
 const struct MapHeader UndergroundPath_EastEntrance = {
     .mapLayout = &UndergroundPath_Entrance_Layout,
     .events = &UndergroundPath_EastEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_UNDERGROUND_PATH_ENTRANCE,
@@ -5019,7 +5020,7 @@ extern const struct MapEvents DiglettsCave_NorthEntrance_MapEvents;
 const struct MapHeader DiglettsCave_NorthEntrance = {
     .mapLayout = &DiglettsCave_NorthEntrance_Layout,
     .events = &DiglettsCave_NorthEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_DIGLETTS_CAVE_NORTH_ENTRANCE,
@@ -5070,7 +5071,7 @@ extern const struct MapEvents DiglettsCave_B1F_MapEvents;
 const struct MapHeader DiglettsCave_B1F = {
     .mapLayout = &DiglettsCave_B1F_Layout,
     .events = &DiglettsCave_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_DIGLETTS_CAVE_B1F,
@@ -5143,7 +5144,7 @@ extern const struct MapEvents DiglettsCave_SouthEntrance_MapEvents;
 const struct MapHeader DiglettsCave_SouthEntrance = {
     .mapLayout = &DiglettsCave_SouthEntrance_Layout,
     .events = &DiglettsCave_SouthEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_DIGLETTS_CAVE_SOUTH_ENTRANCE,
@@ -5358,7 +5359,7 @@ extern const struct MapEvents VictoryRoad_1F_MapEvents;
 const struct MapHeader VictoryRoad_1F = {
     .mapLayout = &VictoryRoad_1F_Layout,
     .events = &VictoryRoad_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_MT_MOON,
     .mapLayoutId = LAYOUT_VICTORY_ROAD_1F,
@@ -5734,7 +5735,7 @@ extern const struct MapEvents VictoryRoad_2F_MapEvents;
 const struct MapHeader VictoryRoad_2F = {
     .mapLayout = &VictoryRoad_2F_Layout,
     .events = &VictoryRoad_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_MT_MOON,
     .mapLayoutId = LAYOUT_VICTORY_ROAD_2F,
@@ -6051,7 +6052,7 @@ extern const struct MapEvents VictoryRoad_3F_MapEvents;
 const struct MapHeader VictoryRoad_3F = {
     .mapLayout = &VictoryRoad_3F_Layout,
     .events = &VictoryRoad_3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_MT_MOON,
     .mapLayoutId = LAYOUT_VICTORY_ROAD_3F,
@@ -6280,7 +6281,7 @@ extern const struct MapEvents RocketHideout_B1F_MapEvents;
 const struct MapHeader RocketHideout_B1F = {
     .mapLayout = &RocketHideout_B1F_Layout,
     .events = &RocketHideout_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROCKET_HIDEOUT,
     .mapLayoutId = LAYOUT_ROCKET_HIDEOUT_B1F,
@@ -6453,7 +6454,7 @@ extern const struct MapEvents RocketHideout_B2F_MapEvents;
 const struct MapHeader RocketHideout_B2F = {
     .mapLayout = &RocketHideout_B2F_Layout,
     .events = &RocketHideout_B2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROCKET_HIDEOUT,
     .mapLayoutId = LAYOUT_ROCKET_HIDEOUT_B2F,
@@ -6612,7 +6613,7 @@ extern const struct MapEvents RocketHideout_B3F_MapEvents;
 const struct MapHeader RocketHideout_B3F = {
     .mapLayout = &RocketHideout_B3F_Layout,
     .events = &RocketHideout_B3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROCKET_HIDEOUT,
     .mapLayoutId = LAYOUT_ROCKET_HIDEOUT_B3F,
@@ -6862,7 +6863,7 @@ extern const struct MapEvents RocketHideout_B4F_MapEvents;
 const struct MapHeader RocketHideout_B4F = {
     .mapLayout = &RocketHideout_B4F_Layout,
     .events = &RocketHideout_B4F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROCKET_HIDEOUT,
     .mapLayoutId = LAYOUT_ROCKET_HIDEOUT_B4F,
@@ -6923,7 +6924,7 @@ extern const struct MapEvents RocketHideout_Elevator_MapEvents;
 const struct MapHeader RocketHideout_Elevator = {
     .mapLayout = &RocketHideout_Elevator_Layout,
     .events = &RocketHideout_Elevator_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROCKET_HIDEOUT,
     .mapLayoutId = LAYOUT_ROCKET_HIDEOUT_ELEVATOR,
@@ -7030,7 +7031,7 @@ extern const struct MapEvents SilphCo_1F_MapEvents;
 const struct MapHeader SilphCo_1F = {
     .mapLayout = &SilphCo_1F_Layout,
     .events = &SilphCo_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_1F,
@@ -7292,7 +7293,7 @@ extern const struct MapEvents SilphCo_2F_MapEvents;
 const struct MapHeader SilphCo_2F = {
     .mapLayout = &SilphCo_2F_Layout,
     .events = &SilphCo_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_2F,
@@ -7559,7 +7560,7 @@ extern const struct MapEvents SilphCo_3F_MapEvents;
 const struct MapHeader SilphCo_3F = {
     .mapLayout = &SilphCo_3F_Layout,
     .events = &SilphCo_3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_3F,
@@ -7878,7 +7879,7 @@ extern const struct MapEvents SilphCo_4F_MapEvents;
 const struct MapHeader SilphCo_4F = {
     .mapLayout = &SilphCo_4F_Layout,
     .events = &SilphCo_4F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_4F,
@@ -8272,7 +8273,7 @@ extern const struct MapEvents SilphCo_5F_MapEvents;
 const struct MapHeader SilphCo_5F = {
     .mapLayout = &SilphCo_5F_Layout,
     .events = &SilphCo_5F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_5F,
@@ -8585,7 +8586,7 @@ extern const struct MapEvents SilphCo_6F_MapEvents;
 const struct MapHeader SilphCo_6F = {
     .mapLayout = &SilphCo_6F_Layout,
     .events = &SilphCo_6F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_6F,
@@ -9000,7 +9001,7 @@ extern const struct MapEvents SilphCo_7F_MapEvents;
 const struct MapHeader SilphCo_7F = {
     .mapLayout = &SilphCo_7F_Layout,
     .events = &SilphCo_7F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_7F,
@@ -9253,7 +9254,7 @@ extern const struct MapEvents SilphCo_8F_MapEvents;
 const struct MapHeader SilphCo_8F = {
     .mapLayout = &SilphCo_8F_Layout,
     .events = &SilphCo_8F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_8F,
@@ -9543,7 +9544,7 @@ extern const struct MapEvents SilphCo_9F_MapEvents;
 const struct MapHeader SilphCo_9F = {
     .mapLayout = &SilphCo_9F_Layout,
     .events = &SilphCo_9F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_9F,
@@ -9788,7 +9789,7 @@ extern const struct MapEvents SilphCo_10F_MapEvents;
 const struct MapHeader SilphCo_10F = {
     .mapLayout = &SilphCo_10F_Layout,
     .events = &SilphCo_10F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_10F,
@@ -10028,7 +10029,7 @@ extern const struct MapEvents SilphCo_11F_MapEvents;
 const struct MapHeader SilphCo_11F = {
     .mapLayout = &SilphCo_11F_Layout,
     .events = &SilphCo_11F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_11F,
@@ -10081,7 +10082,7 @@ extern const struct MapEvents SilphCo_Elevator_MapEvents;
 const struct MapHeader SilphCo_Elevator = {
     .mapLayout = &SilphCo_Elevator_Layout,
     .events = &SilphCo_Elevator_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SILPH,
     .mapLayoutId = LAYOUT_SILPH_CO_ELEVATOR,
@@ -10311,7 +10312,7 @@ extern const struct MapEvents PokemonMansion_1F_MapEvents;
 const struct MapHeader PokemonMansion_1F = {
     .mapLayout = &PokemonMansion_1F_Layout,
     .events = &PokemonMansion_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_MANSION,
     .mapLayoutId = LAYOUT_POKEMON_MANSION_1F,
@@ -10489,7 +10490,7 @@ extern const struct MapEvents PokemonMansion_2F_MapEvents;
 const struct MapHeader PokemonMansion_2F = {
     .mapLayout = &PokemonMansion_2F_Layout,
     .events = &PokemonMansion_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_MANSION,
     .mapLayoutId = LAYOUT_POKEMON_MANSION_2F,
@@ -10691,7 +10692,7 @@ extern const struct MapEvents PokemonMansion_3F_MapEvents;
 const struct MapHeader PokemonMansion_3F = {
     .mapLayout = &PokemonMansion_3F_Layout,
     .events = &PokemonMansion_3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_MANSION,
     .mapLayoutId = LAYOUT_POKEMON_MANSION_3F,
@@ -10882,7 +10883,7 @@ extern const struct MapEvents PokemonMansion_B1F_MapEvents;
 const struct MapHeader PokemonMansion_B1F = {
     .mapLayout = &PokemonMansion_B1F_Layout,
     .events = &PokemonMansion_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_MANSION,
     .mapLayoutId = LAYOUT_POKEMON_MANSION_B1F,
@@ -11074,7 +11075,7 @@ extern const struct MapEvents SafariZone_Center_MapEvents;
 const struct MapHeader SafariZone_Center = {
     .mapLayout = &SafariZone_Center_Layout,
     .events = &SafariZone_Center_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_EVOLUTION,
     .mapLayoutId = LAYOUT_SAFARI_ZONE_CENTER,
@@ -11268,7 +11269,7 @@ extern const struct MapEvents SafariZone_East_MapEvents;
 const struct MapHeader SafariZone_East = {
     .mapLayout = &SafariZone_East_Layout,
     .events = &SafariZone_East_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_EVOLUTION,
     .mapLayoutId = LAYOUT_SAFARI_ZONE_EAST,
@@ -11505,7 +11506,7 @@ extern const struct MapEvents SafariZone_North_MapEvents;
 const struct MapHeader SafariZone_North = {
     .mapLayout = &SafariZone_North_Layout,
     .events = &SafariZone_North_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_EVOLUTION,
     .mapLayoutId = LAYOUT_SAFARI_ZONE_NORTH,
@@ -11745,7 +11746,7 @@ extern const struct MapEvents SafariZone_West_MapEvents;
 const struct MapHeader SafariZone_West = {
     .mapLayout = &SafariZone_West_Layout,
     .events = &SafariZone_West_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_EVOLUTION,
     .mapLayoutId = LAYOUT_SAFARI_ZONE_WEST,
@@ -11845,7 +11846,7 @@ extern const struct MapEvents SafariZone_Center_RestHouse_MapEvents;
 const struct MapHeader SafariZone_Center_RestHouse = {
     .mapLayout = &SafariZone_RestHouse_Layout,
     .events = &SafariZone_Center_RestHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_EVOLUTION,
     .mapLayoutId = LAYOUT_SAFARI_ZONE_REST_HOUSE,
@@ -11964,7 +11965,7 @@ extern const struct MapEvents SafariZone_East_RestHouse_MapEvents;
 const struct MapHeader SafariZone_East_RestHouse = {
     .mapLayout = &SafariZone_RestHouse_Layout,
     .events = &SafariZone_East_RestHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_EVOLUTION,
     .mapLayoutId = LAYOUT_SAFARI_ZONE_REST_HOUSE,
@@ -12102,7 +12103,7 @@ extern const struct MapEvents SafariZone_North_RestHouse_MapEvents;
 const struct MapHeader SafariZone_North_RestHouse = {
     .mapLayout = &SafariZone_RestHouse_Layout,
     .events = &SafariZone_North_RestHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_EVOLUTION,
     .mapLayoutId = LAYOUT_SAFARI_ZONE_REST_HOUSE,
@@ -12221,7 +12222,7 @@ extern const struct MapEvents SafariZone_West_RestHouse_MapEvents;
 const struct MapHeader SafariZone_West_RestHouse = {
     .mapLayout = &SafariZone_RestHouse_Layout,
     .events = &SafariZone_West_RestHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_EVOLUTION,
     .mapLayoutId = LAYOUT_SAFARI_ZONE_REST_HOUSE,
@@ -12302,7 +12303,7 @@ extern const struct MapEvents SafariZone_SecretHouse_MapEvents;
 const struct MapHeader SafariZone_SecretHouse = {
     .mapLayout = &SafariZone_SecretHouse_Layout,
     .events = &SafariZone_SecretHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_EVOLUTION,
     .mapLayoutId = LAYOUT_SAFARI_ZONE_SECRET_HOUSE,
@@ -12585,7 +12586,7 @@ extern const struct MapEvents CeruleanCave_1F_MapEvents;
 const struct MapHeader CeruleanCave_1F = {
     .mapLayout = &CeruleanCave_1F_Layout,
     .events = &CeruleanCave_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROCKET_HIDEOUT,
     .mapLayoutId = LAYOUT_CERULEAN_CAVE_1F,
@@ -12918,7 +12919,7 @@ extern const struct MapEvents CeruleanCave_2F_MapEvents;
 const struct MapHeader CeruleanCave_2F = {
     .mapLayout = &CeruleanCave_2F_Layout,
     .events = &CeruleanCave_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROCKET_HIDEOUT,
     .mapLayoutId = LAYOUT_CERULEAN_CAVE_2F,
@@ -13192,7 +13193,7 @@ extern const struct MapEvents CeruleanCave_B1F_MapEvents;
 const struct MapHeader CeruleanCave_B1F = {
     .mapLayout = &CeruleanCave_B1F_Layout,
     .events = &CeruleanCave_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROCKET_HIDEOUT,
     .mapLayoutId = LAYOUT_CERULEAN_CAVE_B1F,
@@ -13265,7 +13266,7 @@ extern const struct MapEvents PokemonLeague_LoreleisRoom_MapEvents;
 const struct MapHeader PokemonLeague_LoreleisRoom = {
     .mapLayout = &PokemonLeague_LoreleisRoom_Layout,
     .events = &PokemonLeague_LoreleisRoom_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GYM,
     .mapLayoutId = LAYOUT_POKEMON_LEAGUE_LORELEIS_ROOM,
@@ -13338,7 +13339,7 @@ extern const struct MapEvents PokemonLeague_BrunosRoom_MapEvents;
 const struct MapHeader PokemonLeague_BrunosRoom = {
     .mapLayout = &PokemonLeague_BrunosRoom_Layout,
     .events = &PokemonLeague_BrunosRoom_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROCKET_HIDEOUT,
     .mapLayoutId = LAYOUT_POKEMON_LEAGUE_BRUNOS_ROOM,
@@ -13411,7 +13412,7 @@ extern const struct MapEvents PokemonLeague_AgathasRoom_MapEvents;
 const struct MapHeader PokemonLeague_AgathasRoom = {
     .mapLayout = &PokemonLeague_AgathasRoom_Layout,
     .events = &PokemonLeague_AgathasRoom_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_TOWER,
     .mapLayoutId = LAYOUT_POKEMON_LEAGUE_AGATHAS_ROOM,
@@ -13484,7 +13485,7 @@ extern const struct MapEvents PokemonLeague_LancesRoom_MapEvents;
 const struct MapHeader PokemonLeague_LancesRoom = {
     .mapLayout = &PokemonLeague_LancesRoom_Layout,
     .events = &PokemonLeague_LancesRoom_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VICTORY_ROAD,
     .mapLayoutId = LAYOUT_POKEMON_LEAGUE_LANCES_ROOM,
@@ -13576,7 +13577,7 @@ extern const struct MapEvents PokemonLeague_ChampionsRoom_MapEvents;
 const struct MapHeader PokemonLeague_ChampionsRoom = {
     .mapLayout = &PokemonLeague_ChampionsRoom_Layout,
     .events = &PokemonLeague_ChampionsRoom_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VICTORY_ROAD,
     .mapLayoutId = LAYOUT_POKEMON_LEAGUE_CHAMPIONS_ROOM,
@@ -13641,7 +13642,7 @@ extern const struct MapEvents PokemonLeague_HallOfFame_MapEvents;
 const struct MapHeader PokemonLeague_HallOfFame = {
     .mapLayout = &PokemonLeague_HallOfFame_Layout,
     .events = &PokemonLeague_HallOfFame_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SLOW_PALLET,
     .mapLayoutId = LAYOUT_POKEMON_LEAGUE_HALL_OF_FAME,
@@ -13927,7 +13928,7 @@ extern const struct MapEvents RockTunnel_1F_MapEvents;
 const struct MapHeader RockTunnel_1F = {
     .mapLayout = &RockTunnel_1F_Layout,
     .events = &RockTunnel_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_MT_MOON,
     .mapLayoutId = LAYOUT_ROCK_TUNNEL_1F,
@@ -14491,7 +14492,7 @@ extern const struct MapEvents RockTunnel_B1F_MapEvents;
 const struct MapHeader RockTunnel_B1F = {
     .mapLayout = &RockTunnel_B1F_Layout,
     .events = &RockTunnel_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_MT_MOON,
     .mapLayoutId = LAYOUT_ROCK_TUNNEL_B1F,
@@ -14642,7 +14643,7 @@ extern const struct MapEvents SeafoamIslands_1F_MapEvents;
 const struct MapHeader SeafoamIslands_1F = {
     .mapLayout = &SeafoamIslands_1F_Layout,
     .events = &SeafoamIslands_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_SEAFOAM_ISLANDS_1F,
@@ -14844,7 +14845,7 @@ extern const struct MapEvents SeafoamIslands_B1F_MapEvents;
 const struct MapHeader SeafoamIslands_B1F = {
     .mapLayout = &SeafoamIslands_B1F_Layout,
     .events = &SeafoamIslands_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_SEAFOAM_ISLANDS_B1F,
@@ -15027,7 +15028,7 @@ extern const struct MapEvents SeafoamIslands_B2F_MapEvents;
 const struct MapHeader SeafoamIslands_B2F = {
     .mapLayout = &SeafoamIslands_B2F_Layout,
     .events = &SeafoamIslands_B2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_SEAFOAM_ISLANDS_B2F,
@@ -15261,7 +15262,7 @@ extern const struct MapEvents SeafoamIslands_B3F_MapEvents;
 const struct MapHeader SeafoamIslands_B3F = {
     .mapLayout = &SeafoamIslands_B3F_Layout,
     .events = &SeafoamIslands_B3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_SEAFOAM_ISLANDS_B3F,
@@ -15458,7 +15459,7 @@ extern const struct MapEvents SeafoamIslands_B4F_MapEvents;
 const struct MapHeader SeafoamIslands_B4F = {
     .mapLayout = &SeafoamIslands_B4F_Layout,
     .events = &SeafoamIslands_B4F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_SEAFOAM_ISLANDS_B4F,
@@ -15623,7 +15624,7 @@ extern const struct MapEvents PokemonTower_1F_MapEvents;
 const struct MapHeader PokemonTower_1F = {
     .mapLayout = &PokemonTower_1F_Layout,
     .events = &PokemonTower_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_TOWER,
     .mapLayoutId = LAYOUT_POKEMON_TOWER_1F,
@@ -15734,7 +15735,7 @@ extern const struct MapEvents PokemonTower_2F_MapEvents;
 const struct MapHeader PokemonTower_2F = {
     .mapLayout = &PokemonTower_2F_Layout,
     .events = &PokemonTower_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_TOWER,
     .mapLayoutId = LAYOUT_POKEMON_TOWER_2F,
@@ -15864,7 +15865,7 @@ extern const struct MapEvents PokemonTower_3F_MapEvents;
 const struct MapHeader PokemonTower_3F = {
     .mapLayout = &PokemonTower_3F_Layout,
     .events = &PokemonTower_3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_TOWER,
     .mapLayoutId = LAYOUT_POKEMON_TOWER_3F,
@@ -16032,7 +16033,7 @@ extern const struct MapEvents PokemonTower_4F_MapEvents;
 const struct MapHeader PokemonTower_4F = {
     .mapLayout = &PokemonTower_4F_Layout,
     .events = &PokemonTower_4F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_TOWER,
     .mapLayoutId = LAYOUT_POKEMON_TOWER_4F,
@@ -16368,7 +16369,7 @@ extern const struct MapEvents PokemonTower_5F_MapEvents;
 const struct MapHeader PokemonTower_5F = {
     .mapLayout = &PokemonTower_5F_Layout,
     .events = &PokemonTower_5F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_TOWER,
     .mapLayoutId = LAYOUT_POKEMON_TOWER_5F,
@@ -16536,7 +16537,7 @@ extern const struct MapEvents PokemonTower_6F_MapEvents;
 const struct MapHeader PokemonTower_6F = {
     .mapLayout = &PokemonTower_6F_Layout,
     .events = &PokemonTower_6F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_TOWER,
     .mapLayoutId = LAYOUT_POKEMON_TOWER_6F,
@@ -16668,7 +16669,7 @@ extern const struct MapEvents PokemonTower_7F_MapEvents;
 const struct MapHeader PokemonTower_7F = {
     .mapLayout = &PokemonTower_7F_Layout,
     .events = &PokemonTower_7F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_TOWER,
     .mapLayoutId = LAYOUT_POKEMON_TOWER_7F,
@@ -16915,7 +16916,7 @@ extern const struct MapEvents PowerPlant_MapEvents;
 const struct MapHeader PowerPlant = {
     .mapLayout = &PowerPlant_Layout,
     .events = &PowerPlant_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_MANSION,
     .mapLayoutId = LAYOUT_POWER_PLANT,
@@ -17151,7 +17152,7 @@ extern const struct MapEvents MtEmber_RubyPath_B4F_MapEvents;
 const struct MapHeader MtEmber_RubyPath_B4F = {
     .mapLayout = &MtEmber_RubyPath_B4F_Layout,
     .events = &MtEmber_RubyPath_B4F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_RUBY_PATH_B4F,
@@ -17661,7 +17662,7 @@ extern const struct MapEvents MtEmber_Exterior_MapEvents;
 const struct MapHeader MtEmber_Exterior = {
     .mapLayout = &MtEmber_Exterior_Layout,
     .events = &MtEmber_Exterior_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_EXTERIOR,
@@ -17712,7 +17713,7 @@ extern const struct MapEvents MtEmber_SummitPath_1F_MapEvents;
 const struct MapHeader MtEmber_SummitPath_1F = {
     .mapLayout = &MtEmber_SummitPath_1F_Layout,
     .events = &MtEmber_SummitPath_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_SUMMIT_PATH_1F,
@@ -17937,7 +17938,7 @@ extern const struct MapEvents MtEmber_SummitPath_2F_MapEvents;
 const struct MapHeader MtEmber_SummitPath_2F = {
     .mapLayout = &MtEmber_SummitPath_2F_Layout,
     .events = &MtEmber_SummitPath_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_SUMMIT_PATH_2F,
@@ -17988,7 +17989,7 @@ extern const struct MapEvents MtEmber_SummitPath_3F_MapEvents;
 const struct MapHeader MtEmber_SummitPath_3F = {
     .mapLayout = &MtEmber_SummitPath_3F_Layout,
     .events = &MtEmber_SummitPath_3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_SUMMIT_PATH_3F,
@@ -18129,7 +18130,7 @@ extern const struct MapEvents MtEmber_Summit_MapEvents;
 const struct MapHeader MtEmber_Summit = {
     .mapLayout = &MtEmber_Summit_Layout,
     .events = &MtEmber_Summit_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_SUMMIT,
@@ -18204,7 +18205,7 @@ extern const struct MapEvents MtEmber_RubyPath_B5F_MapEvents;
 const struct MapHeader MtEmber_RubyPath_B5F = {
     .mapLayout = &MtEmber_RubyPath_B5F_Layout,
     .events = &MtEmber_RubyPath_B5F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_RUBY_PATH_B5F,
@@ -18361,7 +18362,7 @@ extern const struct MapEvents MtEmber_RubyPath_1F_MapEvents;
 const struct MapHeader MtEmber_RubyPath_1F = {
     .mapLayout = &MtEmber_RubyPath_1F_Layout,
     .events = &MtEmber_RubyPath_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_RUBY_PATH_1F,
@@ -18491,7 +18492,7 @@ extern const struct MapEvents MtEmber_RubyPath_B1F_MapEvents;
 const struct MapHeader MtEmber_RubyPath_B1F = {
     .mapLayout = &MtEmber_RubyPath_B1F_Layout,
     .events = &MtEmber_RubyPath_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_RUBY_PATH_B1F,
@@ -18678,7 +18679,7 @@ extern const struct MapEvents MtEmber_RubyPath_B2F_MapEvents;
 const struct MapHeader MtEmber_RubyPath_B2F = {
     .mapLayout = &MtEmber_RubyPath_B2F_Layout,
     .events = &MtEmber_RubyPath_B2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_RUBY_PATH_B2F,
@@ -18930,7 +18931,7 @@ extern const struct MapEvents MtEmber_RubyPath_B3F_MapEvents;
 const struct MapHeader MtEmber_RubyPath_B3F = {
     .mapLayout = &MtEmber_RubyPath_B3F_Layout,
     .events = &MtEmber_RubyPath_B3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_RUBY_PATH_B3F,
@@ -19003,7 +19004,7 @@ extern const struct MapEvents MtEmber_RubyPath_B1F_Stairs_MapEvents;
 const struct MapHeader MtEmber_RubyPath_B1F_Stairs = {
     .mapLayout = &MtEmber_RubyPath_B1F_Stairs_Layout,
     .events = &MtEmber_RubyPath_B1F_Stairs_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_RUBY_PATH_B1F_STAIRS,
@@ -19095,7 +19096,7 @@ extern const struct MapEvents MtEmber_RubyPath_B2F_Stairs_MapEvents;
 const struct MapHeader MtEmber_RubyPath_B2F_Stairs = {
     .mapLayout = &MtEmber_RubyPath_B2F_Stairs_Layout,
     .events = &MtEmber_RubyPath_B2F_Stairs_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_MT_EMBER_RUBY_PATH_B2F_STAIRS,
@@ -19531,7 +19532,7 @@ extern const struct MapEvents ThreeIsland_BerryForest_MapEvents;
 const struct MapHeader ThreeIsland_BerryForest = {
     .mapLayout = &ThreeIsland_BerryForest_Layout,
     .events = &ThreeIsland_BerryForest_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_THREE_ISLAND_BERRY_FOREST,
@@ -19590,7 +19591,7 @@ extern const struct MapEvents FourIsland_IcefallCave_Entrance_MapEvents;
 const struct MapHeader FourIsland_IcefallCave_Entrance = {
     .mapLayout = &FourIsland_IcefallCave_Entrance_Layout,
     .events = &FourIsland_IcefallCave_Entrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FOUR_ISLAND_ICEFALL_CAVE_ENTRANCE,
@@ -19714,7 +19715,7 @@ extern const struct MapEvents FourIsland_IcefallCave_1F_MapEvents;
 const struct MapHeader FourIsland_IcefallCave_1F = {
     .mapLayout = &FourIsland_IcefallCave_1F_Layout,
     .events = &FourIsland_IcefallCave_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FOUR_ISLAND_ICEFALL_CAVE_1F,
@@ -19814,7 +19815,7 @@ extern const struct MapEvents FourIsland_IcefallCave_B1F_MapEvents;
 const struct MapHeader FourIsland_IcefallCave_B1F = {
     .mapLayout = &FourIsland_IcefallCave_B1F_Layout,
     .events = &FourIsland_IcefallCave_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FOUR_ISLAND_ICEFALL_CAVE_B1F,
@@ -19963,7 +19964,7 @@ extern const struct MapEvents FourIsland_IcefallCave_Back_MapEvents;
 const struct MapHeader FourIsland_IcefallCave_Back = {
     .mapLayout = &FourIsland_IcefallCave_Back_Layout,
     .events = &FourIsland_IcefallCave_Back_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FOUR_ISLAND_ICEFALL_CAVE_BACK,
@@ -20404,7 +20405,7 @@ extern const struct MapEvents FiveIsland_RocketWarehouse_MapEvents;
 const struct MapHeader FiveIsland_RocketWarehouse = {
     .mapLayout = &FiveIsland_RocketWarehouse_Layout,
     .events = &FiveIsland_RocketWarehouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROCKET_HIDEOUT,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_ROCKET_WAREHOUSE,
@@ -20471,7 +20472,7 @@ extern const struct MapEvents SixIsland_DottedHole_1F_MapEvents;
 const struct MapHeader SixIsland_DottedHole_1F = {
     .mapLayout = &SixIsland_DottedHole_1F_Layout,
     .events = &SixIsland_DottedHole_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SIX_ISLAND_DOTTED_HOLE_1F,
@@ -20556,7 +20557,7 @@ extern const struct MapEvents SixIsland_DottedHole_B1F_MapEvents;
 const struct MapHeader SixIsland_DottedHole_B1F = {
     .mapLayout = &SixIsland_DottedHole_B1F_Layout,
     .events = &SixIsland_DottedHole_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SIX_ISLAND_DOTTED_HOLE_B1F,
@@ -20641,7 +20642,7 @@ extern const struct MapEvents SixIsland_DottedHole_B2F_MapEvents;
 const struct MapHeader SixIsland_DottedHole_B2F = {
     .mapLayout = &SixIsland_DottedHole_B2F_Layout,
     .events = &SixIsland_DottedHole_B2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SIX_ISLAND_DOTTED_HOLE_B2F,
@@ -20726,7 +20727,7 @@ extern const struct MapEvents SixIsland_DottedHole_B3F_MapEvents;
 const struct MapHeader SixIsland_DottedHole_B3F = {
     .mapLayout = &SixIsland_DottedHole_B3F_Layout,
     .events = &SixIsland_DottedHole_B3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SIX_ISLAND_DOTTED_HOLE_B3F,
@@ -20811,7 +20812,7 @@ extern const struct MapEvents SixIsland_DottedHole_B4F_MapEvents;
 const struct MapHeader SixIsland_DottedHole_B4F = {
     .mapLayout = &SixIsland_DottedHole_B4F_Layout,
     .events = &SixIsland_DottedHole_B4F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SIX_ISLAND_DOTTED_HOLE_B4F,
@@ -20913,7 +20914,7 @@ extern const struct MapEvents SixIsland_DottedHole_SapphireRoom_MapEvents;
 const struct MapHeader SixIsland_DottedHole_SapphireRoom = {
     .mapLayout = &SixIsland_DottedHole_SapphireRoom_Layout,
     .events = &SixIsland_DottedHole_SapphireRoom_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SIX_ISLAND_DOTTED_HOLE_SAPPHIRE_ROOM,
@@ -21227,7 +21228,7 @@ extern const struct MapEvents SixIsland_PatternBush_MapEvents;
 const struct MapHeader SixIsland_PatternBush = {
     .mapLayout = &SixIsland_PatternBush_Layout,
     .events = &SixIsland_PatternBush_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_SIX_ISLAND_PATTERN_BUSH,
@@ -21270,7 +21271,7 @@ extern const struct MapEvents SixIsland_AlteringCave_MapEvents;
 const struct MapHeader SixIsland_AlteringCave = {
     .mapLayout = &SixIsland_AlteringCave_Layout,
     .events = &SixIsland_AlteringCave_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_SIX_ISLAND_ALTERING_CAVE,
@@ -21321,7 +21322,7 @@ extern const struct MapEvents NavelRock_Exterior_MapEvents;
 const struct MapHeader NavelRock_Exterior = {
     .mapLayout = &NavelRock_Exterior_Layout,
     .events = &NavelRock_Exterior_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_EXTERIOR,
@@ -21497,7 +21498,7 @@ extern const struct MapEvents TrainerTower_1F_MapEvents;
 const struct MapHeader TrainerTower_1F = {
     .mapLayout = &TrainerTower_1F_Layout,
     .events = &TrainerTower_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_TRAINER_TOWER,
     .mapLayoutId = LAYOUT_TRAINER_TOWER_1F,
@@ -21681,7 +21682,7 @@ extern const struct MapEvents TrainerTower_2F_MapEvents;
 const struct MapHeader TrainerTower_2F = {
     .mapLayout = &TrainerTower_2F_Layout,
     .events = &TrainerTower_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_TRAINER_TOWER,
     .mapLayoutId = LAYOUT_TRAINER_TOWER_2F,
@@ -21865,7 +21866,7 @@ extern const struct MapEvents TrainerTower_3F_MapEvents;
 const struct MapHeader TrainerTower_3F = {
     .mapLayout = &TrainerTower_3F_Layout,
     .events = &TrainerTower_3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_TRAINER_TOWER,
     .mapLayoutId = LAYOUT_TRAINER_TOWER_3F,
@@ -22049,7 +22050,7 @@ extern const struct MapEvents TrainerTower_4F_MapEvents;
 const struct MapHeader TrainerTower_4F = {
     .mapLayout = &TrainerTower_4F_Layout,
     .events = &TrainerTower_4F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_TRAINER_TOWER,
     .mapLayoutId = LAYOUT_TRAINER_TOWER_4F,
@@ -22233,7 +22234,7 @@ extern const struct MapEvents TrainerTower_5F_MapEvents;
 const struct MapHeader TrainerTower_5F = {
     .mapLayout = &TrainerTower_5F_Layout,
     .events = &TrainerTower_5F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_TRAINER_TOWER,
     .mapLayoutId = LAYOUT_TRAINER_TOWER_5F,
@@ -22417,7 +22418,7 @@ extern const struct MapEvents TrainerTower_6F_MapEvents;
 const struct MapHeader TrainerTower_6F = {
     .mapLayout = &TrainerTower_6F_Layout,
     .events = &TrainerTower_6F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_TRAINER_TOWER,
     .mapLayoutId = LAYOUT_TRAINER_TOWER_6F,
@@ -22601,7 +22602,7 @@ extern const struct MapEvents TrainerTower_7F_MapEvents;
 const struct MapHeader TrainerTower_7F = {
     .mapLayout = &TrainerTower_7F_Layout,
     .events = &TrainerTower_7F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_TRAINER_TOWER,
     .mapLayoutId = LAYOUT_TRAINER_TOWER_7F,
@@ -22785,7 +22786,7 @@ extern const struct MapEvents TrainerTower_8F_MapEvents;
 const struct MapHeader TrainerTower_8F = {
     .mapLayout = &TrainerTower_8F_Layout,
     .events = &TrainerTower_8F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_TRAINER_TOWER,
     .mapLayoutId = LAYOUT_TRAINER_TOWER_8F,
@@ -22858,7 +22859,7 @@ extern const struct MapEvents TrainerTower_Roof_MapEvents;
 const struct MapHeader TrainerTower_Roof = {
     .mapLayout = &TrainerTower_Roof_Layout,
     .events = &TrainerTower_Roof_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_TRAINER_TOWER,
     .mapLayoutId = LAYOUT_TRAINER_TOWER_ROOF,
@@ -23036,7 +23037,7 @@ extern const struct MapEvents TrainerTower_Lobby_MapEvents;
 const struct MapHeader TrainerTower_Lobby = {
     .mapLayout = &TrainerTower_Lobby_Layout,
     .events = &TrainerTower_Lobby_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_TRAINER_TOWER,
     .mapLayoutId = LAYOUT_TRAINER_TOWER_LOBBY,
@@ -23089,7 +23090,7 @@ extern const struct MapEvents TrainerTower_Elevator_MapEvents;
 const struct MapHeader TrainerTower_Elevator = {
     .mapLayout = &TrainerTower_Elevator_Layout,
     .events = &TrainerTower_Elevator_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_TRAINER_TOWER,
     .mapLayoutId = LAYOUT_TRAINER_TOWER_ELEVATOR,
@@ -23140,7 +23141,7 @@ extern const struct MapEvents FiveIsland_LostCave_Entrance_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Entrance = {
     .mapLayout = &FiveIsland_LostCave_Entrance_Layout,
     .events = &FiveIsland_LostCave_Entrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ENTRANCE,
@@ -23237,7 +23238,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room1_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room1 = {
     .mapLayout = &FiveIsland_LostCave_Room1_Layout,
     .events = &FiveIsland_LostCave_Room1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM1,
@@ -23304,7 +23305,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room2_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room2 = {
     .mapLayout = &FiveIsland_LostCave_Room2_Layout,
     .events = &FiveIsland_LostCave_Room2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM2,
@@ -23371,7 +23372,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room3_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room3 = {
     .mapLayout = &FiveIsland_LostCave_Room3_Layout,
     .events = &FiveIsland_LostCave_Room3_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM3,
@@ -23460,7 +23461,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room4_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room4 = {
     .mapLayout = &FiveIsland_LostCave_Room4_Layout,
     .events = &FiveIsland_LostCave_Room4_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM4,
@@ -23527,7 +23528,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room5_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room5 = {
     .mapLayout = &FiveIsland_LostCave_Room5_Layout,
     .events = &FiveIsland_LostCave_Room5_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM5,
@@ -23594,7 +23595,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room6_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room6 = {
     .mapLayout = &FiveIsland_LostCave_Room6_Layout,
     .events = &FiveIsland_LostCave_Room6_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM6,
@@ -23661,7 +23662,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room7_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room7 = {
     .mapLayout = &FiveIsland_LostCave_Room7_Layout,
     .events = &FiveIsland_LostCave_Room7_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM7,
@@ -23728,7 +23729,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room8_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room8 = {
     .mapLayout = &FiveIsland_LostCave_Room8_Layout,
     .events = &FiveIsland_LostCave_Room8_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM8,
@@ -23795,7 +23796,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room9_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room9 = {
     .mapLayout = &FiveIsland_LostCave_Room9_Layout,
     .events = &FiveIsland_LostCave_Room9_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM9,
@@ -23879,7 +23880,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room10_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room10 = {
     .mapLayout = &FiveIsland_LostCave_Room10_Layout,
     .events = &FiveIsland_LostCave_Room10_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM10,
@@ -23944,7 +23945,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room11_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room11 = {
     .mapLayout = &FiveIsland_LostCave_Room11_Layout,
     .events = &FiveIsland_LostCave_Room11_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM11,
@@ -24009,7 +24010,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room12_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room12 = {
     .mapLayout = &FiveIsland_LostCave_Room12_Layout,
     .events = &FiveIsland_LostCave_Room12_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM12,
@@ -24074,7 +24075,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room13_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room13 = {
     .mapLayout = &FiveIsland_LostCave_Room13_Layout,
     .events = &FiveIsland_LostCave_Room13_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM13,
@@ -24139,7 +24140,7 @@ extern const struct MapEvents FiveIsland_LostCave_Room14_MapEvents;
 const struct MapHeader FiveIsland_LostCave_Room14 = {
     .mapLayout = &FiveIsland_LostCave_Room14_Layout,
     .events = &FiveIsland_LostCave_Room14_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_LOST_CAVE_ROOM14,
@@ -24182,7 +24183,7 @@ extern const struct MapEvents SevenIsland_TanobyRuins_MoneanChamber_MapEvents;
 const struct MapHeader SevenIsland_TanobyRuins_MoneanChamber = {
     .mapLayout = &SevenIsland_TanobyRuins_MoneanChamber_Layout,
     .events = &SevenIsland_TanobyRuins_MoneanChamber_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_MONEAN_CHAMBER,
@@ -24225,7 +24226,7 @@ extern const struct MapEvents SevenIsland_TanobyRuins_LiptooChamber_MapEvents;
 const struct MapHeader SevenIsland_TanobyRuins_LiptooChamber = {
     .mapLayout = &SevenIsland_TanobyRuins_LiptooChamber_Layout,
     .events = &SevenIsland_TanobyRuins_LiptooChamber_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_LIPTOO_CHAMBER,
@@ -24268,7 +24269,7 @@ extern const struct MapEvents SevenIsland_TanobyRuins_WeepthChamber_MapEvents;
 const struct MapHeader SevenIsland_TanobyRuins_WeepthChamber = {
     .mapLayout = &SevenIsland_TanobyRuins_WeepthChamber_Layout,
     .events = &SevenIsland_TanobyRuins_WeepthChamber_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_WEEPTH_CHAMBER,
@@ -24311,7 +24312,7 @@ extern const struct MapEvents SevenIsland_TanobyRuins_DilfordChamber_MapEvents;
 const struct MapHeader SevenIsland_TanobyRuins_DilfordChamber = {
     .mapLayout = &SevenIsland_TanobyRuins_DilfordChamber_Layout,
     .events = &SevenIsland_TanobyRuins_DilfordChamber_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_DILFORD_CHAMBER,
@@ -24354,7 +24355,7 @@ extern const struct MapEvents SevenIsland_TanobyRuins_ScufibChamber_MapEvents;
 const struct MapHeader SevenIsland_TanobyRuins_ScufibChamber = {
     .mapLayout = &SevenIsland_TanobyRuins_ScufibChamber_Layout,
     .events = &SevenIsland_TanobyRuins_ScufibChamber_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_SCUFIB_CHAMBER,
@@ -24397,7 +24398,7 @@ extern const struct MapEvents SevenIsland_TanobyRuins_RixyChamber_MapEvents;
 const struct MapHeader SevenIsland_TanobyRuins_RixyChamber = {
     .mapLayout = &SevenIsland_TanobyRuins_RixyChamber_Layout,
     .events = &SevenIsland_TanobyRuins_RixyChamber_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_RIXY_CHAMBER,
@@ -24440,7 +24441,7 @@ extern const struct MapEvents SevenIsland_TanobyRuins_ViapoisChamber_MapEvents;
 const struct MapHeader SevenIsland_TanobyRuins_ViapoisChamber = {
     .mapLayout = &SevenIsland_TanobyRuins_ViapoisChamber_Layout,
     .events = &SevenIsland_TanobyRuins_ViapoisChamber_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_TANOBY_RUINS_VIAPOIS_CHAMBER,
@@ -24523,7 +24524,7 @@ extern const struct MapEvents ThreeIsland_DunsparceTunnel_MapEvents;
 const struct MapHeader ThreeIsland_DunsparceTunnel = {
     .mapLayout = &ThreeIsland_DunsparceTunnel_Layout,
     .events = &ThreeIsland_DunsparceTunnel_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_THREE_ISLAND_DUNSPARCE_TUNNEL,
@@ -24761,7 +24762,7 @@ extern const struct MapEvents SevenIsland_SevaultCanyon_TanobyKey_MapEvents;
 const struct MapHeader SevenIsland_SevaultCanyon_TanobyKey = {
     .mapLayout = &SevenIsland_SevaultCanyon_TanobyKey_Layout,
     .events = &SevenIsland_SevaultCanyon_TanobyKey_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_DUNGEON,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_SEVAULT_CANYON_TANOBY_KEY,
@@ -24812,7 +24813,7 @@ extern const struct MapEvents NavelRock_1F_MapEvents;
 const struct MapHeader NavelRock_1F = {
     .mapLayout = &NavelRock_1F_Layout,
     .events = &NavelRock_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_1F,
@@ -24898,7 +24899,7 @@ extern const struct MapEvents NavelRock_Summit_MapEvents;
 const struct MapHeader NavelRock_Summit = {
     .mapLayout = &NavelRock_Summit_Layout,
     .events = &NavelRock_Summit_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_SUMMIT,
@@ -24963,7 +24964,7 @@ extern const struct MapEvents NavelRock_Base_MapEvents;
 const struct MapHeader NavelRock_Base = {
     .mapLayout = &NavelRock_Base_Layout,
     .events = &NavelRock_Base_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE,
@@ -25014,7 +25015,7 @@ extern const struct MapEvents NavelRock_SummitPath_2F_MapEvents;
 const struct MapHeader NavelRock_SummitPath_2F = {
     .mapLayout = &NavelRock_SummitPath_2F_Layout,
     .events = &NavelRock_SummitPath_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_SUMMIT_PATH_2F,
@@ -25065,7 +25066,7 @@ extern const struct MapEvents NavelRock_SummitPath_3F_MapEvents;
 const struct MapHeader NavelRock_SummitPath_3F = {
     .mapLayout = &NavelRock_SummitPath_3F_Layout,
     .events = &NavelRock_SummitPath_3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_SUMMIT_PATH_3F,
@@ -25116,7 +25117,7 @@ extern const struct MapEvents NavelRock_SummitPath_4F_MapEvents;
 const struct MapHeader NavelRock_SummitPath_4F = {
     .mapLayout = &NavelRock_SummitPath_4F_Layout,
     .events = &NavelRock_SummitPath_4F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_SUMMIT_PATH_4F,
@@ -25167,7 +25168,7 @@ extern const struct MapEvents NavelRock_SummitPath_5F_MapEvents;
 const struct MapHeader NavelRock_SummitPath_5F = {
     .mapLayout = &NavelRock_SummitPath_5F_Layout,
     .events = &NavelRock_SummitPath_5F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_SUMMIT_PATH_5F,
@@ -25218,7 +25219,7 @@ extern const struct MapEvents NavelRock_BasePath_B1F_MapEvents;
 const struct MapHeader NavelRock_BasePath_B1F = {
     .mapLayout = &NavelRock_BasePath_B1F_Layout,
     .events = &NavelRock_BasePath_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE_PATH_B1F,
@@ -25269,7 +25270,7 @@ extern const struct MapEvents NavelRock_BasePath_B2F_MapEvents;
 const struct MapHeader NavelRock_BasePath_B2F = {
     .mapLayout = &NavelRock_BasePath_B2F_Layout,
     .events = &NavelRock_BasePath_B2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE_PATH_B2F,
@@ -25320,7 +25321,7 @@ extern const struct MapEvents NavelRock_BasePath_B3F_MapEvents;
 const struct MapHeader NavelRock_BasePath_B3F = {
     .mapLayout = &NavelRock_BasePath_B3F_Layout,
     .events = &NavelRock_BasePath_B3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE_PATH_B3F,
@@ -25371,7 +25372,7 @@ extern const struct MapEvents NavelRock_BasePath_B4F_MapEvents;
 const struct MapHeader NavelRock_BasePath_B4F = {
     .mapLayout = &NavelRock_BasePath_B4F_Layout,
     .events = &NavelRock_BasePath_B4F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE_PATH_B4F,
@@ -25422,7 +25423,7 @@ extern const struct MapEvents NavelRock_BasePath_B5F_MapEvents;
 const struct MapHeader NavelRock_BasePath_B5F = {
     .mapLayout = &NavelRock_BasePath_B5F_Layout,
     .events = &NavelRock_BasePath_B5F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE_PATH_B5F,
@@ -25473,7 +25474,7 @@ extern const struct MapEvents NavelRock_BasePath_B6F_MapEvents;
 const struct MapHeader NavelRock_BasePath_B6F = {
     .mapLayout = &NavelRock_BasePath_B6F_Layout,
     .events = &NavelRock_BasePath_B6F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE_PATH_B6F,
@@ -25524,7 +25525,7 @@ extern const struct MapEvents NavelRock_BasePath_B7F_MapEvents;
 const struct MapHeader NavelRock_BasePath_B7F = {
     .mapLayout = &NavelRock_BasePath_B7F_Layout,
     .events = &NavelRock_BasePath_B7F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE_PATH_B7F,
@@ -25575,7 +25576,7 @@ extern const struct MapEvents NavelRock_BasePath_B8F_MapEvents;
 const struct MapHeader NavelRock_BasePath_B8F = {
     .mapLayout = &NavelRock_BasePath_B8F_Layout,
     .events = &NavelRock_BasePath_B8F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE_PATH_B8F,
@@ -25626,7 +25627,7 @@ extern const struct MapEvents NavelRock_BasePath_B9F_MapEvents;
 const struct MapHeader NavelRock_BasePath_B9F = {
     .mapLayout = &NavelRock_BasePath_B9F_Layout,
     .events = &NavelRock_BasePath_B9F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE_PATH_B9F,
@@ -25677,7 +25678,7 @@ extern const struct MapEvents NavelRock_BasePath_B10F_MapEvents;
 const struct MapHeader NavelRock_BasePath_B10F = {
     .mapLayout = &NavelRock_BasePath_B10F_Layout,
     .events = &NavelRock_BasePath_B10F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE_PATH_B10F,
@@ -25728,7 +25729,7 @@ extern const struct MapEvents NavelRock_BasePath_B11F_MapEvents;
 const struct MapHeader NavelRock_BasePath_B11F = {
     .mapLayout = &NavelRock_BasePath_B11F_Layout,
     .events = &NavelRock_BasePath_B11F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_BASE_PATH_B11F,
@@ -25779,7 +25780,7 @@ extern const struct MapEvents NavelRock_B1F_MapEvents;
 const struct MapHeader NavelRock_B1F = {
     .mapLayout = &NavelRock_B1F_Layout,
     .events = &NavelRock_B1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_B1F,
@@ -25838,7 +25839,7 @@ extern const struct MapEvents NavelRock_Fork_MapEvents;
 const struct MapHeader NavelRock_Fork = {
     .mapLayout = &NavelRock_Fork_Layout,
     .events = &NavelRock_Fork_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_CAVE,
     .mapLayoutId = LAYOUT_NAVEL_ROCK_FORK,
@@ -25922,7 +25923,7 @@ extern const struct MapEvents BirthIsland_Exterior_MapEvents;
 const struct MapHeader BirthIsland_Exterior = {
     .mapLayout = &BirthIsland_Exterior_Layout,
     .events = &BirthIsland_Exterior_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_NONE,
     .mapLayoutId = LAYOUT_BIRTH_ISLAND_EXTERIOR,
@@ -26093,7 +26094,7 @@ extern const struct MapEvents OneIsland_KindleRoad_EmberSpa_MapEvents;
 const struct MapHeader OneIsland_KindleRoad_EmberSpa = {
     .mapLayout = &OneIsland_KindleRoad_EmberSpa_Layout,
     .events = &OneIsland_KindleRoad_EmberSpa_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_ONE_ISLAND_KINDLE_ROAD_EMBER_SPA,
@@ -26177,7 +26178,7 @@ extern const struct MapEvents BirthIsland_Harbor_MapEvents;
 const struct MapHeader BirthIsland_Harbor = {
     .mapLayout = &Island_Harbor_Layout,
     .events = &BirthIsland_Harbor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_NONE,
     .mapLayoutId = LAYOUT_ISLAND_HARBOR,
@@ -26261,7 +26262,7 @@ extern const struct MapEvents NavelRock_Harbor_MapEvents;
 const struct MapHeader NavelRock_Harbor = {
     .mapLayout = &Island_Harbor_Layout,
     .events = &NavelRock_Harbor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_ISLAND_HARBOR,
@@ -26445,7 +26446,7 @@ extern const struct MapEvents PalletTown_MapEvents;
 const struct MapHeader PalletTown = {
     .mapLayout = &PalletTown_Layout,
     .events = &PalletTown_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PALLET,
     .mapLayoutId = LAYOUT_PALLET_TOWN,
@@ -26767,7 +26768,7 @@ extern const struct MapEvents ViridianCity_MapEvents;
 const struct MapHeader ViridianCity = {
     .mapLayout = &ViridianCity_Layout,
     .events = &ViridianCity_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_VIRIDIAN_CITY,
@@ -27098,7 +27099,7 @@ extern const struct MapEvents PewterCity_MapEvents;
 const struct MapHeader PewterCity = {
     .mapLayout = &PewterCity_Layout,
     .events = &PewterCity_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_PEWTER_CITY,
@@ -27578,7 +27579,7 @@ extern const struct MapEvents CeruleanCity_MapEvents;
 const struct MapHeader CeruleanCity = {
     .mapLayout = &CeruleanCity_Layout,
     .events = &CeruleanCity_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_CERULEAN_CITY,
@@ -27752,7 +27753,7 @@ extern const struct MapEvents LavenderTown_MapEvents;
 const struct MapHeader LavenderTown = {
     .mapLayout = &LavenderTown_Layout,
     .events = &LavenderTown_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_LAVENDER,
     .mapLayoutId = LAYOUT_LAVENDER_TOWN,
@@ -28102,7 +28103,7 @@ extern const struct MapEvents VermilionCity_MapEvents;
 const struct MapHeader VermilionCity = {
     .mapLayout = &VermilionCity_Layout,
     .events = &VermilionCity_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VERMILLION,
     .mapLayoutId = LAYOUT_VERMILION_CITY,
@@ -28595,7 +28596,7 @@ extern const struct MapEvents CeladonCity_MapEvents;
 const struct MapHeader CeladonCity = {
     .mapLayout = &CeladonCity_Layout,
     .events = &CeladonCity_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_CELADON_CITY,
@@ -29112,7 +29113,7 @@ extern const struct MapEvents FuchsiaCity_MapEvents;
 const struct MapHeader FuchsiaCity = {
     .mapLayout = &FuchsiaCity_Layout,
     .events = &FuchsiaCity_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_FUCHSIA_CITY,
@@ -29308,7 +29309,7 @@ extern const struct MapEvents CinnabarIsland_MapEvents;
 const struct MapHeader CinnabarIsland = {
     .mapLayout = &CinnabarIsland_Layout,
     .events = &CinnabarIsland_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CINNABAR,
     .mapLayoutId = LAYOUT_CINNABAR_ISLAND,
@@ -29392,7 +29393,7 @@ extern const struct MapEvents IndigoPlateau_Exterior_MapEvents;
 const struct MapHeader IndigoPlateau_Exterior = {
     .mapLayout = &IndigoPlateau_Exterior_Layout,
     .events = &IndigoPlateau_Exterior_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VICTORY_ROAD,
     .mapLayoutId = LAYOUT_INDIGO_PLATEAU_EXTERIOR,
@@ -29901,7 +29902,7 @@ extern const struct MapEvents SaffronCity_MapEvents;
 const struct MapHeader SaffronCity = {
     .mapLayout = &SaffronCity_Layout,
     .events = &SaffronCity_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY,
@@ -29933,7 +29934,7 @@ extern const struct MapEvents SaffronCity_Connection_MapEvents;
 const struct MapHeader SaffronCity_Connection = {
     .mapLayout = &SaffronCity_Connection_Layout,
     .events = &SaffronCity_Connection_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY_CONNECTION,
@@ -30077,7 +30078,7 @@ extern const struct MapEvents OneIsland_MapEvents;
 const struct MapHeader OneIsland = {
     .mapLayout = &OneIsland_Layout,
     .events = &OneIsland_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_ONE_ISLAND,
@@ -30342,7 +30343,7 @@ extern const struct MapEvents TwoIsland_MapEvents;
 const struct MapHeader TwoIsland = {
     .mapLayout = &TwoIsland_Layout,
     .events = &TwoIsland_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_TWO_ISLAND,
@@ -30802,7 +30803,7 @@ extern const struct MapEvents ThreeIsland_MapEvents;
 const struct MapHeader ThreeIsland = {
     .mapLayout = &ThreeIsland_Layout,
     .events = &ThreeIsland_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_THREE_ISLAND,
@@ -31163,7 +31164,7 @@ extern const struct MapEvents FourIsland_MapEvents;
 const struct MapHeader FourIsland = {
     .mapLayout = &FourIsland_Layout,
     .events = &FourIsland_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_FOUR_ISLAND,
@@ -31300,7 +31301,7 @@ extern const struct MapEvents FiveIsland_MapEvents;
 const struct MapHeader FiveIsland = {
     .mapLayout = &FiveIsland_Layout,
     .events = &FiveIsland_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_FIVE_ISLAND,
@@ -31437,7 +31438,7 @@ extern const struct MapEvents SevenIsland_MapEvents;
 const struct MapHeader SevenIsland = {
     .mapLayout = &SevenIsland_Layout,
     .events = &SevenIsland_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_67,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND,
@@ -31562,7 +31563,7 @@ extern const struct MapEvents SixIsland_MapEvents;
 const struct MapHeader SixIsland = {
     .mapLayout = &SixIsland_Layout,
     .events = &SixIsland_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_67,
     .mapLayoutId = LAYOUT_SIX_ISLAND,
@@ -31645,7 +31646,7 @@ extern const struct MapEvents Route1_MapEvents;
 const struct MapHeader Route1 = {
     .mapLayout = &Route1_Layout,
     .events = &Route1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE1,
     .mapLayoutId = LAYOUT_ROUTE1,
@@ -31913,7 +31914,7 @@ extern const struct MapEvents Route2_MapEvents;
 const struct MapHeader Route2 = {
     .mapLayout = &Route2_Layout,
     .events = &Route2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE1,
     .mapLayoutId = LAYOUT_ROUTE2,
@@ -32136,7 +32137,7 @@ extern const struct MapEvents Route3_MapEvents;
 const struct MapHeader Route3 = {
     .mapLayout = &Route3_Layout,
     .events = &Route3_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE3,
@@ -32369,7 +32370,7 @@ extern const struct MapEvents Route4_MapEvents;
 const struct MapHeader Route4 = {
     .mapLayout = &Route4_Layout,
     .events = &Route4_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE4,
@@ -32446,7 +32447,7 @@ extern const struct MapEvents Route5_MapEvents;
 const struct MapHeader Route5 = {
     .mapLayout = &Route5_Layout,
     .events = &Route5_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE5,
@@ -32646,7 +32647,7 @@ extern const struct MapEvents Route6_MapEvents;
 const struct MapHeader Route6 = {
     .mapLayout = &Route6_Layout,
     .events = &Route6_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE6,
@@ -32736,7 +32737,7 @@ extern const struct MapEvents Route7_MapEvents;
 const struct MapHeader Route7 = {
     .mapLayout = &Route7_Layout,
     .events = &Route7_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE7,
@@ -33106,7 +33107,7 @@ extern const struct MapEvents Route8_MapEvents;
 const struct MapHeader Route8 = {
     .mapLayout = &Route8_Layout,
     .events = &Route8_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE8,
@@ -33400,7 +33401,7 @@ extern const struct MapEvents Route9_MapEvents;
 const struct MapHeader Route9 = {
     .mapLayout = &Route9_Layout,
     .events = &Route9_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE9,
@@ -33727,7 +33728,7 @@ extern const struct MapEvents Route10_MapEvents;
 const struct MapHeader Route10 = {
     .mapLayout = &Route10_Layout,
     .events = &Route10_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE10,
@@ -34053,7 +34054,7 @@ extern const struct MapEvents Route11_MapEvents;
 const struct MapHeader Route11 = {
     .mapLayout = &Route11_Layout,
     .events = &Route11_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE11,
     .mapLayoutId = LAYOUT_ROUTE11,
@@ -34427,7 +34428,7 @@ extern const struct MapEvents Route12_MapEvents;
 const struct MapHeader Route12 = {
     .mapLayout = &Route12_Layout,
     .events = &Route12_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE11,
     .mapLayoutId = LAYOUT_ROUTE12,
@@ -34702,7 +34703,7 @@ extern const struct MapEvents Route13_MapEvents;
 const struct MapHeader Route13 = {
     .mapLayout = &Route13_Layout,
     .events = &Route13_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE11,
     .mapLayoutId = LAYOUT_ROUTE13,
@@ -35046,7 +35047,7 @@ extern const struct MapEvents Route14_MapEvents;
 const struct MapHeader Route14 = {
     .mapLayout = &Route14_Layout,
     .events = &Route14_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE11,
     .mapLayoutId = LAYOUT_ROUTE14,
@@ -35376,7 +35377,7 @@ extern const struct MapEvents Route15_MapEvents;
 const struct MapHeader Route15 = {
     .mapLayout = &Route15_Layout,
     .events = &Route15_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE11,
     .mapLayoutId = LAYOUT_ROUTE15,
@@ -35668,7 +35669,7 @@ extern const struct MapEvents Route16_MapEvents;
 const struct MapHeader Route16 = {
     .mapLayout = &Route16_Layout,
     .events = &Route16_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE16,
@@ -35973,7 +35974,7 @@ extern const struct MapEvents Route17_MapEvents;
 const struct MapHeader Route17 = {
     .mapLayout = &Route17_Layout,
     .events = &Route17_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE17,
@@ -36101,7 +36102,7 @@ extern const struct MapEvents Route18_MapEvents;
 const struct MapHeader Route18 = {
     .mapLayout = &Route18_Layout,
     .events = &Route18_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE18,
@@ -36374,7 +36375,7 @@ extern const struct MapEvents Route19_MapEvents;
 const struct MapHeader Route19 = {
     .mapLayout = &Route19_Layout,
     .events = &Route19_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE19,
@@ -36661,7 +36662,7 @@ extern const struct MapEvents Route20_MapEvents;
 const struct MapHeader Route20 = {
     .mapLayout = &Route20_Layout,
     .events = &Route20_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE20,
@@ -36820,7 +36821,7 @@ extern const struct MapEvents Route21_North_MapEvents;
 const struct MapHeader Route21_North = {
     .mapLayout = &Route21_North_Layout,
     .events = &Route21_North_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE21_NORTH,
@@ -36950,7 +36951,7 @@ extern const struct MapEvents Route21_South_MapEvents;
 const struct MapHeader Route21_South = {
     .mapLayout = &Route21_South_Layout,
     .events = &Route21_South_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE21_SOUTH,
@@ -37084,7 +37085,7 @@ extern const struct MapEvents Route22_MapEvents;
 const struct MapHeader Route22 = {
     .mapLayout = &Route22_Layout,
     .events = &Route22_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE22,
@@ -37692,7 +37693,7 @@ extern const struct MapEvents Route23_MapEvents;
 const struct MapHeader Route23 = {
     .mapLayout = &Route23_Layout,
     .events = &Route23_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VICTORY_ROAD,
     .mapLayoutId = LAYOUT_ROUTE23,
@@ -37908,7 +37909,7 @@ extern const struct MapEvents Route24_MapEvents;
 const struct MapHeader Route24 = {
     .mapLayout = &Route24_Layout,
     .events = &Route24_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE24,
     .mapLayoutId = LAYOUT_ROUTE24,
@@ -38239,7 +38240,7 @@ extern const struct MapEvents Route25_MapEvents;
 const struct MapHeader Route25 = {
     .mapLayout = &Route25_Layout,
     .events = &Route25_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE24,
     .mapLayoutId = LAYOUT_ROUTE25,
@@ -38869,7 +38870,7 @@ extern const struct MapEvents OneIsland_KindleRoad_MapEvents;
 const struct MapHeader OneIsland_KindleRoad = {
     .mapLayout = &OneIsland_KindleRoad_Layout,
     .events = &OneIsland_KindleRoad_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ONE_ISLAND_KINDLE_ROAD,
@@ -39001,7 +39002,7 @@ extern const struct MapEvents OneIsland_TreasureBeach_MapEvents;
 const struct MapHeader OneIsland_TreasureBeach = {
     .mapLayout = &OneIsland_TreasureBeach_Layout,
     .events = &OneIsland_TreasureBeach_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ONE_ISLAND_TREASURE_BEACH,
@@ -39061,7 +39062,7 @@ extern const struct MapEvents TwoIsland_CapeBrink_MapEvents;
 const struct MapHeader TwoIsland_CapeBrink = {
     .mapLayout = &TwoIsland_CapeBrink_Layout,
     .events = &TwoIsland_CapeBrink_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_TWO_ISLAND_CAPE_BRINK,
@@ -39324,7 +39325,7 @@ extern const struct MapEvents ThreeIsland_BondBridge_MapEvents;
 const struct MapHeader ThreeIsland_BondBridge = {
     .mapLayout = &ThreeIsland_BondBridge_Layout,
     .events = &ThreeIsland_BondBridge_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_THREE_ISLAND_BOND_BRIDGE,
@@ -39443,7 +39444,7 @@ extern const struct MapEvents ThreeIsland_Port_MapEvents;
 const struct MapHeader ThreeIsland_Port = {
     .mapLayout = &ThreeIsland_Port_Layout,
     .events = &ThreeIsland_Port_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_THREE_ISLAND_PORT,
@@ -39475,7 +39476,7 @@ extern const struct MapEvents Prototype_SeviiIsle_6_MapEvents;
 const struct MapHeader Prototype_SeviiIsle_6 = {
     .mapLayout = &Prototype_SeviiIsle_6_Layout,
     .events = &Prototype_SeviiIsle_6_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_PROTOTYPE_SEVII_ISLE_6,
@@ -39507,7 +39508,7 @@ extern const struct MapEvents Prototype_SeviiIsle_7_MapEvents;
 const struct MapHeader Prototype_SeviiIsle_7 = {
     .mapLayout = &Prototype_SeviiIsle_7_Layout,
     .events = &Prototype_SeviiIsle_7_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_PROTOTYPE_SEVII_ISLE_7,
@@ -39539,7 +39540,7 @@ extern const struct MapEvents Prototype_SeviiIsle_8_MapEvents;
 const struct MapHeader Prototype_SeviiIsle_8 = {
     .mapLayout = &Prototype_SeviiIsle_8_Layout,
     .events = &Prototype_SeviiIsle_8_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_PROTOTYPE_SEVII_ISLE_8,
@@ -39571,7 +39572,7 @@ extern const struct MapEvents Prototype_SeviiIsle_9_MapEvents;
 const struct MapHeader Prototype_SeviiIsle_9 = {
     .mapLayout = &Prototype_SeviiIsle_9_Layout,
     .events = &Prototype_SeviiIsle_9_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_PROTOTYPE_SEVII_ISLE_9,
@@ -39815,7 +39816,7 @@ extern const struct MapEvents FiveIsland_ResortGorgeous_MapEvents;
 const struct MapHeader FiveIsland_ResortGorgeous = {
     .mapLayout = &FiveIsland_ResortGorgeous_Layout,
     .events = &FiveIsland_ResortGorgeous_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_RESORT_GORGEOUS,
@@ -39888,7 +39889,7 @@ extern const struct MapEvents FiveIsland_WaterLabyrinth_MapEvents;
 const struct MapHeader FiveIsland_WaterLabyrinth = {
     .mapLayout = &FiveIsland_WaterLabyrinth_Layout,
     .events = &FiveIsland_WaterLabyrinth_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_WATER_LABYRINTH,
@@ -40077,7 +40078,7 @@ extern const struct MapEvents FiveIsland_Meadow_MapEvents;
 const struct MapHeader FiveIsland_Meadow = {
     .mapLayout = &FiveIsland_Meadow_Layout,
     .events = &FiveIsland_Meadow_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_MEADOW,
@@ -40245,7 +40246,7 @@ extern const struct MapEvents FiveIsland_MemorialPillar_MapEvents;
 const struct MapHeader FiveIsland_MemorialPillar = {
     .mapLayout = &FiveIsland_MemorialPillar_Layout,
     .events = &FiveIsland_MemorialPillar_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_MEMORIAL_PILLAR,
@@ -40441,7 +40442,7 @@ extern const struct MapEvents SixIsland_OutcastIsland_MapEvents;
 const struct MapHeader SixIsland_OutcastIsland = {
     .mapLayout = &SixIsland_OutcastIsland_Layout,
     .events = &SixIsland_OutcastIsland_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SIX_ISLAND_OUTCAST_ISLAND,
@@ -40554,7 +40555,7 @@ extern const struct MapEvents SixIsland_GreenPath_MapEvents;
 const struct MapHeader SixIsland_GreenPath = {
     .mapLayout = &SixIsland_GreenPath_Layout,
     .events = &SixIsland_GreenPath_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SIX_ISLAND_GREEN_PATH,
@@ -40817,7 +40818,7 @@ extern const struct MapEvents SixIsland_WaterPath_MapEvents;
 const struct MapHeader SixIsland_WaterPath = {
     .mapLayout = &SixIsland_WaterPath_Layout,
     .events = &SixIsland_WaterPath_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SIX_ISLAND_WATER_PATH,
@@ -41196,7 +41197,7 @@ extern const struct MapEvents SixIsland_RuinValley_MapEvents;
 const struct MapHeader SixIsland_RuinValley = {
     .mapLayout = &SixIsland_RuinValley_Layout,
     .events = &SixIsland_RuinValley_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SIX_ISLAND_RUIN_VALLEY,
@@ -41318,7 +41319,7 @@ extern const struct MapEvents SevenIsland_TrainerTower_MapEvents;
 const struct MapHeader SevenIsland_TrainerTower = {
     .mapLayout = &SevenIsland_TrainerTower_Layout,
     .events = &SevenIsland_TrainerTower_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_TRAINER_TOWER,
@@ -41503,7 +41504,7 @@ extern const struct MapEvents SevenIsland_SevaultCanyon_Entrance_MapEvents;
 const struct MapHeader SevenIsland_SevaultCanyon_Entrance = {
     .mapLayout = &SevenIsland_SevaultCanyon_Entrance_Layout,
     .events = &SevenIsland_SevaultCanyon_Entrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_SEVAULT_CANYON_ENTRANCE,
@@ -41954,7 +41955,7 @@ extern const struct MapEvents SevenIsland_SevaultCanyon_MapEvents;
 const struct MapHeader SevenIsland_SevaultCanyon = {
     .mapLayout = &SevenIsland_SevaultCanyon_Layout,
     .events = &SevenIsland_SevaultCanyon_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_SEVAULT_CANYON,
@@ -42155,7 +42156,7 @@ extern const struct MapEvents SevenIsland_TanobyRuins_MapEvents;
 const struct MapHeader SevenIsland_TanobyRuins = {
     .mapLayout = &SevenIsland_TanobyRuins_Layout,
     .events = &SevenIsland_TanobyRuins_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_TANOBY_RUINS,
@@ -42254,7 +42255,7 @@ extern const struct MapEvents PalletTown_PlayersHouse_1F_MapEvents;
 const struct MapHeader PalletTown_PlayersHouse_1F = {
     .mapLayout = &PalletTown_PlayersHouse_1F_Layout,
     .events = &PalletTown_PlayersHouse_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PALLET,
     .mapLayoutId = LAYOUT_PALLET_TOWN_PLAYERS_HOUSE_1F,
@@ -42321,7 +42322,7 @@ extern const struct MapEvents PalletTown_PlayersHouse_2F_MapEvents;
 const struct MapHeader PalletTown_PlayersHouse_2F = {
     .mapLayout = &PalletTown_PlayersHouse_2F_Layout,
     .events = &PalletTown_PlayersHouse_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PALLET,
     .mapLayoutId = LAYOUT_PALLET_TOWN_PLAYERS_HOUSE_2F,
@@ -42445,7 +42446,7 @@ extern const struct MapEvents PalletTown_RivalsHouse_MapEvents;
 const struct MapHeader PalletTown_RivalsHouse = {
     .mapLayout = &PalletTown_RivalsHouse_Layout,
     .events = &PalletTown_RivalsHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PALLET,
     .mapLayoutId = LAYOUT_PALLET_TOWN_RIVALS_HOUSE,
@@ -42779,7 +42780,7 @@ extern const struct MapEvents PalletTown_ProfessorOaksLab_MapEvents;
 const struct MapHeader PalletTown_ProfessorOaksLab = {
     .mapLayout = &PalletTown_ProfessorOaksLab_Layout,
     .events = &PalletTown_ProfessorOaksLab_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_OAK_LAB,
     .mapLayoutId = LAYOUT_PALLET_TOWN_PROFESSOR_OAKS_LAB,
@@ -42908,7 +42909,7 @@ extern const struct MapEvents ViridianCity_House_MapEvents;
 const struct MapHeader ViridianCity_House = {
     .mapLayout = &ViridianCity_House_Layout,
     .events = &ViridianCity_House_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_VIRIDIAN_CITY_HOUSE,
@@ -43184,7 +43185,7 @@ extern const struct MapEvents ViridianCity_Gym_MapEvents;
 const struct MapHeader ViridianCity_Gym = {
     .mapLayout = &ViridianCity_Gym_Layout,
     .events = &ViridianCity_Gym_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GYM,
     .mapLayoutId = LAYOUT_VIRIDIAN_CITY_GYM,
@@ -43322,7 +43323,7 @@ extern const struct MapEvents ViridianCity_School_MapEvents;
 const struct MapHeader ViridianCity_School = {
     .mapLayout = &ViridianCity_School_Layout,
     .events = &ViridianCity_School_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_VIRIDIAN_CITY_SCHOOL,
@@ -43441,7 +43442,7 @@ extern const struct MapEvents ViridianCity_Mart_MapEvents;
 const struct MapHeader ViridianCity_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &ViridianCity_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -43587,7 +43588,7 @@ extern const struct MapEvents ViridianCity_PokemonCenter_1F_MapEvents;
 const struct MapHeader ViridianCity_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &ViridianCity_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -43725,7 +43726,7 @@ extern const struct MapEvents ViridianCity_PokemonCenter_2F_MapEvents;
 const struct MapHeader ViridianCity_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &ViridianCity_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -43983,7 +43984,7 @@ extern const struct MapEvents PewterCity_Museum_1F_MapEvents;
 const struct MapHeader PewterCity_Museum_1F = {
     .mapLayout = &PewterCity_Museum_1F_Layout,
     .events = &PewterCity_Museum_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_PEWTER_CITY_MUSEUM_1F,
@@ -44183,7 +44184,7 @@ extern const struct MapEvents PewterCity_Museum_2F_MapEvents;
 const struct MapHeader PewterCity_Museum_2F = {
     .mapLayout = &PewterCity_Museum_2F_Layout,
     .events = &PewterCity_Museum_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_PEWTER_CITY_MUSEUM_2F,
@@ -44319,7 +44320,7 @@ extern const struct MapEvents PewterCity_Gym_MapEvents;
 const struct MapHeader PewterCity_Gym = {
     .mapLayout = &PewterCity_Gym_Layout,
     .events = &PewterCity_Gym_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GYM,
     .mapLayoutId = LAYOUT_PEWTER_CITY_GYM,
@@ -44438,7 +44439,7 @@ extern const struct MapEvents PewterCity_Mart_MapEvents;
 const struct MapHeader PewterCity_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &PewterCity_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -44557,7 +44558,7 @@ extern const struct MapEvents PewterCity_House1_MapEvents;
 const struct MapHeader PewterCity_House1 = {
     .mapLayout = &House2_Layout,
     .events = &PewterCity_House1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_HOUSE2,
@@ -44760,7 +44761,7 @@ extern const struct MapEvents PewterCity_PokemonCenter_1F_MapEvents;
 const struct MapHeader PewterCity_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &PewterCity_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -44898,7 +44899,7 @@ extern const struct MapEvents PewterCity_PokemonCenter_2F_MapEvents;
 const struct MapHeader PewterCity_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &PewterCity_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -44998,7 +44999,7 @@ extern const struct MapEvents PewterCity_House2_MapEvents;
 const struct MapHeader PewterCity_House2 = {
     .mapLayout = &House2_Layout,
     .events = &PewterCity_House2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_HOUSE2,
@@ -45087,7 +45088,7 @@ extern const struct MapEvents CeruleanCity_House1_MapEvents;
 const struct MapHeader CeruleanCity_House1 = {
     .mapLayout = &CeruleanCity_House1_Layout,
     .events = &CeruleanCity_House1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_CERULEAN_CITY_HOUSE1,
@@ -45205,7 +45206,7 @@ extern const struct MapEvents CeruleanCity_House2_MapEvents;
 const struct MapHeader CeruleanCity_House2 = {
     .mapLayout = &CeruleanCity_House2_Layout,
     .events = &CeruleanCity_House2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_CERULEAN_CITY_HOUSE2,
@@ -45305,7 +45306,7 @@ extern const struct MapEvents CeruleanCity_House3_MapEvents;
 const struct MapHeader CeruleanCity_House3 = {
     .mapLayout = &House1_Layout,
     .events = &CeruleanCity_House3_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_HOUSE1,
@@ -45508,7 +45509,7 @@ extern const struct MapEvents CeruleanCity_PokemonCenter_1F_MapEvents;
 const struct MapHeader CeruleanCity_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &CeruleanCity_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -45646,7 +45647,7 @@ extern const struct MapEvents CeruleanCity_PokemonCenter_2F_MapEvents;
 const struct MapHeader CeruleanCity_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &CeruleanCity_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -45801,7 +45802,7 @@ extern const struct MapEvents CeruleanCity_Gym_MapEvents;
 const struct MapHeader CeruleanCity_Gym = {
     .mapLayout = &CeruleanCity_Gym_Layout,
     .events = &CeruleanCity_Gym_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GYM,
     .mapLayoutId = LAYOUT_CERULEAN_CITY_GYM,
@@ -45979,7 +45980,7 @@ extern const struct MapEvents CeruleanCity_BikeShop_MapEvents;
 const struct MapHeader CeruleanCity_BikeShop = {
     .mapLayout = &CeruleanCity_BikeShop_Layout,
     .events = &CeruleanCity_BikeShop_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_CERULEAN_CITY_BIKE_SHOP,
@@ -46098,7 +46099,7 @@ extern const struct MapEvents CeruleanCity_Mart_MapEvents;
 const struct MapHeader CeruleanCity_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &CeruleanCity_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -46163,7 +46164,7 @@ extern const struct MapEvents CeruleanCity_House4_MapEvents;
 const struct MapHeader CeruleanCity_House4 = {
     .mapLayout = &House1_Layout,
     .events = &CeruleanCity_House4_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_HOUSE1,
@@ -46238,7 +46239,7 @@ extern const struct MapEvents CeruleanCity_House5_MapEvents;
 const struct MapHeader CeruleanCity_House5 = {
     .mapLayout = &CeruleanCity_House5_Layout,
     .events = &CeruleanCity_House5_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_CERULEAN_CITY_HOUSE5,
@@ -46403,7 +46404,7 @@ extern const struct MapEvents LavenderTown_PokemonCenter_1F_MapEvents;
 const struct MapHeader LavenderTown_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &LavenderTown_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -46541,7 +46542,7 @@ extern const struct MapEvents LavenderTown_PokemonCenter_2F_MapEvents;
 const struct MapHeader LavenderTown_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &LavenderTown_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -46741,7 +46742,7 @@ extern const struct MapEvents LavenderTown_VolunteerPokemonHouse_MapEvents;
 const struct MapHeader LavenderTown_VolunteerPokemonHouse = {
     .mapLayout = &LavenderTown_VolunteerPokemonHouse_Layout,
     .events = &LavenderTown_VolunteerPokemonHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_LAVENDER,
     .mapLayoutId = LAYOUT_LAVENDER_TOWN_VOLUNTEER_POKEMON_HOUSE,
@@ -46841,7 +46842,7 @@ extern const struct MapEvents LavenderTown_House1_MapEvents;
 const struct MapHeader LavenderTown_House1 = {
     .mapLayout = &House5_Layout,
     .events = &LavenderTown_House1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_LAVENDER,
     .mapLayoutId = LAYOUT_HOUSE5,
@@ -46922,7 +46923,7 @@ extern const struct MapEvents LavenderTown_House2_MapEvents;
 const struct MapHeader LavenderTown_House2 = {
     .mapLayout = &House5_Layout,
     .events = &LavenderTown_House2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_HOUSE5,
@@ -47060,7 +47061,7 @@ extern const struct MapEvents LavenderTown_Mart_MapEvents;
 const struct MapHeader LavenderTown_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &LavenderTown_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -47141,7 +47142,7 @@ extern const struct MapEvents VermilionCity_House1_MapEvents;
 const struct MapHeader VermilionCity_House1 = {
     .mapLayout = &House1_Layout,
     .events = &VermilionCity_House1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_HOUSE1,
@@ -47344,7 +47345,7 @@ extern const struct MapEvents VermilionCity_PokemonCenter_1F_MapEvents;
 const struct MapHeader VermilionCity_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &VermilionCity_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -47482,7 +47483,7 @@ extern const struct MapEvents VermilionCity_PokemonCenter_2F_MapEvents;
 const struct MapHeader VermilionCity_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &VermilionCity_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -47675,7 +47676,7 @@ extern const struct MapEvents VermilionCity_PokemonFanClub_MapEvents;
 const struct MapHeader VermilionCity_PokemonFanClub = {
     .mapLayout = &VermilionCity_PokemonFanClub_Layout,
     .events = &VermilionCity_PokemonFanClub_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VERMILLION,
     .mapLayoutId = LAYOUT_VERMILION_CITY_POKEMON_FAN_CLUB,
@@ -47756,7 +47757,7 @@ extern const struct MapEvents VermilionCity_House2_MapEvents;
 const struct MapHeader VermilionCity_House2 = {
     .mapLayout = &House1_Layout,
     .events = &VermilionCity_House2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VERMILLION,
     .mapLayoutId = LAYOUT_HOUSE1,
@@ -47875,7 +47876,7 @@ extern const struct MapEvents VermilionCity_Mart_MapEvents;
 const struct MapHeader VermilionCity_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &VermilionCity_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -48154,7 +48155,7 @@ extern const struct MapEvents VermilionCity_Gym_MapEvents;
 const struct MapHeader VermilionCity_Gym = {
     .mapLayout = &VermilionCity_Gym_Layout,
     .events = &VermilionCity_Gym_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GYM,
     .mapLayoutId = LAYOUT_VERMILION_CITY_GYM,
@@ -48302,7 +48303,7 @@ extern const struct MapEvents VermilionCity_House3_MapEvents;
 const struct MapHeader VermilionCity_House3 = {
     .mapLayout = &House1_Layout,
     .events = &VermilionCity_House3_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VERMILLION,
     .mapLayoutId = LAYOUT_HOUSE1,
@@ -48440,7 +48441,7 @@ extern const struct MapEvents CeladonCity_DepartmentStore_1F_MapEvents;
 const struct MapHeader CeladonCity_DepartmentStore_1F = {
     .mapLayout = &CeladonCity_DepartmentStore_1F_Layout,
     .events = &CeladonCity_DepartmentStore_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_CELADON_CITY_DEPARTMENT_STORE_1F,
@@ -48588,7 +48589,7 @@ extern const struct MapEvents CeladonCity_DepartmentStore_2F_MapEvents;
 const struct MapHeader CeladonCity_DepartmentStore_2F = {
     .mapLayout = &CeladonCity_DepartmentStore_2F_Layout,
     .events = &CeladonCity_DepartmentStore_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_CELADON_CITY_DEPARTMENT_STORE_2F,
@@ -48825,7 +48826,7 @@ extern const struct MapEvents CeladonCity_DepartmentStore_3F_MapEvents;
 const struct MapHeader CeladonCity_DepartmentStore_3F = {
     .mapLayout = &CeladonCity_DepartmentStore_3F_Layout,
     .events = &CeladonCity_DepartmentStore_3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_CELADON_CITY_DEPARTMENT_STORE_3F,
@@ -48954,7 +48955,7 @@ extern const struct MapEvents CeladonCity_DepartmentStore_4F_MapEvents;
 const struct MapHeader CeladonCity_DepartmentStore_4F = {
     .mapLayout = &CeladonCity_DepartmentStore_4F_Layout,
     .events = &CeladonCity_DepartmentStore_4F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_CELADON_CITY_DEPARTMENT_STORE_4F,
@@ -49102,7 +49103,7 @@ extern const struct MapEvents CeladonCity_DepartmentStore_5F_MapEvents;
 const struct MapHeader CeladonCity_DepartmentStore_5F = {
     .mapLayout = &CeladonCity_DepartmentStore_5F_Layout,
     .events = &CeladonCity_DepartmentStore_5F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_CELADON_CITY_DEPARTMENT_STORE_5F,
@@ -49217,7 +49218,7 @@ extern const struct MapEvents CeladonCity_DepartmentStore_Roof_MapEvents;
 const struct MapHeader CeladonCity_DepartmentStore_Roof = {
     .mapLayout = &CeladonCity_DepartmentStore_Roof_Layout,
     .events = &CeladonCity_DepartmentStore_Roof_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_CELADON_CITY_DEPARTMENT_STORE_ROOF,
@@ -49285,7 +49286,7 @@ extern const struct MapEvents CeladonCity_DepartmentStore_Elevator_MapEvents;
 const struct MapHeader CeladonCity_DepartmentStore_Elevator = {
     .mapLayout = &CeladonCity_DepartmentStore_Elevator_Layout,
     .events = &CeladonCity_DepartmentStore_Elevator_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_CELADON_CITY_DEPARTMENT_STORE_ELEVATOR,
@@ -49464,7 +49465,7 @@ extern const struct MapEvents CeladonCity_Condominiums_1F_MapEvents;
 const struct MapHeader CeladonCity_Condominiums_1F = {
     .mapLayout = &CeladonCity_Condominiums_1F_Layout,
     .events = &CeladonCity_Condominiums_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_CELADON_CITY_CONDOMINIUMS_1F,
@@ -49589,7 +49590,7 @@ extern const struct MapEvents CeladonCity_Condominiums_2F_MapEvents;
 const struct MapHeader CeladonCity_Condominiums_2F = {
     .mapLayout = &CeladonCity_Condominiums_2F_Layout,
     .events = &CeladonCity_Condominiums_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_CELADON_CITY_CONDOMINIUMS_2F,
@@ -49794,7 +49795,7 @@ extern const struct MapEvents CeladonCity_Condominiums_3F_MapEvents;
 const struct MapHeader CeladonCity_Condominiums_3F = {
     .mapLayout = &CeladonCity_Condominiums_3F_Layout,
     .events = &CeladonCity_Condominiums_3F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_CELADON_CITY_CONDOMINIUMS_3F,
@@ -49870,7 +49871,7 @@ extern const struct MapEvents CeladonCity_Condominiums_Roof_MapEvents;
 const struct MapHeader CeladonCity_Condominiums_Roof = {
     .mapLayout = &CeladonCity_Condominiums_Roof_Layout,
     .events = &CeladonCity_Condominiums_Roof_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_CELADON_CITY_CONDOMINIUMS_ROOF,
@@ -49994,7 +49995,7 @@ extern const struct MapEvents CeladonCity_Condominiums_RoofRoom_MapEvents;
 const struct MapHeader CeladonCity_Condominiums_RoofRoom = {
     .mapLayout = &CeladonCity_Condominiums_RoofRoom_Layout,
     .events = &CeladonCity_Condominiums_RoofRoom_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_CELADON_CITY_CONDOMINIUMS_ROOF_ROOM,
@@ -50140,7 +50141,7 @@ extern const struct MapEvents CeladonCity_PokemonCenter_1F_MapEvents;
 const struct MapHeader CeladonCity_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &CeladonCity_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -50278,7 +50279,7 @@ extern const struct MapEvents CeladonCity_PokemonCenter_2F_MapEvents;
 const struct MapHeader CeladonCity_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &CeladonCity_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -50812,7 +50813,7 @@ extern const struct MapEvents CeladonCity_GameCorner_MapEvents;
 const struct MapHeader CeladonCity_GameCorner = {
     .mapLayout = &CeladonCity_GameCorner_Layout,
     .events = &CeladonCity_GameCorner_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GAME_CORNER,
     .mapLayoutId = LAYOUT_CELADON_CITY_GAME_CORNER,
@@ -50969,7 +50970,7 @@ extern const struct MapEvents CeladonCity_GameCorner_PrizeRoom_MapEvents;
 const struct MapHeader CeladonCity_GameCorner_PrizeRoom = {
     .mapLayout = &CeladonCity_GameCorner_PrizeRoom_Layout,
     .events = &CeladonCity_GameCorner_PrizeRoom_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_CELADON_CITY_GAME_CORNER_PRIZE_ROOM,
@@ -51257,7 +51258,7 @@ extern const struct MapEvents CeladonCity_Gym_MapEvents;
 const struct MapHeader CeladonCity_Gym = {
     .mapLayout = &CeladonCity_Gym_Layout,
     .events = &CeladonCity_Gym_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GYM,
     .mapLayoutId = LAYOUT_CELADON_CITY_GYM,
@@ -51414,7 +51415,7 @@ extern const struct MapEvents CeladonCity_Restaurant_MapEvents;
 const struct MapHeader CeladonCity_Restaurant = {
     .mapLayout = &CeladonCity_Restaurant_Layout,
     .events = &CeladonCity_Restaurant_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_CELADON_CITY_RESTAURANT,
@@ -51533,7 +51534,7 @@ extern const struct MapEvents CeladonCity_House1_MapEvents;
 const struct MapHeader CeladonCity_House1 = {
     .mapLayout = &House5_Layout,
     .events = &CeladonCity_House1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_HOUSE5,
@@ -51671,7 +51672,7 @@ extern const struct MapEvents CeladonCity_Hotel_MapEvents;
 const struct MapHeader CeladonCity_Hotel = {
     .mapLayout = &CeladonCity_Hotel_Layout,
     .events = &CeladonCity_Hotel_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_CELADON_CITY_HOTEL,
@@ -51806,7 +51807,7 @@ extern const struct MapEvents FuchsiaCity_SafariZone_Entrance_MapEvents;
 const struct MapHeader FuchsiaCity_SafariZone_Entrance = {
     .mapLayout = &FuchsiaCity_SafariZone_Entrance_Layout,
     .events = &FuchsiaCity_SafariZone_Entrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE,
@@ -51925,7 +51926,7 @@ extern const struct MapEvents FuchsiaCity_Mart_MapEvents;
 const struct MapHeader FuchsiaCity_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &FuchsiaCity_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -52063,7 +52064,7 @@ extern const struct MapEvents FuchsiaCity_SafariZone_Office_MapEvents;
 const struct MapHeader FuchsiaCity_SafariZone_Office = {
     .mapLayout = &FuchsiaCity_SafariZone_Office_Layout,
     .events = &FuchsiaCity_SafariZone_Office_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_FUCHSIA_CITY_SAFARI_ZONE_OFFICE,
@@ -52294,7 +52295,7 @@ extern const struct MapEvents FuchsiaCity_Gym_MapEvents;
 const struct MapHeader FuchsiaCity_Gym = {
     .mapLayout = &FuchsiaCity_Gym_Layout,
     .events = &FuchsiaCity_Gym_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GYM,
     .mapLayoutId = LAYOUT_FUCHSIA_CITY_GYM,
@@ -52413,7 +52414,7 @@ extern const struct MapEvents FuchsiaCity_House1_MapEvents;
 const struct MapHeader FuchsiaCity_House1 = {
     .mapLayout = &House1_Layout,
     .events = &FuchsiaCity_House1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_HOUSE1,
@@ -52559,7 +52560,7 @@ extern const struct MapEvents FuchsiaCity_PokemonCenter_1F_MapEvents;
 const struct MapHeader FuchsiaCity_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &FuchsiaCity_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -52697,7 +52698,7 @@ extern const struct MapEvents FuchsiaCity_PokemonCenter_2F_MapEvents;
 const struct MapHeader FuchsiaCity_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &FuchsiaCity_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -52866,7 +52867,7 @@ extern const struct MapEvents FuchsiaCity_WardensHouse_MapEvents;
 const struct MapHeader FuchsiaCity_WardensHouse = {
     .mapLayout = &FuchsiaCity_WardensHouse_Layout,
     .events = &FuchsiaCity_WardensHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_FUCHSIA_CITY_WARDENS_HOUSE,
@@ -52955,7 +52956,7 @@ extern const struct MapEvents FuchsiaCity_House2_MapEvents;
 const struct MapHeader FuchsiaCity_House2 = {
     .mapLayout = &FuchsiaCity_House2_Layout,
     .events = &FuchsiaCity_House2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_FUCHSIA_CITY_HOUSE2,
@@ -53020,7 +53021,7 @@ extern const struct MapEvents FuchsiaCity_House3_MapEvents;
 const struct MapHeader FuchsiaCity_House3 = {
     .mapLayout = &House1_Layout,
     .events = &FuchsiaCity_House3_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_HOUSE1,
@@ -53361,7 +53362,7 @@ extern const struct MapEvents CinnabarIsland_Gym_MapEvents;
 const struct MapHeader CinnabarIsland_Gym = {
     .mapLayout = &CinnabarIsland_Gym_Layout,
     .events = &CinnabarIsland_Gym_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GYM,
     .mapLayoutId = LAYOUT_CINNABAR_ISLAND_GYM,
@@ -53497,7 +53498,7 @@ extern const struct MapEvents CinnabarIsland_PokemonLab_Entrance_MapEvents;
 const struct MapHeader CinnabarIsland_PokemonLab_Entrance = {
     .mapLayout = &CinnabarIsland_PokemonLab_Entrance_Layout,
     .events = &CinnabarIsland_PokemonLab_Entrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CINNABAR,
     .mapLayoutId = LAYOUT_CINNABAR_ISLAND_POKEMON_LAB_ENTRANCE,
@@ -53600,7 +53601,7 @@ extern const struct MapEvents CinnabarIsland_PokemonLab_Lounge_MapEvents;
 const struct MapHeader CinnabarIsland_PokemonLab_Lounge = {
     .mapLayout = &CinnabarIsland_PokemonLab_Lounge_Layout,
     .events = &CinnabarIsland_PokemonLab_Lounge_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CINNABAR,
     .mapLayoutId = LAYOUT_CINNABAR_ISLAND_POKEMON_LAB_LOUNGE,
@@ -53701,7 +53702,7 @@ extern const struct MapEvents CinnabarIsland_PokemonLab_ResearchRoom_MapEvents;
 const struct MapHeader CinnabarIsland_PokemonLab_ResearchRoom = {
     .mapLayout = &CinnabarIsland_PokemonLab_ResearchRoom_Layout,
     .events = &CinnabarIsland_PokemonLab_ResearchRoom_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CINNABAR,
     .mapLayoutId = LAYOUT_CINNABAR_ISLAND_POKEMON_LAB_RESEARCH_ROOM,
@@ -53785,7 +53786,7 @@ extern const struct MapEvents CinnabarIsland_PokemonLab_ExperimentRoom_MapEvents
 const struct MapHeader CinnabarIsland_PokemonLab_ExperimentRoom = {
     .mapLayout = &CinnabarIsland_PokemonLab_ExperimentRoom_Layout,
     .events = &CinnabarIsland_PokemonLab_ExperimentRoom_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CINNABAR,
     .mapLayoutId = LAYOUT_CINNABAR_ISLAND_POKEMON_LAB_EXPERIMENT_ROOM,
@@ -53988,7 +53989,7 @@ extern const struct MapEvents CinnabarIsland_PokemonCenter_1F_MapEvents;
 const struct MapHeader CinnabarIsland_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &CinnabarIsland_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -54126,7 +54127,7 @@ extern const struct MapEvents CinnabarIsland_PokemonCenter_2F_MapEvents;
 const struct MapHeader CinnabarIsland_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &CinnabarIsland_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -54245,7 +54246,7 @@ extern const struct MapEvents CinnabarIsland_Mart_MapEvents;
 const struct MapHeader CinnabarIsland_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &CinnabarIsland_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -54459,7 +54460,7 @@ extern const struct MapEvents IndigoPlateau_PokemonCenter_1F_MapEvents;
 const struct MapHeader IndigoPlateau_PokemonCenter_1F = {
     .mapLayout = &IndigoPlateau_PokemonCenter_1F_Layout,
     .events = &IndigoPlateau_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GYM,
     .mapLayoutId = LAYOUT_INDIGO_PLATEAU_POKEMON_CENTER_1F,
@@ -54597,7 +54598,7 @@ extern const struct MapEvents IndigoPlateau_PokemonCenter_2F_MapEvents;
 const struct MapHeader IndigoPlateau_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &IndigoPlateau_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -54724,7 +54725,7 @@ extern const struct MapEvents SaffronCity_CopycatsHouse_1F_MapEvents;
 const struct MapHeader SaffronCity_CopycatsHouse_1F = {
     .mapLayout = &SaffronCity_CopycatsHouse_1F_Layout,
     .events = &SaffronCity_CopycatsHouse_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY_COPYCATS_HOUSE_1F,
@@ -54870,7 +54871,7 @@ extern const struct MapEvents SaffronCity_CopycatsHouse_2F_MapEvents;
 const struct MapHeader SaffronCity_CopycatsHouse_2F = {
     .mapLayout = &SaffronCity_CopycatsHouse_2F_Layout,
     .events = &SaffronCity_CopycatsHouse_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY_COPYCATS_HOUSE_2F,
@@ -55115,7 +55116,7 @@ extern const struct MapEvents SaffronCity_Dojo_MapEvents;
 const struct MapHeader SaffronCity_Dojo = {
     .mapLayout = &SaffronCity_Dojo_Layout,
     .events = &SaffronCity_Dojo_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY_DOJO,
@@ -55605,7 +55606,7 @@ extern const struct MapEvents SaffronCity_Gym_MapEvents;
 const struct MapHeader SaffronCity_Gym = {
     .mapLayout = &SaffronCity_Gym_Layout,
     .events = &SaffronCity_Gym_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GYM,
     .mapLayoutId = LAYOUT_SAFFRON_CITY_GYM,
@@ -55753,7 +55754,7 @@ extern const struct MapEvents SaffronCity_House_MapEvents;
 const struct MapHeader SaffronCity_House = {
     .mapLayout = &House5_Layout,
     .events = &SaffronCity_House_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_HOUSE5,
@@ -55872,7 +55873,7 @@ extern const struct MapEvents SaffronCity_Mart_MapEvents;
 const struct MapHeader SaffronCity_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &SaffronCity_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -56056,7 +56057,7 @@ extern const struct MapEvents SaffronCity_PokemonCenter_1F_MapEvents;
 const struct MapHeader SaffronCity_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &SaffronCity_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -56194,7 +56195,7 @@ extern const struct MapEvents SaffronCity_PokemonCenter_2F_MapEvents;
 const struct MapHeader SaffronCity_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &SaffronCity_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -56275,7 +56276,7 @@ extern const struct MapEvents SaffronCity_MrPsychicsHouse_MapEvents;
 const struct MapHeader SaffronCity_MrPsychicsHouse = {
     .mapLayout = &House5_Layout,
     .events = &SaffronCity_MrPsychicsHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_HOUSE5,
@@ -56511,7 +56512,7 @@ extern const struct MapEvents SaffronCity_PokemonTrainerFanClub_MapEvents;
 const struct MapHeader SaffronCity_PokemonTrainerFanClub = {
     .mapLayout = &SaffronCity_PokemonTrainerFanClub_Layout,
     .events = &SaffronCity_PokemonTrainerFanClub_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY_POKEMON_TRAINER_FAN_CLUB,
@@ -56619,7 +56620,7 @@ extern const struct MapEvents Route2_ViridianForest_SouthEntrance_MapEvents;
 const struct MapHeader Route2_ViridianForest_SouthEntrance = {
     .mapLayout = &Route2_Entrance_Layout,
     .events = &Route2_ViridianForest_SouthEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ROUTE2_ENTRANCE,
@@ -56719,7 +56720,7 @@ extern const struct MapEvents Route2_House_MapEvents;
 const struct MapHeader Route2_House = {
     .mapLayout = &House2_Layout,
     .events = &Route2_House_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_HOUSE2,
@@ -56827,7 +56828,7 @@ extern const struct MapEvents Route2_EastBuilding_MapEvents;
 const struct MapHeader Route2_EastBuilding = {
     .mapLayout = &Route2_Entrance_Layout,
     .events = &Route2_EastBuilding_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ROUTE2_ENTRANCE,
@@ -56954,7 +56955,7 @@ extern const struct MapEvents Route2_ViridianForest_NorthEntrance_MapEvents;
 const struct MapHeader Route2_ViridianForest_NorthEntrance = {
     .mapLayout = &Route2_Entrance_Layout,
     .events = &Route2_ViridianForest_NorthEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ROUTE2_ENTRANCE,
@@ -57138,7 +57139,7 @@ extern const struct MapEvents Route4_PokemonCenter_1F_MapEvents;
 const struct MapHeader Route4_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &Route4_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -57276,7 +57277,7 @@ extern const struct MapEvents Route4_PokemonCenter_2F_MapEvents;
 const struct MapHeader Route4_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &Route4_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -57357,7 +57358,7 @@ extern const struct MapEvents Route5_PokemonDayCare_MapEvents;
 const struct MapHeader Route5_PokemonDayCare = {
     .mapLayout = &Route5_PokemonDayCare_Layout,
     .events = &Route5_PokemonDayCare_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ROUTE5_POKEMON_DAY_CARE,
@@ -57473,7 +57474,7 @@ extern const struct MapEvents Route5_SouthEntrance_MapEvents;
 const struct MapHeader Route5_SouthEntrance = {
     .mapLayout = &SaffronCity_NorthSouthEntrance_Layout,
     .events = &Route5_SouthEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY_NORTH_SOUTH_ENTRANCE,
@@ -57589,7 +57590,7 @@ extern const struct MapEvents Route6_NorthEntrance_MapEvents;
 const struct MapHeader Route6_NorthEntrance = {
     .mapLayout = &SaffronCity_NorthSouthEntrance_Layout,
     .events = &Route6_NorthEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY_NORTH_SOUTH_ENTRANCE,
@@ -57621,7 +57622,7 @@ extern const struct MapEvents Route6_UnusedHouse_MapEvents;
 const struct MapHeader Route6_UnusedHouse = {
     .mapLayout = &House2_Layout,
     .events = &Route6_UnusedHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_HOUSE2,
@@ -57737,7 +57738,7 @@ extern const struct MapEvents Route7_EastEntrance_MapEvents;
 const struct MapHeader Route7_EastEntrance = {
     .mapLayout = &SaffronCity_EastWestEntrance_Layout,
     .events = &Route7_EastEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY_EAST_WEST_ENTRANCE,
@@ -57853,7 +57854,7 @@ extern const struct MapEvents Route8_WestEntrance_MapEvents;
 const struct MapHeader Route8_WestEntrance = {
     .mapLayout = &SaffronCity_EastWestEntrance_Layout,
     .events = &Route8_WestEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY_EAST_WEST_ENTRANCE,
@@ -58018,7 +58019,7 @@ extern const struct MapEvents Route10_PokemonCenter_1F_MapEvents;
 const struct MapHeader Route10_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &Route10_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -58156,7 +58157,7 @@ extern const struct MapEvents Route10_PokemonCenter_2F_MapEvents;
 const struct MapHeader Route10_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &Route10_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -58272,7 +58273,7 @@ extern const struct MapEvents Route11_EastEntrance_1F_MapEvents;
 const struct MapHeader Route11_EastEntrance_1F = {
     .mapLayout = &Entrance_1F_Layout,
     .events = &Route11_EastEntrance_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VERMILLION,
     .mapLayoutId = LAYOUT_ENTRANCE_1F,
@@ -58373,7 +58374,7 @@ extern const struct MapEvents Route11_EastEntrance_2F_MapEvents;
 const struct MapHeader Route11_EastEntrance_2F = {
     .mapLayout = &Entrance_2F_Layout,
     .events = &Route11_EastEntrance_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VERMILLION,
     .mapLayoutId = LAYOUT_ENTRANCE_2F,
@@ -58470,7 +58471,7 @@ extern const struct MapEvents Route12_NorthEntrance_1F_MapEvents;
 const struct MapHeader Route12_NorthEntrance_1F = {
     .mapLayout = &Route12_NorthEntrance_1F_Layout,
     .events = &Route12_NorthEntrance_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ROUTE12_NORTH_ENTRANCE_1F,
@@ -58552,7 +58553,7 @@ extern const struct MapEvents Route12_NorthEntrance_2F_MapEvents;
 const struct MapHeader Route12_NorthEntrance_2F = {
     .mapLayout = &Entrance_2F_Layout,
     .events = &Route12_NorthEntrance_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ENTRANCE_2F,
@@ -58643,7 +58644,7 @@ extern const struct MapEvents Route12_FishingHouse_MapEvents;
 const struct MapHeader Route12_FishingHouse = {
     .mapLayout = &House4_Layout,
     .events = &Route12_FishingHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_HOUSE4,
@@ -58740,7 +58741,7 @@ extern const struct MapEvents Route15_WestEntrance_1F_MapEvents;
 const struct MapHeader Route15_WestEntrance_1F = {
     .mapLayout = &Entrance_1F_Layout,
     .events = &Route15_WestEntrance_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ENTRANCE_1F,
@@ -58822,7 +58823,7 @@ extern const struct MapEvents Route15_WestEntrance_2F_MapEvents;
 const struct MapHeader Route15_WestEntrance_2F = {
     .mapLayout = &Entrance_2F_Layout,
     .events = &Route15_WestEntrance_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ENTRANCE_2F,
@@ -58922,7 +58923,7 @@ extern const struct MapEvents Route16_House_MapEvents;
 const struct MapHeader Route16_House = {
     .mapLayout = &House1_Layout,
     .events = &Route16_House_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_HOUSE1,
@@ -59129,7 +59130,7 @@ extern const struct MapEvents Route16_NorthEntrance_1F_MapEvents;
 const struct MapHeader Route16_NorthEntrance_1F = {
     .mapLayout = &Route16_NorthEntrance_1F_Layout,
     .events = &Route16_NorthEntrance_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ROUTE16_NORTH_ENTRANCE_1F,
@@ -59249,7 +59250,7 @@ extern const struct MapEvents Route16_NorthEntrance_2F_MapEvents;
 const struct MapHeader Route16_NorthEntrance_2F = {
     .mapLayout = &Entrance_2F_Layout,
     .events = &Route16_NorthEntrance_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ENTRANCE_2F,
@@ -59421,7 +59422,7 @@ extern const struct MapEvents Route18_EastEntrance_1F_MapEvents;
 const struct MapHeader Route18_EastEntrance_1F = {
     .mapLayout = &Entrance_1F_Layout,
     .events = &Route18_EastEntrance_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ENTRANCE_1F,
@@ -59503,7 +59504,7 @@ extern const struct MapEvents Route18_EastEntrance_2F_MapEvents;
 const struct MapHeader Route18_EastEntrance_2F = {
     .mapLayout = &Entrance_2F_Layout,
     .events = &Route18_EastEntrance_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_ENTRANCE_2F,
@@ -59535,7 +59536,7 @@ extern const struct MapEvents Route19_UnusedHouse_MapEvents;
 const struct MapHeader Route19_UnusedHouse = {
     .mapLayout = &House2_Layout,
     .events = &Route19_UnusedHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_HOUSE2,
@@ -59635,7 +59636,7 @@ extern const struct MapEvents Route22_NorthEntrance_MapEvents;
 const struct MapHeader Route22_NorthEntrance = {
     .mapLayout = &Route22_NorthEntrance_Layout,
     .events = &Route22_NorthEntrance_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VIRIDIAN_FOREST,
     .mapLayoutId = LAYOUT_ROUTE22_NORTH_ENTRANCE,
@@ -59667,7 +59668,7 @@ extern const struct MapEvents Route23_UnusedHouse_MapEvents;
 const struct MapHeader Route23_UnusedHouse = {
     .mapLayout = &House2_Layout,
     .events = &Route23_UnusedHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_VICTORY_ROAD,
     .mapLayoutId = LAYOUT_HOUSE2,
@@ -59777,7 +59778,7 @@ extern const struct MapEvents Route25_SeaCottage_MapEvents;
 const struct MapHeader Route25_SeaCottage = {
     .mapLayout = &Route25_SeaCottage_Layout,
     .events = &Route25_SeaCottage_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_ROUTE25_SEA_COTTAGE,
@@ -59860,7 +59861,7 @@ extern const struct MapEvents SevenIsland_House_Room1_MapEvents;
 const struct MapHeader SevenIsland_House_Room1 = {
     .mapLayout = &SevenIsland_House_Room1_Layout,
     .events = &SevenIsland_House_Room1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_67,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_HOUSE_ROOM1,
@@ -59925,7 +59926,7 @@ extern const struct MapEvents SevenIsland_House_Room2_MapEvents;
 const struct MapHeader SevenIsland_House_Room2 = {
     .mapLayout = &SevenIsland_House_Room2_Layout,
     .events = &SevenIsland_House_Room2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_67,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_HOUSE_ROOM2,
@@ -60047,7 +60048,7 @@ extern const struct MapEvents SevenIsland_Mart_MapEvents;
 const struct MapHeader SevenIsland_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &SevenIsland_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -60215,7 +60216,7 @@ extern const struct MapEvents SevenIsland_PokemonCenter_1F_MapEvents;
 const struct MapHeader SevenIsland_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &SevenIsland_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -60353,7 +60354,7 @@ extern const struct MapEvents SevenIsland_PokemonCenter_2F_MapEvents;
 const struct MapHeader SevenIsland_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &SevenIsland_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -60385,7 +60386,7 @@ extern const struct MapEvents SevenIsland_UnusedHouse_MapEvents;
 const struct MapHeader SevenIsland_UnusedHouse = {
     .mapLayout = &House4_Layout,
     .events = &SevenIsland_UnusedHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_67,
     .mapLayoutId = LAYOUT_HOUSE4,
@@ -60469,7 +60470,7 @@ extern const struct MapEvents SevenIsland_Harbor_MapEvents;
 const struct MapHeader SevenIsland_Harbor = {
     .mapLayout = &Island_Harbor_Layout,
     .events = &SevenIsland_Harbor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_67,
     .mapLayoutId = LAYOUT_ISLAND_HARBOR,
@@ -60738,7 +60739,7 @@ extern const struct MapEvents OneIsland_PokemonCenter_1F_MapEvents;
 const struct MapHeader OneIsland_PokemonCenter_1F = {
     .mapLayout = &OneIsland_PokemonCenter_1F_Layout,
     .events = &OneIsland_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_NET_CENTER,
     .mapLayoutId = LAYOUT_ONE_ISLAND_POKEMON_CENTER_1F,
@@ -60876,7 +60877,7 @@ extern const struct MapEvents OneIsland_PokemonCenter_2F_MapEvents;
 const struct MapHeader OneIsland_PokemonCenter_2F = {
     .mapLayout = &OneIsland_PokemonCenter_2F_Layout,
     .events = &OneIsland_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_NET_CENTER,
     .mapLayoutId = LAYOUT_ONE_ISLAND_POKEMON_CENTER_2F,
@@ -60960,7 +60961,7 @@ extern const struct MapEvents OneIsland_House1_MapEvents;
 const struct MapHeader OneIsland_House1 = {
     .mapLayout = &House3_Layout,
     .events = &OneIsland_House1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -61025,7 +61026,7 @@ extern const struct MapEvents OneIsland_House2_MapEvents;
 const struct MapHeader OneIsland_House2 = {
     .mapLayout = &House3_Layout,
     .events = &OneIsland_House2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -61109,7 +61110,7 @@ extern const struct MapEvents OneIsland_Harbor_MapEvents;
 const struct MapHeader OneIsland_Harbor = {
     .mapLayout = &Island_Harbor_Layout,
     .events = &OneIsland_Harbor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_ISLAND_HARBOR,
@@ -61248,7 +61249,7 @@ extern const struct MapEvents TwoIsland_JoyfulGameCorner_MapEvents;
 const struct MapHeader TwoIsland_JoyfulGameCorner = {
     .mapLayout = &TwoIsland_JoyfulGameCorner_Layout,
     .events = &TwoIsland_JoyfulGameCorner_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_GAME_CORNER,
     .mapLayoutId = LAYOUT_TWO_ISLAND_JOYFUL_GAME_CORNER,
@@ -61313,7 +61314,7 @@ extern const struct MapEvents TwoIsland_House_MapEvents;
 const struct MapHeader TwoIsland_House = {
     .mapLayout = &House3_Layout,
     .events = &TwoIsland_House_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -61424,7 +61425,7 @@ extern const struct MapEvents TwoIsland_PokemonCenter_1F_MapEvents;
 const struct MapHeader TwoIsland_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &TwoIsland_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -61562,7 +61563,7 @@ extern const struct MapEvents TwoIsland_PokemonCenter_2F_MapEvents;
 const struct MapHeader TwoIsland_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &TwoIsland_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -61646,7 +61647,7 @@ extern const struct MapEvents TwoIsland_Harbor_MapEvents;
 const struct MapHeader TwoIsland_Harbor = {
     .mapLayout = &Island_Harbor_Layout,
     .events = &TwoIsland_Harbor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_ISLAND_HARBOR,
@@ -61721,7 +61722,7 @@ extern const struct MapEvents ThreeIsland_House1_MapEvents;
 const struct MapHeader ThreeIsland_House1 = {
     .mapLayout = &ThreeIsland_House1_Layout,
     .events = &ThreeIsland_House1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_THREE_ISLAND_HOUSE1,
@@ -61851,7 +61852,7 @@ extern const struct MapEvents ThreeIsland_PokemonCenter_1F_MapEvents;
 const struct MapHeader ThreeIsland_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &ThreeIsland_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -61989,7 +61990,7 @@ extern const struct MapEvents ThreeIsland_PokemonCenter_2F_MapEvents;
 const struct MapHeader ThreeIsland_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &ThreeIsland_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -62111,7 +62112,7 @@ extern const struct MapEvents ThreeIsland_Mart_MapEvents;
 const struct MapHeader ThreeIsland_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &ThreeIsland_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -62195,7 +62196,7 @@ extern const struct MapEvents ThreeIsland_House2_MapEvents;
 const struct MapHeader ThreeIsland_House2 = {
     .mapLayout = &House3_Layout,
     .events = &ThreeIsland_House2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -62260,7 +62261,7 @@ extern const struct MapEvents ThreeIsland_House3_MapEvents;
 const struct MapHeader ThreeIsland_House3 = {
     .mapLayout = &House3_Layout,
     .events = &ThreeIsland_House3_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -62344,7 +62345,7 @@ extern const struct MapEvents ThreeIsland_House4_MapEvents;
 const struct MapHeader ThreeIsland_House4 = {
     .mapLayout = &House3_Layout,
     .events = &ThreeIsland_House4_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -62409,7 +62410,7 @@ extern const struct MapEvents ThreeIsland_House5_MapEvents;
 const struct MapHeader ThreeIsland_House5 = {
     .mapLayout = &House3_Layout,
     .events = &ThreeIsland_House5_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -62474,7 +62475,7 @@ extern const struct MapEvents FourIsland_PokemonDayCare_MapEvents;
 const struct MapHeader FourIsland_PokemonDayCare = {
     .mapLayout = &FourIsland_PokemonDayCare_Layout,
     .events = &FourIsland_PokemonDayCare_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_FOUR_ISLAND_POKEMON_DAY_CARE,
@@ -62621,7 +62622,7 @@ extern const struct MapEvents FourIsland_PokemonCenter_1F_MapEvents;
 const struct MapHeader FourIsland_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &FourIsland_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -62759,7 +62760,7 @@ extern const struct MapEvents FourIsland_PokemonCenter_2F_MapEvents;
 const struct MapHeader FourIsland_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &FourIsland_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -62843,7 +62844,7 @@ extern const struct MapEvents FourIsland_House1_MapEvents;
 const struct MapHeader FourIsland_House1 = {
     .mapLayout = &House3_Layout,
     .events = &FourIsland_House1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -63174,7 +63175,7 @@ extern const struct MapEvents FourIsland_LoreleisHouse_MapEvents;
 const struct MapHeader FourIsland_LoreleisHouse = {
     .mapLayout = &FourIsland_LoreleisHouse_Layout,
     .events = &FourIsland_LoreleisHouse_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_FOUR_ISLAND_LORELEIS_HOUSE,
@@ -63258,7 +63259,7 @@ extern const struct MapEvents FourIsland_Harbor_MapEvents;
 const struct MapHeader FourIsland_Harbor = {
     .mapLayout = &Island_Harbor_Layout,
     .events = &FourIsland_Harbor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_ISLAND_HARBOR,
@@ -63323,7 +63324,7 @@ extern const struct MapEvents FourIsland_House2_MapEvents;
 const struct MapHeader FourIsland_House2 = {
     .mapLayout = &House3_Layout,
     .events = &FourIsland_House2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -63426,7 +63427,7 @@ extern const struct MapEvents FourIsland_Mart_MapEvents;
 const struct MapHeader FourIsland_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &FourIsland_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -63575,7 +63576,7 @@ extern const struct MapEvents FiveIsland_PokemonCenter_1F_MapEvents;
 const struct MapHeader FiveIsland_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &FiveIsland_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -63713,7 +63714,7 @@ extern const struct MapEvents FiveIsland_PokemonCenter_2F_MapEvents;
 const struct MapHeader FiveIsland_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &FiveIsland_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -63797,7 +63798,7 @@ extern const struct MapEvents FiveIsland_Harbor_MapEvents;
 const struct MapHeader FiveIsland_Harbor = {
     .mapLayout = &Island_Harbor_Layout,
     .events = &FiveIsland_Harbor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_ISLAND_HARBOR,
@@ -63862,7 +63863,7 @@ extern const struct MapEvents FiveIsland_House1_MapEvents;
 const struct MapHeader FiveIsland_House1 = {
     .mapLayout = &House3_Layout,
     .events = &FiveIsland_House1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -63927,7 +63928,7 @@ extern const struct MapEvents FiveIsland_House2_MapEvents;
 const struct MapHeader FiveIsland_House2 = {
     .mapLayout = &House3_Layout,
     .events = &FiveIsland_House2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -64057,7 +64058,7 @@ extern const struct MapEvents SixIsland_PokemonCenter_1F_MapEvents;
 const struct MapHeader SixIsland_PokemonCenter_1F = {
     .mapLayout = &PokemonCenter_1F_Layout,
     .events = &SixIsland_PokemonCenter_1F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_1F,
@@ -64195,7 +64196,7 @@ extern const struct MapEvents SixIsland_PokemonCenter_2F_MapEvents;
 const struct MapHeader SixIsland_PokemonCenter_2F = {
     .mapLayout = &PokemonCenter_2F_Layout,
     .events = &SixIsland_PokemonCenter_2F_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_POKEMON_CENTER_2F,
@@ -64279,7 +64280,7 @@ extern const struct MapEvents SixIsland_Harbor_MapEvents;
 const struct MapHeader SixIsland_Harbor = {
     .mapLayout = &Island_Harbor_Layout,
     .events = &SixIsland_Harbor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_67,
     .mapLayoutId = LAYOUT_ISLAND_HARBOR,
@@ -64344,7 +64345,7 @@ extern const struct MapEvents SixIsland_House_MapEvents;
 const struct MapHeader SixIsland_House = {
     .mapLayout = &House3_Layout,
     .events = &SixIsland_House_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_67,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -64447,7 +64448,7 @@ extern const struct MapEvents SixIsland_Mart_MapEvents;
 const struct MapHeader SixIsland_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &SixIsland_Mart_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
@@ -64531,7 +64532,7 @@ extern const struct MapEvents ThreeIsland_Harbor_MapEvents;
 const struct MapHeader ThreeIsland_Harbor = {
     .mapLayout = &Island_Harbor_Layout,
     .events = &ThreeIsland_Harbor_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_ISLAND_HARBOR,
@@ -64632,7 +64633,7 @@ extern const struct MapEvents FiveIsland_ResortGorgeous_House_MapEvents;
 const struct MapHeader FiveIsland_ResortGorgeous_House = {
     .mapLayout = &FiveIsland_ResortGorgeous_House_Layout,
     .events = &FiveIsland_ResortGorgeous_House_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_RESORT_GORGEOUS_HOUSE,
@@ -64697,7 +64698,7 @@ extern const struct MapEvents TwoIsland_CapeBrink_House_MapEvents;
 const struct MapHeader TwoIsland_CapeBrink_House = {
     .mapLayout = &House3_Layout,
     .events = &TwoIsland_CapeBrink_House_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -64772,7 +64773,7 @@ extern const struct MapEvents SixIsland_WaterPath_House1_MapEvents;
 const struct MapHeader SixIsland_WaterPath_House1 = {
     .mapLayout = &House4_Layout,
     .events = &SixIsland_WaterPath_House1_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_HOUSE4,
@@ -64837,7 +64838,7 @@ extern const struct MapEvents SixIsland_WaterPath_House2_MapEvents;
 const struct MapHeader SixIsland_WaterPath_House2 = {
     .mapLayout = &House3_Layout,
     .events = &SixIsland_WaterPath_House2_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_HOUSE3,
@@ -64940,7 +64941,7 @@ extern const struct MapEvents SevenIsland_SevaultCanyon_House_MapEvents;
 const struct MapHeader SevenIsland_SevaultCanyon_House = {
     .mapLayout = &House3_Layout,
     .events = &SevenIsland_SevaultCanyon_House_MapEvents,
-    .mapScripts = sDummyScript,
+    .mapScripts = sEmptyMapScripts,
     .connections = NULL,
     .music = MUS_SEVII_67,
     .mapLayoutId = LAYOUT_HOUSE3,
