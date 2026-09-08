@@ -92,7 +92,8 @@ def main():
         f.write('#include "constants/event_object_movement.h"\n')
         f.write('#include "constants/trainer_types.h"\n\n')
         f.write('#include "constants/event_bg.h"\n')
-        f.write("static const u8 sDummyScript[] = { 0x02 };\n\n")
+        f.write("static const u8 sDummyScript[] = { 0x02 };\n")
+        f.write("static const u8 sEmptyMapScripts[] = { 0x00 };\n\n")
 
         # Map forward declarations and events
         for map_name in all_map_names:
@@ -198,7 +199,7 @@ def main():
             f.write(f"const struct MapHeader {map_name} = {{\n")
             f.write(f"    .mapLayout = &{layout_name},\n")
             f.write(f"    .events = &{ev_name}_MapEvents,\n")
-            f.write(f"    .mapScripts = sDummyScript,\n")
+            f.write(f"    .mapScripts = sEmptyMapScripts,\n")
             f.write(f"    .connections = NULL,\n")
             f.write(f"    .music = {m.get('music', 'MUS_PALLET')},\n")
             f.write(f"    .mapLayoutId = {layout_id},\n")
