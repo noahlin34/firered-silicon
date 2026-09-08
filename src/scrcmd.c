@@ -2262,3 +2262,5 @@ bool8 ScrCmd_setmonmetlocation(struct ScriptContext * ctx)
         SetMonData(&gPlayerParty[partyIndex], MON_DATA_MET_LOCATION, &location);
     return FALSE;
 }
+
+#include "data/script_cmd_table.h"
