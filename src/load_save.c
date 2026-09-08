@@ -45,6 +45,9 @@ COMMON_DATA struct PokemonStorage *gPokemonStoragePtr = NULL;
 
 void CheckForFlashMemory(void)
 {
+#ifdef PORTABLE
+    gFlashMemoryPresent = TRUE;
+#else
     if (!IdentifyFlash())
     {
         gFlashMemoryPresent = TRUE;
@@ -54,6 +57,7 @@ void CheckForFlashMemory(void)
     {
         gFlashMemoryPresent = FALSE;
     }
+#endif
 }
 
 void ClearSav2(void)
@@ -72,12 +76,17 @@ void SetSaveBlocksPointers(void)
     struct SaveBlock1** sav1_LocalVar = &gSaveBlock1Ptr;
     void *oldSave = (void *)gSaveBlock1Ptr;
 
+#ifdef PORTABLE
+    gSaveBlock2Ptr = &gSaveBlock2;
+    *sav1_LocalVar = &gSaveBlock1;
+    gPokemonStoragePtr = &gPokemonStorage;
+#else
     offset = (Random()) & ((SAVEBLOCK_MOVE_RANGE - 1) & ~3);
 
     gSaveBlock2Ptr = (void *)(&gSaveBlock2) + offset;
     *sav1_LocalVar = (void *)(&gSaveBlock1) + offset;
     gPokemonStoragePtr = (void *)(&gPokemonStorage) + offset;
-
+#endif
     SetBagPocketsPointers();
     QL_AddASLROffset(oldSave);
 }
@@ -97,6 +106,10 @@ void MoveSaveBlocks_ResetHeap(void)
     gMain.hblankCallback = NULL;
     gMain.vblankCounter1 = NULL;
     
+#ifdef PORTABLE
+    SetSaveBlocksPointers();
+    InitHeap(gHeap, HEAP_SIZE);
+#else
     saveBlock2Copy = (struct SaveBlock2 *)(gHeap);
     saveBlock1Copy = (struct SaveBlock1 *)(gHeap + sizeof(struct SaveBlock2));
     pokemonStorageCopy = (struct PokemonStorage *)(gHeap + sizeof(struct SaveBlock2) + sizeof(struct SaveBlock1));
@@ -117,6 +130,7 @@ void MoveSaveBlocks_ResetHeap(void)
 
     // heap was destroyed in the copying process, so reset it
     InitHeap(gHeap, HEAP_SIZE);
+#endif
 
     // restore interrupt functions
     gMain.hblankCallback = hblankCB;
