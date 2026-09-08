@@ -15,9 +15,3 @@ struct SoundInfo *SOUND_INFO_PTR = NULL;
 // Game Engine Heap
 uint8_t gHeap[0x1C000] __attribute__((aligned(4))) = {0};
 
-// Game Engine SaveBlocks
-struct SaveBlock2 gSaveBlock2 = {0};
-struct SaveBlock1 gSaveBlock1 = {0};
-struct SaveBlock2 *gSaveBlock2Ptr = &gSaveBlock2;
-struct SaveBlock1 *gSaveBlock1Ptr = &gSaveBlock1;
-bool32 gFlashMemoryPresent = TRUE;
