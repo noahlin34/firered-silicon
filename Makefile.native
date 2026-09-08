@@ -250,10 +250,10 @@ $(OBJ_DIR)/field_weather.o: src/field_weather.c
 $(OBJ_DIR)/tilesets.o: src/tilesets.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/maps.o: src/maps.c
+$(OBJ_DIR)/field_effect.o: src/field_effect.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/field_effect.o: src/field_effect.c
+$(OBJ_DIR)/maps.o: src/maps.c src/data/maps_data.h src/data/layouts_data.h
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
 $(OBJ_DIR)/field_door.o: src/field_door.c
