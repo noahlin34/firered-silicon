@@ -191,7 +191,7 @@ void FadeOutMapMusic(u8 speed) { (void)speed; }
 bool8 IsNotWaitingForBGMStop(void) { return TRUE; }
 u8 LoadGameSave(u8 saveType) { (void)saveType; return 0; }
 void Save_ResetSaveCounters(void) {}
-u16 gSaveFileStatus = 1; // SAVE_STATUS_OK
+u16 gSaveFileStatus = 0; // SAVE_STATUS_EMPTY
 void SetPokemonCryStereo(u32 mode) { (void)mode; }
 void HelpSystem_Disable(void) {}
 void HelpSystem_Enable(void) {}
