@@ -121,7 +121,7 @@ void FadeOutAndFadeInNewMapMusic(u16 song, u8 speed) {}
 void FadeOutAndPlayNewMapMusic(u16 song, u8 speed) {}
 void FieldCB_RushInjuredPokemonToCenter(void) {}
 u8 FindTallGrassFieldEffectSpriteId(u8 a) { return 0; }
-bool8 ForestMapPreviewScreenIsRunning(void) { return FALSE; }
+bool32 ForestMapPreviewScreenIsRunning(void) { return TRUE; }
 void FreeAndDestroyMonPicSprite(u8 spriteId) {}
 u32 GetBerryPowder(void) { return 0; }
 u32 GetCoins(void) { return 0; }
