@@ -23,6 +23,18 @@
 #include "constants/battle_move_effects.h"
 #include "link.h"
 
+#include "constants/flags.h"
+#include "constants/vars.h"
+#include "constants/items.h"
+#include "constants/species.h"
+#include "pokemon_storage_system.h"
+#include "string_util.h"
+#include "item.h"
+#include "event_data.h"
+#include "pokemon_storage_system_internal.h"
+#include "strings.h"
+#include "script.h"
+extern u16 gSpecialVar_0x8014;
 /* Auto-generated battle-engine stubs: the GBA battle engine (assembly scripts +
  * battle controllers) is not linked in the native port. Only data symbols and
  * entry points referenced by non-battle scenes are provided. */
@@ -187,14 +199,7 @@ const struct OamData gOamData_AffineOff_ObjNormal_16x8;
 const struct OamData gOamData_AffineOff_ObjNormal_32x16;
 const struct OamData gOamData_AffineOff_ObjNormal_32x32;
 struct PokedudeBattlerState *gPokedudeBattlerStates[MAX_BATTLERS_COUNT];
-struct PokemonStorage* gPokemonStoragePtr;
 bool8 gReceivedRemoteLinkPlayers;
-u16 gSpecialVar_0x8004;
-u16 gSpecialVar_0x8005;
-u16 gSpecialVar_0x8006;
-u16 gSpecialVar_MonBoxId;
-u16 gSpecialVar_MonBoxPos;
-u16 gSpecialVar_Result;
 struct PokemonStorageSystemData *gStorage;
 u16 gTrainerBattleOpponent_A;
 
@@ -214,13 +219,6 @@ void BattleStopLowHpSound(void) {}
 void BeginEvolutionScene(struct Pokemon* mon, u16 speciesToEvolve, u8, u8 partyId) {}
 u8 BitmaskAllOtherLinkPlayers(void) { return 0; }
 void BufferBattlePartyCurrentOrderBySide(u8 battlerId, u8 flankId) {}
-void CB2_NewGame(void) {
-    static bool8 sPrinted = FALSE;
-    if (!sPrinted) {
-        sPrinted = TRUE;
-        printf("[Engine] Successfully completed Oak's speech and reached CB2_NewGame!\n");
-    }
-}
 s16 CalculatePanIncrement(s16 sourcePan, s16 targetPan, s16 incrementPan) { return 0; }
 void CheckShouldAdvanceLinkState(void) {}
 void ClearBattleAnimationVars(void) {}
@@ -231,14 +229,11 @@ void ClearTopBarWindow(void) {}
 void CommitQuestLogWindow1(void) {}
 u8 ContextNpcGetTextColor(void) { return 0; }
 void CopyEReaderTrainerName5(u8 *dest) {}
-void CopyItemName(u16 itemId, u8 *string) {}
-void CopyObjectGraphicsInfoToSpriteTemplate(u16 graphicsId, void (*callback)(struct Sprite *), struct SpriteTemplate *spriteTemplate, const struct SubspriteTable **subspriteTables) { (void)graphicsId; (void)callback; (void)spriteTemplate; (void)subspriteTables; }
 u8 CountPartyAliveNonEggMonsExcept(u8 slotToIgnore) { return 0; }
 u8 CountPartyMons(void) { return 0; }
 void CreateBoxMonIconAtPos(u8 boxPosition) {}
 u8 CreateHelpMessageWindow(void) { return 0; }
 void CreateMovingMonIcon(void) {}
-u8 CreateObjectGraphicsSprite(u16 graphicsId, SpriteCallback callback, s16 x, s16 y, u8 subpriority) { return 0; }
 u8 CreateTopBarWindowLoadPalette(u8 bg, u8 width, u8 yPos, u8 palette, u16 baseTile) { return 0; }
 void CreateWirelessStatusIndicatorSprite(u8, u8) {}
 void CreateYesNoMenu(const struct WindowTemplate *window, u8 fontId, u8 left, u8 top, u16 baseTileNum, u8 paletteNum, u8 initialCursorPos) {}
@@ -256,7 +251,6 @@ void DrawBattleEntryBackground(void) {}
 void DrawDialogFrameWithCustomTileAndPalette(u8 windowId, bool8 copyToVram, u16 tileNum, u8 paletteNum) {}
 void DrawStdFrameWithCustomTileAndPalette(u8 windowId, bool8 copyToVram, u16 baseTileNum, u8 paletteNum) {}
 void EvolutionScene(struct Pokemon* mon, u16 speciesToEvolve, u8, u8 partyId) {}
-u8 FlagClear(u16 id) { return 0; }
 u16 FontFunc_Braille(struct TextPrinter *textPrinter) { return 0; }
 void FreeBattleSpritesData(void) {}
 void FreeMonSpritesGfx(void) {}
@@ -267,8 +261,6 @@ void GetBattleTowerTrainerName(u8 *text) {}
 u8 GetBattlerTurnOrderNum(u8 battlerId) { return 0; }
 const struct Berry *GetBerryInfo(u8 berry) { return 0; }
 u8 GetBlockReceivedStatus(void) { return 0; }
-u8 GetCurrentRegionMapSectionId(void) { return 0; }
-u8 GetCurrentWeather(void) { return 0; }
 u8 GetEreaderTrainerClassId(void) { return 0; }
 s16 GetFirstFreeBoxSpot(u8 boxId) { return 0; }
 u8 GetLastViewedMonIndex(void) { return 0; }
@@ -276,9 +268,7 @@ u8 GetLinkPlayerCount_2(void) { return 0; }
 u8 GetMultiplayerId(void) { return 0; }
 u16 GetPCBoxToSendMon(void) { return 0; }
 u8 GetPartyIdFromBattlePartyId(u8 battlePartyId) { return 0; }
-u8 GetRivalAvatarGraphicsIdByStateIdAndGender(u8 state, u8 gender) { return 0; }
 u16 GetRivalBattleFlags(void) { return 0; }
-s8 GetSetPokedexFlag(u16 nationalNum, u8 caseId) { return 0; }
 const u8 *GetTrainerALoseText(void) { return 0; }
 u8 GetTrainerBattleMode(void) { return 0; }
 u8 GetTrainerTowerOpponentClass(void) { return 0; }
@@ -303,14 +293,8 @@ bool32 IsEnigmaBerryValid(void) { return 0; }
 bool8 IsItemIconAnimActive(void) { return 0; }
 bool32 IsLinkRecvQueueAtOverworldMax(void) { return 0; }
 bool8 IsLinkRfuTaskFinished(void) { return 0; }
-bool8 IsMsgSignpost(void) { return 0; }
-bool32 IsUpdateLinkStateCBActive(void) { return 0; }
 u8 ItemIdToBallId(u16 itemId) { return 0; }
 u8 ItemIdToBerryType(u16 item) { return 0; }
-u8 ItemId_GetHoldEffect(u16 itemId) { return 0; }
-u8 ItemId_GetHoldEffectParam(u16 itemId) { return 0; }
-const u8 *ItemId_GetName(u16 itemId) { return 0; }
-bool8 ItemIsMail(u16 itemId) { return 0; }
 s16 KeepPanInRange(s16 a, s32 oldPan) { return 0; }
 u8 LaunchBallFadeMonTask(bool8 unFadeLater, u8 battlerId, u32 arg2, u8 ballId) { return 0; }
 u8 ListMenuAddCursorObjectInternal(const struct CursorStruct *cursor, u32 cursorKind) { return 0; }
@@ -319,7 +303,6 @@ void ListMenuUpdateCursorObject(u8 taskId, u16 x, u16 y, u32 cursorKind) {}
 void LoadBattleMenuWindowGfx(void) {}
 void LoadBattleTextboxAndBackground(void) {}
 void LoadWirelessStatusIndicatorSpriteGfx(void) {}
-u16 MailSpeciesToSpecies(u16 mailSpecies, u16 *buffer) { return 0; }
 void MapNamePopupWindowIdSetDummy(void) {}
 u8 Menu_GetCursorPos(void) { return 0; }
 u8 Menu_InitCursor(u8 windowId, u8 fontId, u8 left, u8 top, u8 cursorHeight, u8 numChoices, u8 initialCursorPos) { return 0; }
@@ -327,27 +310,11 @@ u8 Menu_MoveCursor(s8 cursorDelta) { return 0; }
 s8 Menu_ProcessInput(void) { return 0; }
 s8 Menu_ProcessInputNoWrapAround(void) { return 0; }
 s8 Menu_ProcessInputNoWrapClearOnChoose(void) { return 0; }
-void MoveSaveBlocks_ResetHeap(void) {}
 bool8 MultiMove_CanPlaceSelection(void) { return 0; }
 u8 MultiMove_GetOriginPosition(void) { return 0; }
 bool8 MultiMove_TryMoveGroup(u8 dir) { return 0; }
 /* Real implementation from field_effect.c (not linked): fades one palette
  * entry toward white; used by the naming-screen cursor flash. */
-void MultiplyInvertedPaletteRGBComponents(u16 i, u8 r, u8 g, u8 b)
-{
-    u16 outPal = gPlttBufferUnfaded[i];
-    int curRed = outPal & 0x1f;
-    int curGreen = (outPal & (0x1f << 5)) >> 5;
-    int curBlue = (outPal & (0x1f << 10)) >> 10;
-    curRed += (((0x1f - curRed) * r) >> 4);
-    curGreen += (((0x1f - curGreen) * g) >> 4);
-    curBlue += (((0x1f - curBlue) * b) >> 4);
-    outPal = curRed;
-    outPal |= curGreen << 5;
-    outPal |= curBlue << 10;
-    gPlttBufferFaded[i] = outPal;
-}
-bool32 Overworld_LinkRecvQueueLengthMoreThan2(void) { return 0; }
 void PlayCry_ByMode(u16 species, s8 pan, u8 mode) {}
 void PlayCry_ReleaseDouble(u16 species, s8 pan, u8 mode) {}
 void PlayNewMapMusic(u16 songNum) {}
@@ -378,7 +345,6 @@ void SetMovingMonPriority(u8 priority) {}
 void SetMovingMonSprite(u8 cursorArea, u8 cursorPos) {}
 void SetPCBoxToSendMon(u8) {}
 void SetPlacedMonSprite(u8 cursorArea, u8 cursorPos) {}
-void SetRoamerInactive(void) {}
 void SetShiftMonSpritePtr(u8 boxId, u8 position) {}
 struct WindowTemplate SetWindowTemplateFields(u8 bg, u8 left, u8 top, u8 width, u8 height, u8 paletteNum, u16 baseBlock) { struct WindowTemplate t; t.bg = bg; t.tilemapLeft = left; t.tilemapTop = top; t.width = width; t.height = height; t.paletteNum = paletteNum; t.baseBlock = baseBlock; return t; }
 void SetWirelessCommType1(void) {}
@@ -395,10 +361,7 @@ bool8 TryHideReleaseMonSprite(void) { return 0; }
 void TryLoadItemIconAtPos(u8 cursorArea, u8 cursorPos) {}
 void TrySetQuestLogBattleEvent(void) {}
 void TrySetQuestLogLinkBattleEvent(void) {}
-void UpdateRoamerHPStatus(struct Pokemon *mon) {}
 bool8 UproarWakeUpCheck(u8 battlerId) { return 0; }
-u16 VarGet(u16 id) { return 0; }
-bool8 VarSet(u16 id, u16 value) { return 0; }
 void m4aMPlayVolumeControl(struct MusicPlayerInfo *mplayInfo, u16 trackBits, u16 volume) {}
 
 
@@ -447,9 +410,6 @@ u8 GetBattlerAtPosition(u8 position) { return 0; }
 #define GET_BATTLER_SIDE(battler)((GetBattlerPosition(battler) & BIT_SIDE)) { return 0; }
 u8 GetBattlerSide(u8 battlerId) { return 0; }
 u8 GetBattlerSpriteCoord(u8 battlerId, u8 coordType) { return 0; }
-u32 GetBoxMonDataAt(u8 boxId, u8 monPosition, s32 request) { return 0; }
-u8 *GetBoxNamePtr(u8 boxNumber) { return 0; }
-struct BoxPokemon *GetBoxedMonPtr(u8 boxId, u8 monPosition) { return 0; }
 u8 GetMoveTarget(u16 move, u8 setTarget) { return 0; }
 void HandleAction_RunBattleScript(void) {}
 bool8 HandleFaintedMonActions(void) { return 0; }
@@ -463,7 +423,6 @@ void MarkBattlerForControllerExec(u8 battlerId) {}
 void PrepareStringBattle(u16 stringId, u8 battler) {}
 void ResetSentPokesToOpponentValue(void) {}
 void SetUpBattleVars(void) {}
-u8 StorageGetCurrentBox(void) { return 0; }
 bool8 TranslateAnimHorizontalArc(struct Sprite *sprite) { return 0; }
 void TryClearRageStatuses(void) {}
 u8 TrySetCantSelectMoveBattleScript(void) { return 0; }
@@ -473,3 +432,114 @@ void UpdateSentPokesToOpponentValue(u8 battler) {}
 u8 AbilityBattleEffects(u8 caseID, u8 battler, u8 ability, u8 special, u16 moveArg) { (void)caseID; (void)battler; (void)ability; (void)special; (void)moveArg; return 0; }
 u8 GetBattlerPosition(u8 battlerId) { (void)battlerId; return 0; }
 void (* const gBattleScriptingCommandsTable[])(void) = { NULL };
+
+/* ---- new_game dependencies and stubs ---- */
+#define SCRIPT_SETFLAG(f) 0x29, (u8)((f) & 0xFF), (u8)(((f) >> 8) & 0xFF)
+#define SCRIPT_SETVAR(v, val) 0x1A, (u8)((v) & 0xFF), (u8)(((v) >> 8) & 0xFF), (u8)((val) & 0xFF), (u8)(((val) >> 8) & 0xFF)
+#define SCRIPT_END 0x02
+
+const u8 EventScript_ResetAllMapFlags[] = {
+    SCRIPT_SETFLAG(FLAG_HIDE_OAK_IN_HIS_LAB),
+    SCRIPT_SETFLAG(FLAG_HIDE_OAK_IN_PALLET_TOWN),
+    SCRIPT_SETFLAG(FLAG_HIDE_BILL_HUMAN_SEA_COTTAGE),
+    SCRIPT_SETFLAG(FLAG_HIDE_PEWTER_CITY_RUNNING_SHOES_GUY),
+    SCRIPT_SETFLAG(FLAG_HIDE_POKEHOUSE_FUJI),
+    SCRIPT_SETFLAG(FLAG_HIDE_LIFT_KEY),
+    SCRIPT_SETFLAG(FLAG_HIDE_SILPH_SCOPE),
+    SCRIPT_SETFLAG(FLAG_HIDE_CERULEAN_RIVAL),
+    SCRIPT_SETFLAG(FLAG_HIDE_SS_ANNE_RIVAL),
+    SCRIPT_SETFLAG(FLAG_HIDE_VERMILION_CITY_OAKS_AIDE),
+    SCRIPT_SETFLAG(FLAG_HIDE_SAFFRON_CIVILIANS),
+    SCRIPT_SETFLAG(FLAG_HIDE_ROUTE_22_RIVAL),
+    SCRIPT_SETFLAG(FLAG_HIDE_OAK_IN_CHAMP_ROOM),
+    SCRIPT_SETFLAG(FLAG_HIDE_CREDITS_RIVAL),
+    SCRIPT_SETFLAG(FLAG_HIDE_CREDITS_OAK),
+    SCRIPT_SETFLAG(FLAG_HIDE_CINNABAR_BILL),
+    SCRIPT_SETFLAG(FLAG_HIDE_CINNABAR_SEAGALLOP),
+    SCRIPT_SETFLAG(FLAG_HIDE_CINNABAR_POKECENTER_BILL),
+    SCRIPT_SETFLAG(FLAG_HIDE_LORELEI_IN_HER_HOUSE),
+    SCRIPT_SETFLAG(FLAG_HIDE_SAFFRON_FAN_CLUB_BLACK_BELT),
+    SCRIPT_SETFLAG(FLAG_HIDE_SAFFRON_FAN_CLUB_ROCKER),
+    SCRIPT_SETFLAG(FLAG_HIDE_SAFFRON_FAN_CLUB_WOMAN),
+    SCRIPT_SETFLAG(FLAG_HIDE_SAFFRON_FAN_CLUB_BEAUTY),
+    SCRIPT_SETFLAG(FLAG_HIDE_TWO_ISLAND_GAME_CORNER_LOSTELLE),
+    SCRIPT_SETFLAG(FLAG_HIDE_TWO_ISLAND_GAME_CORNER_BIKER),
+    SCRIPT_SETFLAG(FLAG_HIDE_TWO_ISLAND_WOMAN),
+    SCRIPT_SETFLAG(FLAG_HIDE_TWO_ISLAND_BEAUTY),
+    SCRIPT_SETFLAG(FLAG_HIDE_TWO_ISLAND_POKE_MANIAC),
+    SCRIPT_SETFLAG(FLAG_HIDE_LOSTELLE_IN_HER_HOME),
+    SCRIPT_SETFLAG(FLAG_HIDE_THREE_ISLAND_LONE_BIKER),
+    SCRIPT_SETFLAG(FLAG_HIDE_FOUR_ISLAND_RIVAL),
+    SCRIPT_SETFLAG(FLAG_HIDE_DOTTED_HOLE_SCIENTIST),
+    SCRIPT_SETFLAG(FLAG_HIDE_RESORT_GORGEOUS_SELPHY),
+    SCRIPT_SETFLAG(FLAG_HIDE_RESORT_GORGEOUS_INSIDE_SELPHY),
+    SCRIPT_SETFLAG(FLAG_HIDE_SELPHYS_BUTLER),
+    SCRIPT_SETFLAG(FLAG_HIDE_DEOXYS),
+    SCRIPT_SETFLAG(FLAG_HIDE_LORELEI_HOUSE_MEOWTH_DOLL),
+    SCRIPT_SETFLAG(FLAG_HIDE_LORELEI_HOUSE_CHANSEY_DOLL),
+    SCRIPT_SETFLAG(FLAG_HIDE_LORELEIS_HOUSE_NIDORAN_F_DOLL),
+    SCRIPT_SETFLAG(FLAG_HIDE_LORELEI_HOUSE_JIGGLYPUFF_DOLL),
+    SCRIPT_SETFLAG(FLAG_HIDE_LORELEIS_HOUSE_NIDORAN_M_DOLL),
+    SCRIPT_SETFLAG(FLAG_HIDE_LORELEIS_HOUSE_FEAROW_DOLL),
+    SCRIPT_SETFLAG(FLAG_HIDE_LORELEIS_HOUSE_PIDGEOT_DOLL),
+    SCRIPT_SETFLAG(FLAG_HIDE_LORELEIS_HOUSE_LAPRAS_DOLL),
+    SCRIPT_SETFLAG(FLAG_HIDE_POSTGAME_GOSSIPERS),
+    SCRIPT_SETFLAG(FLAG_HIDE_FAME_CHECKER_ERIKA_JOURNALS),
+    SCRIPT_SETFLAG(FLAG_HIDE_FAME_CHECKER_KOGA_JOURNAL),
+    SCRIPT_SETFLAG(FLAG_HIDE_FAME_CHECKER_LT_SURGE_JOURNAL),
+    SCRIPT_SETFLAG(FLAG_HIDE_SAFFRON_CITY_POKECENTER_SABRINA_JOURNALS),
+    SCRIPT_SETVAR(VAR_MASSAGE_COOLDOWN_STEP_COUNTER, 500),
+    SCRIPT_END
+};
+
+
+void ResetPokemonStorageSystem(void)
+{
+    u16 boxId, boxPosition;
+
+    SetCurrentBox(0);
+    for (boxId = 0; boxId < TOTAL_BOXES_COUNT; boxId++)
+    {
+        for (boxPosition = 0; boxPosition < IN_BOX_COUNT; boxPosition++)
+            ZeroBoxMonAt(boxId, boxPosition);
+    }
+    for (boxId = 0; boxId < TOTAL_BOXES_COUNT; boxId++)
+    {
+        u8 *dest = StringCopy(GetBoxNamePtr(boxId), gText_Box);
+        ConvertIntToDecimalStringN(dest, boxId + 1, STR_CONV_MODE_LEFT_ALIGN, 2);
+    }
+
+    for (boxId = 0; boxId < TOTAL_BOXES_COUNT; boxId++)
+        SetBoxWallpaper(boxId, boxId % (MAX_DEFAULT_WALLPAPER + 1));
+}
+
+void ResetFameChecker(void)
+{
+    u8 i;
+    for (i = 0; i < 16; i++)
+    {
+        gSaveBlock1Ptr->fameChecker[i].pickState = 0;
+        gSaveBlock1Ptr->fameChecker[i].flavorTextFlags = 0;
+        gSaveBlock1Ptr->fameChecker[i].unk_0_E = 0;
+    }
+    gSaveBlock1Ptr->fameChecker[0].pickState = 1;
+}
+
+void ClearEnigmaBerries(void) {}
+void ClearMysteryGift(void) {}
+void ClearPlayerLinkBattleRecords(void) {}
+void ResetTrainerFanClub(void) {}
+void UnionRoomChat_InitializeRegisteredTexts(void) {}
+void ResetTrainerTowerResults(void) {}
+void ResetPokemonJumpRecords(void) {}
+void ResetBagCursorPositions(void) {}
+void ResetTMCaseCursorPos(void) {}
+void BerryPouch_CursorResetToTop(void) {}
+void ResetQuestLog(void) {}
+void InitEasyChatPhrases(void) {}
+void NewGameInitPCItems(void) { AddPCItem(ITEM_POTION, 1); }
+void ApplyNewEncryptionKeyToBerryPowder(u32 key) { (void)key; }
+void QL_AddASLROffset(void *oldSaveBlockPtr) { (void)oldSaveBlockPtr; }
+void QuestLogSetFlagOrVar(bool8 isFlag, u16 idx, u16 value) { (void)isFlag; (void)idx; (void)value; }
+void SetQuestLogEvent(u16 eventId, const u16 *data) { (void)eventId; (void)data; }
+u16 GetStarterSpecies(void) { return SPECIES_BULBASAUR; }
