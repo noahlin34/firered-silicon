@@ -214,7 +214,13 @@ void BattleStopLowHpSound(void) {}
 void BeginEvolutionScene(struct Pokemon* mon, u16 speciesToEvolve, u8, u8 partyId) {}
 u8 BitmaskAllOtherLinkPlayers(void) { return 0; }
 void BufferBattlePartyCurrentOrderBySide(u8 battlerId, u8 flankId) {}
-void CB2_NewGame(void) {}
+void CB2_NewGame(void) {
+    static bool8 sPrinted = FALSE;
+    if (!sPrinted) {
+        sPrinted = TRUE;
+        printf("[Engine] Successfully completed Oak's speech and reached CB2_NewGame!\n");
+    }
+}
 s16 CalculatePanIncrement(s16 sourcePan, s16 targetPan, s16 incrementPan) { return 0; }
 void CheckShouldAdvanceLinkState(void) {}
 void ClearBattleAnimationVars(void) {}
