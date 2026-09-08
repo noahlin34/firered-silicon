@@ -62,9 +62,11 @@ This repository is based on **pokefirered** (the pret decompilation of *Pokémon
   - Boot automation reaches gender selection, enters the player naming screen, accepts a player name, and returns to Oak's speech without crashing.
   - Naming-screen teardown now disables VBlank before freeing `sNamingScreen`; `CB2_NamingScreen` stops the same frame when its task frees that state.
   - Naming keyboard letters and punctuation render from the real charmap-encoded `src/keyboard_text.c`; the blank battle-stub definitions were removed.
-- [x] **Rival Naming Flow (`src/naming_screen.c`):**
-  - Oak's post-player-name dialogue reaches the rival naming screen without crashing.
-  - Player and rival naming icons use fully initialized local sprite templates instead of incomplete object-event stubs. Both icons render correctly in boot-test captures.
+- [x] **Rival Naming & Oak's Speech Exit Flow (`src/naming_screen.c`, `src/oak_speech.c`):**
+  - Oak's post-player-name dialogue enters the rival naming screen, inputs the rival name, and returns to Oak's speech.
+  - Player and rival naming icons render cleanly using fully initialized local sprite templates.
+  - Oak confirms the rival name, delivers his farewell dialogue, and triggers the exit animation (`Task_OakSpeech_ShrinkPlayerPic` affine Mode 1 BG2 shrink and fade-to-black).
+  - Oak's speech resources are freed and cleanly hand off execution to `CB2_NewGame` (`[Engine] Successfully completed Oak's speech and reached CB2_NewGame!`).
 > **Note on Intro Sequence:** The opening intro sequence (`src/intro.c` — Copyright screen, GameFreak star shooting animation, and Nidorino vs. Gengar battle) is temporarily bypassed in `src/main.c` (`InitMainCallbacks()` boots directly to `CB2_InitTitleScreen`). This was done deliberately to expedite reaching gameplay, and the intro cinematic will be linked back in at a later point in time.
 
 ### Critical 64-Bit Portability Fixes (Learned the Hard Way)
@@ -86,7 +88,7 @@ These bugs are subtle and WILL recur if new engine files are linked. Understand 
 14. **Real text tables must replace blank stubs completely.** The naming keyboard was blank because `battle_engine_stubs.c` supplied one-byte zero-filled `gText_NamingScreenKeyboard_*` arrays while `src/keyboard_text.c` was not linked. Add text-bearing sources to `PREPROC_SRCS` and delete every duplicate stub definition.
 
 ### Debugging Tips
-- Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses: START at frames 5–10 (skip intro fade), 30–35 (enter game from Title Screen), DOWN at 230–231 + A at 240–245 (select NEW GAME), then A at 320–325 / 360–365 / 400–405 / 520–525 / 560–565 (advance Controls Guide → Pikachu intro → Oak speech). Starting at frame 620 it also presses A for 6 frames every 90 frames. This periodic input advances Oak's dialogue, gender selection, player naming, and the post-name rival introduction. A 6500-frame run reaches the active rival naming screen with its icon and keyboard rendered.
+- Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses: START at frames 5–10 (skip intro fade), 30–35 (enter game from Title Screen), DOWN at 230–231 + A at 240–245 (select NEW GAME), then A at 320–325 / 360–365 / 400–405 / 520–525 / 560–565 (advance Controls Guide → Pikachu intro → Oak speech). Starting at frame 620 it also presses A for 6 frames every 90 frames. This periodic input advances Oak's dialogue, gender selection, player naming, rival naming (frames 6500–7200), farewell speech (frame 8600), and completes the player-shrink transition into `CB2_NewGame` by frame ~8900–9000.
 - Missing-symbol workflow: `make -f Makefile.native` then extract `grep -oE '"_[A-Za-z0-9_]+"'` from linker output; find real definitions with `grep -rln "SymbolName" src/*.c`; add that file to ENGINE_SRCS (or PREPROC_SRCS if it has `INCBIN`/`_()`) and DELETE the stub version from `stubs.c`. Symbols from the battle engine go into `src/platform/battle_engine_stubs.c` instead (generated from header prototypes).
 - A `SIGSEGV`/`SIGBUS` backtrace handler is installed in `src/platform/main.c` (`CrashHandler`) — crashes print a symbolized stack trace.
 - `compile_flags.txt` at repo root configures clangd with `-DPORTABLE -DMODERN=1 -DFIRERED`; keep it in sync with `Makefile.native` CFLAGS.
@@ -107,7 +109,7 @@ openfirered/
 │   ├── main_menu.c            # Main Menu scene (CONTINUE / NEW GAME)
 │   ├── title_screen.c         # Title screen scene
 │   ├── oak_speech.c           # Oak's Speech scene (NEW GAME flow)
-│   ├── naming_screen.c        # Player naming completed; rival naming reached and currently blocked on its object-event icon stub
+│   ├── naming_screen.c        # Player and rival naming flows fully completed
 │   ├── pokemon.c              # Pokemon data, MonSpritesGfxManager, Spinda spots
 │   ├── platform/
 │   │   ├── system.c           # Memory buffer allocations (REG_BASE, VRAM_, PLTT_, gHeap, SaveBlocks)
@@ -152,13 +154,13 @@ make -f Makefile.native
 
 ---
 
-## 6. Immediate Next Steps: Finish Rival Naming → Overworld
+## 6. Immediate Next Steps: Enter the Overworld
 
-The automated flow completes player naming and reaches a functional rival naming screen. Oak, Nidoran F, the selected player portrait, both naming icons, and naming keyboard glyphs are visually verified. Remaining work:
-1. **Complete rival naming and Oak's speech:** extend the boot test through rival-name confirmation, `Task_OakSpeech_LetsGo`, and the player-shrink transition.
-2. **Enter the overworld:**
-   - Replace the temporary `CB2_NewGame` stub by linking `src/overworld.c` and `src/new_game.c`; `CB2_NewGame` calls `NewGameInitData()` and enters `CB2_Overworld`.
-   - Linking `src/overworld.c` pulls in the map/field engine (`field_*.c`, `map_*.c`, `script.c`, `wild_encounter.c`) and begins the next dependency wave.
+Rival naming, Oak's speech, and the player shrink transition into `CB2_NewGame` are complete and verified. Remaining work:
+1. **Replace `CB2_NewGame` stub:**
+   - Link `src/new_game.c` and `src/overworld.c`; `CB2_NewGame` initializes save data (`NewGameInitData()`), player avatar state, and enters `CB2_Overworld`.
+2. **Link Map & Field Engine:**
+   - Resolve symbols pulled in by `src/overworld.c`: map/field engine (`field_*.c`, `map_*.c`, `fieldmap.c`, `script.c`, `wild_encounter.c`, `event_object_movement.c`).
 ---
 
 ## 7. Git & Commit Guidelines
