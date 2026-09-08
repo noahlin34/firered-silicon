@@ -96,6 +96,8 @@ These bugs are subtle and WILL recur if new engine files are linked. Understand 
 15. **Map headers, layouts, and script tables must use 64-bit host pointers.** GBA assembly `.4byte` pointers truncate 64-bit pointers on macOS ARM64. `tools/gen_map_data.py` compiles map layouts, headers, and event structures directly as native C structs in `src/maps.c`, where pointers are natively 64-bit (`sizeof(void *) == 8`).
 16. **SaveBlock ASLR offset must be zero in PORTABLE mode.** GBA `SetSaveBlocksPointers` randomizes offsets up to 128 bytes assuming EWRAM padding. On macOS, save blocks are exact C struct buffers; adding an offset walks past buffer boundaries.
 17. **Script command table (`gScriptCmdTable`) requires native function pointer sizing.** Script command dispatch indexes function pointers; on 64-bit architectures, this table must contain 8-byte pointers generated in C (`src/data/script_cmd_table.h`).
+18. **`ForestMapPreviewScreenIsRunning` must return TRUE when idle.** In pret decompilation, this function returns whether the preview screen is *not* active. Returning FALSE keeps `FieldFadeTransitionBackgroundEffectIsFinished()` permanently false, preventing `Task_ExitNonDoor` from unfreezing objects and unlocking player controls upon warp entry.
+19. **Map script headers must be terminated by 0x00.** Bytecode scripts terminate with `0x02` (`end`), but map header `.mapScripts` lists entries terminated by `0x00`. Using `0x02` causes `MapHeaderGetScriptTable` to overrun the array on frame-script checks.
 
 ### Debugging Tips
 - Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses: START at frames 5–10 (skip intro fade), 30–35 (enter game from Title Screen), DOWN at 230–231 + A at 240–245 (select NEW GAME), then A at 320–325 / 360–365 / 400–405 / 520–525 / 560–565 (advance Controls Guide → Pikachu intro → Oak speech). Starting at frame 620 it also presses A for 6 frames every 90 frames. This periodic input advances Oak's dialogue, gender selection, player naming, rival naming (frames 6500–7200), farewell speech (frame 8600), hands off to `CB2_NewGame` by frame ~8900–9000, and spawns into the player's bedroom in Pallet Town (`CB2_Overworld`) by frame 9200.
@@ -164,15 +166,17 @@ make -f Makefile.native
 
 ---
 
-## 6. Immediate Next Steps: Overworld Exploration & Interaction
+## 6. Immediate Next Steps: Downstairs Warp & Pallet Town Exterior
 
-The engine successfully loads the player's bedroom map and enters `CB2_Overworld`. Remaining work:
-1. **Player Movement & Warps:**
-   - Test D-pad movement in the overworld, descending the stairs to 1F, and exiting to Pallet Town exterior.
-   - Verify map transition and connection rendering when stepping outside into Pallet Town.
-2. **Overworld Scripts & Interaction:**
-   - Link signpost, PC, and NPC interaction scripts (`PalletTown_PlayersHouse_2F_EventScript_PC`, Mom dialogue on 1F, Oak triggering when entering tall grass).
----
+The engine spawns into `PalletTown_PlayersHouse_2F`, unfreezes objects, unlocks player controls, and accepts D-pad movement cleanly. Remaining work:
+1. **Downstairs Stair Warp (2F → 1F):**
+   - Handle stair warp execution when stepping on the upper-right staircase tile (x=10, y=2) to warp to `MAP_PALLET_TOWN_PLAYERS_HOUSE_1F`.
+   - Resolve `DoStairWarp` / `Task_ExitStairs` flow and render 1F map view, metatiles, and Mom NPC object event.
+2. **Pallet Town Exterior & Door Warp (1F → Outdoors):**
+   - Support door exit from 1F into Pallet Town exterior (`FieldAnimateDoorClose` / `FieldAnimateDoorOpen`).
+   - Render Pallet Town outdoor map, connecting boundaries, and outdoor NPC object events.
+3. **Overworld Scripts & Interaction:**
+   - Link signpost, PC, Mom dialogue, and Oak's tall-grass trigger script.
 
 ## 7. Git & Commit Guidelines
 
