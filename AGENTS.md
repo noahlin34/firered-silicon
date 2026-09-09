@@ -167,12 +167,13 @@ make -f Makefile.native
 
 ---
 
-## 6. Immediate Next Steps: Downstairs Warp & Pallet Town Exterior
+## 6. Overworld Warp Status & Next Steps
 
-The engine spawns into `PalletTown_PlayersHouse_2F`, unfreezes objects, unlocks player controls, and accepts D-pad movement cleanly. Remaining work:
-1. **Downstairs Stair Warp (2F → 1F):**
-   - Handle stair warp execution when stepping on the upper-right staircase tile (x=10, y=2) to warp to `MAP_PALLET_TOWN_PLAYERS_HOUSE_1F`.
-   - Resolve `DoStairWarp` / `Task_ExitStairs` flow and render 1F map view, metatiles, and Mom NPC object event.
+The engine spawns into `PalletTown_PlayersHouse_2F`, unfreezes objects, unlocks player controls, and accepts D-pad movement cleanly.
+1. **Downstairs Stair Warp (2F ↔ 1F): Complete**
+   - `Makefile.native` links the real `src/fldeff_flash.c` map-transition callbacks and cave-transition assets. The empty `CB2_DoChangeMap` stub previously stranded the engine after fade-out instead of invoking `gMain.savedCallback` to load the destination.
+   - A 10,800-frame native smoke run with temporary D-pad input verified arrival on 1F, completed fade, unlocked controls, walking away from the stairs, and returning to 2F. A PPU capture verified the downstairs room and Mom.
+   - Party-menu Flash and map-preview screens remain excluded under `PORTABLE`; normal map loading and cave fade transitions use the real engine code. Cave transitions were not exercised by the stair smoke.
 2. **Pallet Town Exterior & Door Warp (1F → Outdoors):**
    - Support door exit from 1F into Pallet Town exterior (`FieldAnimateDoorClose` / `FieldAnimateDoorOpen`).
    - Render Pallet Town outdoor map, connecting boundaries, and outdoor NPC object events.
