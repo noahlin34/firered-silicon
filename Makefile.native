@@ -87,6 +87,7 @@ PREPROC_SRCS := src/title_screen.c \
                 src/field_player_avatar.c \
                 src/event_object_movement.c \
                 src/field_weather.c \
+                src/fldeff_flash.c \
                 src/tilesets.c \
                 src/field_effect.c \
                 src/field_door.c \
@@ -157,6 +158,12 @@ assets:
 	@for i in 0 1 2 3 4; do tools/gbagfx/gbagfx graphics/text_window/stdpal_$$i.pal graphics/text_window/stdpal_$$i.gbapal; done
 	@tools/gbagfx/gbagfx graphics/object_events/pics/people/red_normal.png graphics/object_events/pics/people/red_normal.4bpp -mwidth 2 -mheight 4
 	@tools/gbagfx/gbagfx graphics/object_events/pics/people/green_normal.png graphics/object_events/pics/people/green_normal.4bpp -mwidth 2 -mheight 4
+	@tools/gbagfx/gbagfx graphics/cave_transition/white.pal graphics/cave_transition/white.gbapal
+	@tools/gbagfx/gbagfx graphics/cave_transition/black.pal graphics/cave_transition/black.gbapal
+	@tools/gbagfx/gbagfx graphics/cave_transition/tiles.png graphics/cave_transition/tiles.gbapal
+	@tools/gbagfx/gbagfx graphics/cave_transition/tiles.png graphics/cave_transition/tiles.4bpp
+	@tools/gbagfx/gbagfx graphics/cave_transition/tiles.4bpp graphics/cave_transition/tiles.4bpp.lz
+	@tools/gbagfx/gbagfx graphics/cave_transition/tilemap.bin graphics/cave_transition/tilemap.bin.lz
 	@tools/gbagfx/gbagfx graphics/object_events/palettes/player.pal graphics/object_events/palettes/player.gbapal
 
 $(OBJ_DIR)/%.o: src/%.c
@@ -246,6 +253,9 @@ $(OBJ_DIR)/event_object_movement.o: src/event_object_movement.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
 $(OBJ_DIR)/field_weather.o: src/field_weather.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/fldeff_flash.o: src/fldeff_flash.c | assets
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
 $(OBJ_DIR)/tilesets.o: src/tilesets.c
