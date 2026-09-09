@@ -506,8 +506,17 @@ static void WaitForVBlank(void)
         if (sEngineFrameCount >= 560 && sEngineFrameCount <= 565)
             REG_KEYINPUT &= ~(1 << 0); // A: advance to Oak speech
         if (sEngineFrameCount >= 620 && ((sEngineFrameCount - 620) % 90) < 6)
-            REG_KEYINPUT &= ~(1 << 0); // A: advance Oak speech dialog pages periodically
-        if (sEngineFrameCount >= 9220 && sEngineFrameCount <= 9240)
+        {
+            if (sEngineFrameCount < 4800 || sEngineFrameCount > 5000)
+                REG_KEYINPUT &= ~(1 << 0); // A: advance Oak speech dialog pages periodically
+        }
+        if (sEngineFrameCount >= 4910 && sEngineFrameCount <= 4912)
+            REG_KEYINPUT &= ~(1 << 7); // DOWN to GREEN
+        if (sEngineFrameCount >= 4930 && sEngineFrameCount <= 4932)
+            REG_KEYINPUT &= ~(1 << 7); // DOWN to GARY
+        if (sEngineFrameCount >= 4950 && sEngineFrameCount <= 4955)
+            REG_KEYINPUT &= ~(1 << 0); // A to select GARY
+        if ((sEngineFrameCount >= 6800 && sEngineFrameCount <= 6820) || (sEngineFrameCount >= 9220 && sEngineFrameCount <= 9240))
             REG_KEYINPUT &= ~(1 << 7); // DOWN to step south in bedroom
     }
     REG_VCOUNT = 160; // Start of VBlank
