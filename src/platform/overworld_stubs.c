@@ -100,7 +100,6 @@ void BerryPouch_SetExitCallback(void *cb) {}
 void BerryPouch_StartFadeToExitCallback(u8 taskId) {}
 void CB2_BagMenuFromBattle(void) {}
 void CB2_BagMenuFromStartMenu(void) {}
-void CB2_DoChangeMap(void) {}
 void CB2_ShowPartyMenuForItemUse(void) {}
 bool8 CheckForTrainersWantingBattle(void) { return FALSE; }
 void ClearLinkCallback_2(void) {}
@@ -168,8 +167,6 @@ bool8 MapHasPreviewScreen_HandleQLState2(u8 mapSec, u8 type) { return FALSE; }
 void MapPreview_LoadGfx(u8 mapSec) {}
 void MapPreview_StartForestTransition(u8 mapSec) {}
 void MapResetTrainerRematches(u16 grp, u16 num) {}
-bool8 MapTransitionIsEnter(u8 a, u8 b) { return FALSE; }
-bool8 MapTransitionIsExit(u8 a, u8 b) { return FALSE; }
 bool8 MonKnowsMove(struct Pokemon *mon, u16 move) { return FALSE; }
 void MovementAction_RevealTrainer_RunTrainerSeeFuncList(struct ObjectEvent *obj, struct Sprite *sprite) {}
 void PlayCry_NormalNoDucking(u16 species, s8 pan, u8 volume, u8 priority) {}
