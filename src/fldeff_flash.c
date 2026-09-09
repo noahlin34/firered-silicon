@@ -18,7 +18,6 @@ struct FlashStruct
     bool8 isEnter;
     bool8 isExit;
     void (*func1)(void);
-    void (*func2)(u8 mapSecId);
 };
 
 static void FieldCallback_Flash(void);
@@ -45,112 +44,96 @@ static const struct FlashStruct sTransitionTypes[] = {
         .isEnter = TRUE,
         .isExit = FALSE,
         .func1 = FlashTransition_Enter,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_CITY,
         .toType = MAP_TYPE_UNDERGROUND,
         .isEnter = TRUE,
         .isExit = FALSE,
         .func1 = FlashTransition_Enter,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_ROUTE,
         .toType = MAP_TYPE_UNDERGROUND,
         .isEnter = TRUE,
         .isExit = FALSE,
         .func1 = FlashTransition_Enter,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_UNDERWATER,
         .toType = MAP_TYPE_UNDERGROUND,
         .isEnter = TRUE,
         .isExit = FALSE,
         .func1 = FlashTransition_Enter,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_OCEAN_ROUTE,
         .toType = MAP_TYPE_UNDERGROUND,
         .isEnter = TRUE,
         .isExit = FALSE,
         .func1 = FlashTransition_Enter,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_UNKNOWN,
         .toType = MAP_TYPE_UNDERGROUND,
         .isEnter = TRUE,
         .isExit = FALSE,
         .func1 = FlashTransition_Enter,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_INDOOR,
         .toType = MAP_TYPE_UNDERGROUND,
         .isEnter = TRUE,
         .isExit = FALSE,
         .func1 = FlashTransition_Enter,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_SECRET_BASE,
         .toType = MAP_TYPE_UNDERGROUND,
         .isEnter = TRUE,
         .isExit = FALSE,
         .func1 = FlashTransition_Enter,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_UNDERGROUND,
         .toType = MAP_TYPE_TOWN,
         .isEnter = FALSE,
         .isExit = TRUE,
         .func1 = FlashTransition_Exit,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_UNDERGROUND,
         .toType = MAP_TYPE_CITY,
         .isEnter = FALSE,
         .isExit = TRUE,
         .func1 = FlashTransition_Exit,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_UNDERGROUND,
         .toType = MAP_TYPE_ROUTE,
         .isEnter = FALSE,
         .isExit = TRUE,
         .func1 = FlashTransition_Exit,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_UNDERGROUND,
         .toType = MAP_TYPE_UNDERWATER,
         .isEnter = FALSE,
         .isExit = TRUE,
         .func1 = FlashTransition_Exit,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_UNDERGROUND,
         .toType = MAP_TYPE_OCEAN_ROUTE,
         .isEnter = FALSE,
         .isExit = TRUE,
         .func1 = FlashTransition_Exit,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_UNDERGROUND,
         .toType = MAP_TYPE_UNKNOWN,
         .isEnter = FALSE,
         .isExit = TRUE,
         .func1 = FlashTransition_Exit,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_UNDERGROUND,
         .toType = MAP_TYPE_INDOOR,
         .isEnter = FALSE,
         .isExit = TRUE,
         .func1 = FlashTransition_Exit,
-        .func2 = RunMapPreviewScreen
     }, {
         .fromType = MAP_TYPE_UNDERGROUND,
         .toType = MAP_TYPE_SECRET_BASE,
         .isEnter = FALSE,
         .isExit = TRUE,
         .func1 = FlashTransition_Exit,
-        .func2 = RunMapPreviewScreen
     }, {0}
 };
 
@@ -161,6 +144,8 @@ static const u16 sCaveTransitionPalette[] = INCBIN_U16("graphics/cave_transition
 static const u32 sCaveTransitionTilemap[] = INCBIN_U32("graphics/cave_transition/tilemap.bin.lz");
 static const u32 sCaveTransitionTiles[] = INCBIN_U32("graphics/cave_transition/tiles.4bpp.lz");
 
+#ifndef PORTABLE
+// The native build does not yet link party-menu field moves.
 bool8 SetUpFieldMove_Flash(void)
 {
     if (gMapHeader.cave != TRUE)
@@ -188,6 +173,7 @@ static void FldEff_UseFlash(void)
     FlagSet(FLAG_SYS_FLASH_ACTIVE);
     ScriptContext_SetupScript(EventScript_FldEffFlash);
 }
+#endif
 
 // Map transition animatics
 
@@ -239,11 +225,14 @@ static bool8 TryDoMapTransition(void)
     u8 fromType = GetLastUsedWarpMapType();
     u8 toType = GetCurrentMapType();
     u8 i = 0;
+#ifndef PORTABLE
+    // Map preview screens are not linked by the native build.
     if (GetLastUsedWarpMapSectionId() != gMapHeader.regionMapSectionId && MapHasPreviewScreen_HandleQLState2(gMapHeader.regionMapSectionId, MPS_TYPE_CAVE) == TRUE)
     {
         RunMapPreviewScreen(gMapHeader.regionMapSectionId);
         return TRUE;
     }
+#endif
     for (; sTransitionTypes[i].fromType != 0; i++)
     {
         if (sTransitionTypes[i].fromType == fromType && sTransitionTypes[i].toType == toType)
@@ -413,6 +402,7 @@ static void Task_FlashTransition_Enter_3(u8 taskId)
     }
 }
 
+#ifndef PORTABLE
 static void RunMapPreviewScreen(u8 mapSecId)
 {
     u8 taskId = CreateTask(Task_MapPreviewScreen_0, 0);
@@ -477,3 +467,4 @@ static void Task_MapPreviewScreen_0(u8 taskId)
         break;
     }
 }
+#endif
