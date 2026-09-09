@@ -34,6 +34,7 @@ ENGINE_SRCS := src/main.c \
                src/blend_palette.c \
                src/blit.c \
                src/window.c \
+               src/menu.c \
                src/menu2.c \
                src/text_printer.c \
                src/list_menu.c \
