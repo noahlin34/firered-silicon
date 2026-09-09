@@ -223,9 +223,7 @@ s16 CalculatePanIncrement(s16 sourcePan, s16 targetPan, s16 incrementPan) { retu
 void CheckShouldAdvanceLinkState(void) {}
 void ClearBattleAnimationVars(void) {}
 void ClearRematchStateByTrainerId(void) {}
-void ClearStdWindowAndFrameToTransparent(u8 windowId, bool8 copyToVram) {}
 void ClearTemporarySpeciesSpriteData(u8 battlerId, bool8 dontClearSubstitute) {}
-void ClearTopBarWindow(void) {}
 void CommitQuestLogWindow1(void) {}
 u8 ContextNpcGetTextColor(void) { return 0; }
 void CopyEReaderTrainerName5(u8 *dest) {}
@@ -234,9 +232,7 @@ u8 CountPartyMons(void) { return 0; }
 void CreateBoxMonIconAtPos(u8 boxPosition) {}
 u8 CreateHelpMessageWindow(void) { return 0; }
 void CreateMovingMonIcon(void) {}
-u8 CreateTopBarWindowLoadPalette(u8 bg, u8 width, u8 yPos, u8 palette, u16 baseTile) { return 0; }
 void CreateWirelessStatusIndicatorSprite(u8, u8) {}
-void CreateYesNoMenu(const struct WindowTemplate *window, u8 fontId, u8 left, u8 top, u16 baseTileNum, u8 paletteNum, u8 initialCursorPos) {}
 void DestroyAnimSoundTask(u8 taskId) {}
 void DestroyAnimSprite(struct Sprite *sprite) {}
 void DestroyAnimVisualTask(u8 taskId) {}
@@ -245,11 +241,8 @@ void DestroyMovingMonIcon(void) {}
 void DestroyPartyMonIcon(u8 partyId) {}
 void DestroyReleaseMonIcon(void) {}
 void DestroyTask_RfuIdle(void) {}
-void DestroyTopBarWindow(void) {}
 void DoReleaseMonAnim(u8 mode, u8 position) {}
 void DrawBattleEntryBackground(void) {}
-void DrawDialogFrameWithCustomTileAndPalette(u8 windowId, bool8 copyToVram, u16 tileNum, u8 paletteNum) {}
-void DrawStdFrameWithCustomTileAndPalette(u8 windowId, bool8 copyToVram, u16 baseTileNum, u8 paletteNum) {}
 void EvolutionScene(struct Pokemon* mon, u16 speciesToEvolve, u8, u8 partyId) {}
 u16 FontFunc_Braille(struct TextPrinter *textPrinter) { return 0; }
 void FreeBattleSpritesData(void) {}
@@ -304,12 +297,6 @@ void LoadBattleMenuWindowGfx(void) {}
 void LoadBattleTextboxAndBackground(void) {}
 void LoadWirelessStatusIndicatorSpriteGfx(void) {}
 void MapNamePopupWindowIdSetDummy(void) {}
-u8 Menu_GetCursorPos(void) { return 0; }
-u8 Menu_InitCursor(u8 windowId, u8 fontId, u8 left, u8 top, u8 cursorHeight, u8 numChoices, u8 initialCursorPos) { return 0; }
-u8 Menu_MoveCursor(s8 cursorDelta) { return 0; }
-s8 Menu_ProcessInput(void) { return 0; }
-s8 Menu_ProcessInputNoWrapAround(void) { return 0; }
-s8 Menu_ProcessInputNoWrapClearOnChoose(void) { return 0; }
 bool8 MultiMove_CanPlaceSelection(void) { return 0; }
 u8 MultiMove_GetOriginPosition(void) { return 0; }
 bool8 MultiMove_TryMoveGroup(u8 dir) { return 0; }
@@ -320,7 +307,6 @@ void PlayCry_ReleaseDouble(u16 species, s8 pan, u8 mode) {}
 void PlayNewMapMusic(u16 songNum) {}
 void PlaySE1WithPanning(u16 songNum, s8 pan) {}
 void PlaySE2WithPanning(u16 songNum, s8 pan) {}
-void PrintTextArray(u8 windowId, u8 fontId, u8 left, u8 top, u8 lineHeight, u8 itemCount, const struct MenuAction *strs) {}
 void PrintTextOnHelpMessageWindow(const u8 * text, u8 mode) {}
 void RecordAbilityBattle(u8 bank, u8 abilityId) {}
 void RecordItemEffectBattle(u8 bank, u8 itemEffect) {}
@@ -346,7 +332,6 @@ void SetMovingMonSprite(u8 cursorArea, u8 cursorPos) {}
 void SetPCBoxToSendMon(u8) {}
 void SetPlacedMonSprite(u8 cursorArea, u8 cursorPos) {}
 void SetShiftMonSpritePtr(u8 boxId, u8 position) {}
-struct WindowTemplate SetWindowTemplateFields(u8 bg, u8 left, u8 top, u8 width, u8 height, u8 paletteNum, u16 baseBlock) { struct WindowTemplate t; t.bg = bg; t.tilemapLeft = left; t.tilemapTop = top; t.width = width; t.height = height; t.paletteNum = paletteNum; t.baseBlock = baseBlock; return t; }
 void SetWirelessCommType1(void) {}
 bool8 ShiftMons(void) { return 0; }
 bool32 ShouldPlayNormalMonCry(struct Pokemon *mon) { return 0; }
@@ -354,8 +339,6 @@ void ShowPartyMenuToShowcaseMultiBattleParty(void) {}
 void StopCryAndClearCrySongs(void) {}
 void SwitchPartyMonSlots(u8 slot, u8 slot2) {}
 void Task_WaitForLinkPlayerConnection(u8 taskId) {}
-void TopBarWindowPrintString(const u8 *string, u8 unUsed, bool8 copyToVram) {}
-void TopBarWindowPrintTwoStrings(const u8 *string, const u8 *string2, bool8 fgColorChooser, u8 notUsed, bool8 copyToVram) {}
 void TryHideItemIconAtPos(u8 cursorArea, u8 cursorPos) {}
 bool8 TryHideReleaseMonSprite(void) { return 0; }
 void TryLoadItemIconAtPos(u8 cursorArea, u8 cursorPos) {}
