@@ -209,3 +209,15 @@ u32 GetWordTaskArg(u8 taskId, u8 dataElem)
     else
         return 0;
 }
+
+void SetPointerTaskArg(u8 taskId, u8 dataElem, void *value)
+{
+    memcpy(&gTasks[taskId].data[dataElem], &value, sizeof(value));
+}
+
+void *GetPointerTaskArg(u8 taskId, u8 dataElem)
+{
+    void *value;
+    memcpy(&value, &gTasks[taskId].data[dataElem], sizeof(value));
+    return value;
+}
