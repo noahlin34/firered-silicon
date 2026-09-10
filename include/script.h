@@ -18,7 +18,7 @@ struct ScriptContext
     const u8 *stack[20];
     ScrCmdFunc *cmdTable;
     ScrCmdFunc *cmdTableEnd;
-    u32 data[4];
+    uintptr_t data[4];
 };
 
 #define ScriptReadByte(ctx) (*(ctx->scriptPtr++))
@@ -32,6 +32,7 @@ void ScriptJump(struct ScriptContext *ctx, const u8 *ptr);
 void ScriptCall(struct ScriptContext *ctx, const u8 *ptr);
 void ScriptReturn(struct ScriptContext *ctx);
 u16 ScriptReadHalfword(struct ScriptContext *ctx);
+uintptr_t ScriptReadPtr(struct ScriptContext *ctx);
 u32 ScriptReadWord(struct ScriptContext *ctx);
 void LockPlayerFieldControls(void);
 void UnlockPlayerFieldControls(void);
