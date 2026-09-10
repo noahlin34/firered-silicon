@@ -505,7 +505,7 @@ static void WaitForVBlank(void)
             REG_KEYINPUT &= ~(1 << 0); // A: advance Pikachu intro page
         if (sEngineFrameCount >= 560 && sEngineFrameCount <= 565)
             REG_KEYINPUT &= ~(1 << 0); // A: advance to Oak speech
-        if (sEngineFrameCount >= 620 && ((sEngineFrameCount - 620) % 90) < 6)
+        if (sEngineFrameCount >= 620 && sEngineFrameCount < 6150 && ((sEngineFrameCount - 620) % 90) < 6)
         {
             if (sEngineFrameCount < 4800 || sEngineFrameCount > 5000)
                 REG_KEYINPUT &= ~(1 << 0); // A: advance Oak speech dialog pages periodically
@@ -516,8 +516,10 @@ static void WaitForVBlank(void)
             REG_KEYINPUT &= ~(1 << 7); // DOWN to GARY
         if (sEngineFrameCount >= 4950 && sEngineFrameCount <= 4955)
             REG_KEYINPUT &= ~(1 << 0); // A to select GARY
-        if ((sEngineFrameCount >= 6800 && sEngineFrameCount <= 6820) || (sEngineFrameCount >= 9220 && sEngineFrameCount <= 9240))
-            REG_KEYINPUT &= ~(1 << 7); // DOWN to step south in bedroom
+        if (sEngineFrameCount >= 6250 && sEngineFrameCount <= 6255)
+            REG_KEYINPUT &= ~(1 << 6); // UP to face North towards NES in bedroom
+        if (sEngineFrameCount >= 6280 && sEngineFrameCount <= 6285)
+            REG_KEYINPUT &= ~(1 << 0); // A to interact with NES in bedroom
     }
     REG_VCOUNT = 160; // Start of VBlank
     VBlankIntr();
