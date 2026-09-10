@@ -36,5 +36,9 @@ u8 FindTaskIdByFunc(TaskFunc func);
 u8 GetTaskCount(void);
 void SetWordTaskArg(u8 taskId, u8 dataElem, unsigned long value);
 u32 GetWordTaskArg(u8 taskId, u8 dataElem);
+// Pointers need more than the two data slots SetWordTaskArg uses, so these
+// store them whole; on 64-bit hosts the value occupies four slots.
+void SetPointerTaskArg(u8 taskId, u8 dataElem, void *value);
+void *GetPointerTaskArg(u8 taskId, u8 dataElem);
 
 #endif // GUARD_TASK_H
