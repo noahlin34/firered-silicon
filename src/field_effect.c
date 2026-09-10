@@ -358,8 +358,12 @@ u32 FieldEffectStart(u8 fldeff)
 {
     const u8 *script;
     u32 result;
-    FieldEffectActiveListAdd(fldeff);
+
     script = gFieldEffectScriptPointers[fldeff];
+    if (script == NULL)
+        return 0; // effect has no script (not ported): start nothing
+
+    FieldEffectActiveListAdd(fldeff);
     while (sFldEffScrcmdTable[*script](&script, &result))
         ;
     return result;
