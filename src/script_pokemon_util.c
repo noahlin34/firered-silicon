@@ -11,8 +11,10 @@
 #include "constants/items.h"
 #include "constants/pokemon.h"
 
+#ifndef PORTABLE
 static void CB2_ReturnFromChooseHalfParty(void);
 static void CB2_ReturnFromChooseBattleTowerParty(void);
+#endif
 
 void HealPlayerParty(void)
 {
@@ -45,6 +47,8 @@ void HealPlayerParty(void)
     }
 }
 
+// Party selection and egg-giving scenes are not linked by the native host yet.
+#ifndef PORTABLE
 u8 ScriptGiveMon(u16 species, u8 level, u16 item, u32 unused1, u32 unused2, u8 unused3)
 {
     u16 nationalDexNum;
@@ -213,3 +217,4 @@ void ReducePlayerPartyToThree(void)
     CalculatePlayerPartyCount();
     Free(party);
 }
+#endif
