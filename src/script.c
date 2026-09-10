@@ -2,6 +2,8 @@
 #include "script.h"
 #include "event_data.h"
 #include "quest_log.h"
+
+extern const void *const gNativeScriptPtrs[];
 #include "mystery_gift.h"
 #include "constants/maps.h"
 #include "constants/map_scripts.h"
@@ -39,7 +41,7 @@ static u8 sQuestLogInputIsDpad;
 static u8 sMsgIsSignpost;
 
 extern ScrCmdFunc gScriptCmdTable[];
-extern ScrCmdFunc gScriptCmdTableEnd[];
+extern const ScrCmdFunc *const gScriptCmdTableEnd;
 extern void *gNullScriptPtr;
 
 void InitScriptContext(struct ScriptContext *ctx, void *cmdTable, void *cmdTableEnd)
@@ -183,6 +185,13 @@ u16 ScriptReadHalfword(struct ScriptContext *ctx)
     u16 value = *(ctx->scriptPtr++);
     value |= *(ctx->scriptPtr++) << 8;
     return value;
+}
+
+uintptr_t ScriptReadPtr(struct ScriptContext *ctx)
+{
+    // Generated native scripts store references as u32 indices into the
+    // aligned gNativeScriptPtrs table; the interpreter resolves them here.
+    return (uintptr_t)gNativeScriptPtrs[ScriptReadWord(ctx)];
 }
 
 u32 ScriptReadWord(struct ScriptContext *ctx)
@@ -374,7 +383,7 @@ void ScriptContext_Enable(void)
 // scripts (except the frame table scripts).
 void RunScriptImmediately(const u8 *ptr)
 {
-    InitScriptContext(&sImmediateScriptContext, &gScriptCmdTable, &gScriptCmdTableEnd);
+    InitScriptContext(&sImmediateScriptContext, gScriptCmdTable, gScriptCmdTableEnd);
     SetupBytecodeScript(&sImmediateScriptContext, ptr);
     while (RunScriptCommand(&sImmediateScriptContext) == TRUE);
 }
