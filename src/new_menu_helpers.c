@@ -275,7 +275,7 @@ void DecompressAndLoadBgGfxUsingHeap(u8 bgId, const void *src, u32 size, u16 off
     {
         u8 taskId = CreateTask(TaskFreeBufAfterCopyingTileDataToVram, 0);
         gTasks[taskId].data[0] = CopyDecompressedTileDataToVram(bgId, ptr, size, offset, mode);
-        SetWordTaskArg(taskId, 1, (u32)ptr);
+        SetPointerTaskArg(taskId, 1, ptr);
     }
 }
 
@@ -290,7 +290,7 @@ void DecompressAndLoadBgGfxUsingHeap2(u8 bgId, const void *src, u32 size, u16 of
     {
         u8 taskId = CreateTask(TaskFreeBufAfterCopyingTileDataToVram, 0);
         gTasks[taskId].data[0] = CopyDecompressedTileDataToVram(bgId, ptr, sizeOut, offset, mode);
-        SetWordTaskArg(taskId, 1, (u32)ptr);
+        SetPointerTaskArg(taskId, 1, ptr);
     }
 }
 
@@ -298,7 +298,7 @@ static void TaskFreeBufAfterCopyingTileDataToVram(u8 taskId)
 {
     if (!WaitDma3Request(gTasks[taskId].data[0]))
     {
-        Free((void *)GetWordTaskArg(taskId, 1));
+        Free(GetPointerTaskArg(taskId, 1));
         DestroyTask(taskId);
     }
 }
