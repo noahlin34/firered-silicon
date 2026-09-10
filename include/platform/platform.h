@@ -19,6 +19,10 @@ extern uint16_t INTR_CHECK;
 extern void *INTR_VECTOR;
 extern struct SoundInfo *SOUND_INFO_PTR;
 
+// Dev boot (--skip-intro): start a fresh save directly in the player's bedroom.
+extern bool gPlatformSkipIntro;
+void Platform_DevBootNewGame(void);
+
 // Platform Host Functions
 int  Platform_Init(int argc, char **argv);
 void Platform_MainLoop(void);
