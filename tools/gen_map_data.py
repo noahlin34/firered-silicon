@@ -19,6 +19,17 @@ NATIVE_SCRIPT_ROOTS = {
 }
 
 
+# data/maps/*/map.json connection directions -> CONNECTION_* constants.
+CONNECTION_DIRECTIONS = {
+    "up": "CONNECTION_NORTH",
+    "down": "CONNECTION_SOUTH",
+    "left": "CONNECTION_WEST",
+    "right": "CONNECTION_EAST",
+    "dive": "CONNECTION_DIVE",
+    "emerge": "CONNECTION_EMERGE",
+}
+
+
 def is_global_script(name):
     return name.startswith("EventScript_") or name in NATIVE_SCRIPT_ROOTS
 
@@ -635,10 +646,10 @@ def main():
         movement_registry.emit(f)
         script_registry.emit(f)
 
-        def event_script(event):
+        def event_script(event, fallback="sDummyScript"):
             script_name = event.get("script")
             if script_name not in NATIVE_SCRIPT_ROOTS:
-                return "sDummyScript"
+                return fallback
             return f"(const u8 *)&{script_name}"
 
         for map_name in all_map_names:
@@ -700,7 +711,9 @@ def main():
                     f.write(f"        .elevation = {coord.get('elevation', 0)},\n")
                     f.write(f"        .trigger = {coord.get('var', '0')},\n")
                     f.write(f"        .index = {coord.get('var_value', '0')},\n")
-                    f.write(f"        .script = {event_script(coord)},\n")
+                    # A coord event is an automatic proximity trigger: a dummy
+                    # script would re-fire every frame and livelock the player.
+                    f.write(f"        .script = {event_script(coord, 'NULL')},\n")
                     f.write("    },\n")
                 f.write("};\n\n")
 
@@ -716,6 +729,27 @@ def main():
                     f.write(f"        .bgUnion = {{ .script = {event_script(bg)} }},\n")
                     f.write("    },\n")
                 f.write("};\n\n")
+
+            # Map connections: outdoors maps need these to render their
+            # neighbours and to allow walking across the shared border.
+            connections = m.get("connections") or []
+            if connections:
+                f.write(f"static const struct MapConnection {map_name}_Connections[] = {{\n")
+                for connection in connections:
+                    direction = CONNECTION_DIRECTIONS[connection.get("direction", "")]
+                    dest_map = connection["map"]
+                    f.write("    {\n")
+                    f.write(f"        .direction = {direction},\n")
+                    f.write(f"        .offset = {connection.get('offset', 0)},\n")
+                    f.write(f"        .mapGroup = MAP_GROUP({dest_map}),\n")
+                    f.write(f"        .mapNum = MAP_NUM({dest_map}),\n")
+                    f.write("    },\n")
+                f.write("};\n\n")
+                f.write(f"static const struct MapConnections {map_name}_MapConnections = {{\n")
+                f.write(f"    .count = {len(connections)},\n")
+                f.write(f"    .connections = {map_name}_Connections,\n")
+                f.write("};\n\n")
+            connections_name = f"&{map_name}_MapConnections" if connections else "NULL"
 
             has_shared_events = "shared_events_map" in m
             if not has_shared_events:
@@ -740,7 +774,7 @@ def main():
             f.write(f"    .mapLayout = &{layout_name},\n")
             f.write(f"    .events = &{ev_name}_MapEvents,\n")
             f.write("    .mapScripts = sEmptyMapScripts,\n")
-            f.write("    .connections = NULL,\n")
+            f.write(f"    .connections = {connections_name},\n")
             f.write(f"    .music = {m.get('music', 'MUS_PALLET')},\n")
             f.write(f"    .mapLayoutId = {layout_id},\n")
             f.write(f"    .regionMapSectionId = {m.get('region_map_section', 'MAPSEC_PALLET_TOWN')},\n")
