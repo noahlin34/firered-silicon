@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 #include <SDL.h>
 
@@ -13,6 +14,7 @@ static bool sRunning = false;
 
 static double sFrameTicks;
 static double sTicksPerMillisecond;
+
 static double sNextFrameDeadline;
 
 static void WaitForFrameDeadline(void)
@@ -107,6 +109,122 @@ static void HandleKeyEvent(SDL_Keycode key, bool pressed)
         sKeyState |= mask;  // Released = 1
 }
 
+#ifdef FPS_OVERLAY
+// ---- Top-left FPS overlay ----------------------------------------------------
+// Development aid: release builds compile it out with FPS_OVERLAY=0 (see
+// Makefile.native). Sampled at presentation time so it reports frames the player
+// actually sees, independent of the engine's internal frame pacing.
+static double sTicksPerSecond;
+static double sFpsWindowStart;
+static uint32_t sFpsWindowFrames;
+static int sFpsValue; // -1 until the first full sample window elapses
+
+#define FPS_SAMPLE_WINDOW_SECONDS 0.5
+#define FPS_GLYPH_WIDTH   5
+#define FPS_GLYPH_HEIGHT  7
+#define FPS_GLYPH_SPACING 1
+
+// 5x7 glyphs; each row byte uses bit 4 for the leftmost column.
+struct FpsGlyph
+{
+    char ch;
+    uint8_t rows[FPS_GLYPH_HEIGHT];
+};
+
+static const struct FpsGlyph sFpsGlyphs[] =
+{
+    { '0', { 0x0E, 0x11, 0x13, 0x15, 0x19, 0x11, 0x0E } },
+    { '1', { 0x04, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x0E } },
+    { '2', { 0x0E, 0x11, 0x01, 0x02, 0x04, 0x08, 0x1F } },
+    { '3', { 0x1F, 0x02, 0x04, 0x02, 0x01, 0x11, 0x0E } },
+    { '4', { 0x02, 0x06, 0x0A, 0x12, 0x1F, 0x02, 0x02 } },
+    { '5', { 0x1F, 0x10, 0x1E, 0x01, 0x01, 0x11, 0x0E } },
+    { '6', { 0x06, 0x08, 0x10, 0x1E, 0x11, 0x11, 0x0E } },
+    { '7', { 0x1F, 0x01, 0x02, 0x04, 0x08, 0x08, 0x08 } },
+    { '8', { 0x0E, 0x11, 0x11, 0x0E, 0x11, 0x11, 0x0E } },
+    { '9', { 0x0E, 0x11, 0x11, 0x0F, 0x01, 0x02, 0x0C } },
+    { 'F', { 0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x10 } },
+    { 'P', { 0x1E, 0x11, 0x11, 0x1E, 0x10, 0x10, 0x10 } },
+    { 'S', { 0x0F, 0x10, 0x10, 0x0E, 0x01, 0x01, 0x1E } },
+    { '-', { 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00 } },
+};
+
+static void UpdateFpsCounter(void)
+{
+    double now = (double)SDL_GetPerformanceCounter();
+
+    if (sFpsWindowStart == 0.0)
+        sFpsWindowStart = now;
+
+    sFpsWindowFrames++;
+
+    double elapsed = (now - sFpsWindowStart) / sTicksPerSecond;
+    if (elapsed >= FPS_SAMPLE_WINDOW_SECONDS)
+    {
+        sFpsValue = (int)(sFpsWindowFrames / elapsed + 0.5);
+        sFpsWindowStart = now;
+        sFpsWindowFrames = 0;
+    }
+}
+
+// Drawn in logical (240x160) renderer space, after the GBA framebuffer, so the
+// overlay never lands in the engine framebuffer or saved screenshots.
+static void DrawFpsOverlay(void)
+{
+    char text[16];
+    SDL_Rect pixel;
+    size_t i;
+    int textWidth;
+    const int originX = 2;
+    const int originY = 2;
+
+    if (sFpsValue < 0)
+        snprintf(text, sizeof(text), "FPS ---");
+    else
+        snprintf(text, sizeof(text), "FPS %d", sFpsValue);
+
+    textWidth = ((int)strlen(text) * (FPS_GLYPH_WIDTH + FPS_GLYPH_SPACING)) - FPS_GLYPH_SPACING;
+
+    SDL_Rect background = { originX - 1, originY - 1, textWidth + 2, FPS_GLYPH_HEIGHT + 2 };
+    SDL_SetRenderDrawBlendMode(sRenderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(sRenderer, 0, 0, 0, 160);
+    SDL_RenderFillRect(sRenderer, &background);
+
+    SDL_SetRenderDrawColor(sRenderer, 255, 255, 255, 255);
+    for (i = 0; text[i] != '\0'; i++)
+    {
+        size_t glyph;
+        int x = originX + (int)i * (FPS_GLYPH_WIDTH + FPS_GLYPH_SPACING);
+
+        for (glyph = 0; glyph < ARRAY_COUNT(sFpsGlyphs); glyph++)
+        {
+            int row, column;
+
+            if (sFpsGlyphs[glyph].ch != text[i])
+                continue;
+
+            for (row = 0; row < FPS_GLYPH_HEIGHT; row++)
+            {
+                for (column = 0; column < FPS_GLYPH_WIDTH; column++)
+                {
+                    if (!(sFpsGlyphs[glyph].rows[row] & (1 << (FPS_GLYPH_WIDTH - 1 - column))))
+                        continue;
+
+                    pixel.x = x + column;
+                    pixel.y = originY + row;
+                    pixel.w = 1;
+                    pixel.h = 1;
+                    SDL_RenderFillRect(sRenderer, &pixel);
+                }
+            }
+            break;
+        }
+    }
+
+    SDL_SetRenderDrawBlendMode(sRenderer, SDL_BLENDMODE_NONE);
+}
+#endif // FPS_OVERLAY
+
 int Platform_Init(int argc, char **argv)
 {
     (void)argc;
@@ -181,6 +299,12 @@ int Platform_Init(int argc, char **argv)
     double frequency = (double)SDL_GetPerformanceFrequency();
     sFrameTicks = frequency * (280896.0 / 16777216.0);
     sTicksPerMillisecond = frequency / 1000.0;
+#ifdef FPS_OVERLAY
+    sTicksPerSecond = frequency;
+    sFpsWindowStart = 0.0;
+    sFpsWindowFrames = 0;
+    sFpsValue = -1;
+#endif
     sNextFrameDeadline = 0.0;
 
     sRunning = true;
@@ -227,6 +351,11 @@ void Platform_PresentFrame(const uint16_t *framebuffer)
     SDL_UpdateTexture(sTexture, NULL, framebuffer, GBA_SCREEN_WIDTH * sizeof(uint16_t));
     SDL_RenderClear(sRenderer);
     SDL_RenderCopy(sRenderer, sTexture, NULL, NULL);
+
+#ifdef FPS_OVERLAY
+    UpdateFpsCounter();
+    DrawFpsOverlay();
+#endif
     SDL_RenderPresent(sRenderer);
 }
 
