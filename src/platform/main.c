@@ -7,6 +7,7 @@
 #include <SDL.h>
 #include "global.h"
 #include "platform/platform.h"
+#include "global.fieldmap.h"
 
 static void CrashHandler(int sig)
 {
@@ -109,6 +110,64 @@ static void TestGbaMemory(void)
 
     printf("[SmokeTest] GBA Memory and DMA tests passed!\n");
 }
+extern const struct MapHeader PalletTown_PlayersHouse_1F;
+extern const struct MapHeader PalletTown_PlayersHouse_2F;
+extern const u8 EventScript_Bookshelf[];
+extern const u8 EventScript_Cabinet[];
+extern const u8 EventScript_Dresser[];
+extern const u8 EventScript_Kitchen[];
+extern const u8 EventScript_PlayerFacingTVScreen[];
+extern const u8 PalletTown_PlayersHouse_1F_EventScript_TV[];
+extern const u8 PalletTown_PlayersHouse_2F_EventScript_NES[];
+extern const u8 PalletTown_PlayersHouse_2F_EventScript_Sign[];
+extern const void *const gNativeScriptPtrs[];
+
+static void TestOverworldInteractions(void)
+{
+    printf("[SmokeTest] Testing Overworld Object & Background Event Scripts...\n");
+
+    // 1. Check 1F Background Events (TV)
+    const struct MapEvents *events1F = PalletTown_PlayersHouse_1F.events;
+    assert(events1F != NULL);
+    assert(events1F->bgEventCount >= 1);
+    const struct BgEvent *tvEvent = &events1F->bgEvents[0];
+    assert(tvEvent->x == 6 && tvEvent->y == 1);
+    assert(tvEvent->bgUnion.script == PalletTown_PlayersHouse_1F_EventScript_TV);
+    assert(tvEvent->bgUnion.script[0] == 0x69); // lockall
+
+    // 2. Check 2F Background Events (NES, PC, Sign)
+    const struct MapEvents *events2F = PalletTown_PlayersHouse_2F.events;
+    assert(events2F != NULL);
+    assert(events2F->bgEventCount >= 3);
+    const struct BgEvent *nesEvent = &events2F->bgEvents[0];
+    assert(nesEvent->x == 6 && nesEvent->y == 5);
+    assert(nesEvent->bgUnion.script == PalletTown_PlayersHouse_2F_EventScript_NES);
+    assert(nesEvent->bgUnion.script[0] == 0x69); // lockall
+
+    const struct BgEvent *signEvent = &events2F->bgEvents[2];
+    assert(signEvent->x == 11 && signEvent->y == 1);
+    assert(signEvent->bgUnion.script == PalletTown_PlayersHouse_2F_EventScript_Sign);
+    assert(signEvent->bgUnion.script[0] == 0x69); // lockall
+
+    // 3. Check Metatile scripts (Bookshelf, Cabinet, Dresser, Kitchen, TV screen)
+    assert(EventScript_Bookshelf[0] == 0x69);
+    assert(EventScript_Cabinet[0] == 0x69);
+    assert(EventScript_Dresser[0] == 0x69);
+    assert(EventScript_Kitchen[0] == 0x69);
+    assert(EventScript_PlayerFacingTVScreen[0] == 0x69);
+
+    // 4. Check that message pointer operands resolve to non-NULL via gNativeScriptPtrs
+    uint32_t bookshelfMsgIdx = EventScript_Bookshelf[2] | (EventScript_Bookshelf[3] << 8) |
+                              (EventScript_Bookshelf[4] << 16) | (EventScript_Bookshelf[5] << 24);
+    assert(gNativeScriptPtrs[bookshelfMsgIdx] != NULL);
+
+    uint32_t nesMsgIdx = PalletTown_PlayersHouse_2F_EventScript_NES[2] | (PalletTown_PlayersHouse_2F_EventScript_NES[3] << 8) |
+                         (PalletTown_PlayersHouse_2F_EventScript_NES[4] << 16) | (PalletTown_PlayersHouse_2F_EventScript_NES[5] << 24);
+    assert(gNativeScriptPtrs[nesMsgIdx] != NULL);
+
+    printf("[SmokeTest] All Overworld Object & Background Event Scripts verified!\n");
+}
+
 
 static void SetupPpuTestScene(void)
 {
@@ -218,6 +277,7 @@ int main(int argc, char **argv)
     TestBiosSyscalls();
     TestGbaMemory();
 
+    TestOverworldInteractions();
     if (Platform_Init(argc, argv) != 0)
     {
         fprintf(stderr, "Failed to initialize platform window.\n");
