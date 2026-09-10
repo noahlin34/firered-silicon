@@ -325,7 +325,10 @@ static void DrawSprites(struct scanlineData *scanline, uint16_t vcount, bool win
         x += half_width;
         y += half_height;
 
-        if (vcount >= (unsigned int)(y - half_height) && vcount < (unsigned int)(y + half_height))
+        // Sprites whose top is above the screen get a negative y here (OAM wraps 248 -> -8).
+        // The scanline window must be compared signed, or those sprites are dropped
+        // entirely instead of being clipped at the top edge.
+        if ((int32_t)vcount >= y - half_height && (int32_t)vcount < y + half_height)
         {
             int local_y = (oam->mosaic == 1) ? applySpriteVerticalMosaicEffect(vcount) - y : (int)vcount - y;
             bool flipX = !isAffine && ((oam->matrixNum >> 3) & 1);
