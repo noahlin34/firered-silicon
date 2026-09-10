@@ -433,4 +433,7 @@ const ScrCmdFunc gScriptCmdTable[] = {
     ScrCmd_nop,
 };
 
-const ScrCmdFunc gScriptCmdTableEnd[] = { NULL };
+// The interpreter bounds-checks command indexes against this pointer. As a separate
+// 1-element array the linker may place it anywhere, so derive it from the table itself
+// to guarantee it lands exactly one past the final command.
+const ScrCmdFunc *const gScriptCmdTableEnd = gScriptCmdTable + ARRAY_COUNT(gScriptCmdTable);
