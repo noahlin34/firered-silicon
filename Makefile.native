@@ -15,6 +15,7 @@ PLATFORM_SRCS := src/platform/system.c \
                  src/platform/new_game_intro_text.c \
                  src/platform/battle_engine_stubs.c \
                  src/platform/overworld_stubs.c \
+                 src/platform/dev_boot.c \
                  src/platform/main.c
 
 ENGINE_SRCS := src/main.c \
