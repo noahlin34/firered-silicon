@@ -232,7 +232,6 @@ int main(int argc, char **argv)
             Platform_UpdateInput();
             REG_BG0HOFS = frame / 2;
             Platform_RenderAndPresent();
-            SDL_Delay(16);
         }
         Platform_SaveScreenshot("ppu_test_output.bmp");
         printf("[SmokeTest] PPU rendered 120 frames successfully!\n");
