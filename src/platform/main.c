@@ -299,11 +299,19 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (argc > 1 && strcmp(argv[1], "--boot-test") == 0)
+    for (int i = 1; i < argc; i++)
     {
-        extern int gEngineMaxFrames;
-        gEngineMaxFrames = (argc > 2) ? atoi(argv[2]) : 240;
-        printf("[Engine] Running boot test for %d frames...\n", gEngineMaxFrames);
+        if (strcmp(argv[i], "--boot-test") == 0)
+        {
+            extern int gEngineMaxFrames;
+            gEngineMaxFrames = (i + 1 < argc && argv[i + 1][0] != '-') ? atoi(argv[++i]) : 240;
+            printf("[Engine] Running boot test for %d frames...\n", gEngineMaxFrames);
+        }
+        else if (strcmp(argv[i], "--skip-intro") == 0)
+        {
+            gPlatformSkipIntro = true;
+            printf("[Engine] Dev boot: fresh save, spawning in the player's bedroom (intro skipped).\n");
+        }
     }
 
     printf("[Engine] Booting Pokemon FireRed CPU Engine (AgbMain)...\n");
