@@ -6,7 +6,21 @@ from pathlib import Path
 
 # Native scenes are linked explicitly, just like ENGINE_SRCS. Compile their
 # complete script dependency closure; other scenes retain their existing stubs.
-NATIVE_SCRIPT_ROOTS = {"PalletTown_PlayersHouse_1F_EventScript_Mom"}
+NATIVE_SCRIPT_ROOTS = {
+    "PalletTown_PlayersHouse_1F_EventScript_Mom",
+    "PalletTown_PlayersHouse_1F_EventScript_TV",
+    "PalletTown_PlayersHouse_2F_EventScript_NES",
+    "PalletTown_PlayersHouse_2F_EventScript_Sign",
+    "EventScript_Bookshelf",
+    "EventScript_Cabinet",
+    "EventScript_Dresser",
+    "EventScript_Kitchen",
+    "EventScript_PlayerFacingTVScreen",
+}
+
+
+def is_global_script(name):
+    return name.startswith("EventScript_") or name in NATIVE_SCRIPT_ROOTS
 
 
 class UnsupportedScript(Exception):
@@ -429,7 +443,8 @@ class ScriptRegistry:
         # the aligned gNativeScriptPtrs table emitted by emit_declarations.
         for label in self.generated:
             values = self.compile(label)
-            out.write(f"static const u8 {label}[] = {{\n")
+            modifier = "const" if is_global_script(label) else "static const"
+            out.write(f"{modifier} u8 {label}[] = {{\n")
             rendered = [f"0x{value:02x}" if isinstance(value, int) else value for value in values]
             out.write("    " + ", ".join(rendered) + "\n")
             out.write("};\n\n")
@@ -454,6 +469,8 @@ def collect_sources(root):
     movement_sources = parse_labels(root / "data/scripts/movement.inc")
     text_sources = {}
     for path in sorted((root / "data").glob("**/text.inc")):
+        text_sources.update(parse_labels(path, text=True))
+    for path in sorted((root / "data/text").glob("**/*.inc")):
         text_sources.update(parse_labels(path, text=True))
     return script_sources, movement_sources, text_sources
 
@@ -605,7 +622,8 @@ def main():
         if script_registry.external_references:
             f.write("\n")
         for name in script_registry.generated:
-            f.write(f"static const u8 {name}[];\n")
+            modifier = "extern const" if is_global_script(name) else "static const"
+            f.write(f"{modifier} u8 {name}[];\n")
         for name in text_registry.generated:
             f.write(f"static const u8 {name}[];\n")
         for name in movement_registry.generated:
