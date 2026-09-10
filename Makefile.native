@@ -1,10 +1,16 @@
 CC := clang
 PREPROC := tools/preproc/preproc
 
+# Top-left FPS overlay in the SDL2 window (src/platform/sdl2.c). Release builds:
+#   rm -f build/native/platform/sdl2.o && make -f Makefile.native FPS_OVERLAY=0
+# Objects do not depend on CFLAGS, so the stale sdl2.o must be removed first.
+FPS_OVERLAY ?= 1
+
 CFLAGS := -Wall -Wextra -std=c11 -O2 -DPORTABLE -DMODERN=1 -DFIRERED -DENGLISH -DREVISION=0 -Iinclude \
           $(shell /opt/homebrew/bin/sdl2-config --cflags) \
           -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable \
-          -Wno-sign-compare -Wno-unknown-escape-sequence
+          -Wno-sign-compare -Wno-unknown-escape-sequence \
+          $(if $(filter 1,$(FPS_OVERLAY)),-DFPS_OVERLAY,)
 LDFLAGS := $(shell /opt/homebrew/bin/sdl2-config --libs)
 
 PLATFORM_SRCS := src/platform/system.c \
