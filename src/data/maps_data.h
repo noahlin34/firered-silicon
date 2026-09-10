@@ -15,17 +15,43 @@
 #include "constants/event_bg.h"
 static const u8 sDummyScript[] = { 0x02 };
 static const u8 sEmptyMapScripts[] = { 0x00 };
-static const u8 EventScript_OutOfCenterPartyHeal[];
+extern const u8 EventScript_Bookshelf[];
+extern const u8 EventScript_Cabinet[];
+extern const u8 EventScript_Dresser[];
+extern const u8 EventScript_Kitchen[];
+extern const u8 EventScript_PlayerFacingTVScreen[];
+extern const u8 EventScript_OutOfCenterPartyHeal[];
 static const u8 PalletTown_PlayersHouse_1F_EventScript_MomHeal[];
 static const u8 PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouMale[];
 static const u8 PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouFemale[];
-static const u8 PalletTown_PlayersHouse_1F_EventScript_Mom[];
+extern const u8 PalletTown_PlayersHouse_1F_EventScript_Mom[];
+static const u8 PalletTown_PlayersHouse_1F_EventScript_TVScreenMale[];
+static const u8 PalletTown_PlayersHouse_1F_EventScript_TVScreenFemale[];
+static const u8 PalletTown_PlayersHouse_1F_EventScript_TVScreen[];
+extern const u8 PalletTown_PlayersHouse_1F_EventScript_TV[];
+extern const u8 PalletTown_PlayersHouse_2F_EventScript_NES[];
+extern const u8 PalletTown_PlayersHouse_2F_EventScript_Sign[];
+static const u8 Text_Bookshelf[];
+static const u8 Text_DishesPlatesNeatlyLinedUp[];
+static const u8 Text_Dresser[];
+static const u8 Text_Kitchen[];
+static const u8 Text_PlayerFacingTVScreen[];
 static const u8 PalletTown_PlayersHouse_1F_Text_YouShouldTakeQuickRest[];
 static const u8 PalletTown_PlayersHouse_1F_Text_LookingGreatTakeCare[];
 static const u8 PalletTown_PlayersHouse_1F_Text_AllBoysLeaveOakLookingForYou[];
 static const u8 PalletTown_PlayersHouse_1F_Text_AllGirlsLeaveOakLookingForYou[];
+static const u8 PalletTown_PlayersHouse_1F_Text_MovieOnTVFourBoysOnRailroad[];
+static const u8 PalletTown_PlayersHouse_1F_Text_MovieOnTVGirlOnBrickRoad[];
+static const u8 PalletTown_PlayersHouse_1F_Text_OopsWrongSide[];
+static const u8 PalletTown_PlayersHouse_2F_Text_PlayedWithNES[];
+static const u8 PalletTown_PlayersHouse_2F_Text_PressLRForHelp[];
 static const u8 Common_Movement_FaceOriginalDirection[];
 const void *const gNativeScriptPtrs[] = {
+    Text_Bookshelf,
+    Text_DishesPlatesNeatlyLinedUp,
+    Text_Dresser,
+    Text_Kitchen,
+    Text_PlayerFacingTVScreen,
     PalletTown_PlayersHouse_1F_Text_YouShouldTakeQuickRest,
     EventScript_OutOfCenterPartyHeal,
     PalletTown_PlayersHouse_1F_Text_LookingGreatTakeCare,
@@ -35,8 +61,41 @@ const void *const gNativeScriptPtrs[] = {
     PalletTown_PlayersHouse_1F_Text_AllGirlsLeaveOakLookingForYou,
     PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouFemale,
     Common_Movement_FaceOriginalDirection,
+    PalletTown_PlayersHouse_1F_Text_MovieOnTVFourBoysOnRailroad,
+    PalletTown_PlayersHouse_1F_EventScript_TVScreenMale,
+    PalletTown_PlayersHouse_1F_Text_MovieOnTVGirlOnBrickRoad,
+    PalletTown_PlayersHouse_1F_EventScript_TVScreenFemale,
+    PalletTown_PlayersHouse_1F_EventScript_TVScreen,
+    PalletTown_PlayersHouse_1F_Text_OopsWrongSide,
+    PalletTown_PlayersHouse_2F_Text_PlayedWithNES,
+    PalletTown_PlayersHouse_2F_Text_PressLRForHelp,
 };
 
+
+static const u8 Text_Bookshelf[] = _(
+    "It's crammed full of POKéMON\n"
+    "books.$"
+);
+
+static const u8 Text_DishesPlatesNeatlyLinedUp[] = _(
+    "Dishes and plates are neatly\n"
+    "lined up.$"
+);
+
+static const u8 Text_Dresser[] = _(
+    "It's a nicely made dresser.\n"
+    "It will hold a lot of stuff.$"
+);
+
+static const u8 Text_Kitchen[] = _(
+    "It smells delicious!\n"
+    "Somebody's been cooking here.$"
+);
+
+static const u8 Text_PlayerFacingTVScreen[] = _(
+    "There's a POKéMON on TV!\n"
+    "It looks like it's having fun.$"
+);
 
 static const u8 PalletTown_PlayersHouse_1F_Text_YouShouldTakeQuickRest[] = _(
     "MOM: {PLAYER}!\n"
@@ -65,28 +124,102 @@ static const u8 PalletTown_PlayersHouse_1F_Text_AllGirlsLeaveOakLookingForYou[] 
     "looking for you.$"
 );
 
+static const u8 PalletTown_PlayersHouse_1F_Text_MovieOnTVFourBoysOnRailroad[] = _(
+    "There's a movie on TV.\n"
+    "Four boys are walking on railroad\l"
+    "tracks.\p"
+    "…I better go, too.$"
+);
+
+static const u8 PalletTown_PlayersHouse_1F_Text_MovieOnTVGirlOnBrickRoad[] = _(
+    "There's a movie on TV.\n"
+    "A girl with her hair in pigtails is\l"
+    "walking up a brick road.\p"
+    "…I better go, too.$"
+);
+
+static const u8 PalletTown_PlayersHouse_1F_Text_OopsWrongSide[] = _(
+    "Oops, wrong side…$"
+);
+
+static const u8 PalletTown_PlayersHouse_2F_Text_PlayedWithNES[] = _(
+    "{PLAYER} played with the NES.\p"
+    "…Okay!\n"
+    "It's time to go!$"
+);
+
+static const u8 PalletTown_PlayersHouse_2F_Text_PressLRForHelp[] = _(
+    "It's a posted notice…\p"
+    "If you're confused, ask for HELP!\n"
+    "Press the L or R Button!$"
+);
+
 static const u8 Common_Movement_FaceOriginalDirection[] = {
     0x5a, 0xfe,
 };
 
-static const u8 EventScript_OutOfCenterPartyHeal[] = {
+const u8 EventScript_Bookshelf[] = {
+    0x69, 0x67, 0x00, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 EventScript_Cabinet[] = {
+    0x69, 0x67, 0x01, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 EventScript_Dresser[] = {
+    0x69, 0x67, 0x02, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 EventScript_Kitchen[] = {
+    0x69, 0x67, 0x03, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 EventScript_PlayerFacingTVScreen[] = {
+    0x69, 0x67, 0x04, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 EventScript_OutOfCenterPartyHeal[] = {
     0x97, 0x01, 0x31, 0x00, 0x01, 0x32, 0x25, 0x00, 0x00, 0x97, 0x00, 0x03
 };
 
 static const u8 PalletTown_PlayersHouse_1F_EventScript_MomHeal[] = {
-    0x67, 0x00, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x04, 0x01, 0x00, 0x00, 0x00, 0x67, 0x02, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+    0x67, 0x05, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x04, 0x06, 0x00, 0x00, 0x00, 0x67, 0x07, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
 };
 
 static const u8 PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouMale[] = {
-    0x67, 0x04, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
+    0x67, 0x09, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
 };
 
 static const u8 PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouFemale[] = {
-    0x67, 0x06, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
+    0x67, 0x0b, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
 };
 
-static const u8 PalletTown_PlayersHouse_1F_EventScript_Mom[] = {
-    0x6a, 0x5a, 0x2b, 0x58, 0x02, 0x06, 0x01, 0x03, 0x00, 0x00, 0x00, 0xa0, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x07, 0x01, 0x05, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x07, 0x01, 0x07, 0x00, 0x00, 0x00, 0x68, 0x4f, 0x01, 0x00, 0x08, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x6c, 0x02
+const u8 PalletTown_PlayersHouse_1F_EventScript_Mom[] = {
+    0x6a, 0x5a, 0x2b, 0x58, 0x02, 0x06, 0x01, 0x08, 0x00, 0x00, 0x00, 0xa0, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x07, 0x01, 0x0a, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x07, 0x01, 0x0c, 0x00, 0x00, 0x00, 0x68, 0x4f, 0x01, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x6c, 0x02
+};
+
+static const u8 PalletTown_PlayersHouse_1F_EventScript_TVScreenMale[] = {
+    0x67, 0x0e, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
+};
+
+static const u8 PalletTown_PlayersHouse_1F_EventScript_TVScreenFemale[] = {
+    0x67, 0x10, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
+};
+
+static const u8 PalletTown_PlayersHouse_1F_EventScript_TVScreen[] = {
+    0xa0, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x07, 0x01, 0x0f, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x07, 0x01, 0x11, 0x00, 0x00, 0x00, 0x6b, 0x02
+};
+
+const u8 PalletTown_PlayersHouse_1F_EventScript_TV[] = {
+    0x69, 0x21, 0x0c, 0x80, 0x02, 0x00, 0x06, 0x01, 0x12, 0x00, 0x00, 0x00, 0x67, 0x13, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 PalletTown_PlayersHouse_2F_EventScript_NES[] = {
+    0x69, 0x67, 0x14, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 PalletTown_PlayersHouse_2F_EventScript_Sign[] = {
+    0x69, 0x67, 0x15, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
 };
 
 static const struct ObjectEventTemplate BattleColosseum_2P_ObjectEvents[] = {
@@ -42309,7 +42442,7 @@ static const struct BgEvent PalletTown_PlayersHouse_1F_BgEvents[] = {
         .y = 1,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_PlayersHouse_1F_EventScript_TV },
     },
 };
 
@@ -42362,7 +42495,7 @@ static const struct BgEvent PalletTown_PlayersHouse_2F_BgEvents[] = {
         .y = 5,
         .elevation = 3,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_PlayersHouse_2F_EventScript_NES },
     },
     {
         .x = 1,
@@ -42376,7 +42509,7 @@ static const struct BgEvent PalletTown_PlayersHouse_2F_BgEvents[] = {
         .y = 1,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_PlayersHouse_2F_EventScript_Sign },
     },
 };
 
