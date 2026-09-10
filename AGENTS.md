@@ -13,7 +13,7 @@ This repository is based on **pokefirered** (the pret decompilation of *Pokémon
 1. **No 32-bit binaries:** macOS on Apple Silicon (arm64) does not support 32-bit binaries or 32-bit ARM assembly (`armv4t`/`arm7tdmi`). Any inline assembly or `.s` files targeting GBA registers/instructions must be guarded with `#ifndef PORTABLE` or replaced with portable C.
 2. **Memory Virtualization:** GBA physical addresses (`0x04000000` I/O registers, `0x05000000` Palette RAM, `0x06000000` VRAM, `0x07000000` OAM, `0x0E000000` Flash) cause segfaults if dereferenced directly on macOS. They are abstracted via `#ifdef PORTABLE` to point to host-allocated global buffers (`REG_BASE`, `PLTT_`, `VRAM_`, `OAM_`, `FLASH_BASE_`) in `src/platform/system.c`.
 3. **No DMA pointer truncation:** GBA register-based DMA writes (`DmaSet`) cast source and destination addresses to 32-bit integers. On 64-bit systems, this truncates 64-bit pointers. In `include/gba/macro.h`, `DMA_COPY` and `DMA_FILL` are implemented as synchronous memory copy/fill functions under `PORTABLE`.
-4. **Software GBA PPU:** The GBA engine does not write to a linear framebuffer; it writes tiles, tilemaps, and OAM structures. A software PPU (`src/platform/ppu.c`) composites Mode 0/1 background layers and 128 OAM sprites into a 240×160 15-bit BGR555 texture displayed via SDL2 at 60 FPS.
+4. **Software GBA PPU:** The GBA engine does not write to a linear framebuffer; it writes tiles, tilemaps, and OAM structures. A software PPU (`src/platform/ppu.c`) composites Mode 0/1 background layers and 128 OAM sprites into a 240×160 15-bit BGR555 texture displayed via SDL2 at the GBA's approximately 59.7275 FPS.
 
 ---
 
@@ -42,12 +42,13 @@ This repository is based on **pokefirered** (the pret decompilation of *Pokémon
   - Resizable 3× scaled window ($720\times480$) with high-DPI support.
   - Keyboard mapping (WASD/Arrows, Z/X/J/K, Enter, Tab/Backspace) mapped to active-low `REG_KEYINPUT`.
   - Screenshot capture functionality (`Platform_SaveScreenshot`).
+  - Display-independent GBA frame pacing: `WaitForFrameDeadline()` in `src/platform/sdl2.c` runs before rendering in `Platform_RenderAndPresent()`. Interactive play, boot automation, and the standalone PPU test share this clock.
 - [x] **CPU Game Engine Linked (`src/main.c` & Subsystems):**
   - `src/main.c` has its 32-bit assembly guarded and `WaitForVBlank()` hooked into the platform tick (`Platform_UpdateInput()`, `VBlankIntr()`, `Platform_RenderAndPresent()`).
   - Core subsystems linked: `gpu_regs.c`, `palette.c`, `task.c`, `sprite.c`, `malloc.c`, `scanline_effect.c`, `dma3_manager.c`, `bg.c`, `random.c`, `trig.c`, `decompress.c`, `blend_palette.c`.
   - Hardware stubs for sound (M4A) and link communications in `src/platform/stubs.c`.
 - [x] **Title Screen Scene (`src/title_screen.c`):**
-  - Charizard box art sprite, FireRed title logo, copyright bar, "PRESS START", and animated flame particles fully rendered and animating at 60 FPS in SDL2.
+  - Charizard box art sprite, FireRed title logo, copyright bar, "PRESS START", and animated flame particles fully rendered and animating at the GBA frame rate in SDL2.
   - Native `INCBIN` asset pipeline using `tools/gbagfx` and `tools/preproc/preproc`.
 - [x] **Main Menu Scene (`src/main_menu.c`):**
   - Pressing START/A on the Title Screen transitions through `SetTitleScreenScene_Cry` into `CB2_InitMainMenu`.
@@ -73,7 +74,7 @@ This repository is based on **pokefirered** (the pret decompilation of *Pokémon
   - Linked real field engine subsystems: `fieldmap.c`, `field_camera.c`, `field_player_avatar.c`, `event_object_movement.c`, `field_control_avatar.c`, `field_tasks.c`, `field_weather.c`, `field_weather_effects.c`, `field_fadetransition.c`, `metatile_behavior.c`, `bike.c`, `wild_encounter.c`, `script.c`, `scrcmd.c`, `tilesets.c`, `field_door.c`, `field_effect.c`, `maps.c`.
   - Converted all 67 game tilesets to `4bpp.lz` and 1,072 tileset palettes to `.gbapal`.
   - Fixed saveblock pointer ASLR under `PORTABLE` in `src/load_save.c`.
-  - Boot automation at frame 9200 successfully executes `CB2_NewGame`, initializes save data, warps to `MAP_PALLET_TOWN_PLAYERS_HOUSE_2F`, draws the complete bedroom map view (bed, rug, TV/NES, PC, desk, stairs), spawns the player avatar facing North, and enters `CB2_Overworld` running at 60 FPS in SDL2.
+  - Boot automation at frame 9200 successfully executes `CB2_NewGame`, initializes save data, warps to `MAP_PALLET_TOWN_PLAYERS_HOUSE_2F`, draws the complete bedroom map view (bed, rug, TV/NES, PC, desk, stairs), spawns the player avatar facing North, and enters `CB2_Overworld` running at the GBA frame rate in SDL2.
 > **Note on Intro Sequence:** The opening intro sequence (`src/intro.c` — Copyright screen, GameFreak star shooting animation, and Nidorino vs. Gengar battle) is temporarily bypassed in `src/main.c` (`InitMainCallbacks()` boots directly to `CB2_InitTitleScreen`). This was done deliberately to expedite reaching gameplay, and the intro cinematic will be linked back in at a later point in time.
 
 ### Critical 64-Bit Portability Fixes (Learned the Hard Way)
@@ -100,7 +101,16 @@ These bugs are subtle and WILL recur if new engine files are linked. Understand 
 19. **Map script headers must be terminated by 0x00.** Bytecode scripts terminate with `0x02` (`end`), but map header `.mapScripts` lists entries terminated by `0x00`. Using `0x02` causes `MapHeaderGetScriptTable` to overrun the array on frame-script checks.
 20. **`src/menu.c` handles dialogue choice and cursor input.** Menu selection (`Menu_ProcessInput`, `Menu_InitCursor`, `Menu_MoveCursor`, `DrawStdFrameWithCustomTileAndPalette`, `CreateYesNoMenu`) was previously stubbed out in `battle_engine_stubs.c` returning 0, causing dialogue selection menus (such as Professor Oak's rival name choice box) to immediately choose option 0 (`NEW NAME`) and skip user interaction. `src/menu.c` is linked in `Makefile.native` with all duplicate stubs removed.
 
+### Native Frame Timing
+- **The game clock is not the display clock.** The original native loop relied on `SDL_RENDERER_PRESENTVSYNC` without an independent timer; that allowed high-refresh presentation to accelerate frame-based gameplay, while the fallback renderer did not explicitly request VSync. This timing gap was found after movement appeared too fast. The pre-fix runtime frame rate was not measured.
+- **Target the hardware frame period:** 280,896 CPU cycles per frame at 16,777,216 Hz, or approximately 59.7275 Hz (16.7427 ms per tick). Do not change movement speeds, animation counters, or emulate CPU clock speed to compensate for host performance.
+- **One pacing owner:** `WaitForFrameDeadline()` uses `SDL_GetPerformanceCounter()` / `SDL_GetPerformanceFrequency()` and absolute deadlines. Time spent in the engine and renderer counts toward the next deadline; `SDL_Delay()` sleeps rather than busy-spins. Do not add a fixed sleep after every frame or a second limiter in `WaitForVBlank()`, the BIOS shim, or the standalone test.
+- **VSync is deliberately disabled** in renderer creation so monitor refresh does not set engine speed. Do not re-enable it as a replacement for the game clock; any future presentation changes must preserve independent simulation timing.
+- **Stalls do not accumulate catch-up ticks.** When the next deadline is already past, the clock resynchronizes to one frame after the current time. Sustained overload slows the game rather than skipping engine updates.
+- **Verification:** Metal and software renderers were exercised with 4 ms of simulated engine work per frame. For 300 frames, elapsed times were 5.022 s and 5.049 s respectively (target 5.023 s). Both recovered from a 500 ms stall without a catch-up burst. A real 9,300-frame engine boot completed in 155.92 s (frame-time target 155.71 s plus startup), with bedroom spawn confirmed in the capture. The standalone 120-frame PPU test also passed. Temporary timing probes were removed.
+
 ### Debugging Tips
+- **Boot tests now run at game speed:** allow roughly `N / 59.7275` seconds plus startup for `--boot-test N`; 9,300 frames take about 156 seconds. Use a timeout above that duration. `--test` renders 120 paced frames in about two seconds; its old extra `SDL_Delay(16)` was removed.
 - Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses: START at frames 5–10 (skip intro fade), 30–35 (enter game from Title Screen), DOWN at 230–231 + A at 240–245 (select NEW GAME), then A at 320–325 / 360–365 / 400–405 / 520–525 / 560–565 (advance Controls Guide → Pikachu intro → Oak speech). Starting at frame 620 it also presses A for 6 frames every 90 frames. This periodic input advances Oak's dialogue, gender selection, player naming, rival naming (frames 6500–7200), farewell speech (frame 8600), hands off to `CB2_NewGame` by frame ~8900–9000, and spawns into the player's bedroom in Pallet Town (`CB2_Overworld`) by frame 9200.
 - Missing-symbol workflow: `make -f Makefile.native` then extract `grep -oE '"_[A-Za-z0-9_]+"'` from linker output; find real definitions with `grep -rln "SymbolName" src/*.c`; add that file to ENGINE_SRCS (or PREPROC_SRCS if it has `INCBIN`/`_()`) and DELETE the stub version from `stubs.c`. Symbols from the battle engine go into `src/platform/battle_engine_stubs.c` instead (generated from header prototypes).
 - A `SIGSEGV`/`SIGBUS` backtrace handler is installed in `src/platform/main.c` (`CrashHandler`) — crashes print a symbolized stack trace.
