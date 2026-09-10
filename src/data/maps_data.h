@@ -270,7 +270,7 @@ static const struct CoordEvent BattleColosseum_2P_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -278,7 +278,7 @@ static const struct CoordEvent BattleColosseum_2P_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -362,7 +362,7 @@ static const struct CoordEvent TradeCenter_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 7,
@@ -370,7 +370,7 @@ static const struct CoordEvent TradeCenter_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -470,7 +470,7 @@ static const struct CoordEvent RecordCorner_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -478,7 +478,7 @@ static const struct CoordEvent RecordCorner_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -486,7 +486,7 @@ static const struct CoordEvent RecordCorner_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -494,7 +494,7 @@ static const struct CoordEvent RecordCorner_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -572,7 +572,7 @@ static const struct CoordEvent BattleColosseum_4P_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 3,
@@ -580,7 +580,7 @@ static const struct CoordEvent BattleColosseum_4P_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -588,7 +588,7 @@ static const struct CoordEvent BattleColosseum_4P_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -596,7 +596,7 @@ static const struct CoordEvent BattleColosseum_4P_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_0,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -1947,7 +1947,7 @@ static const struct CoordEvent MtMoon_B2F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_MT_MOON_B2F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -2410,7 +2410,7 @@ static const struct CoordEvent SSAnne_2F_Corridor_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_S_S_ANNE_2F_CORRIDOR,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 31,
@@ -2418,7 +2418,7 @@ static const struct CoordEvent SSAnne_2F_Corridor_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_S_S_ANNE_2F_CORRIDOR,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 32,
@@ -2426,7 +2426,7 @@ static const struct CoordEvent SSAnne_2F_Corridor_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_S_S_ANNE_2F_CORRIDOR,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -5529,7 +5529,7 @@ static const struct CoordEvent VictoryRoad_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_VICTORY_ROAD_1F,
         .index = 99,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -5914,7 +5914,7 @@ static const struct CoordEvent VictoryRoad_2F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_VICTORY_ROAD_2F_BOULDER1,
         .index = 99,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 14,
@@ -5922,7 +5922,7 @@ static const struct CoordEvent VictoryRoad_2F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_VICTORY_ROAD_2F_BOULDER2,
         .index = 99,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -6239,7 +6239,7 @@ static const struct CoordEvent VictoryRoad_3F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_VICTORY_ROAD_3F,
         .index = 99,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -9079,7 +9079,7 @@ static const struct CoordEvent SilphCo_7F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_SILPH_CO_7F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 2,
@@ -9087,7 +9087,7 @@ static const struct CoordEvent SilphCo_7F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_SILPH_CO_7F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -10163,7 +10163,7 @@ static const struct CoordEvent SilphCo_11F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_SILPH_CO_11F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -10171,7 +10171,7 @@ static const struct CoordEvent SilphCo_11F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_SILPH_CO_11F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -15606,7 +15606,7 @@ static const struct CoordEvent SeafoamIslands_B4F_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_SEAFOAM_ISLANDS_B4F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 27,
@@ -15614,7 +15614,7 @@ static const struct CoordEvent SeafoamIslands_B4F_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_SEAFOAM_ISLANDS_B4F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 28,
@@ -15622,7 +15622,7 @@ static const struct CoordEvent SeafoamIslands_B4F_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_SEAFOAM_ISLANDS_B4F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -15914,7 +15914,7 @@ static const struct CoordEvent PokemonTower_2F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_POKEMON_TOWER_2F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 16,
@@ -15922,7 +15922,7 @@ static const struct CoordEvent PokemonTower_2F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_POKEMON_TOWER_2F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -16418,7 +16418,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -16426,7 +16426,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -16434,7 +16434,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -16442,7 +16442,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -16450,7 +16450,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -16458,7 +16458,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -16466,7 +16466,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -16474,7 +16474,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -16482,7 +16482,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -16490,7 +16490,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -16498,7 +16498,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -16506,7 +16506,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -16514,7 +16514,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -16522,7 +16522,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_TEMP_1,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -16530,7 +16530,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_TEMP_1,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -16538,7 +16538,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_TEMP_1,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -16546,7 +16546,7 @@ static const struct CoordEvent PokemonTower_5F_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_TEMP_1,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -16716,7 +16716,7 @@ static const struct CoordEvent PokemonTower_6F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_POKEMON_TOWER_6F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -16724,7 +16724,7 @@ static const struct CoordEvent PokemonTower_6F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_POKEMON_TOWER_6F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -17816,7 +17816,7 @@ static const struct CoordEvent MtEmber_Exterior_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_MT_EMBER_EXTERIOR,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 38,
@@ -17824,7 +17824,7 @@ static const struct CoordEvent MtEmber_Exterior_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_MT_EMBER_EXTERIOR,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 39,
@@ -17832,7 +17832,7 @@ static const struct CoordEvent MtEmber_Exterior_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_MT_EMBER_EXTERIOR,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -20135,7 +20135,7 @@ static const struct CoordEvent FourIsland_IcefallCave_Back_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ICEFALL_CAVE_BACK,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -20143,7 +20143,7 @@ static const struct CoordEvent FourIsland_IcefallCave_Back_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ICEFALL_CAVE_BACK,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -20151,7 +20151,7 @@ static const struct CoordEvent FourIsland_IcefallCave_Back_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ICEFALL_CAVE_BACK,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -20398,7 +20398,7 @@ static const struct CoordEvent FiveIsland_RocketWarehouse_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROCKET_WAREHOUSE,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 23,
@@ -20406,7 +20406,7 @@ static const struct CoordEvent FiveIsland_RocketWarehouse_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROCKET_WAREHOUSE,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 24,
@@ -20414,7 +20414,7 @@ static const struct CoordEvent FiveIsland_RocketWarehouse_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROCKET_WAREHOUSE,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -21669,7 +21669,7 @@ static const struct CoordEvent TrainerTower_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_E,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -21677,7 +21677,7 @@ static const struct CoordEvent TrainerTower_1F_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -21685,7 +21685,7 @@ static const struct CoordEvent TrainerTower_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -21853,7 +21853,7 @@ static const struct CoordEvent TrainerTower_2F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_E,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -21861,7 +21861,7 @@ static const struct CoordEvent TrainerTower_2F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -21869,7 +21869,7 @@ static const struct CoordEvent TrainerTower_2F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -22037,7 +22037,7 @@ static const struct CoordEvent TrainerTower_3F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_E,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22045,7 +22045,7 @@ static const struct CoordEvent TrainerTower_3F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22053,7 +22053,7 @@ static const struct CoordEvent TrainerTower_3F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -22221,7 +22221,7 @@ static const struct CoordEvent TrainerTower_4F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_E,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22229,7 +22229,7 @@ static const struct CoordEvent TrainerTower_4F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22237,7 +22237,7 @@ static const struct CoordEvent TrainerTower_4F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -22405,7 +22405,7 @@ static const struct CoordEvent TrainerTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_E,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22413,7 +22413,7 @@ static const struct CoordEvent TrainerTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22421,7 +22421,7 @@ static const struct CoordEvent TrainerTower_5F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -22589,7 +22589,7 @@ static const struct CoordEvent TrainerTower_6F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_E,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22597,7 +22597,7 @@ static const struct CoordEvent TrainerTower_6F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22605,7 +22605,7 @@ static const struct CoordEvent TrainerTower_6F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -22773,7 +22773,7 @@ static const struct CoordEvent TrainerTower_7F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_E,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22781,7 +22781,7 @@ static const struct CoordEvent TrainerTower_7F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22789,7 +22789,7 @@ static const struct CoordEvent TrainerTower_7F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -22957,7 +22957,7 @@ static const struct CoordEvent TrainerTower_8F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_E,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22965,7 +22965,7 @@ static const struct CoordEvent TrainerTower_8F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -22973,7 +22973,7 @@ static const struct CoordEvent TrainerTower_8F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -23214,7 +23214,7 @@ static const struct CoordEvent TrainerTower_Lobby_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_TRAINER_TOWER,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -24901,7 +24901,7 @@ static const struct CoordEvent SevenIsland_SevaultCanyon_TanobyKey_CoordEvents[]
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 99,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -24909,7 +24909,7 @@ static const struct CoordEvent SevenIsland_SevaultCanyon_TanobyKey_CoordEvents[]
         .elevation = 3,
         .trigger = VAR_TEMP_7,
         .index = 99,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 5,
@@ -24917,7 +24917,7 @@ static const struct CoordEvent SevenIsland_SevaultCanyon_TanobyKey_CoordEvents[]
         .elevation = 3,
         .trigger = VAR_TEMP_6,
         .index = 99,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -24925,7 +24925,7 @@ static const struct CoordEvent SevenIsland_SevaultCanyon_TanobyKey_CoordEvents[]
         .elevation = 3,
         .trigger = VAR_TEMP_5,
         .index = 99,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 5,
@@ -24933,7 +24933,7 @@ static const struct CoordEvent SevenIsland_SevaultCanyon_TanobyKey_CoordEvents[]
         .elevation = 3,
         .trigger = VAR_TEMP_4,
         .index = 99,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -24941,7 +24941,7 @@ static const struct CoordEvent SevenIsland_SevaultCanyon_TanobyKey_CoordEvents[]
         .elevation = 3,
         .trigger = VAR_TEMP_3,
         .index = 99,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 4,
@@ -24949,7 +24949,7 @@ static const struct CoordEvent SevenIsland_SevaultCanyon_TanobyKey_CoordEvents[]
         .elevation = 3,
         .trigger = VAR_TEMP_2,
         .index = 99,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -25076,7 +25076,7 @@ static const struct CoordEvent NavelRock_Summit_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -26281,7 +26281,7 @@ static const struct CoordEvent OneIsland_KindleRoad_EmberSpa_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -26579,7 +26579,7 @@ static const struct CoordEvent PalletTown_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PALLET_TOWN_OAK,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -26587,7 +26587,7 @@ static const struct CoordEvent PalletTown_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PALLET_TOWN_OAK,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -26595,7 +26595,7 @@ static const struct CoordEvent PalletTown_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_2,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -26637,6 +26637,26 @@ static const struct BgEvent PalletTown_BgEvents[] = {
     },
 };
 
+static const struct MapConnection PalletTown_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE1),
+        .mapNum = MAP_NUM(MAP_ROUTE1),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE21_NORTH),
+        .mapNum = MAP_NUM(MAP_ROUTE21_NORTH),
+    },
+};
+
+static const struct MapConnections PalletTown_MapConnections = {
+    .count = 2,
+    .connections = PalletTown_Connections,
+};
+
 const struct MapEvents PalletTown_MapEvents = {
     .objectEventCount = 3,
     .warpCount = 3,
@@ -26654,7 +26674,7 @@ const struct MapHeader PalletTown = {
     .mapLayout = &PalletTown_Layout,
     .events = &PalletTown_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &PalletTown_MapConnections,
     .music = MUS_PALLET,
     .mapLayoutId = LAYOUT_PALLET_TOWN,
     .regionMapSectionId = MAPSEC_PALLET_TOWN,
@@ -26893,7 +26913,7 @@ static const struct CoordEvent ViridianCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 36,
@@ -26901,7 +26921,7 @@ static const struct CoordEvent ViridianCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_VIRIDIAN_CITY_GYM_DOOR,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 20,
@@ -26909,7 +26929,7 @@ static const struct CoordEvent ViridianCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 22,
@@ -26917,7 +26937,7 @@ static const struct CoordEvent ViridianCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -26959,6 +26979,32 @@ static const struct BgEvent ViridianCity_BgEvents[] = {
     },
 };
 
+static const struct MapConnection ViridianCity_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 12,
+        .mapGroup = MAP_GROUP(MAP_ROUTE2),
+        .mapNum = MAP_NUM(MAP_ROUTE2),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 12,
+        .mapGroup = MAP_GROUP(MAP_ROUTE1),
+        .mapNum = MAP_NUM(MAP_ROUTE1),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE22),
+        .mapNum = MAP_NUM(MAP_ROUTE22),
+    },
+};
+
+static const struct MapConnections ViridianCity_MapConnections = {
+    .count = 3,
+    .connections = ViridianCity_Connections,
+};
+
 const struct MapEvents ViridianCity_MapEvents = {
     .objectEventCount = 9,
     .warpCount = 5,
@@ -26976,7 +27022,7 @@ const struct MapHeader ViridianCity = {
     .mapLayout = &ViridianCity_Layout,
     .events = &ViridianCity_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &ViridianCity_MapConnections,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_VIRIDIAN_CITY,
     .regionMapSectionId = MAPSEC_VIRIDIAN_CITY,
@@ -27193,7 +27239,7 @@ static const struct CoordEvent PewterCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PEWTER_CITY,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 42,
@@ -27201,7 +27247,7 @@ static const struct CoordEvent PewterCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PEWTER_CITY,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 42,
@@ -27209,7 +27255,7 @@ static const struct CoordEvent PewterCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PEWTER_CITY,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 43,
@@ -27217,7 +27263,7 @@ static const struct CoordEvent PewterCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PEWTER_CITY,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 46,
@@ -27225,7 +27271,7 @@ static const struct CoordEvent PewterCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PEWTER_CITY,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 46,
@@ -27233,7 +27279,7 @@ static const struct CoordEvent PewterCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PEWTER_CITY,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 46,
@@ -27241,7 +27287,7 @@ static const struct CoordEvent PewterCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PEWTER_CITY,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -27290,6 +27336,26 @@ static const struct BgEvent PewterCity_BgEvents[] = {
     },
 };
 
+static const struct MapConnection PewterCity_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 12,
+        .mapGroup = MAP_GROUP(MAP_ROUTE2),
+        .mapNum = MAP_NUM(MAP_ROUTE2),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE3),
+        .mapNum = MAP_NUM(MAP_ROUTE3),
+    },
+};
+
+static const struct MapConnections PewterCity_MapConnections = {
+    .count = 2,
+    .connections = PewterCity_Connections,
+};
+
 const struct MapEvents PewterCity_MapEvents = {
     .objectEventCount = 7,
     .warpCount = 7,
@@ -27307,7 +27373,7 @@ const struct MapHeader PewterCity = {
     .mapLayout = &PewterCity_Layout,
     .events = &PewterCity_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &PewterCity_MapConnections,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_PEWTER_CITY,
     .regionMapSectionId = MAPSEC_PEWTER_CITY,
@@ -27675,7 +27741,7 @@ static const struct CoordEvent CeruleanCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_CERULEAN_CITY_RIVAL,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 23,
@@ -27683,7 +27749,7 @@ static const struct CoordEvent CeruleanCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_CERULEAN_CITY_RIVAL,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 24,
@@ -27691,7 +27757,7 @@ static const struct CoordEvent CeruleanCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_CERULEAN_CITY_RIVAL,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 33,
@@ -27699,7 +27765,7 @@ static const struct CoordEvent CeruleanCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_CERULEAN_CITY_ROCKET,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 33,
@@ -27707,7 +27773,7 @@ static const struct CoordEvent CeruleanCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_CERULEAN_CITY_ROCKET,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -27770,6 +27836,38 @@ static const struct BgEvent CeruleanCity_BgEvents[] = {
     },
 };
 
+static const struct MapConnection CeruleanCity_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 12,
+        .mapGroup = MAP_GROUP(MAP_ROUTE24),
+        .mapNum = MAP_NUM(MAP_ROUTE24),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE5),
+        .mapNum = MAP_NUM(MAP_ROUTE5),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE4),
+        .mapNum = MAP_NUM(MAP_ROUTE4),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE9),
+        .mapNum = MAP_NUM(MAP_ROUTE9),
+    },
+};
+
+static const struct MapConnections CeruleanCity_MapConnections = {
+    .count = 4,
+    .connections = CeruleanCity_Connections,
+};
+
 const struct MapEvents CeruleanCity_MapEvents = {
     .objectEventCount = 12,
     .warpCount = 14,
@@ -27787,7 +27885,7 @@ const struct MapHeader CeruleanCity = {
     .mapLayout = &CeruleanCity_Layout,
     .events = &CeruleanCity_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &CeruleanCity_MapConnections,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_CERULEAN_CITY,
     .regionMapSectionId = MAPSEC_CERULEAN_CITY,
@@ -27944,6 +28042,32 @@ static const struct BgEvent LavenderTown_BgEvents[] = {
     },
 };
 
+static const struct MapConnection LavenderTown_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE10),
+        .mapNum = MAP_NUM(MAP_ROUTE10),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE12),
+        .mapNum = MAP_NUM(MAP_ROUTE12),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE8),
+        .mapNum = MAP_NUM(MAP_ROUTE8),
+    },
+};
+
+static const struct MapConnections LavenderTown_MapConnections = {
+    .count = 3,
+    .connections = LavenderTown_Connections,
+};
+
 const struct MapEvents LavenderTown_MapEvents = {
     .objectEventCount = 3,
     .warpCount = 6,
@@ -27961,7 +28085,7 @@ const struct MapHeader LavenderTown = {
     .mapLayout = &LavenderTown_Layout,
     .events = &LavenderTown_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &LavenderTown_MapConnections,
     .music = MUS_LAVENDER,
     .mapLayoutId = LAYOUT_LAVENDER_TOWN,
     .regionMapSectionId = MAPSEC_LAVENDER_TOWN,
@@ -28221,7 +28345,7 @@ static const struct CoordEvent VermilionCity_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_VERMILION_CITY_TICKET_CHECK_TRIGGER,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 23,
@@ -28229,7 +28353,7 @@ static const struct CoordEvent VermilionCity_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_VERMILION_CITY_TICKET_CHECK_TRIGGER,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 22,
@@ -28237,7 +28361,7 @@ static const struct CoordEvent VermilionCity_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 23,
@@ -28245,7 +28369,7 @@ static const struct CoordEvent VermilionCity_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -28294,6 +28418,26 @@ static const struct BgEvent VermilionCity_BgEvents[] = {
     },
 };
 
+static const struct MapConnection VermilionCity_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 12,
+        .mapGroup = MAP_GROUP(MAP_ROUTE6),
+        .mapNum = MAP_NUM(MAP_ROUTE6),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE11),
+        .mapNum = MAP_NUM(MAP_ROUTE11),
+    },
+};
+
+static const struct MapConnections VermilionCity_MapConnections = {
+    .count = 2,
+    .connections = VermilionCity_Connections,
+};
+
 const struct MapEvents VermilionCity_MapEvents = {
     .objectEventCount = 8,
     .warpCount = 10,
@@ -28311,7 +28455,7 @@ const struct MapHeader VermilionCity = {
     .mapLayout = &VermilionCity_Layout,
     .events = &VermilionCity_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &VermilionCity_MapConnections,
     .music = MUS_VERMILLION,
     .mapLayoutId = LAYOUT_VERMILION_CITY,
     .regionMapSectionId = MAPSEC_VERMILION_CITY,
@@ -28787,6 +28931,26 @@ static const struct BgEvent CeladonCity_BgEvents[] = {
     },
 };
 
+static const struct MapConnection CeladonCity_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE16),
+        .mapNum = MAP_NUM(MAP_ROUTE16),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE7),
+        .mapNum = MAP_NUM(MAP_ROUTE7),
+    },
+};
+
+static const struct MapConnections CeladonCity_MapConnections = {
+    .count = 2,
+    .connections = CeladonCity_Connections,
+};
+
 const struct MapEvents CeladonCity_MapEvents = {
     .objectEventCount = 15,
     .warpCount = 13,
@@ -28804,7 +28968,7 @@ const struct MapHeader CeladonCity = {
     .mapLayout = &CeladonCity_Layout,
     .events = &CeladonCity_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &CeladonCity_MapConnections,
     .music = MUS_CELADON,
     .mapLayoutId = LAYOUT_CELADON_CITY,
     .regionMapSectionId = MAPSEC_CELADON_CITY,
@@ -29304,6 +29468,32 @@ static const struct BgEvent FuchsiaCity_BgEvents[] = {
     },
 };
 
+static const struct MapConnection FuchsiaCity_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 12,
+        .mapGroup = MAP_GROUP(MAP_ROUTE19),
+        .mapNum = MAP_NUM(MAP_ROUTE19),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE18),
+        .mapNum = MAP_NUM(MAP_ROUTE18),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE15),
+        .mapNum = MAP_NUM(MAP_ROUTE15),
+    },
+};
+
+static const struct MapConnections FuchsiaCity_MapConnections = {
+    .count = 3,
+    .connections = FuchsiaCity_Connections,
+};
+
 const struct MapEvents FuchsiaCity_MapEvents = {
     .objectEventCount = 16,
     .warpCount = 11,
@@ -29321,7 +29511,7 @@ const struct MapHeader FuchsiaCity = {
     .mapLayout = &FuchsiaCity_Layout,
     .events = &FuchsiaCity_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &FuchsiaCity_MapConnections,
     .music = MUS_FUCHSIA,
     .mapLayoutId = LAYOUT_FUCHSIA_CITY,
     .regionMapSectionId = MAPSEC_FUCHSIA_CITY,
@@ -29465,7 +29655,7 @@ static const struct CoordEvent CinnabarIsland_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -29500,6 +29690,26 @@ static const struct BgEvent CinnabarIsland_BgEvents[] = {
     },
 };
 
+static const struct MapConnection CinnabarIsland_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE21_SOUTH),
+        .mapNum = MAP_NUM(MAP_ROUTE21_SOUTH),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE20),
+        .mapNum = MAP_NUM(MAP_ROUTE20),
+    },
+};
+
+static const struct MapConnections CinnabarIsland_MapConnections = {
+    .count = 2,
+    .connections = CinnabarIsland_Connections,
+};
+
 const struct MapEvents CinnabarIsland_MapEvents = {
     .objectEventCount = 4,
     .warpCount = 5,
@@ -29517,7 +29727,7 @@ const struct MapHeader CinnabarIsland = {
     .mapLayout = &CinnabarIsland_Layout,
     .events = &CinnabarIsland_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &CinnabarIsland_MapConnections,
     .music = MUS_CINNABAR,
     .mapLayoutId = LAYOUT_CINNABAR_ISLAND,
     .regionMapSectionId = MAPSEC_CINNABAR_ISLAND,
@@ -29584,6 +29794,20 @@ static const struct WarpEvent IndigoPlateau_Exterior_WarpEvents[] = {
     },
 };
 
+static const struct MapConnection IndigoPlateau_Exterior_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE23),
+        .mapNum = MAP_NUM(MAP_ROUTE23),
+    },
+};
+
+static const struct MapConnections IndigoPlateau_Exterior_MapConnections = {
+    .count = 1,
+    .connections = IndigoPlateau_Exterior_Connections,
+};
+
 const struct MapEvents IndigoPlateau_Exterior_MapEvents = {
     .objectEventCount = 2,
     .warpCount = 1,
@@ -29601,7 +29825,7 @@ const struct MapHeader IndigoPlateau_Exterior = {
     .mapLayout = &IndigoPlateau_Exterior_Layout,
     .events = &IndigoPlateau_Exterior_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &IndigoPlateau_Exterior_MapConnections,
     .music = MUS_VICTORY_ROAD,
     .mapLayoutId = LAYOUT_INDIGO_PLATEAU_EXTERIOR,
     .regionMapSectionId = MAPSEC_INDIGO_PLATEAU,
@@ -30093,6 +30317,38 @@ static const struct BgEvent SaffronCity_BgEvents[] = {
     },
 };
 
+static const struct MapConnection SaffronCity_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE5),
+        .mapNum = MAP_NUM(MAP_ROUTE5),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 12,
+        .mapGroup = MAP_GROUP(MAP_ROUTE6),
+        .mapNum = MAP_NUM(MAP_ROUTE6),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE7),
+        .mapNum = MAP_NUM(MAP_ROUTE7),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE8),
+        .mapNum = MAP_NUM(MAP_ROUTE8),
+    },
+};
+
+static const struct MapConnections SaffronCity_MapConnections = {
+    .count = 4,
+    .connections = SaffronCity_Connections,
+};
+
 const struct MapEvents SaffronCity_MapEvents = {
     .objectEventCount = 15,
     .warpCount = 15,
@@ -30110,7 +30366,7 @@ const struct MapHeader SaffronCity = {
     .mapLayout = &SaffronCity_Layout,
     .events = &SaffronCity_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SaffronCity_MapConnections,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY,
     .regionMapSectionId = MAPSEC_SAFFRON_CITY,
@@ -30123,6 +30379,38 @@ const struct MapHeader SaffronCity = {
     .showMapName = 1,
     .floorNum = 0,
     .battleType = MAP_BATTLE_SCENE_NORMAL,
+};
+
+static const struct MapConnection SaffronCity_Connection_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE5),
+        .mapNum = MAP_NUM(MAP_ROUTE5),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 12,
+        .mapGroup = MAP_GROUP(MAP_ROUTE6),
+        .mapNum = MAP_NUM(MAP_ROUTE6),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE7),
+        .mapNum = MAP_NUM(MAP_ROUTE7),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 10,
+        .mapGroup = MAP_GROUP(MAP_ROUTE8),
+        .mapNum = MAP_NUM(MAP_ROUTE8),
+    },
+};
+
+static const struct MapConnections SaffronCity_Connection_MapConnections = {
+    .count = 4,
+    .connections = SaffronCity_Connection_Connections,
 };
 
 const struct MapEvents SaffronCity_Connection_MapEvents = {
@@ -30142,7 +30430,7 @@ const struct MapHeader SaffronCity_Connection = {
     .mapLayout = &SaffronCity_Connection_Layout,
     .events = &SaffronCity_Connection_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SaffronCity_Connection_MapConnections,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_SAFFRON_CITY_CONNECTION,
     .regionMapSectionId = MAPSEC_SAFFRON_CITY,
@@ -30269,6 +30557,26 @@ static const struct BgEvent OneIsland_BgEvents[] = {
     },
 };
 
+static const struct MapConnection OneIsland_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ONE_ISLAND_TREASURE_BEACH),
+        .mapNum = MAP_NUM(MAP_ONE_ISLAND_TREASURE_BEACH),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = -120,
+        .mapGroup = MAP_GROUP(MAP_ONE_ISLAND_KINDLE_ROAD),
+        .mapNum = MAP_NUM(MAP_ONE_ISLAND_KINDLE_ROAD),
+    },
+};
+
+static const struct MapConnections OneIsland_MapConnections = {
+    .count = 2,
+    .connections = OneIsland_Connections,
+};
+
 const struct MapEvents OneIsland_MapEvents = {
     .objectEventCount = 3,
     .warpCount = 4,
@@ -30286,7 +30594,7 @@ const struct MapHeader OneIsland = {
     .mapLayout = &OneIsland_Layout,
     .events = &OneIsland_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &OneIsland_MapConnections,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_ONE_ISLAND,
     .regionMapSectionId = MAPSEC_ONE_ISLAND,
@@ -30534,6 +30842,20 @@ static const struct BgEvent TwoIsland_BgEvents[] = {
     },
 };
 
+static const struct MapConnection TwoIsland_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 24,
+        .mapGroup = MAP_GROUP(MAP_TWO_ISLAND_CAPE_BRINK),
+        .mapNum = MAP_NUM(MAP_TWO_ISLAND_CAPE_BRINK),
+    },
+};
+
+static const struct MapConnections TwoIsland_MapConnections = {
+    .count = 1,
+    .connections = TwoIsland_Connections,
+};
+
 const struct MapEvents TwoIsland_MapEvents = {
     .objectEventCount = 9,
     .warpCount = 4,
@@ -30551,7 +30873,7 @@ const struct MapHeader TwoIsland = {
     .mapLayout = &TwoIsland_Layout,
     .events = &TwoIsland_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &TwoIsland_MapConnections,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_TWO_ISLAND,
     .regionMapSectionId = MAPSEC_TWO_ISLAND,
@@ -30901,7 +31223,7 @@ static const struct CoordEvent ThreeIsland_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_THREE_ISLAND,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 8,
@@ -30909,7 +31231,7 @@ static const struct CoordEvent ThreeIsland_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_THREE_ISLAND,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -30917,7 +31239,7 @@ static const struct CoordEvent ThreeIsland_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_THREE_ISLAND,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -30925,7 +31247,7 @@ static const struct CoordEvent ThreeIsland_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_THREE_ISLAND,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 7,
@@ -30933,7 +31255,7 @@ static const struct CoordEvent ThreeIsland_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_THREE_ISLAND,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 8,
@@ -30941,7 +31263,7 @@ static const struct CoordEvent ThreeIsland_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_THREE_ISLAND,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -30949,7 +31271,7 @@ static const struct CoordEvent ThreeIsland_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_THREE_ISLAND,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -30957,7 +31279,7 @@ static const struct CoordEvent ThreeIsland_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_THREE_ISLAND,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -30965,7 +31287,7 @@ static const struct CoordEvent ThreeIsland_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_THREE_ISLAND,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -30973,7 +31295,7 @@ static const struct CoordEvent ThreeIsland_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_THREE_ISLAND,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -30994,6 +31316,26 @@ static const struct BgEvent ThreeIsland_BgEvents[] = {
     },
 };
 
+static const struct MapConnection ThreeIsland_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_THREE_ISLAND_PORT),
+        .mapNum = MAP_NUM(MAP_THREE_ISLAND_PORT),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_THREE_ISLAND_BOND_BRIDGE),
+        .mapNum = MAP_NUM(MAP_THREE_ISLAND_BOND_BRIDGE),
+    },
+};
+
+static const struct MapConnections ThreeIsland_MapConnections = {
+    .count = 2,
+    .connections = ThreeIsland_Connections,
+};
+
 const struct MapEvents ThreeIsland_MapEvents = {
     .objectEventCount = 14,
     .warpCount = 7,
@@ -31011,7 +31353,7 @@ const struct MapHeader ThreeIsland = {
     .mapLayout = &ThreeIsland_Layout,
     .events = &ThreeIsland_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &ThreeIsland_MapConnections,
     .music = MUS_SEVII_123,
     .mapLayoutId = LAYOUT_THREE_ISLAND,
     .regionMapSectionId = MAPSEC_THREE_ISLAND,
@@ -31492,6 +31834,26 @@ static const struct BgEvent FiveIsland_BgEvents[] = {
     },
 };
 
+static const struct MapConnection FiveIsland_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = -48,
+        .mapGroup = MAP_GROUP(MAP_FIVE_ISLAND_WATER_LABYRINTH),
+        .mapNum = MAP_NUM(MAP_FIVE_ISLAND_WATER_LABYRINTH),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_FIVE_ISLAND_MEADOW),
+        .mapNum = MAP_NUM(MAP_FIVE_ISLAND_MEADOW),
+    },
+};
+
+static const struct MapConnections FiveIsland_MapConnections = {
+    .count = 2,
+    .connections = FiveIsland_Connections,
+};
+
 const struct MapEvents FiveIsland_MapEvents = {
     .objectEventCount = 3,
     .warpCount = 4,
@@ -31509,7 +31871,7 @@ const struct MapHeader FiveIsland = {
     .mapLayout = &FiveIsland_Layout,
     .events = &FiveIsland_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &FiveIsland_MapConnections,
     .music = MUS_SEVII_45,
     .mapLayoutId = LAYOUT_FIVE_ISLAND,
     .regionMapSectionId = MAPSEC_FIVE_ISLAND,
@@ -31629,6 +31991,26 @@ static const struct BgEvent SevenIsland_BgEvents[] = {
     },
 };
 
+static const struct MapConnection SevenIsland_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = -48,
+        .mapGroup = MAP_GROUP(MAP_SEVEN_ISLAND_TRAINER_TOWER),
+        .mapNum = MAP_NUM(MAP_SEVEN_ISLAND_TRAINER_TOWER),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_SEVEN_ISLAND_SEVAULT_CANYON_ENTRANCE),
+        .mapNum = MAP_NUM(MAP_SEVEN_ISLAND_SEVAULT_CANYON_ENTRANCE),
+    },
+};
+
+static const struct MapConnections SevenIsland_MapConnections = {
+    .count = 2,
+    .connections = SevenIsland_Connections,
+};
+
 const struct MapEvents SevenIsland_MapEvents = {
     .objectEventCount = 3,
     .warpCount = 4,
@@ -31646,7 +32028,7 @@ const struct MapHeader SevenIsland = {
     .mapLayout = &SevenIsland_Layout,
     .events = &SevenIsland_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SevenIsland_MapConnections,
     .music = MUS_SEVII_67,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND,
     .regionMapSectionId = MAPSEC_SEVEN_ISLAND,
@@ -31754,6 +32136,20 @@ static const struct BgEvent SixIsland_BgEvents[] = {
     },
 };
 
+static const struct MapConnection SixIsland_Connections[] = {
+    {
+        .direction = CONNECTION_EAST,
+        .offset = -40,
+        .mapGroup = MAP_GROUP(MAP_SIX_ISLAND_WATER_PATH),
+        .mapNum = MAP_NUM(MAP_SIX_ISLAND_WATER_PATH),
+    },
+};
+
+static const struct MapConnections SixIsland_MapConnections = {
+    .count = 1,
+    .connections = SixIsland_Connections,
+};
+
 const struct MapEvents SixIsland_MapEvents = {
     .objectEventCount = 2,
     .warpCount = 4,
@@ -31771,7 +32167,7 @@ const struct MapHeader SixIsland = {
     .mapLayout = &SixIsland_Layout,
     .events = &SixIsland_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SixIsland_MapConnections,
     .music = MUS_SEVII_67,
     .mapLayoutId = LAYOUT_SIX_ISLAND,
     .regionMapSectionId = MAPSEC_SIX_ISLAND,
@@ -31837,6 +32233,26 @@ static const struct BgEvent Route1_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route1_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = -12,
+        .mapGroup = MAP_GROUP(MAP_VIRIDIAN_CITY),
+        .mapNum = MAP_NUM(MAP_VIRIDIAN_CITY),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_PALLET_TOWN),
+        .mapNum = MAP_NUM(MAP_PALLET_TOWN),
+    },
+};
+
+static const struct MapConnections Route1_MapConnections = {
+    .count = 2,
+    .connections = Route1_Connections,
+};
+
 const struct MapEvents Route1_MapEvents = {
     .objectEventCount = 2,
     .warpCount = 0,
@@ -31854,7 +32270,7 @@ const struct MapHeader Route1 = {
     .mapLayout = &Route1_Layout,
     .events = &Route1_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route1_MapConnections,
     .music = MUS_ROUTE1,
     .mapLayoutId = LAYOUT_ROUTE1,
     .regionMapSectionId = MAPSEC_ROUTE_1,
@@ -32105,6 +32521,26 @@ static const struct BgEvent Route2_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route2_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = -12,
+        .mapGroup = MAP_GROUP(MAP_PEWTER_CITY),
+        .mapNum = MAP_NUM(MAP_PEWTER_CITY),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = -12,
+        .mapGroup = MAP_GROUP(MAP_VIRIDIAN_CITY),
+        .mapNum = MAP_NUM(MAP_VIRIDIAN_CITY),
+    },
+};
+
+static const struct MapConnections Route2_MapConnections = {
+    .count = 2,
+    .connections = Route2_Connections,
+};
+
 const struct MapEvents Route2_MapEvents = {
     .objectEventCount = 7,
     .warpCount = 10,
@@ -32122,7 +32558,7 @@ const struct MapHeader Route2 = {
     .mapLayout = &Route2_Layout,
     .events = &Route2_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route2_MapConnections,
     .music = MUS_ROUTE1,
     .mapLayoutId = LAYOUT_ROUTE2,
     .regionMapSectionId = MAPSEC_ROUTE_2,
@@ -32328,6 +32764,26 @@ static const struct BgEvent Route3_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route3_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 60,
+        .mapGroup = MAP_GROUP(MAP_ROUTE4),
+        .mapNum = MAP_NUM(MAP_ROUTE4),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = -10,
+        .mapGroup = MAP_GROUP(MAP_PEWTER_CITY),
+        .mapNum = MAP_NUM(MAP_PEWTER_CITY),
+    },
+};
+
+static const struct MapConnections Route3_MapConnections = {
+    .count = 2,
+    .connections = Route3_Connections,
+};
+
 const struct MapEvents Route3_MapEvents = {
     .objectEventCount = 9,
     .warpCount = 0,
@@ -32345,7 +32801,7 @@ const struct MapHeader Route3 = {
     .mapLayout = &Route3_Layout,
     .events = &Route3_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route3_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE3,
     .regionMapSectionId = MAPSEC_ROUTE_3,
@@ -32561,6 +33017,26 @@ static const struct BgEvent Route4_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route4_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = -60,
+        .mapGroup = MAP_GROUP(MAP_ROUTE3),
+        .mapNum = MAP_NUM(MAP_ROUTE3),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = -10,
+        .mapGroup = MAP_GROUP(MAP_CERULEAN_CITY),
+        .mapNum = MAP_NUM(MAP_CERULEAN_CITY),
+    },
+};
+
+static const struct MapConnections Route4_MapConnections = {
+    .count = 2,
+    .connections = Route4_Connections,
+};
+
 const struct MapEvents Route4_MapEvents = {
     .objectEventCount = 7,
     .warpCount = 3,
@@ -32578,7 +33054,7 @@ const struct MapHeader Route4 = {
     .mapLayout = &Route4_Layout,
     .events = &Route4_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route4_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE4,
     .regionMapSectionId = MAPSEC_ROUTE_4,
@@ -32638,6 +33114,26 @@ static const struct BgEvent Route5_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route5_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_CERULEAN_CITY),
+        .mapNum = MAP_NUM(MAP_CERULEAN_CITY),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_SAFFRON_CITY_CONNECTION),
+        .mapNum = MAP_NUM(MAP_SAFFRON_CITY_CONNECTION),
+    },
+};
+
+static const struct MapConnections Route5_MapConnections = {
+    .count = 2,
+    .connections = Route5_Connections,
+};
+
 const struct MapEvents Route5_MapEvents = {
     .objectEventCount = 0,
     .warpCount = 4,
@@ -32655,7 +33151,7 @@ const struct MapHeader Route5 = {
     .mapLayout = &Route5_Layout,
     .events = &Route5_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route5_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE5,
     .regionMapSectionId = MAPSEC_ROUTE_5,
@@ -32838,6 +33334,26 @@ static const struct BgEvent Route6_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route6_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_SAFFRON_CITY_CONNECTION),
+        .mapNum = MAP_NUM(MAP_SAFFRON_CITY_CONNECTION),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = -12,
+        .mapGroup = MAP_GROUP(MAP_VERMILION_CITY),
+        .mapNum = MAP_NUM(MAP_VERMILION_CITY),
+    },
+};
+
+static const struct MapConnections Route6_MapConnections = {
+    .count = 2,
+    .connections = Route6_Connections,
+};
+
 const struct MapEvents Route6_MapEvents = {
     .objectEventCount = 6,
     .warpCount = 3,
@@ -32855,7 +33371,7 @@ const struct MapHeader Route6 = {
     .mapLayout = &Route6_Layout,
     .events = &Route6_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route6_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE6,
     .regionMapSectionId = MAPSEC_ROUTE_6,
@@ -32928,6 +33444,26 @@ static const struct BgEvent Route7_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route7_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = -10,
+        .mapGroup = MAP_GROUP(MAP_CELADON_CITY),
+        .mapNum = MAP_NUM(MAP_CELADON_CITY),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = -10,
+        .mapGroup = MAP_GROUP(MAP_SAFFRON_CITY_CONNECTION),
+        .mapNum = MAP_NUM(MAP_SAFFRON_CITY_CONNECTION),
+    },
+};
+
+static const struct MapConnections Route7_MapConnections = {
+    .count = 2,
+    .connections = Route7_Connections,
+};
+
 const struct MapEvents Route7_MapEvents = {
     .objectEventCount = 1,
     .warpCount = 2,
@@ -32945,7 +33481,7 @@ const struct MapHeader Route7 = {
     .mapLayout = &Route7_Layout,
     .events = &Route7_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route7_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE7,
     .regionMapSectionId = MAPSEC_ROUTE_7,
@@ -33298,6 +33834,26 @@ static const struct BgEvent Route8_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route8_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = -10,
+        .mapGroup = MAP_GROUP(MAP_SAFFRON_CITY_CONNECTION),
+        .mapNum = MAP_NUM(MAP_SAFFRON_CITY_CONNECTION),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_LAVENDER_TOWN),
+        .mapNum = MAP_NUM(MAP_LAVENDER_TOWN),
+    },
+};
+
+static const struct MapConnections Route8_MapConnections = {
+    .count = 2,
+    .connections = Route8_Connections,
+};
+
 const struct MapEvents Route8_MapEvents = {
     .objectEventCount = 15,
     .warpCount = 2,
@@ -33315,7 +33871,7 @@ const struct MapHeader Route8 = {
     .mapLayout = &Route8_Layout,
     .events = &Route8_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route8_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE8,
     .regionMapSectionId = MAPSEC_ROUTE_8,
@@ -33592,6 +34148,26 @@ static const struct BgEvent Route9_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route9_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = -10,
+        .mapGroup = MAP_GROUP(MAP_CERULEAN_CITY),
+        .mapNum = MAP_NUM(MAP_CERULEAN_CITY),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE10),
+        .mapNum = MAP_NUM(MAP_ROUTE10),
+    },
+};
+
+static const struct MapConnections Route9_MapConnections = {
+    .count = 2,
+    .connections = Route9_Connections,
+};
+
 const struct MapEvents Route9_MapEvents = {
     .objectEventCount = 12,
     .warpCount = 0,
@@ -33609,7 +34185,7 @@ const struct MapHeader Route9 = {
     .mapLayout = &Route9_Layout,
     .events = &Route9_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route9_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE9,
     .regionMapSectionId = MAPSEC_ROUTE_9,
@@ -33919,6 +34495,26 @@ static const struct BgEvent Route10_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route10_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_LAVENDER_TOWN),
+        .mapNum = MAP_NUM(MAP_LAVENDER_TOWN),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE9),
+        .mapNum = MAP_NUM(MAP_ROUTE9),
+    },
+};
+
+static const struct MapConnections Route10_MapConnections = {
+    .count = 2,
+    .connections = Route10_Connections,
+};
+
 const struct MapEvents Route10_MapEvents = {
     .objectEventCount = 10,
     .warpCount = 5,
@@ -33936,7 +34532,7 @@ const struct MapHeader Route10 = {
     .mapLayout = &Route10_Layout,
     .events = &Route10_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route10_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE10,
     .regionMapSectionId = MAPSEC_ROUTE_10,
@@ -34245,6 +34841,26 @@ static const struct BgEvent Route11_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route11_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = -10,
+        .mapGroup = MAP_GROUP(MAP_VERMILION_CITY),
+        .mapNum = MAP_NUM(MAP_VERMILION_CITY),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = -60,
+        .mapGroup = MAP_GROUP(MAP_ROUTE12),
+        .mapNum = MAP_NUM(MAP_ROUTE12),
+    },
+};
+
+static const struct MapConnections Route11_MapConnections = {
+    .count = 2,
+    .connections = Route11_Connections,
+};
+
 const struct MapEvents Route11_MapEvents = {
     .objectEventCount = 13,
     .warpCount = 3,
@@ -34262,7 +34878,7 @@ const struct MapHeader Route11 = {
     .mapLayout = &Route11_Layout,
     .events = &Route11_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route11_MapConnections,
     .music = MUS_ROUTE11,
     .mapLayoutId = LAYOUT_ROUTE11,
     .regionMapSectionId = MAPSEC_ROUTE_11,
@@ -34619,6 +35235,32 @@ static const struct BgEvent Route12_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route12_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_LAVENDER_TOWN),
+        .mapNum = MAP_NUM(MAP_LAVENDER_TOWN),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = -48,
+        .mapGroup = MAP_GROUP(MAP_ROUTE13),
+        .mapNum = MAP_NUM(MAP_ROUTE13),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 60,
+        .mapGroup = MAP_GROUP(MAP_ROUTE11),
+        .mapNum = MAP_NUM(MAP_ROUTE11),
+    },
+};
+
+static const struct MapConnections Route12_MapConnections = {
+    .count = 3,
+    .connections = Route12_Connections,
+};
+
 const struct MapEvents Route12_MapEvents = {
     .objectEventCount = 14,
     .warpCount = 4,
@@ -34636,7 +35278,7 @@ const struct MapHeader Route12 = {
     .mapLayout = &Route12_Layout,
     .events = &Route12_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route12_MapConnections,
     .music = MUS_ROUTE11,
     .mapLayoutId = LAYOUT_ROUTE12,
     .regionMapSectionId = MAPSEC_ROUTE_12,
@@ -34894,6 +35536,26 @@ static const struct BgEvent Route13_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route13_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 48,
+        .mapGroup = MAP_GROUP(MAP_ROUTE12),
+        .mapNum = MAP_NUM(MAP_ROUTE12),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE14),
+        .mapNum = MAP_NUM(MAP_ROUTE14),
+    },
+};
+
+static const struct MapConnections Route13_MapConnections = {
+    .count = 2,
+    .connections = Route13_Connections,
+};
+
 const struct MapEvents Route13_MapEvents = {
     .objectEventCount = 11,
     .warpCount = 0,
@@ -34911,7 +35573,7 @@ const struct MapHeader Route13 = {
     .mapLayout = &Route13_Layout,
     .events = &Route13_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route13_MapConnections,
     .music = MUS_ROUTE11,
     .mapLayoutId = LAYOUT_ROUTE13,
     .regionMapSectionId = MAPSEC_ROUTE_13,
@@ -35238,6 +35900,26 @@ static const struct BgEvent Route14_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route14_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 40,
+        .mapGroup = MAP_GROUP(MAP_ROUTE15),
+        .mapNum = MAP_NUM(MAP_ROUTE15),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE13),
+        .mapNum = MAP_NUM(MAP_ROUTE13),
+    },
+};
+
+static const struct MapConnections Route14_MapConnections = {
+    .count = 2,
+    .connections = Route14_Connections,
+};
+
 const struct MapEvents Route14_MapEvents = {
     .objectEventCount = 15,
     .warpCount = 0,
@@ -35255,7 +35937,7 @@ const struct MapHeader Route14 = {
     .mapLayout = &Route14_Layout,
     .events = &Route14_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route14_MapConnections,
     .music = MUS_ROUTE11,
     .mapLayoutId = LAYOUT_ROUTE14,
     .regionMapSectionId = MAPSEC_ROUTE_14,
@@ -35568,6 +36250,26 @@ static const struct BgEvent Route15_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route15_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = -10,
+        .mapGroup = MAP_GROUP(MAP_FUCHSIA_CITY),
+        .mapNum = MAP_NUM(MAP_FUCHSIA_CITY),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = -40,
+        .mapGroup = MAP_GROUP(MAP_ROUTE14),
+        .mapNum = MAP_NUM(MAP_ROUTE14),
+    },
+};
+
+static const struct MapConnections Route15_MapConnections = {
+    .count = 2,
+    .connections = Route15_Connections,
+};
+
 const struct MapEvents Route15_MapEvents = {
     .objectEventCount = 14,
     .warpCount = 2,
@@ -35585,7 +36287,7 @@ const struct MapHeader Route15 = {
     .mapLayout = &Route15_Layout,
     .events = &Route15_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route15_MapConnections,
     .music = MUS_ROUTE11,
     .mapLayoutId = LAYOUT_ROUTE15,
     .regionMapSectionId = MAPSEC_ROUTE_15,
@@ -35860,6 +36562,26 @@ static const struct BgEvent Route16_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route16_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE17),
+        .mapNum = MAP_NUM(MAP_ROUTE17),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = -10,
+        .mapGroup = MAP_GROUP(MAP_CELADON_CITY),
+        .mapNum = MAP_NUM(MAP_CELADON_CITY),
+    },
+};
+
+static const struct MapConnections Route16_MapConnections = {
+    .count = 2,
+    .connections = Route16_Connections,
+};
+
 const struct MapEvents Route16_MapEvents = {
     .objectEventCount = 10,
     .warpCount = 5,
@@ -35877,7 +36599,7 @@ const struct MapHeader Route16 = {
     .mapLayout = &Route16_Layout,
     .events = &Route16_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route16_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE16,
     .regionMapSectionId = MAPSEC_ROUTE_16,
@@ -36165,6 +36887,26 @@ static const struct BgEvent Route17_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route17_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE16),
+        .mapNum = MAP_NUM(MAP_ROUTE16),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE18),
+        .mapNum = MAP_NUM(MAP_ROUTE18),
+    },
+};
+
+static const struct MapConnections Route17_MapConnections = {
+    .count = 2,
+    .connections = Route17_Connections,
+};
+
 const struct MapEvents Route17_MapEvents = {
     .objectEventCount = 10,
     .warpCount = 0,
@@ -36182,7 +36924,7 @@ const struct MapHeader Route17 = {
     .mapLayout = &Route17_Layout,
     .events = &Route17_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route17_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE17,
     .regionMapSectionId = MAPSEC_ROUTE_17,
@@ -36293,6 +37035,26 @@ static const struct BgEvent Route18_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route18_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE17),
+        .mapNum = MAP_NUM(MAP_ROUTE17),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = -10,
+        .mapGroup = MAP_GROUP(MAP_FUCHSIA_CITY),
+        .mapNum = MAP_NUM(MAP_FUCHSIA_CITY),
+    },
+};
+
+static const struct MapConnections Route18_MapConnections = {
+    .count = 2,
+    .connections = Route18_Connections,
+};
+
 const struct MapEvents Route18_MapEvents = {
     .objectEventCount = 3,
     .warpCount = 2,
@@ -36310,7 +37072,7 @@ const struct MapHeader Route18 = {
     .mapLayout = &Route18_Layout,
     .events = &Route18_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route18_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE18,
     .regionMapSectionId = MAPSEC_ROUTE_18,
@@ -36566,6 +37328,26 @@ static const struct BgEvent Route19_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route19_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = -12,
+        .mapGroup = MAP_GROUP(MAP_FUCHSIA_CITY),
+        .mapNum = MAP_NUM(MAP_FUCHSIA_CITY),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 40,
+        .mapGroup = MAP_GROUP(MAP_ROUTE20),
+        .mapNum = MAP_NUM(MAP_ROUTE20),
+    },
+};
+
+static const struct MapConnections Route19_MapConnections = {
+    .count = 2,
+    .connections = Route19_Connections,
+};
+
 const struct MapEvents Route19_MapEvents = {
     .objectEventCount = 12,
     .warpCount = 0,
@@ -36583,7 +37365,7 @@ const struct MapHeader Route19 = {
     .mapLayout = &Route19_Layout,
     .events = &Route19_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route19_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE19,
     .regionMapSectionId = MAPSEC_ROUTE_19,
@@ -36853,6 +37635,26 @@ static const struct BgEvent Route20_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route20_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_CINNABAR_ISLAND),
+        .mapNum = MAP_NUM(MAP_CINNABAR_ISLAND),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = -40,
+        .mapGroup = MAP_GROUP(MAP_ROUTE19),
+        .mapNum = MAP_NUM(MAP_ROUTE19),
+    },
+};
+
+static const struct MapConnections Route20_MapConnections = {
+    .count = 2,
+    .connections = Route20_Connections,
+};
+
 const struct MapEvents Route20_MapEvents = {
     .objectEventCount = 11,
     .warpCount = 2,
@@ -36870,7 +37672,7 @@ const struct MapHeader Route20 = {
     .mapLayout = &Route20_Layout,
     .events = &Route20_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route20_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE20,
     .regionMapSectionId = MAPSEC_ROUTE_20,
@@ -37012,6 +37814,26 @@ static const struct BgEvent Route21_North_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route21_North_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_PALLET_TOWN),
+        .mapNum = MAP_NUM(MAP_PALLET_TOWN),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE21_SOUTH),
+        .mapNum = MAP_NUM(MAP_ROUTE21_SOUTH),
+    },
+};
+
+static const struct MapConnections Route21_North_MapConnections = {
+    .count = 2,
+    .connections = Route21_North_Connections,
+};
+
 const struct MapEvents Route21_North_MapEvents = {
     .objectEventCount = 6,
     .warpCount = 0,
@@ -37029,7 +37851,7 @@ const struct MapHeader Route21_North = {
     .mapLayout = &Route21_North_Layout,
     .events = &Route21_North_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route21_North_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE21_NORTH,
     .regionMapSectionId = MAPSEC_ROUTE_21,
@@ -37142,6 +37964,26 @@ static const struct ObjectEventTemplate Route21_South_ObjectEvents[] = {
     },
 };
 
+static const struct MapConnection Route21_South_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE21_NORTH),
+        .mapNum = MAP_NUM(MAP_ROUTE21_NORTH),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_CINNABAR_ISLAND),
+        .mapNum = MAP_NUM(MAP_CINNABAR_ISLAND),
+    },
+};
+
+static const struct MapConnections Route21_South_MapConnections = {
+    .count = 2,
+    .connections = Route21_South_Connections,
+};
+
 const struct MapEvents Route21_South_MapEvents = {
     .objectEventCount = 5,
     .warpCount = 0,
@@ -37159,7 +38001,7 @@ const struct MapHeader Route21_South = {
     .mapLayout = &Route21_South_Layout,
     .events = &Route21_South_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route21_South_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE21_SOUTH,
     .regionMapSectionId = MAPSEC_ROUTE_21,
@@ -37222,7 +38064,7 @@ static const struct CoordEvent Route22_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE22,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 33,
@@ -37230,7 +38072,7 @@ static const struct CoordEvent Route22_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE22,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 33,
@@ -37238,7 +38080,7 @@ static const struct CoordEvent Route22_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE22,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 33,
@@ -37246,7 +38088,7 @@ static const struct CoordEvent Route22_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE22,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 33,
@@ -37254,7 +38096,7 @@ static const struct CoordEvent Route22_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE22,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 33,
@@ -37262,7 +38104,7 @@ static const struct CoordEvent Route22_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE22,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -37274,6 +38116,26 @@ static const struct BgEvent Route22_BgEvents[] = {
         .kind = BG_EVENT_PLAYER_FACING_ANY,
         .bgUnion = { .script = sDummyScript },
     },
+};
+
+static const struct MapConnection Route22_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE23),
+        .mapNum = MAP_NUM(MAP_ROUTE23),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = -10,
+        .mapGroup = MAP_GROUP(MAP_VIRIDIAN_CITY),
+        .mapNum = MAP_NUM(MAP_VIRIDIAN_CITY),
+    },
+};
+
+static const struct MapConnections Route22_MapConnections = {
+    .count = 2,
+    .connections = Route22_Connections,
 };
 
 const struct MapEvents Route22_MapEvents = {
@@ -37293,7 +38155,7 @@ const struct MapHeader Route22 = {
     .mapLayout = &Route22_Layout,
     .events = &Route22_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route22_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ROUTE22,
     .regionMapSectionId = MAPSEC_ROUTE_22,
@@ -37486,7 +38348,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 7,
@@ -37494,7 +38356,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -37502,7 +38364,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -37510,7 +38372,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 4,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -37518,7 +38380,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 5,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -37526,7 +38388,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 6,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 1,
@@ -37534,7 +38396,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 7,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 1,
@@ -37542,7 +38404,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 7,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 1,
@@ -37550,7 +38412,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 7,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 1,
@@ -37558,7 +38420,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 7,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 1,
@@ -37566,7 +38428,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 7,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 1,
@@ -37574,7 +38436,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 7,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 5,
@@ -37582,7 +38444,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 7,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 4,
@@ -37590,7 +38452,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 7,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -37598,7 +38460,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 6,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -37606,7 +38468,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 6,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -37614,7 +38476,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 6,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 8,
@@ -37622,7 +38484,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 5,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 5,
@@ -37630,7 +38492,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 5,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 7,
@@ -37638,7 +38500,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 5,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 4,
@@ -37646,7 +38508,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 5,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 3,
@@ -37654,7 +38516,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 5,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 2,
@@ -37662,7 +38524,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 5,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 4,
@@ -37670,7 +38532,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 5,
@@ -37678,7 +38540,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -37686,7 +38548,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -37694,7 +38556,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -37702,7 +38564,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -37710,7 +38572,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 8,
@@ -37718,7 +38580,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 4,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 9,
@@ -37726,7 +38588,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 4,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -37734,7 +38596,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 4,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -37742,7 +38604,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 4,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -37750,7 +38612,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 4,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -37758,7 +38620,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 4,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 14,
@@ -37766,7 +38628,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 4,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -37774,7 +38636,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 4,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 15,
@@ -37782,7 +38644,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 1,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 4,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -37790,7 +38652,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -37798,7 +38660,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 14,
@@ -37806,7 +38668,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -37814,7 +38676,7 @@ static const struct CoordEvent Route23_CoordEvents[] = {
         .elevation = 0,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -37884,6 +38746,26 @@ static const struct BgEvent Route23_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route23_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_INDIGO_PLATEAU_EXTERIOR),
+        .mapNum = MAP_NUM(MAP_INDIGO_PLATEAU_EXTERIOR),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE22),
+        .mapNum = MAP_NUM(MAP_ROUTE22),
+    },
+};
+
+static const struct MapConnections Route23_MapConnections = {
+    .count = 2,
+    .connections = Route23_Connections,
+};
+
 const struct MapEvents Route23_MapEvents = {
     .objectEventCount = 7,
     .warpCount = 4,
@@ -37901,7 +38783,7 @@ const struct MapHeader Route23 = {
     .mapLayout = &Route23_Layout,
     .events = &Route23_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route23_MapConnections,
     .music = MUS_VICTORY_ROAD,
     .mapLayoutId = LAYOUT_ROUTE23,
     .regionMapSectionId = MAPSEC_ROUTE_23,
@@ -38078,7 +38960,7 @@ static const struct CoordEvent Route24_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE24,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -38086,7 +38968,7 @@ static const struct CoordEvent Route24_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE24,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -38098,6 +38980,26 @@ static const struct BgEvent Route24_BgEvents[] = {
         .kind = 0,
         .bgUnion = { .script = sDummyScript },
     },
+};
+
+static const struct MapConnection Route24_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = -12,
+        .mapGroup = MAP_GROUP(MAP_CERULEAN_CITY),
+        .mapNum = MAP_NUM(MAP_CERULEAN_CITY),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE25),
+        .mapNum = MAP_NUM(MAP_ROUTE25),
+    },
+};
+
+static const struct MapConnections Route24_MapConnections = {
+    .count = 2,
+    .connections = Route24_Connections,
 };
 
 const struct MapEvents Route24_MapEvents = {
@@ -38117,7 +39019,7 @@ const struct MapHeader Route24 = {
     .mapLayout = &Route24_Layout,
     .events = &Route24_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route24_MapConnections,
     .music = MUS_ROUTE24,
     .mapLayoutId = LAYOUT_ROUTE24,
     .regionMapSectionId = MAPSEC_ROUTE_24,
@@ -38431,6 +39333,20 @@ static const struct BgEvent Route25_BgEvents[] = {
     },
 };
 
+static const struct MapConnection Route25_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ROUTE24),
+        .mapNum = MAP_NUM(MAP_ROUTE24),
+    },
+};
+
+static const struct MapConnections Route25_MapConnections = {
+    .count = 1,
+    .connections = Route25_Connections,
+};
+
 const struct MapEvents Route25_MapEvents = {
     .objectEventCount = 13,
     .warpCount = 1,
@@ -38448,7 +39364,7 @@ const struct MapHeader Route25 = {
     .mapLayout = &Route25_Layout,
     .events = &Route25_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Route25_MapConnections,
     .music = MUS_ROUTE24,
     .mapLayoutId = LAYOUT_ROUTE25,
     .regionMapSectionId = MAPSEC_ROUTE_25,
@@ -39061,6 +39977,20 @@ static const struct BgEvent OneIsland_KindleRoad_BgEvents[] = {
     },
 };
 
+static const struct MapConnection OneIsland_KindleRoad_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 120,
+        .mapGroup = MAP_GROUP(MAP_ONE_ISLAND),
+        .mapNum = MAP_NUM(MAP_ONE_ISLAND),
+    },
+};
+
+static const struct MapConnections OneIsland_KindleRoad_MapConnections = {
+    .count = 1,
+    .connections = OneIsland_KindleRoad_Connections,
+};
+
 const struct MapEvents OneIsland_KindleRoad_MapEvents = {
     .objectEventCount = 29,
     .warpCount = 3,
@@ -39078,7 +40008,7 @@ const struct MapHeader OneIsland_KindleRoad = {
     .mapLayout = &OneIsland_KindleRoad_Layout,
     .events = &OneIsland_KindleRoad_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &OneIsland_KindleRoad_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ONE_ISLAND_KINDLE_ROAD,
     .regionMapSectionId = MAPSEC_KINDLE_ROAD,
@@ -39193,6 +40123,20 @@ static const struct BgEvent OneIsland_TreasureBeach_BgEvents[] = {
     },
 };
 
+static const struct MapConnection OneIsland_TreasureBeach_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_ONE_ISLAND),
+        .mapNum = MAP_NUM(MAP_ONE_ISLAND),
+    },
+};
+
+static const struct MapConnections OneIsland_TreasureBeach_MapConnections = {
+    .count = 1,
+    .connections = OneIsland_TreasureBeach_Connections,
+};
+
 const struct MapEvents OneIsland_TreasureBeach_MapEvents = {
     .objectEventCount = 2,
     .warpCount = 0,
@@ -39210,7 +40154,7 @@ const struct MapHeader OneIsland_TreasureBeach = {
     .mapLayout = &OneIsland_TreasureBeach_Layout,
     .events = &OneIsland_TreasureBeach_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &OneIsland_TreasureBeach_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_ONE_ISLAND_TREASURE_BEACH,
     .regionMapSectionId = MAPSEC_TREASURE_BEACH,
@@ -39253,6 +40197,20 @@ static const struct BgEvent TwoIsland_CapeBrink_BgEvents[] = {
     },
 };
 
+static const struct MapConnection TwoIsland_CapeBrink_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = -24,
+        .mapGroup = MAP_GROUP(MAP_TWO_ISLAND),
+        .mapNum = MAP_NUM(MAP_TWO_ISLAND),
+    },
+};
+
+static const struct MapConnections TwoIsland_CapeBrink_MapConnections = {
+    .count = 1,
+    .connections = TwoIsland_CapeBrink_Connections,
+};
+
 const struct MapEvents TwoIsland_CapeBrink_MapEvents = {
     .objectEventCount = 0,
     .warpCount = 1,
@@ -39270,7 +40228,7 @@ const struct MapHeader TwoIsland_CapeBrink = {
     .mapLayout = &TwoIsland_CapeBrink_Layout,
     .events = &TwoIsland_CapeBrink_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &TwoIsland_CapeBrink_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_TWO_ISLAND_CAPE_BRINK,
     .regionMapSectionId = MAPSEC_CAPE_BRINK,
@@ -39516,6 +40474,20 @@ static const struct BgEvent ThreeIsland_BondBridge_BgEvents[] = {
     },
 };
 
+static const struct MapConnection ThreeIsland_BondBridge_Connections[] = {
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_THREE_ISLAND),
+        .mapNum = MAP_NUM(MAP_THREE_ISLAND),
+    },
+};
+
+static const struct MapConnections ThreeIsland_BondBridge_MapConnections = {
+    .count = 1,
+    .connections = ThreeIsland_BondBridge_Connections,
+};
+
 const struct MapEvents ThreeIsland_BondBridge_MapEvents = {
     .objectEventCount = 9,
     .warpCount = 2,
@@ -39533,7 +40505,7 @@ const struct MapHeader ThreeIsland_BondBridge = {
     .mapLayout = &ThreeIsland_BondBridge_Layout,
     .events = &ThreeIsland_BondBridge_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &ThreeIsland_BondBridge_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_THREE_ISLAND_BOND_BRIDGE,
     .regionMapSectionId = MAPSEC_BOND_BRIDGE,
@@ -39635,6 +40607,20 @@ static const struct WarpEvent ThreeIsland_Port_WarpEvents[] = {
     },
 };
 
+static const struct MapConnection ThreeIsland_Port_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_THREE_ISLAND),
+        .mapNum = MAP_NUM(MAP_THREE_ISLAND),
+    },
+};
+
+static const struct MapConnections ThreeIsland_Port_MapConnections = {
+    .count = 1,
+    .connections = ThreeIsland_Port_Connections,
+};
+
 const struct MapEvents ThreeIsland_Port_MapEvents = {
     .objectEventCount = 3,
     .warpCount = 3,
@@ -39652,7 +40638,7 @@ const struct MapHeader ThreeIsland_Port = {
     .mapLayout = &ThreeIsland_Port_Layout,
     .events = &ThreeIsland_Port_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &ThreeIsland_Port_MapConnections,
     .music = MUS_ROUTE3,
     .mapLayoutId = LAYOUT_THREE_ISLAND_PORT,
     .regionMapSectionId = MAPSEC_THREE_ISLE_PORT,
@@ -39665,6 +40651,20 @@ const struct MapHeader ThreeIsland_Port = {
     .showMapName = 1,
     .floorNum = 0,
     .battleType = MAP_BATTLE_SCENE_NORMAL,
+};
+
+static const struct MapConnection Prototype_SeviiIsle_6_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_THREE_ISLAND),
+        .mapNum = MAP_NUM(MAP_THREE_ISLAND),
+    },
+};
+
+static const struct MapConnections Prototype_SeviiIsle_6_MapConnections = {
+    .count = 1,
+    .connections = Prototype_SeviiIsle_6_Connections,
 };
 
 const struct MapEvents Prototype_SeviiIsle_6_MapEvents = {
@@ -39684,7 +40684,7 @@ const struct MapHeader Prototype_SeviiIsle_6 = {
     .mapLayout = &Prototype_SeviiIsle_6_Layout,
     .events = &Prototype_SeviiIsle_6_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Prototype_SeviiIsle_6_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_PROTOTYPE_SEVII_ISLE_6,
     .regionMapSectionId = MAPSEC_SEVII_ISLE_6,
@@ -39697,6 +40697,20 @@ const struct MapHeader Prototype_SeviiIsle_6 = {
     .showMapName = 1,
     .floorNum = 0,
     .battleType = MAP_BATTLE_SCENE_NORMAL,
+};
+
+static const struct MapConnection Prototype_SeviiIsle_7_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_THREE_ISLAND),
+        .mapNum = MAP_NUM(MAP_THREE_ISLAND),
+    },
+};
+
+static const struct MapConnections Prototype_SeviiIsle_7_MapConnections = {
+    .count = 1,
+    .connections = Prototype_SeviiIsle_7_Connections,
 };
 
 const struct MapEvents Prototype_SeviiIsle_7_MapEvents = {
@@ -39716,7 +40730,7 @@ const struct MapHeader Prototype_SeviiIsle_7 = {
     .mapLayout = &Prototype_SeviiIsle_7_Layout,
     .events = &Prototype_SeviiIsle_7_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &Prototype_SeviiIsle_7_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_PROTOTYPE_SEVII_ISLE_7,
     .regionMapSectionId = MAPSEC_SEVII_ISLE_7,
@@ -40007,6 +41021,20 @@ static const struct BgEvent FiveIsland_ResortGorgeous_BgEvents[] = {
     },
 };
 
+static const struct MapConnection FiveIsland_ResortGorgeous_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = -48,
+        .mapGroup = MAP_GROUP(MAP_FIVE_ISLAND_WATER_LABYRINTH),
+        .mapNum = MAP_NUM(MAP_FIVE_ISLAND_WATER_LABYRINTH),
+    },
+};
+
+static const struct MapConnections FiveIsland_ResortGorgeous_MapConnections = {
+    .count = 1,
+    .connections = FiveIsland_ResortGorgeous_Connections,
+};
+
 const struct MapEvents FiveIsland_ResortGorgeous_MapEvents = {
     .objectEventCount = 8,
     .warpCount = 2,
@@ -40024,7 +41052,7 @@ const struct MapHeader FiveIsland_ResortGorgeous = {
     .mapLayout = &FiveIsland_ResortGorgeous_Layout,
     .events = &FiveIsland_ResortGorgeous_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &FiveIsland_ResortGorgeous_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_RESORT_GORGEOUS,
     .regionMapSectionId = MAPSEC_RESORT_GORGEOUS,
@@ -40080,6 +41108,26 @@ static const struct ObjectEventTemplate FiveIsland_WaterLabyrinth_ObjectEvents[]
     },
 };
 
+static const struct MapConnection FiveIsland_WaterLabyrinth_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 48,
+        .mapGroup = MAP_GROUP(MAP_FIVE_ISLAND_RESORT_GORGEOUS),
+        .mapNum = MAP_NUM(MAP_FIVE_ISLAND_RESORT_GORGEOUS),
+    },
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 48,
+        .mapGroup = MAP_GROUP(MAP_FIVE_ISLAND),
+        .mapNum = MAP_NUM(MAP_FIVE_ISLAND),
+    },
+};
+
+static const struct MapConnections FiveIsland_WaterLabyrinth_MapConnections = {
+    .count = 2,
+    .connections = FiveIsland_WaterLabyrinth_Connections,
+};
+
 const struct MapEvents FiveIsland_WaterLabyrinth_MapEvents = {
     .objectEventCount = 2,
     .warpCount = 0,
@@ -40097,7 +41145,7 @@ const struct MapHeader FiveIsland_WaterLabyrinth = {
     .mapLayout = &FiveIsland_WaterLabyrinth_Layout,
     .events = &FiveIsland_WaterLabyrinth_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &FiveIsland_WaterLabyrinth_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_WATER_LABYRINTH,
     .regionMapSectionId = MAPSEC_WATER_LABYRINTH,
@@ -40269,6 +41317,26 @@ static const struct BgEvent FiveIsland_Meadow_BgEvents[] = {
     },
 };
 
+static const struct MapConnection FiveIsland_Meadow_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_FIVE_ISLAND),
+        .mapNum = MAP_NUM(MAP_FIVE_ISLAND),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 20,
+        .mapGroup = MAP_GROUP(MAP_FIVE_ISLAND_MEMORIAL_PILLAR),
+        .mapNum = MAP_NUM(MAP_FIVE_ISLAND_MEMORIAL_PILLAR),
+    },
+};
+
+static const struct MapConnections FiveIsland_Meadow_MapConnections = {
+    .count = 2,
+    .connections = FiveIsland_Meadow_Connections,
+};
+
 const struct MapEvents FiveIsland_Meadow_MapEvents = {
     .objectEventCount = 7,
     .warpCount = 1,
@@ -40286,7 +41354,7 @@ const struct MapHeader FiveIsland_Meadow = {
     .mapLayout = &FiveIsland_Meadow_Layout,
     .events = &FiveIsland_Meadow_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &FiveIsland_Meadow_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_MEADOW,
     .regionMapSectionId = MAPSEC_FIVE_ISLE_MEADOW,
@@ -40437,6 +41505,20 @@ static const struct BgEvent FiveIsland_MemorialPillar_BgEvents[] = {
     },
 };
 
+static const struct MapConnection FiveIsland_MemorialPillar_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = -20,
+        .mapGroup = MAP_GROUP(MAP_FIVE_ISLAND_MEADOW),
+        .mapNum = MAP_NUM(MAP_FIVE_ISLAND_MEADOW),
+    },
+};
+
+static const struct MapConnections FiveIsland_MemorialPillar_MapConnections = {
+    .count = 1,
+    .connections = FiveIsland_MemorialPillar_Connections,
+};
+
 const struct MapEvents FiveIsland_MemorialPillar_MapEvents = {
     .objectEventCount = 5,
     .warpCount = 0,
@@ -40454,7 +41536,7 @@ const struct MapHeader FiveIsland_MemorialPillar = {
     .mapLayout = &FiveIsland_MemorialPillar_Layout,
     .events = &FiveIsland_MemorialPillar_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &FiveIsland_MemorialPillar_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_FIVE_ISLAND_MEMORIAL_PILLAR,
     .regionMapSectionId = MAPSEC_MEMORIAL_PILLAR,
@@ -40633,6 +41715,20 @@ static const struct BgEvent SixIsland_OutcastIsland_BgEvents[] = {
     },
 };
 
+static const struct MapConnection SixIsland_OutcastIsland_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_SIX_ISLAND_GREEN_PATH),
+        .mapNum = MAP_NUM(MAP_SIX_ISLAND_GREEN_PATH),
+    },
+};
+
+static const struct MapConnections SixIsland_OutcastIsland_MapConnections = {
+    .count = 1,
+    .connections = SixIsland_OutcastIsland_Connections,
+};
+
 const struct MapEvents SixIsland_OutcastIsland_MapEvents = {
     .objectEventCount = 7,
     .warpCount = 1,
@@ -40650,7 +41746,7 @@ const struct MapHeader SixIsland_OutcastIsland = {
     .mapLayout = &SixIsland_OutcastIsland_Layout,
     .events = &SixIsland_OutcastIsland_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SixIsland_OutcastIsland_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SIX_ISLAND_OUTCAST_ISLAND,
     .regionMapSectionId = MAPSEC_OUTCAST_ISLAND,
@@ -40746,6 +41842,26 @@ static const struct BgEvent SixIsland_GreenPath_BgEvents[] = {
     },
 };
 
+static const struct MapConnection SixIsland_GreenPath_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_SIX_ISLAND_OUTCAST_ISLAND),
+        .mapNum = MAP_NUM(MAP_SIX_ISLAND_OUTCAST_ISLAND),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_SIX_ISLAND_WATER_PATH),
+        .mapNum = MAP_NUM(MAP_SIX_ISLAND_WATER_PATH),
+    },
+};
+
+static const struct MapConnections SixIsland_GreenPath_MapConnections = {
+    .count = 2,
+    .connections = SixIsland_GreenPath_Connections,
+};
+
 const struct MapEvents SixIsland_GreenPath_MapEvents = {
     .objectEventCount = 1,
     .warpCount = 4,
@@ -40763,7 +41879,7 @@ const struct MapHeader SixIsland_GreenPath = {
     .mapLayout = &SixIsland_GreenPath_Layout,
     .events = &SixIsland_GreenPath_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SixIsland_GreenPath_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SIX_ISLAND_GREEN_PATH,
     .regionMapSectionId = MAPSEC_GREEN_PATH,
@@ -41009,6 +42125,32 @@ static const struct BgEvent SixIsland_WaterPath_BgEvents[] = {
     },
 };
 
+static const struct MapConnection SixIsland_WaterPath_Connections[] = {
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_SIX_ISLAND_GREEN_PATH),
+        .mapNum = MAP_NUM(MAP_SIX_ISLAND_GREEN_PATH),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 40,
+        .mapGroup = MAP_GROUP(MAP_SIX_ISLAND),
+        .mapNum = MAP_NUM(MAP_SIX_ISLAND),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = 80,
+        .mapGroup = MAP_GROUP(MAP_SIX_ISLAND_RUIN_VALLEY),
+        .mapNum = MAP_NUM(MAP_SIX_ISLAND_RUIN_VALLEY),
+    },
+};
+
+static const struct MapConnections SixIsland_WaterPath_MapConnections = {
+    .count = 3,
+    .connections = SixIsland_WaterPath_Connections,
+};
+
 const struct MapEvents SixIsland_WaterPath_MapEvents = {
     .objectEventCount = 9,
     .warpCount = 2,
@@ -41026,7 +42168,7 @@ const struct MapHeader SixIsland_WaterPath = {
     .mapLayout = &SixIsland_WaterPath_Layout,
     .events = &SixIsland_WaterPath_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SixIsland_WaterPath_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SIX_ISLAND_WATER_PATH,
     .regionMapSectionId = MAPSEC_WATER_PATH,
@@ -41388,6 +42530,20 @@ static const struct BgEvent SixIsland_RuinValley_BgEvents[] = {
     },
 };
 
+static const struct MapConnection SixIsland_RuinValley_Connections[] = {
+    {
+        .direction = CONNECTION_EAST,
+        .offset = -80,
+        .mapGroup = MAP_GROUP(MAP_SIX_ISLAND_WATER_PATH),
+        .mapNum = MAP_NUM(MAP_SIX_ISLAND_WATER_PATH),
+    },
+};
+
+static const struct MapConnections SixIsland_RuinValley_MapConnections = {
+    .count = 1,
+    .connections = SixIsland_RuinValley_Connections,
+};
+
 const struct MapEvents SixIsland_RuinValley_MapEvents = {
     .objectEventCount = 17,
     .warpCount = 1,
@@ -41405,7 +42561,7 @@ const struct MapHeader SixIsland_RuinValley = {
     .mapLayout = &SixIsland_RuinValley_Layout,
     .events = &SixIsland_RuinValley_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SixIsland_RuinValley_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SIX_ISLAND_RUIN_VALLEY,
     .regionMapSectionId = MAPSEC_RUIN_VALLEY,
@@ -41510,6 +42666,20 @@ static const struct BgEvent SevenIsland_TrainerTower_BgEvents[] = {
     },
 };
 
+static const struct MapConnection SevenIsland_TrainerTower_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = 48,
+        .mapGroup = MAP_GROUP(MAP_SEVEN_ISLAND),
+        .mapNum = MAP_NUM(MAP_SEVEN_ISLAND),
+    },
+};
+
+static const struct MapConnections SevenIsland_TrainerTower_MapConnections = {
+    .count = 1,
+    .connections = SevenIsland_TrainerTower_Connections,
+};
+
 const struct MapEvents SevenIsland_TrainerTower_MapEvents = {
     .objectEventCount = 2,
     .warpCount = 1,
@@ -41527,7 +42697,7 @@ const struct MapHeader SevenIsland_TrainerTower = {
     .mapLayout = &SevenIsland_TrainerTower_Layout,
     .events = &SevenIsland_TrainerTower_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SevenIsland_TrainerTower_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_TRAINER_TOWER,
     .regionMapSectionId = MAPSEC_TRAINER_TOWER,
@@ -41695,6 +42865,26 @@ static const struct BgEvent SevenIsland_SevaultCanyon_Entrance_BgEvents[] = {
     },
 };
 
+static const struct MapConnection SevenIsland_SevaultCanyon_Entrance_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 0,
+        .mapGroup = MAP_GROUP(MAP_SEVEN_ISLAND),
+        .mapNum = MAP_NUM(MAP_SEVEN_ISLAND),
+    },
+    {
+        .direction = CONNECTION_EAST,
+        .offset = 20,
+        .mapGroup = MAP_GROUP(MAP_SEVEN_ISLAND_SEVAULT_CANYON),
+        .mapNum = MAP_NUM(MAP_SEVEN_ISLAND_SEVAULT_CANYON),
+    },
+};
+
+static const struct MapConnections SevenIsland_SevaultCanyon_Entrance_MapConnections = {
+    .count = 2,
+    .connections = SevenIsland_SevaultCanyon_Entrance_Connections,
+};
+
 const struct MapEvents SevenIsland_SevaultCanyon_Entrance_MapEvents = {
     .objectEventCount = 7,
     .warpCount = 0,
@@ -41712,7 +42902,7 @@ const struct MapHeader SevenIsland_SevaultCanyon_Entrance = {
     .mapLayout = &SevenIsland_SevaultCanyon_Entrance_Layout,
     .events = &SevenIsland_SevaultCanyon_Entrance_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SevenIsland_SevaultCanyon_Entrance_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_SEVAULT_CANYON_ENTRANCE,
     .regionMapSectionId = MAPSEC_CANYON_ENTRANCE,
@@ -42146,6 +43336,26 @@ static const struct BgEvent SevenIsland_SevaultCanyon_BgEvents[] = {
     },
 };
 
+static const struct MapConnection SevenIsland_SevaultCanyon_Connections[] = {
+    {
+        .direction = CONNECTION_SOUTH,
+        .offset = -48,
+        .mapGroup = MAP_GROUP(MAP_SEVEN_ISLAND_TANOBY_RUINS),
+        .mapNum = MAP_NUM(MAP_SEVEN_ISLAND_TANOBY_RUINS),
+    },
+    {
+        .direction = CONNECTION_WEST,
+        .offset = -20,
+        .mapGroup = MAP_GROUP(MAP_SEVEN_ISLAND_SEVAULT_CANYON_ENTRANCE),
+        .mapNum = MAP_NUM(MAP_SEVEN_ISLAND_SEVAULT_CANYON_ENTRANCE),
+    },
+};
+
+static const struct MapConnections SevenIsland_SevaultCanyon_MapConnections = {
+    .count = 2,
+    .connections = SevenIsland_SevaultCanyon_Connections,
+};
+
 const struct MapEvents SevenIsland_SevaultCanyon_MapEvents = {
     .objectEventCount = 20,
     .warpCount = 2,
@@ -42163,7 +43373,7 @@ const struct MapHeader SevenIsland_SevaultCanyon = {
     .mapLayout = &SevenIsland_SevaultCanyon_Layout,
     .events = &SevenIsland_SevaultCanyon_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SevenIsland_SevaultCanyon_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_SEVAULT_CANYON,
     .regionMapSectionId = MAPSEC_SEVAULT_CANYON,
@@ -42347,6 +43557,20 @@ static const struct BgEvent SevenIsland_TanobyRuins_BgEvents[] = {
     },
 };
 
+static const struct MapConnection SevenIsland_TanobyRuins_Connections[] = {
+    {
+        .direction = CONNECTION_NORTH,
+        .offset = 48,
+        .mapGroup = MAP_GROUP(MAP_SEVEN_ISLAND_SEVAULT_CANYON),
+        .mapNum = MAP_NUM(MAP_SEVEN_ISLAND_SEVAULT_CANYON),
+    },
+};
+
+static const struct MapConnections SevenIsland_TanobyRuins_MapConnections = {
+    .count = 1,
+    .connections = SevenIsland_TanobyRuins_Connections,
+};
+
 const struct MapEvents SevenIsland_TanobyRuins_MapEvents = {
     .objectEventCount = 4,
     .warpCount = 7,
@@ -42364,7 +43588,7 @@ const struct MapHeader SevenIsland_TanobyRuins = {
     .mapLayout = &SevenIsland_TanobyRuins_Layout,
     .events = &SevenIsland_TanobyRuins_MapEvents,
     .mapScripts = sEmptyMapScripts,
-    .connections = NULL,
+    .connections = &SevenIsland_TanobyRuins_MapConnections,
     .music = MUS_SEVII_ROUTE,
     .mapLayoutId = LAYOUT_SEVEN_ISLAND_TANOBY_RUINS,
     .regionMapSectionId = MAPSEC_TANOBY_RUINS,
@@ -42896,7 +44120,7 @@ static const struct CoordEvent PalletTown_ProfessorOaksLab_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -42904,7 +44128,7 @@ static const struct CoordEvent PalletTown_ProfessorOaksLab_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 7,
@@ -42912,7 +44136,7 @@ static const struct CoordEvent PalletTown_ProfessorOaksLab_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 5,
@@ -42920,7 +44144,7 @@ static const struct CoordEvent PalletTown_ProfessorOaksLab_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -42928,7 +44152,7 @@ static const struct CoordEvent PalletTown_ProfessorOaksLab_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 7,
@@ -42936,7 +44160,7 @@ static const struct CoordEvent PalletTown_ProfessorOaksLab_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB,
         .index = 3,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -44124,7 +45348,7 @@ static const struct CoordEvent PewterCity_Museum_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PEWTER_CITY_MUSEUM_1F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 13,
@@ -44132,7 +45356,7 @@ static const struct CoordEvent PewterCity_Museum_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PEWTER_CITY_MUSEUM_1F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 14,
@@ -44140,7 +45364,7 @@ static const struct CoordEvent PewterCity_Museum_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_PEWTER_CITY_MUSEUM_1F,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -51978,7 +53202,7 @@ static const struct CoordEvent FuchsiaCity_SafariZone_Entrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 5,
@@ -51986,7 +53210,7 @@ static const struct CoordEvent FuchsiaCity_SafariZone_Entrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 3,
@@ -51994,7 +53218,7 @@ static const struct CoordEvent FuchsiaCity_SafariZone_Entrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -55264,7 +56488,7 @@ static const struct CoordEvent SaffronCity_Dojo_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_SAFFRON_CITY_DOJO,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 7,
@@ -55272,7 +56496,7 @@ static const struct CoordEvent SaffronCity_Dojo_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_SAFFRON_CITY_DOJO,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -57645,7 +58869,7 @@ static const struct CoordEvent Route5_SouthEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 4,
@@ -57653,7 +58877,7 @@ static const struct CoordEvent Route5_SouthEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 5,
@@ -57661,7 +58885,7 @@ static const struct CoordEvent Route5_SouthEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -57761,7 +58985,7 @@ static const struct CoordEvent Route6_NorthEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 4,
@@ -57769,7 +58993,7 @@ static const struct CoordEvent Route6_NorthEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 5,
@@ -57777,7 +59001,7 @@ static const struct CoordEvent Route6_NorthEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -57909,7 +59133,7 @@ static const struct CoordEvent Route7_EastEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -57917,7 +59141,7 @@ static const struct CoordEvent Route7_EastEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -57925,7 +59149,7 @@ static const struct CoordEvent Route7_EastEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -58025,7 +59249,7 @@ static const struct CoordEvent Route8_WestEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -58033,7 +59257,7 @@ static const struct CoordEvent Route8_WestEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -58041,7 +59265,7 @@ static const struct CoordEvent Route8_WestEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE5_ROUTE6_ROUTE7_ROUTE8_GATES,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -59237,7 +60461,7 @@ static const struct CoordEvent Route16_NorthEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 2,
@@ -59245,7 +60469,7 @@ static const struct CoordEvent Route16_NorthEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -59253,7 +60477,7 @@ static const struct CoordEvent Route16_NorthEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -59261,7 +60485,7 @@ static const struct CoordEvent Route16_NorthEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 1,
@@ -59269,7 +60493,7 @@ static const struct CoordEvent Route16_NorthEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 1,
@@ -59277,7 +60501,7 @@ static const struct CoordEvent Route16_NorthEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -59285,7 +60509,7 @@ static const struct CoordEvent Route16_NorthEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -59293,7 +60517,7 @@ static const struct CoordEvent Route16_NorthEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -59301,7 +60525,7 @@ static const struct CoordEvent Route16_NorthEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -59309,7 +60533,7 @@ static const struct CoordEvent Route16_NorthEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -59317,7 +60541,7 @@ static const struct CoordEvent Route16_NorthEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -59529,7 +60753,7 @@ static const struct CoordEvent Route18_EastEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -59537,7 +60761,7 @@ static const struct CoordEvent Route18_EastEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -59545,7 +60769,7 @@ static const struct CoordEvent Route18_EastEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -59553,7 +60777,7 @@ static const struct CoordEvent Route18_EastEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -59561,7 +60785,7 @@ static const struct CoordEvent Route18_EastEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 6,
@@ -59569,7 +60793,7 @@ static const struct CoordEvent Route18_EastEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_TEMP_1,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 10,
@@ -59577,7 +60801,7 @@ static const struct CoordEvent Route18_EastEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -59585,7 +60809,7 @@ static const struct CoordEvent Route18_EastEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 11,
@@ -59593,7 +60817,7 @@ static const struct CoordEvent Route18_EastEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 1,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 1,
@@ -59601,7 +60825,7 @@ static const struct CoordEvent Route18_EastEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 1,
@@ -59609,7 +60833,7 @@ static const struct CoordEvent Route18_EastEntrance_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE16,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -59823,7 +61047,7 @@ static const struct CoordEvent Route22_NorthEntrance_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ROUTE23,
         .index = 0,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
@@ -60836,7 +62060,7 @@ static const struct CoordEvent OneIsland_PokemonCenter_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ONE_ISLAND_POKEMON_CENTER_1F,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -60844,7 +62068,7 @@ static const struct CoordEvent OneIsland_PokemonCenter_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ONE_ISLAND_POKEMON_CENTER_1F,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -60852,7 +62076,7 @@ static const struct CoordEvent OneIsland_PokemonCenter_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ONE_ISLAND_POKEMON_CENTER_1F,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
     {
         .x = 12,
@@ -60860,7 +62084,7 @@ static const struct CoordEvent OneIsland_PokemonCenter_1F_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_ONE_ISLAND_POKEMON_CENTER_1F,
         .index = 2,
-        .script = sDummyScript,
+        .script = NULL,
     },
 };
 
