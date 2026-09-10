@@ -10,6 +10,19 @@ This is very much a work in progress. It is a research and entertainment project
 
 I also cannot promise that I will ever publish prebuilt binaries, release artifacts, or complete compilation instructions. Please treat this repository as an evolving experiment rather than a supported distribution.
 
+## Runtime timing
+
+The native engine targets the GBA's approximately **59.7275 frames per second**
+(280,896 CPU cycles per frame at 16,777,216 Hz), independently of monitor refresh
+rate. SDL's monotonic performance counter drives absolute frame deadlines;
+engine and rendering work count toward that budget. Display VSync is disabled
+so a high-refresh display cannot speed up gameplay.
+
+Long stalls resynchronize the clock rather than replaying missed ticks in a
+burst. If the host cannot keep up, the game slows down instead of skipping engine
+updates. Both `--boot-test N` and the standalone `--test` use the same pacing;
+a 9,300-frame boot test takes roughly 156 seconds plus startup overhead.
+
 ## Contributions
 
 Contributions and pull requests of all kinds are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for the current review process.
