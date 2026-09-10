@@ -72,6 +72,9 @@
 #define FLDEFF_DESTROY_DEOXYS_ROCK       68
 #define FLDEFF_PHOTO_FLASH               69
 
+// Number of entries in gFieldEffectScriptPointers (one per FLDEFF_* id).
+#define FLDEFF_COUNT (FLDEFF_PHOTO_FLASH + 1)
+
 #define FLDEFF_PAL_TAG_GENERAL_0          0x1004
 #define FLDEFF_PAL_TAG_GENERAL_1          0x1005
 #define FLDEFF_PAL_TAG_POKEBALL_TRAIL     0x1009
