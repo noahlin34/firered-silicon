@@ -356,20 +356,23 @@ static void BuildDoorTiles(u16 *tiles, u16 tileNum, const u8 *paletteNums)
     }
 }
 
-#define tFramesHi data[0]
-#define tFramesLo data[1]
-#define tGfxHi    data[2]
-#define tGfxLo    data[3]
 #define tFrameId  data[4]
 #define tCounter  data[5]
 #define tX        data[6]
 #define tY        data[7]
 
+// Task data is 16-bit, so pointer operands are stored whole (via memcpy) rather
+// than split across two slots; on 64-bit hosts the split form truncates them.
+#define tFramesPtr (&data[0])
+#define tGfxPtr    (&data[8])
+
 static void Task_AnimateDoor(u8 taskId)
 {
     s16 *data = gTasks[taskId].data;
-    const struct DoorAnimFrame *frames = (struct DoorAnimFrame *)((u16)tFramesHi << 16 | (u16)tFramesLo);
-    const struct DoorGraphics *gfx = (struct DoorGraphics *)((u16)tGfxHi << 16 | (u16)tGfxLo);
+    const struct DoorAnimFrame *frames;
+    const struct DoorGraphics *gfx;
+    memcpy(&frames, tFramesPtr, sizeof(frames));
+    memcpy(&gfx, tGfxPtr, sizeof(gfx));
     if (!AnimateDoorFrame(gfx, frames, data))
         DestroyTask(taskId);
 }
@@ -416,17 +419,13 @@ static s8 StartDoorAnimationTask(const struct DoorGraphics *gfx, const struct Do
 
     tX = x;
     tY = y;
-    tFramesLo = (uintptr_t)frames;
-    tFramesHi = (uintptr_t)frames >> 16;
-    tGfxLo = (uintptr_t)gfx;
-    tGfxHi = (uintptr_t)gfx >> 16;
+    memcpy(tFramesPtr, &frames, sizeof(frames));
+    memcpy(tGfxPtr, &gfx, sizeof(gfx));
     return taskId;
 }
 
-#undef tFramesHi
-#undef tFramesLo
-#undef tGfxHi
-#undef tGfxLo
+#undef tFramesPtr
+#undef tGfxPtr
 #undef tFrameId
 #undef tCounter
 #undef tX
