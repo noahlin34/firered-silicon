@@ -186,6 +186,11 @@ void AgbMain()
 
     gLinkTransferringData = FALSE;
 
+#ifdef PORTABLE
+    if (gPlatformSkipIntro)
+        Platform_DevBootNewGame(); // --skip-intro: fresh save, straight into the bedroom
+#endif
+
     for (;;)
     {
         ReadKeys();
@@ -485,7 +490,7 @@ static void WaitForVBlank(void)
         ;
 #else
     Platform_UpdateInput();
-    if (gEngineMaxFrames > 0)
+    if (gEngineMaxFrames > 0 && !gPlatformSkipIntro)
     {
         if (sEngineFrameCount >= 5 && sEngineFrameCount <= 10)
             REG_KEYINPUT &= ~(1 << 3); // START to skip intro fade
@@ -519,6 +524,15 @@ static void WaitForVBlank(void)
         if (sEngineFrameCount >= 6250 && sEngineFrameCount <= 6255)
             REG_KEYINPUT &= ~(1 << 6); // UP to face North towards NES in bedroom
         if (sEngineFrameCount >= 6280 && sEngineFrameCount <= 6285)
+            REG_KEYINPUT &= ~(1 << 0); // A to interact with NES in bedroom
+    }
+    else if (gEngineMaxFrames > 0)
+    {
+        // Dev boot (--skip-intro): the bedroom is already live, so replay the same
+        // NES interaction the full boot test only reaches at frame 6280.
+        if (sEngineFrameCount >= 60 && sEngineFrameCount <= 65)
+            REG_KEYINPUT &= ~(1 << 6); // UP to face North towards NES in bedroom
+        if (sEngineFrameCount >= 90 && sEngineFrameCount <= 95)
             REG_KEYINPUT &= ~(1 << 0); // A to interact with NES in bedroom
     }
     REG_VCOUNT = 160; // Start of VBlank
