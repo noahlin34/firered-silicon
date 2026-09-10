@@ -57,6 +57,9 @@ ENGINE_SRCS := src/main.c \
                src/field_tasks.c \
                src/metatile_behavior.c \
                src/script.c \
+               src/script_movement.c \
+               src/event_object_lock.c \
+               src/script_pokemon_util.c \
                src/field_weather_effects.c \
                src/field_fadetransition.c \
                src/bike.c \
@@ -158,6 +161,7 @@ assets:
 	@for i in 0 1 2 3 4; do tools/gbagfx/gbagfx graphics/text_window/stdpal_$$i.pal graphics/text_window/stdpal_$$i.gbapal; done
 	@tools/gbagfx/gbagfx graphics/object_events/pics/people/red_normal.png graphics/object_events/pics/people/red_normal.4bpp -mwidth 2 -mheight 4
 	@tools/gbagfx/gbagfx graphics/object_events/pics/people/green_normal.png graphics/object_events/pics/people/green_normal.4bpp -mwidth 2 -mheight 4
+	@tools/gbagfx/gbagfx graphics/object_events/pics/people/mom.png graphics/object_events/pics/people/mom.4bpp -mwidth 2 -mheight 4
 	@tools/gbagfx/gbagfx graphics/cave_transition/white.pal graphics/cave_transition/white.gbapal
 	@tools/gbagfx/gbagfx graphics/cave_transition/black.pal graphics/cave_transition/black.gbapal
 	@tools/gbagfx/gbagfx graphics/cave_transition/tiles.png graphics/cave_transition/tiles.gbapal
@@ -165,6 +169,7 @@ assets:
 	@tools/gbagfx/gbagfx graphics/cave_transition/tiles.4bpp graphics/cave_transition/tiles.4bpp.lz
 	@tools/gbagfx/gbagfx graphics/cave_transition/tilemap.bin graphics/cave_transition/tilemap.bin.lz
 	@tools/gbagfx/gbagfx graphics/object_events/palettes/player.pal graphics/object_events/palettes/player.gbapal
+	@tools/gbagfx/gbagfx graphics/object_events/palettes/npc_blue.pal graphics/object_events/palettes/npc_blue.gbapal
 
 $(OBJ_DIR)/%.o: src/%.c
 	@mkdir -p $(dir $@)
@@ -249,7 +254,7 @@ $(OBJ_DIR)/move_descriptions.o: src/move_descriptions.c
 $(OBJ_DIR)/field_player_avatar.o: src/field_player_avatar.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/event_object_movement.o: src/event_object_movement.c
+$(OBJ_DIR)/event_object_movement.o: src/event_object_movement.c graphics/object_events/pics/people/mom.4bpp graphics/object_events/palettes/npc_blue.gbapal | assets
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
 $(OBJ_DIR)/field_weather.o: src/field_weather.c
