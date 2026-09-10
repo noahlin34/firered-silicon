@@ -77,7 +77,9 @@ const u8 TradeCenter_TerminateLink[] = { 0x02 };
 const u8 TrainerTower_EventScript_ShowTime[] = { 0x02 };
 
 /* Data stubs */
-const u8 *const gFieldEffectScriptPointers[] = { NULL };
+/* No field-effect scripts are ported yet; keep the table full-size so
+ * FieldEffectStart's lookup stays in bounds. */
+const u8 *const gFieldEffectScriptPointers[FLDEFF_COUNT] = { 0 };
 const u8 gPokedexEntries[] = { 0 };
 u8 gMaxFlashLevel = 0;
 u32 gOverworldBackgroundLayerFlags = 0;
