@@ -75,6 +75,11 @@ This repository is based on **pokefirered** (the pret decompilation of *Pokémon
   - Converted all 67 game tilesets to `4bpp.lz` and 1,072 tileset palettes to `.gbapal`.
   - Fixed saveblock pointer ASLR under `PORTABLE` in `src/load_save.c`.
   - Boot automation at frame 9200 successfully executes `CB2_NewGame`, initializes save data, warps to `MAP_PALLET_TOWN_PLAYERS_HOUSE_2F`, draws the complete bedroom map view (bed, rug, TV/NES, PC, desk, stairs), spawns the player avatar facing North, and enters `CB2_Overworld` running at the GBA frame rate in SDL2.
+- [x] **Dev Save Fast Boot (`--skip-intro`, `src/platform/dev_boot.c`):**
+  - `Platform_DevBootNewGame()` runs the title screen's save initialization (`SeedRngAndSetTrainerId` → `SetSaveBlocksPointers` → `ResetMenuAndMonGlobals` → `Save_ResetSaveCounters` → `LoadGameSave` → `Sav2_ClearSetDefault`) on a fresh save, writes the naming screens' first choices (player `RED` male, rival `GREEN`), and hands off to `CB2_NewGame` — the same entry point Oak's farewell dialogue uses. Skips title screen, main menu, controls guide, Oak's speech, and both naming screens.
+  - Names come from the charmap-encoded `gNameChoice_*` tables (`src/platform/new_game_intro_text.c`), never plain ASCII, so the save data renders and terminates correctly.
+  - Hooked in `AgbMain()` after `SetDefaultFontsPointer()` and guarded by `#ifdef PORTABLE`; the flag is parsed in `src/platform/main.c` and declared in `include/platform/platform.h`.
+  - `--boot-test`'s intro key sequence is gated on `!gPlatformSkipIntro`; dev runs get a compact sequence instead (UP at frames 60–65, A at 90–95) that replays the NES interaction the full boot test only reaches at frame 6280.
 > **Note on Intro Sequence:** The opening intro sequence (`src/intro.c` — Copyright screen, GameFreak star shooting animation, and Nidorino vs. Gengar battle) is temporarily bypassed in `src/main.c` (`InitMainCallbacks()` boots directly to `CB2_InitTitleScreen`). This was done deliberately to expedite reaching gameplay, and the intro cinematic will be linked back in at a later point in time.
 
 ### Critical 64-Bit Portability Fixes (Learned the Hard Way)
@@ -117,6 +122,7 @@ These bugs are subtle and WILL recur if new engine files are linked. Understand 
 ### Debugging Tips
 - **Boot tests now run at game speed:** allow roughly `N / 59.7275` seconds plus startup for `--boot-test N`; 9,300 frames take about 156 seconds. Use a timeout above that duration. `--test` renders 120 paced frames in about two seconds; its old extra `SDL_Delay(16)` was removed.
 - Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses: START at frames 5–10 (skip intro fade), 30–35 (enter game from Title Screen), DOWN at 230–231 + A at 240–245 (select NEW GAME), then A at 320–325 / 360–365 / 400–405 / 520–525 / 560–565 (advance Controls Guide → Pikachu intro → Oak speech). Starting at frame 620 it also presses A for 6 frames every 90 frames. This periodic input advances Oak's dialogue, gender selection, player naming, rival naming (frames 6500–7200), farewell speech (frame 8600), hands off to `CB2_NewGame` by frame ~8900–9000, and spawns into the player's bedroom in Pallet Town (`CB2_Overworld`) by frame 9200.
+- Fast overworld iteration: `./firered-native --skip-intro --boot-test 200` reaches the bedroom (fresh save, `RED`/`GREEN`) in ~3.5 s instead of ~156 s for the 9,300-frame full boot. Byte-identical captures across runs (RNG is seeded from a host-zeroed timer).
 - Missing-symbol workflow: `make -f Makefile.native` then extract `grep -oE '"_[A-Za-z0-9_]+"'` from linker output; find real definitions with `grep -rln "SymbolName" src/*.c`; add that file to ENGINE_SRCS (or PREPROC_SRCS if it has `INCBIN`/`_()`) and DELETE the stub version from `stubs.c`. Symbols from the battle engine go into `src/platform/battle_engine_stubs.c` instead (generated from header prototypes).
 - A `SIGSEGV`/`SIGBUS` backtrace handler is installed in `src/platform/main.c` (`CrashHandler`) — crashes print a symbolized stack trace.
 - `compile_flags.txt` at repo root configures clangd with `-DPORTABLE -DMODERN=1 -DFIRERED`; keep it in sync with `Makefile.native` CFLAGS.
@@ -147,6 +153,7 @@ openfirered/
 │   │   ├── stubs.c            # M4A audio, link, save status, and remaining scene-transition stubs
 │   │   ├── battle_engine_stubs.c  # Battle data/entry-point substitutes, tripwires, and temporary non-battle scene dependencies
 │   │   ├── new_game_intro_text.c  # Charmap-encoded text tables from data/text/new_game_intro.inc
+│   │   ├── dev_boot.c         # --skip-intro: fresh save straight into the bedroom
 │   │   └── main.c             # Native entry point (main) with crash backtrace handler
 │   └── [engine subsystems]    # gpu_regs.c, palette.c, task.c, sprite.c, malloc.c, text.c, etc.
 ```
@@ -174,6 +181,13 @@ make -f Makefile.native
 ```bash
 ./firered-native --boot-test
 ```
+
+### Dev save — skip the intro and spawn in the bedroom:
+```bash
+./firered-native --skip-intro              # fresh save, bedroom, interactive
+./firered-native --skip-intro --boot-test 200   # same, screenshot at frame 200
+```
+`--skip-intro` builds a fresh save (player `RED`, male, rival `GREEN`) and drops straight into `PalletTown_PlayersHouse_2F`, bypassing the title screen, main menu, controls guide, Oak's speech, and both naming screens. Use it for overworld iteration; use plain `--boot-test N` when the intro flow itself is under test. Flags may appear in any order.
 
 ### Run Engine interactively:
 ```bash
