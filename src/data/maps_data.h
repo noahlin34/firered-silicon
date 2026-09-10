@@ -2,6 +2,7 @@
 
 #include "global.h"
 #include "global.fieldmap.h"
+#include "event_scripts.h"
 #include "constants/maps.h"
 #include "constants/map_groups.h"
 #include "constants/region_map_sections.h"
@@ -14,6 +15,79 @@
 #include "constants/event_bg.h"
 static const u8 sDummyScript[] = { 0x02 };
 static const u8 sEmptyMapScripts[] = { 0x00 };
+static const u8 EventScript_OutOfCenterPartyHeal[];
+static const u8 PalletTown_PlayersHouse_1F_EventScript_MomHeal[];
+static const u8 PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouMale[];
+static const u8 PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouFemale[];
+static const u8 PalletTown_PlayersHouse_1F_EventScript_Mom[];
+static const u8 PalletTown_PlayersHouse_1F_Text_YouShouldTakeQuickRest[];
+static const u8 PalletTown_PlayersHouse_1F_Text_LookingGreatTakeCare[];
+static const u8 PalletTown_PlayersHouse_1F_Text_AllBoysLeaveOakLookingForYou[];
+static const u8 PalletTown_PlayersHouse_1F_Text_AllGirlsLeaveOakLookingForYou[];
+static const u8 Common_Movement_FaceOriginalDirection[];
+const void *const gNativeScriptPtrs[] = {
+    PalletTown_PlayersHouse_1F_Text_YouShouldTakeQuickRest,
+    EventScript_OutOfCenterPartyHeal,
+    PalletTown_PlayersHouse_1F_Text_LookingGreatTakeCare,
+    PalletTown_PlayersHouse_1F_EventScript_MomHeal,
+    PalletTown_PlayersHouse_1F_Text_AllBoysLeaveOakLookingForYou,
+    PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouMale,
+    PalletTown_PlayersHouse_1F_Text_AllGirlsLeaveOakLookingForYou,
+    PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouFemale,
+    Common_Movement_FaceOriginalDirection,
+};
+
+
+static const u8 PalletTown_PlayersHouse_1F_Text_YouShouldTakeQuickRest[] = _(
+    "MOM: {PLAYER}!\n"
+    "You should take a quick rest.$"
+);
+
+static const u8 PalletTown_PlayersHouse_1F_Text_LookingGreatTakeCare[] = _(
+    "MOM: Oh, good! You and your\n"
+    "POKéMON are looking great.\l"
+    "Take care now!$"
+);
+
+static const u8 PalletTown_PlayersHouse_1F_Text_AllBoysLeaveOakLookingForYou[] = _(
+    "MOM: …Right.\n"
+    "All boys leave home someday.\l"
+    "It said so on TV.\p"
+    "Oh, yes. PROF. OAK, next door, was\n"
+    "looking for you.$"
+);
+
+static const u8 PalletTown_PlayersHouse_1F_Text_AllGirlsLeaveOakLookingForYou[] = _(
+    "MOM: …Right.\n"
+    "All girls dream of traveling.\l"
+    "It said so on TV.\p"
+    "Oh, yes. PROF. OAK, next door, was\n"
+    "looking for you.$"
+);
+
+static const u8 Common_Movement_FaceOriginalDirection[] = {
+    0x5a, 0xfe,
+};
+
+static const u8 EventScript_OutOfCenterPartyHeal[] = {
+    0x97, 0x01, 0x31, 0x00, 0x01, 0x32, 0x25, 0x00, 0x00, 0x97, 0x00, 0x03
+};
+
+static const u8 PalletTown_PlayersHouse_1F_EventScript_MomHeal[] = {
+    0x67, 0x00, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x04, 0x01, 0x00, 0x00, 0x00, 0x67, 0x02, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+static const u8 PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouMale[] = {
+    0x67, 0x04, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
+};
+
+static const u8 PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouFemale[] = {
+    0x67, 0x06, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
+};
+
+static const u8 PalletTown_PlayersHouse_1F_EventScript_Mom[] = {
+    0x6a, 0x5a, 0x2b, 0x58, 0x02, 0x06, 0x01, 0x03, 0x00, 0x00, 0x00, 0xa0, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x07, 0x01, 0x05, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x07, 0x01, 0x07, 0x00, 0x00, 0x00, 0x68, 0x4f, 0x01, 0x00, 0x08, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x6c, 0x02
+};
 
 static const struct ObjectEventTemplate BattleColosseum_2P_ObjectEvents[] = {
     {
@@ -42189,7 +42263,7 @@ static const struct ObjectEventTemplate PalletTown_PlayersHouse_1F_ObjectEvents[
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_PlayersHouse_1F_EventScript_Mom,
         .flagId = 0,
     },
 };
