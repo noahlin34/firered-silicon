@@ -11,6 +11,31 @@ static SDL_Renderer *sRenderer = NULL;
 static SDL_Texture *sTexture = NULL;
 static bool sRunning = false;
 
+static double sFrameTicks;
+static double sTicksPerMillisecond;
+static double sNextFrameDeadline;
+
+static void WaitForFrameDeadline(void)
+{
+    double now = (double)SDL_GetPerformanceCounter();
+
+    if (sNextFrameDeadline == 0.0)
+        sNextFrameDeadline = now + sFrameTicks;
+
+    while (now < sNextFrameDeadline)
+    {
+        double remainingMs = (sNextFrameDeadline - now) / sTicksPerMillisecond;
+        // Sleep rather than spin; absolute deadlines absorb scheduler oversleep.
+        SDL_Delay(remainingMs >= 1.0 ? (Uint32)remainingMs : 1);
+        now = (double)SDL_GetPerformanceCounter();
+    }
+
+    sNextFrameDeadline += sFrameTicks;
+    // A pause or slow frame must not create a backlog of fast catch-up ticks.
+    if (sNextFrameDeadline <= now)
+        sNextFrameDeadline = now + sFrameTicks;
+}
+
 // 15-bit BGR color framebuffer (240 x 160)
 static uint16_t sFramebuffer[GBA_SCREEN_WIDTH * GBA_SCREEN_HEIGHT];
 
@@ -116,7 +141,7 @@ int Platform_Init(int argc, char **argv)
     sRenderer = SDL_CreateRenderer(
         sWindow,
         -1,
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+        SDL_RENDERER_ACCELERATED
     );
 
     if (!sRenderer)
@@ -150,6 +175,13 @@ int Platform_Init(int argc, char **argv)
         SDL_Quit();
         return -1;
     }
+
+    // GBA: 280896 CPU cycles per frame at 16777216 Hz (~59.7275 FPS).
+    // Presentation VSync is deliberately off: the display is not the game clock.
+    double frequency = (double)SDL_GetPerformanceFrequency();
+    sFrameTicks = frequency * (280896.0 / 16777216.0);
+    sTicksPerMillisecond = frequency / 1000.0;
+    sNextFrameDeadline = 0.0;
 
     sRunning = true;
     return 0;
@@ -200,6 +232,7 @@ void Platform_PresentFrame(const uint16_t *framebuffer)
 
 void Platform_RenderAndPresent(void)
 {
+    WaitForFrameDeadline();
     PPU_RenderFrame(sFramebuffer);
     Platform_PresentFrame(sFramebuffer);
 }
