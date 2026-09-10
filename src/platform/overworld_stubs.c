@@ -3,6 +3,7 @@
 #include "sprite.h"
 #include "field_effect.h"
 #include "event_scripts.h"
+#include "script_pokemon_util.h"
 #include "constants/event_objects.h"
 #include "link.h"
 #include "link_rfu.h"
@@ -94,7 +95,6 @@ const u8 mus_victory_gym_leader[] = {0};
 struct FieldInput gQuestLogFieldInput = {0};
 
 /* Function stubs */
-bool8 walkrun_is_standing_still(void) { return TRUE; }
 void Bag_BeginCloseWin0Animation(void) {}
 void BerryPouch_SetExitCallback(void *cb) {}
 void BerryPouch_StartFadeToExitCallback(u8 taskId) {}
@@ -103,7 +103,6 @@ void CB2_BagMenuFromStartMenu(void) {}
 void CB2_ShowPartyMenuForItemUse(void) {}
 bool8 CheckForTrainersWantingBattle(void) { return FALSE; }
 void ClearLinkCallback_2(void) {}
-void ClearPlayerHeldMovementAndUnfreezeObjectEvents(void) {}
 u8 CountDigits(u32 number) { return 1; }
 void CreateMonPicSprite_HandleDeoxys(u16 species, u32 personality, u16 x, u16 y, u8 priority) {}
 void CreateTask_ReestablishCableClubLink(void) {}
@@ -132,7 +131,6 @@ u8 GetItemEffectType(u16 item) { return 0; }
 u32 GetLinkRecvQueueLength(void) { return 0; }
 u8 GetQuestLogStartType(void) { return 0; }
 const u8 *GetSeeingLinkPlayerCardMsg(u8 id) { return NULL; }
-void HealPlayerParty(void) {}
 void IncrementBirthIslandRockStepCount(void) {}
 void IncrementResortGorgeousStepCounter(void) {}
 void InitBerryPouch(u8 type, void *cb) {}
@@ -270,8 +268,16 @@ void WonderNews_IncrementStepCounter(void) {}
 void WriteFlashScanlineEffectBuffer(u8 a) {}
 
 /* Specials and Scrcmd Stubs */
-u16 (*const gSpecials[])(void) = { NULL };
-u16 (*const gSpecialsEnd[])(void) = { NULL };
+static u16 NativeSpecial_HealPlayerParty(void)
+{
+    HealPlayerParty();
+    return 0;
+}
+
+u16 (*const gSpecials[])(void) = {
+    NativeSpecial_HealPlayerParty,
+};
+u16 (*const *gSpecialsEnd)(void) = gSpecials + ARRAY_COUNT(gSpecials);
 const u8 *const gStdScripts[] = { NULL };
 const u8 *const gStdScriptsEnd[] = { NULL };
 const u8 *const gStdStringPtrs[] = { NULL };
@@ -297,10 +303,6 @@ void StartScriptedWildBattle(void) {}
 void StartTrainerBattle(void) {}
 void FadeOutBGMTemporarily(u8 a) { (void)a; }
 bool8 IsBGMPausedOrStopped(void) { return FALSE; }
-void FreezeObjects_WaitForPlayer(void) {}
-void FreezeObjects_WaitForPlayerAndSelected(void) {}
-bool8 IsFreezePlayerFinished(void) { return TRUE; }
-bool8 IsFreezeSelectedObjectAndPlayerFinished(void) { return TRUE; }
 u8 GetLeadMonIndex(void) { return 0; }
 void MapPreview_SetFlag(u16 a) { (void)a; }
 void PlayCry_Script(u16 species, u8 a) { (void)species; (void)a; }
@@ -315,9 +317,6 @@ bool8 ScriptMenu_Multichoice(u8 left, u8 top, u8 multichoiceId, bool8 ignoreBPre
 bool8 ScriptMenu_MultichoiceGrid(u8 left, u8 top, u8 multichoiceId, bool8 ignoreBPress, u8 columnCount) { return FALSE; }
 bool8 ScriptMenu_MultichoiceWithDefault(u8 left, u8 top, u8 multichoiceId, bool8 ignoreBPress, u8 defaultChoice) { return FALSE; }
 bool8 ScriptMenu_YesNo(u8 left, u8 top) { return FALSE; }
-bool8 ScriptMovement_IsObjectMovementFinished(u8 localId, u8 mapNum, u8 mapGroup) { return TRUE; }
-void ScriptMovement_StartObjectMovementScript(u8 localId, u8 mapNum, u8 mapGroup, const u8 *movementScript) {}
-void ScriptMovement_UnfreezeObjectEvents(void) {}
 void ScriptSetMonMoveSlot(u8 partyIdx, u16 move, u8 slot) {}
 void SetMysteryEventScriptStatus(u8 status) { (void)status; }
 void SetSavedWeather(u16 weather) { (void)weather; }
