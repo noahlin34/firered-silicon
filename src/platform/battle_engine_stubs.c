@@ -194,10 +194,43 @@ u16 gBlockRecvBuffer[MAX_RFU_PLAYERS][BLOCK_BUFFER_SIZE / 2];
 struct LinkPlayer gLinkPlayers[MAX_RFU_PLAYERS];
 u8 gNumSafariBalls;
 const struct OamData gOamData_AffineNormal_ObjNormal_64x64;
-const struct OamData gOamData_AffineOff_ObjBlend_32x32;
-const struct OamData gOamData_AffineOff_ObjNormal_16x8;
-const struct OamData gOamData_AffineOff_ObjNormal_32x16;
-const struct OamData gOamData_AffineOff_ObjNormal_32x32;
+// Real battle-animation descriptors also used by Pikachu and Oak's platform.
+const struct OamData gOamData_AffineOff_ObjBlend_32x32 =
+{
+    .affineMode = ST_OAM_AFFINE_OFF,
+    .objMode = ST_OAM_OBJ_BLEND,
+    .bpp = ST_OAM_4BPP,
+    .shape = SPRITE_SHAPE(32x32),
+    .size = SPRITE_SIZE(32x32),
+    .priority = 2,
+};
+const struct OamData gOamData_AffineOff_ObjNormal_16x8 =
+{
+    .affineMode = ST_OAM_AFFINE_OFF,
+    .objMode = ST_OAM_OBJ_NORMAL,
+    .bpp = ST_OAM_4BPP,
+    .shape = SPRITE_SHAPE(16x8),
+    .size = SPRITE_SIZE(16x8),
+    .priority = 2,
+};
+const struct OamData gOamData_AffineOff_ObjNormal_32x16 =
+{
+    .affineMode = ST_OAM_AFFINE_OFF,
+    .objMode = ST_OAM_OBJ_NORMAL,
+    .bpp = ST_OAM_4BPP,
+    .shape = SPRITE_SHAPE(32x16),
+    .size = SPRITE_SIZE(32x16),
+    .priority = 2,
+};
+const struct OamData gOamData_AffineOff_ObjNormal_32x32 =
+{
+    .affineMode = ST_OAM_AFFINE_OFF,
+    .objMode = ST_OAM_OBJ_NORMAL,
+    .bpp = ST_OAM_4BPP,
+    .shape = SPRITE_SHAPE(32x32),
+    .size = SPRITE_SIZE(32x32),
+    .priority = 2,
+};
 struct PokedudeBattlerState *gPokedudeBattlerStates[MAX_BATTLERS_COUNT];
 bool8 gReceivedRemoteLinkPlayers;
 struct PokemonStorageSystemData *gStorage;
