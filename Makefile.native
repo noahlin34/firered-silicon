@@ -92,7 +92,9 @@ ENGINE_SRCS := src/main.c \
                src/field_message_box.c \
                src/coord_event_weather.c \
                src/trainer_pokemon_sprites.c \
-               src/new_game.c
+               src/new_game.c \
+               src/save_location.c \
+               src/prof_pc.c
 
 PREPROC_SRCS := src/title_screen.c \
                 src/sprite.c \
