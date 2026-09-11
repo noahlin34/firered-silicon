@@ -59,6 +59,10 @@ static const u8 PalletTown_ProfessorOaksLab_Movement_RivalExit[];
 static const u8 Common_Movement_WalkInPlaceFasterRight[];
 static const u8 PalletTown_ProfessorOaksLab_Movement_OakWalkToDesk[];
 static const u8 PalletTown_ProfessorOaksLab_Movement_OakWalkToDeskSouth[];
+static const u8 ViridianCity_Movement_JumpDownLedge[];
+static const u8 ViridianCity_Movement_WalkDown[];
+static const u8 ViridianCity_Mart_Movement_FacePlayer[];
+static const u8 ViridianCity_Mart_Movement_ApproachCounter[];
 extern const u8 EventScript_Bookshelf[];
 extern const u8 EventScript_Cabinet[];
 extern const u8 EventScript_CancelMessageBox[];
@@ -193,6 +197,41 @@ static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalChoseStarter[];
 static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalWaitingForStarter[];
 extern const u8 PalletTown_ProfessorOaksLab_EventScript_Rival[];
 extern const u8 PalletTown_ProfessorOaksLab_EventScript_SquirtleBall[];
+extern const u8 Route1_EventScript_AlreadyGotPotion[];
+extern const u8 Route1_EventScript_Boy[];
+extern const u8 EventScript_BagIsFull[];
+extern const u8 Route1_EventScript_MartClerk[];
+extern const u8 Route1_EventScript_RouteSign[];
+extern const u8 ViridianCity_EventScript_Boy[];
+extern const u8 ViridianCity_EventScript_CitySign[];
+extern const u8 ViridianCity_EventScript_GymDoor[];
+extern const u8 ViridianCity_EventScript_GymDoorLocked[];
+extern const u8 ViridianCity_EventScript_GymSign[];
+extern const u8 ViridianCity_EventScript_OldManGymLeaderReturned[];
+extern const u8 ViridianCity_EventScript_OldMan[];
+extern const u8 ViridianCity_EventScript_RoadBlocked[];
+extern const u8 ViridianCity_EventScript_SetOldManBlockingRoad[];
+extern const u8 ViridianCity_EventScript_SetOldManNormal[];
+extern const u8 ViridianCity_EventScript_SetOldManStandingByRoad[];
+extern const u8 ViridianCity_EventScript_TrainerTips1[];
+extern const u8 ViridianCity_EventScript_TrainerTips2[];
+extern const u8 EventScript_Return[];
+extern const u8 ViridianCity_EventScript_TryUnlockGym[];
+extern const u8 ViridianCity_EventScript_WomanRoadBlocked[];
+extern const u8 ViridianCity_EventScript_Woman[];
+static const u8 ViridianCity_EventScript_YoungsterExplainCaterpillars[];
+static const u8 ViridianCity_EventScript_YoungsterDeclineExplanation[];
+extern const u8 ViridianCity_EventScript_Youngster[];
+extern const u8 ViridianCity_Mart_EventScript_SayHiToOak[];
+extern const u8 ViridianCity_Mart_Items[];
+extern const u8 ViridianCity_Mart_EventScript_Clerk[];
+extern const u8 ViridianCity_Mart_EventScript_HideQuestionnaire[];
+extern const u8 ViridianCity_Mart_EventScript_ParcelScene[];
+extern const u8 ViridianCity_Mart_EventScript_Woman[];
+extern const u8 ViridianCity_Mart_EventScript_Youngster[];
+extern const u8 ViridianCity_Mart_OnFrame[];
+extern const u8 ViridianCity_Mart_OnLoad[];
+extern const u8 ViridianCity_OnTransition[];
 static const u8 PalletTown_ProfessorOaksLab_EventScript_ReadyOakForStarterScene[];
 static const u8 PalletTown_ProfessorOaksLab_EventScript_ReadyOakForNationalDexScene[];
 static const u8 PalletTown_ProfessorOaksLab_EventScript_SetNationalDexSceneFinished[];
@@ -201,6 +240,22 @@ static const u8 PalletTown_ProfessorOaksLab_OnTransition[];
 static const u8 PalletTown_ProfessorOaksLab_OnWarp[];
 static const u8 PalletTown_ProfessorOaksLab_EventScript_EnterForNationalDexScene[];
 static const u8 PalletTown_ProfessorOaksLab_OnFrame[];
+extern const u8 PokedexRating_Text_Complete[];
+extern const u8 PokedexRating_Text_LessThan10[];
+extern const u8 PokedexRating_Text_LessThan100[];
+extern const u8 PokedexRating_Text_LessThan110[];
+extern const u8 PokedexRating_Text_LessThan120[];
+extern const u8 PokedexRating_Text_LessThan130[];
+extern const u8 PokedexRating_Text_LessThan140[];
+extern const u8 PokedexRating_Text_LessThan150[];
+extern const u8 PokedexRating_Text_LessThan20[];
+extern const u8 PokedexRating_Text_LessThan30[];
+extern const u8 PokedexRating_Text_LessThan40[];
+extern const u8 PokedexRating_Text_LessThan50[];
+extern const u8 PokedexRating_Text_LessThan60[];
+extern const u8 PokedexRating_Text_LessThan70[];
+extern const u8 PokedexRating_Text_LessThan80[];
+extern const u8 PokedexRating_Text_LessThan90[];
 static const u8 Text_Bookshelf[];
 static const u8 Text_DishesPlatesNeatlyLinedUp[];
 static const u8 Text_Dresser[];
@@ -295,6 +350,35 @@ static const u8 PalletTown_ProfessorOaksLab_Text_SaveOptionInMenu[];
 static const u8 PalletTown_ProfessorOaksLab_Text_RivalMyMonLooksTougher[];
 static const u8 PalletTown_ProfessorOaksLab_Text_RivalGoChoosePlayer[];
 static const u8 PalletTown_ProfessorOaksLab_Text_RivalGrampsIsntAround[];
+static const u8 Route1_Text_ComeSeeUsIfYouNeedPokeBalls[];
+static const u8 Route1_Text_CanJumpFromLedges[];
+static const u8 Route1_Text_WorkAtPokeMartTakeSample[];
+static const u8 Text_TooBadBagFull[];
+static const u8 Text_ObtainedTheX[];
+static const u8 Route1_Text_PutPotionAway[];
+static const u8 Route1_Text_RouteSign[];
+static const u8 ViridianCity_Text_CanCarryMonsAnywhere[];
+static const u8 ViridianCity_Text_CitySign[];
+static const u8 ViridianCity_Text_GymDoorsAreLocked[];
+static const u8 ViridianCity_Text_GymSign[];
+static const u8 ViridianCity_Text_ViridiansGymLeaderReturned[];
+static const u8 ViridianCity_Text_GymClosedWonderWhoLeaderIs[];
+static const u8 ViridianCity_Text_ThisIsPrivateProperty[];
+static const u8 ViridianCity_Text_CatchMonsForEasierBattles[];
+static const u8 ViridianCity_Text_MovesLimitedByPP[];
+static const u8 ViridianCity_Text_GrandpaHasntHadCoffeeYet[];
+static const u8 ViridianCity_Text_GoShoppingInPewterOccasionally[];
+static const u8 ViridianCity_Text_WantToKnowAboutCaterpillarMons[];
+static const u8 ViridianCity_Text_ExplainCaterpieWeedle[];
+static const u8 ViridianCity_Text_OhOkayThen[];
+static const u8 ViridianCity_Mart_Text_SayHiToOakForMe[];
+static const u8 Text_MayIHelpYou[];
+static const u8 Text_PleaseComeAgain[];
+static const u8 ViridianCity_Mart_Text_YouCameFromPallet[];
+static const u8 ViridianCity_Mart_Text_TakeThisToProfOak[];
+static const u8 ViridianCity_Mart_Text_ReceivedOaksParcelFromClerk[];
+static const u8 ViridianCity_Mart_Text_ShopDoesGoodBusinessInAntidotes[];
+static const u8 ViridianCity_Mart_Text_GotToBuySomePotions[];
 static const u8 PalletTown_ProfessorOaksLab_Movement_RivalWalksToCharmander[];
 static const u8 PalletTown_ProfessorOaksLab_Movement_RivalWalksToBulbasaur[];
 static const u8 PalletTown_ProfessorOaksLab_Movement_RivalWalksToSquirtle[];
@@ -339,6 +423,10 @@ static const u8 PalletTown_ProfessorOaksLab_Movement_RivalExit[];
 static const u8 Common_Movement_WalkInPlaceFasterRight[];
 static const u8 PalletTown_ProfessorOaksLab_Movement_OakWalkToDesk[];
 static const u8 PalletTown_ProfessorOaksLab_Movement_OakWalkToDeskSouth[];
+static const u8 ViridianCity_Movement_JumpDownLedge[];
+static const u8 ViridianCity_Movement_WalkDown[];
+static const u8 ViridianCity_Mart_Movement_FacePlayer[];
+static const u8 ViridianCity_Mart_Movement_ApproachCounter[];
 const void *const gNativeScriptPtrs[] = {
     Text_Bookshelf,
     Text_DishesPlatesNeatlyLinedUp,
@@ -578,6 +666,54 @@ const void *const gNativeScriptPtrs[] = {
     PalletTown_ProfessorOaksLab_Text_RivalGoChoosePlayer,
     PalletTown_ProfessorOaksLab_EventScript_RivalWaitingForStarter,
     PalletTown_ProfessorOaksLab_Text_RivalGrampsIsntAround,
+    Route1_Text_ComeSeeUsIfYouNeedPokeBalls,
+    Route1_Text_CanJumpFromLedges,
+    Route1_EventScript_AlreadyGotPotion,
+    Route1_Text_WorkAtPokeMartTakeSample,
+    Text_TooBadBagFull,
+    EventScript_BagIsFull,
+    Text_ObtainedTheX,
+    Route1_Text_PutPotionAway,
+    Route1_Text_RouteSign,
+    ViridianCity_Text_CanCarryMonsAnywhere,
+    ViridianCity_Text_CitySign,
+    ViridianCity_Text_GymDoorsAreLocked,
+    ViridianCity_Movement_JumpDownLedge,
+    ViridianCity_Text_GymSign,
+    ViridianCity_Text_ViridiansGymLeaderReturned,
+    ViridianCity_EventScript_OldManGymLeaderReturned,
+    ViridianCity_Text_GymClosedWonderWhoLeaderIs,
+    ViridianCity_Text_ThisIsPrivateProperty,
+    ViridianCity_Movement_WalkDown,
+    ViridianCity_Text_CatchMonsForEasierBattles,
+    ViridianCity_Text_MovesLimitedByPP,
+    EventScript_Return,
+    ViridianCity_Text_GrandpaHasntHadCoffeeYet,
+    ViridianCity_EventScript_WomanRoadBlocked,
+    ViridianCity_Text_GoShoppingInPewterOccasionally,
+    ViridianCity_Text_WantToKnowAboutCaterpillarMons,
+    ViridianCity_Text_ExplainCaterpieWeedle,
+    ViridianCity_EventScript_YoungsterExplainCaterpillars,
+    ViridianCity_Text_OhOkayThen,
+    ViridianCity_EventScript_YoungsterDeclineExplanation,
+    ViridianCity_Mart_Text_SayHiToOakForMe,
+    ViridianCity_Mart_EventScript_SayHiToOak,
+    Text_MayIHelpYou,
+    ViridianCity_Mart_Items,
+    Text_PleaseComeAgain,
+    ViridianCity_Mart_Text_YouCameFromPallet,
+    ViridianCity_Mart_Movement_FacePlayer,
+    ViridianCity_Mart_Movement_ApproachCounter,
+    ViridianCity_Mart_Text_TakeThisToProfOak,
+    ViridianCity_Mart_Text_ReceivedOaksParcelFromClerk,
+    ViridianCity_Mart_Text_ShopDoesGoodBusinessInAntidotes,
+    ViridianCity_Mart_Text_GotToBuySomePotions,
+    ViridianCity_Mart_EventScript_ParcelScene,
+    ViridianCity_Mart_EventScript_HideQuestionnaire,
+    ViridianCity_EventScript_SetOldManBlockingRoad,
+    ViridianCity_EventScript_SetOldManStandingByRoad,
+    ViridianCity_EventScript_SetOldManNormal,
+    ViridianCity_EventScript_TryUnlockGym,
     PalletTown_ProfessorOaksLab_EventScript_ReadyOakForStarterScene,
     PalletTown_ProfessorOaksLab_EventScript_ReadyOakForNationalDexScene,
     PalletTown_ProfessorOaksLab_EventScript_SetNationalDexSceneFinished,
@@ -588,8 +724,103 @@ const void *const gNativeScriptPtrs[] = {
     PalletTown_ProfessorOaksLab_OnTransition,
     PalletTown_ProfessorOaksLab_OnWarp,
     PalletTown_ProfessorOaksLab_OnFrame,
+    ViridianCity_OnTransition,
+    ViridianCity_Mart_OnLoad,
+    ViridianCity_Mart_OnFrame,
 };
 
+
+const u8 PokedexRating_Text_Complete[] = _(
+    "Your POKéDEX is entirely complete!\n"
+    "Congratulations!!$"
+);
+
+const u8 PokedexRating_Text_LessThan10[] = _(
+    "You still have lots to do.\p"
+    "Go into every patch of grass you\n"
+    "see and look for POKéMON!$"
+);
+
+const u8 PokedexRating_Text_LessThan100[] = _(
+    "I'm impressed!\n"
+    "It must have been difficult to do!$"
+);
+
+const u8 PokedexRating_Text_LessThan110[] = _(
+    "You've finally hit 100 species!\n"
+    "I can't believe how good you are!$"
+);
+
+const u8 PokedexRating_Text_LessThan120[] = _(
+    "You even have the evolved forms\n"
+    "of POKéMON! Super!$"
+);
+
+const u8 PokedexRating_Text_LessThan130[] = _(
+    "Excellent! Trade with friends to\n"
+    "get some more!$"
+);
+
+const u8 PokedexRating_Text_LessThan140[] = _(
+    "Outstanding!\n"
+    "You've become a real pro at this!$"
+);
+
+const u8 PokedexRating_Text_LessThan150[] = _(
+    "I have nothing left to say!\n"
+    "You're the POKéMON PROFESSOR now!$"
+);
+
+const u8 PokedexRating_Text_LessThan20[] = _(
+    "It looks as if you're getting on\n"
+    "the right track!\p"
+    "I've given one of my AIDES a FLASH\n"
+    "HM. Make sure you go get it!$"
+);
+
+const u8 PokedexRating_Text_LessThan30[] = _(
+    "Your POKéDEX could use a bit more\n"
+    "volume still!\p"
+    "Try to catch other species of\n"
+    "POKéMON!$"
+);
+
+const u8 PokedexRating_Text_LessThan40[] = _(
+    "Good, it's apparent that you're\n"
+    "trying hard!\p"
+    "I've given one of my AIDES an\n"
+    "ITEMFINDER. Be sure to collect it!$"
+);
+
+const u8 PokedexRating_Text_LessThan50[] = _(
+    "Your POKéDEX is coming along quite\n"
+    "well!\p"
+    "I've given one of my AIDES an\n"
+    "AMULET COIN. Be sure to get it!$"
+);
+
+const u8 PokedexRating_Text_LessThan60[] = _(
+    "Ah, you've finally topped 50\n"
+    "species!\p"
+    "I've given one of my AIDES an EXP.\n"
+    "SHARE. Be sure to go get it!$"
+);
+
+const u8 PokedexRating_Text_LessThan70[] = _(
+    "Hoho! This is turning into quite the\n"
+    "respectable POKéDEX!$"
+);
+
+const u8 PokedexRating_Text_LessThan80[] = _(
+    "Very good!\p"
+    "I think you'll collect even more\n"
+    "POKéMON by going fishing!$"
+);
+
+const u8 PokedexRating_Text_LessThan90[] = _(
+    "Wonderful! Let me guess… You\n"
+    "like to collect things, don't you?$"
+);
 
 static const u8 Text_Bookshelf[] = _(
     "It's crammed full of POKéMON\n"
@@ -1200,6 +1431,170 @@ static const u8 PalletTown_ProfessorOaksLab_Text_RivalGrampsIsntAround[] = _(
     "Gramps isn't around.$"
 );
 
+static const u8 Route1_Text_ComeSeeUsIfYouNeedPokeBalls[] = _(
+    "Please come see us if you need\n"
+    "POKé BALLS for catching POKéMON.$"
+);
+
+static const u8 Route1_Text_CanJumpFromLedges[] = _(
+    "See those ledges along the road?\p"
+    "It's a bit scary, but you can jump\n"
+    "from them.\p"
+    "You can get back to PALLET TOWN\n"
+    "quicker that way.$"
+);
+
+static const u8 Route1_Text_WorkAtPokeMartTakeSample[] = _(
+    "Hi!\n"
+    "I work at a POKéMON MART.\p"
+    "It's part of a convenient chain\n"
+    "selling all sorts of items.\p"
+    "Please, visit us in VIRIDIAN CITY.\p"
+    "I know, I'll give you a sample.\n"
+    "Here you go!$"
+);
+
+static const u8 Text_TooBadBagFull[] = _(
+    "Too bad!\n"
+    "The BAG is full…$"
+);
+
+static const u8 Text_ObtainedTheX[] = _(
+    "Obtained the {STR_VAR_2}!$"
+);
+
+static const u8 Route1_Text_PutPotionAway[] = _(
+    "{PLAYER} put the POTION away in\n"
+    "the BAG's ITEMS POCKET.$"
+);
+
+static const u8 Route1_Text_RouteSign[] = _(
+    "ROUTE 1\n"
+    "PALLET TOWN - VIRIDIAN CITY$"
+);
+
+static const u8 ViridianCity_Text_CanCarryMonsAnywhere[] = _(
+    "Those POKé BALLS at your waist!\n"
+    "You have POKéMON, don't you?\p"
+    "It's great that you can carry and\n"
+    "use POKéMON anytime, anywhere.$"
+);
+
+static const u8 ViridianCity_Text_CitySign[] = _(
+    "VIRIDIAN CITY \n"
+    "The Eternally Green Paradise$"
+);
+
+static const u8 ViridianCity_Text_GymDoorsAreLocked[] = _(
+    "VIRIDIAN GYM's doors are locked…$"
+);
+
+static const u8 ViridianCity_Text_GymSign[] = _(
+    "VIRIDIAN CITY POKéMON GYM$"
+);
+
+static const u8 ViridianCity_Text_ViridiansGymLeaderReturned[] = _(
+    "VIRIDIAN GYM's LEADER returned!$"
+);
+
+static const u8 ViridianCity_Text_GymClosedWonderWhoLeaderIs[] = _(
+    "This POKéMON GYM is always closed.\p"
+    "I wonder who the LEADER is?$"
+);
+
+static const u8 ViridianCity_Text_ThisIsPrivateProperty[] = _(
+    "I absolutely forbid you from\n"
+    "going through here!\p"
+    "This is private property!$"
+);
+
+static const u8 ViridianCity_Text_CatchMonsForEasierBattles[] = _(
+    "TRAINER TIPS\p"
+    "Catch POKéMON and expand your\n"
+    "collection.\p"
+    "The more you have, the easier it\n"
+    "is to battle.$"
+);
+
+static const u8 ViridianCity_Text_MovesLimitedByPP[] = _(
+    "TRAINER TIPS\p"
+    "The battle moves of POKéMON are\n"
+    "limited by their POWER POINTS, PP.\p"
+    "To replenish PP, rest your tired\n"
+    "POKéMON at a POKéMON CENTER.$"
+);
+
+static const u8 ViridianCity_Text_GrandpaHasntHadCoffeeYet[] = _(
+    "Oh, Grandpa!\n"
+    "Don't be so mean!\p"
+    "I'm so sorry.\n"
+    "He hasn't had his coffee yet.$"
+);
+
+static const u8 ViridianCity_Text_GoShoppingInPewterOccasionally[] = _(
+    "I go shopping in PEWTER CITY\n"
+    "occasionally.\p"
+    "I have to take the winding trail in\n"
+    "VIRIDIAN FOREST when I go.$"
+);
+
+static const u8 ViridianCity_Text_WantToKnowAboutCaterpillarMons[] = _(
+    "You want to know about the two\n"
+    "kinds of caterpillar POKéMON?$"
+);
+
+static const u8 ViridianCity_Text_ExplainCaterpieWeedle[] = _(
+    "CATERPIE has no poison,\n"
+    "but WEEDLE does.\p"
+    "Watch that your POKéMON aren't\n"
+    "stabbed by WEEDLE's POISON STING.$"
+);
+
+static const u8 ViridianCity_Text_OhOkayThen[] = _(
+    "Oh, okay then!$"
+);
+
+static const u8 ViridianCity_Mart_Text_SayHiToOakForMe[] = _(
+    "Okay, thanks! Please say hi to\n"
+    "PROF. OAK for me, too.$"
+);
+
+static const u8 Text_MayIHelpYou[] = _(
+    "Hi, there!\n"
+    "May I help you?$"
+);
+
+static const u8 Text_PleaseComeAgain[] = _(
+    "Please come again!$"
+);
+
+static const u8 ViridianCity_Mart_Text_YouCameFromPallet[] = _(
+    "Hey!\n"
+    "You came from PALLET TOWN?$"
+);
+
+static const u8 ViridianCity_Mart_Text_TakeThisToProfOak[] = _(
+    "You know PROF. OAK, right?\p"
+    "His order came in.\n"
+    "Can I get you to take it to him?$"
+);
+
+static const u8 ViridianCity_Mart_Text_ReceivedOaksParcelFromClerk[] = _(
+    "{PLAYER} received OAK'S PARCEL\n"
+    "from the POKéMON MART clerk.$"
+);
+
+static const u8 ViridianCity_Mart_Text_ShopDoesGoodBusinessInAntidotes[] = _(
+    "This shop does good business in\n"
+    "ANTIDOTES, I've heard.$"
+);
+
+static const u8 ViridianCity_Mart_Text_GotToBuySomePotions[] = _(
+    "I've got to buy some POTIONS.\p"
+    "You never know when your POKéMON\n"
+    "will need quick healing.$"
+);
+
 static const u8 PalletTown_ProfessorOaksLab_Movement_RivalWalksToCharmander[] = {
     0x10, 0x10, 0x13, 0x13, 0x13, 0x13, 0x13, 0x11, 0xfe,
 };
@@ -1374,6 +1769,22 @@ static const u8 PalletTown_ProfessorOaksLab_Movement_OakWalkToDesk[] = {
 
 static const u8 PalletTown_ProfessorOaksLab_Movement_OakWalkToDeskSouth[] = {
     0x12, 0x12, 0x11, 0x1c, 0x30, 0xfe,
+};
+
+static const u8 ViridianCity_Movement_JumpDownLedge[] = {
+    0x14, 0xfe,
+};
+
+static const u8 ViridianCity_Movement_WalkDown[] = {
+    0x10, 0xfe,
+};
+
+static const u8 ViridianCity_Mart_Movement_FacePlayer[] = {
+    0x1c, 0x1c, 0x1c, 0x1c, 0x30, 0xfe,
+};
+
+static const u8 ViridianCity_Mart_Movement_ApproachCounter[] = {
+    0x11, 0x11, 0x11, 0x11, 0x2f, 0xfe,
 };
 
 const u8 EventScript_Bookshelf[] = {
@@ -1912,6 +2323,146 @@ const u8 PalletTown_ProfessorOaksLab_EventScript_SquirtleBall[] = {
     0x6a, 0x5a, 0x16, 0x01, 0x40, 0x01, 0x00, 0x16, 0x02, 0x40, 0x07, 0x00, 0x16, 0x03, 0x40, 0x01, 0x00, 0x16, 0x04, 0x40, 0x05, 0x00, 0x21, 0x55, 0x40, 0x03, 0x00, 0x06, 0x04, 0x5a, 0x00, 0x00, 0x00, 0x21, 0x55, 0x40, 0x02, 0x00, 0x06, 0x01, 0x69, 0x00, 0x00, 0x00, 0x67, 0x6a, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
 };
 
+const u8 Route1_EventScript_AlreadyGotPotion[] = {
+    0x67, 0xee, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 Route1_EventScript_Boy[] = {
+    0x6a, 0x5a, 0x67, 0xef, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 EventScript_BagIsFull[] = {
+    0xc7, 0x03, 0x67, 0xf2, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 Route1_EventScript_MartClerk[] = {
+    0x6a, 0x5a, 0x2b, 0x30, 0x02, 0x06, 0x01, 0xf0, 0x00, 0x00, 0x00, 0x67, 0xf1, 0x00, 0x00, 0x00, 0x66, 0x6d, 0xc7, 0x03, 0x46, 0x0d, 0x00, 0x01, 0x00, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x06, 0x01, 0xf3, 0x00, 0x00, 0x00, 0x80, 0x01, 0x0d, 0x00, 0x31, 0x01, 0x01, 0x67, 0xf4, 0x00, 0x00, 0x00, 0x66, 0x32, 0x44, 0x0d, 0x00, 0x01, 0x00, 0x67, 0xf5, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x04, 0x5e, 0x00, 0x00, 0x00, 0x29, 0x30, 0x02, 0x6c, 0x02
+};
+
+const u8 Route1_EventScript_RouteSign[] = {
+    0x69, 0x67, 0xf6, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 ViridianCity_EventScript_Boy[] = {
+    0x6a, 0x5a, 0x67, 0xf7, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 ViridianCity_EventScript_CitySign[] = {
+    0x69, 0x67, 0xf8, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 ViridianCity_EventScript_GymDoor[] = {
+    0x69, 0x67, 0xf9, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 ViridianCity_EventScript_GymDoorLocked[] = {
+    0x69, 0xc7, 0x03, 0x4f, 0xff, 0x00, 0x4d, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x28, 0x14, 0x00, 0x67, 0xf9, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x4f, 0xff, 0x00, 0xfa, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x6b, 0x02
+};
+
+const u8 ViridianCity_EventScript_GymSign[] = {
+    0x69, 0x67, 0xfb, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 ViridianCity_EventScript_OldManGymLeaderReturned[] = {
+    0x67, 0xfc, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 ViridianCity_EventScript_OldMan[] = {
+    0x6a, 0x5a, 0x21, 0x5a, 0x40, 0x01, 0x00, 0x06, 0x01, 0xfd, 0x00, 0x00, 0x00, 0x67, 0xfe, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x4f, 0x03, 0x00, 0x42, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x6c, 0x02
+};
+
+const u8 ViridianCity_EventScript_RoadBlocked[] = {
+    0x69, 0xc7, 0x00, 0x67, 0xff, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x4f, 0xff, 0x00, 0x00, 0x01, 0x00, 0x00, 0x51, 0x00, 0x00, 0x6b, 0x02
+};
+
+const u8 ViridianCity_EventScript_SetOldManBlockingRoad[] = {
+    0x16, 0x10, 0x40, 0x22, 0x00, 0x63, 0x04, 0x00, 0x15, 0x00, 0x0b, 0x00, 0x65, 0x04, 0x00, 0x08, 0x03
+};
+
+const u8 ViridianCity_EventScript_SetOldManNormal[] = {
+    0x16, 0x10, 0x40, 0x20, 0x00, 0x03
+};
+
+const u8 ViridianCity_EventScript_SetOldManStandingByRoad[] = {
+    0x16, 0x10, 0x40, 0x20, 0x00, 0x63, 0x04, 0x00, 0x15, 0x00, 0x08, 0x00, 0x65, 0x04, 0x00, 0x01, 0x03
+};
+
+const u8 ViridianCity_EventScript_TrainerTips1[] = {
+    0x69, 0x67, 0x01, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 ViridianCity_EventScript_TrainerTips2[] = {
+    0x69, 0x67, 0x02, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 EventScript_Return[] = {
+    0x03
+};
+
+const u8 ViridianCity_EventScript_TryUnlockGym[] = {
+    0x2b, 0x21, 0x08, 0x06, 0x00, 0x03, 0x01, 0x00, 0x00, 0x2b, 0x22, 0x08, 0x06, 0x00, 0x03, 0x01, 0x00, 0x00, 0x2b, 0x23, 0x08, 0x06, 0x00, 0x03, 0x01, 0x00, 0x00, 0x2b, 0x24, 0x08, 0x06, 0x00, 0x03, 0x01, 0x00, 0x00, 0x2b, 0x25, 0x08, 0x06, 0x00, 0x03, 0x01, 0x00, 0x00, 0x2b, 0x26, 0x08, 0x06, 0x00, 0x03, 0x01, 0x00, 0x00, 0x16, 0x5a, 0x40, 0x01, 0x00, 0x03
+};
+
+const u8 ViridianCity_EventScript_WomanRoadBlocked[] = {
+    0x67, 0x04, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x4f, 0x05, 0x00, 0x42, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x6c, 0x02
+};
+
+const u8 ViridianCity_EventScript_Woman[] = {
+    0x6a, 0x5a, 0x21, 0x51, 0x40, 0x00, 0x00, 0x06, 0x01, 0x05, 0x01, 0x00, 0x00, 0x67, 0x06, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+static const u8 ViridianCity_EventScript_YoungsterExplainCaterpillars[] = {
+    0x67, 0x08, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+static const u8 ViridianCity_EventScript_YoungsterDeclineExplanation[] = {
+    0x67, 0x0a, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 ViridianCity_EventScript_Youngster[] = {
+    0x6a, 0x5a, 0x67, 0x07, 0x01, 0x00, 0x00, 0x66, 0x6e, 0x14, 0x08, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x06, 0x01, 0x09, 0x01, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x06, 0x01, 0x0b, 0x01, 0x00, 0x00, 0x02
+};
+
+const u8 ViridianCity_Mart_EventScript_SayHiToOak[] = {
+    0x67, 0x0c, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 ViridianCity_Mart_Items[] = {
+    0x04, 0x00, 0x0d, 0x00, 0x0e, 0x00, 0x12, 0x00, 0x00, 0x00, 0x6c, 0x02
+};
+
+const u8 ViridianCity_Mart_EventScript_Clerk[] = {
+    0x6a, 0x5a, 0x21, 0x57, 0x40, 0x01, 0x00, 0x06, 0x01, 0x0d, 0x01, 0x00, 0x00, 0x26, 0x0d, 0x80, 0x87, 0x01, 0x21, 0x0d, 0x80, 0x02, 0x00, 0x06, 0x01, 0x73, 0x00, 0x00, 0x00, 0x67, 0x0e, 0x01, 0x00, 0x00, 0x66, 0x86, 0x0f, 0x01, 0x00, 0x00, 0x67, 0x10, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 ViridianCity_Mart_EventScript_HideQuestionnaire[] = {
+    0xa2, 0x01, 0x00, 0x03, 0x00, 0xbf, 0x02, 0x01, 0x00, 0xa2, 0x01, 0x00, 0x04, 0x00, 0xc0, 0x02, 0x01, 0x00, 0x02
+};
+
+const u8 ViridianCity_Mart_EventScript_ParcelScene[] = {
+    0x69, 0xc7, 0x00, 0x4f, 0x01, 0x00, 0x13, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x67, 0x11, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x4f, 0x01, 0x00, 0x12, 0x01, 0x00, 0x00, 0x4f, 0xff, 0x00, 0x13, 0x01, 0x00, 0x00, 0x51, 0x00, 0x00, 0x67, 0x14, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x16, 0x57, 0x40, 0x01, 0x00, 0x44, 0x5d, 0x01, 0x01, 0x00, 0x0f, 0x00, 0x15, 0x01, 0x00, 0x00, 0x1a, 0x00, 0x80, 0x5d, 0x01, 0x1a, 0x01, 0x80, 0x01, 0x00, 0x1a, 0x02, 0x80, 0x3e, 0x01, 0x31, 0x3e, 0x01, 0x67, 0x15, 0x01, 0x00, 0x00, 0x66, 0x32, 0x04, 0x5e, 0x00, 0x00, 0x00, 0x16, 0x55, 0x40, 0x05, 0x00, 0x6b, 0x02
+};
+
+const u8 ViridianCity_Mart_EventScript_Woman[] = {
+    0x6a, 0x5a, 0x67, 0x16, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 ViridianCity_Mart_EventScript_Youngster[] = {
+    0x6a, 0x5a, 0x67, 0x17, 0x01, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 ViridianCity_Mart_OnFrame[] = {
+    0x57, 0x40, 0x00, 0x00, 0x18, 0x01, 0x00, 0x00, 0x00, 0x00
+};
+
+const u8 ViridianCity_Mart_OnLoad[] = {
+    0x2b, 0x29, 0x08, 0x06, 0x00, 0x19, 0x01, 0x00, 0x00, 0x02
+};
+
+const u8 ViridianCity_OnTransition[] = {
+    0xd0, 0x91, 0x08, 0x21, 0x51, 0x40, 0x00, 0x00, 0x07, 0x01, 0x1a, 0x01, 0x00, 0x00, 0x21, 0x51, 0x40, 0x01, 0x00, 0x07, 0x01, 0x1b, 0x01, 0x00, 0x00, 0x21, 0x51, 0x40, 0x02, 0x00, 0x07, 0x04, 0x1c, 0x01, 0x00, 0x00, 0x21, 0x5a, 0x40, 0x00, 0x00, 0x07, 0x01, 0x1d, 0x01, 0x00, 0x00, 0x02
+};
+
 static const u8 PalletTown_ProfessorOaksLab_EventScript_ReadyOakForStarterScene[] = {
     0x63, 0x04, 0x00, 0x06, 0x00, 0x0b, 0x00, 0x65, 0x04, 0x00, 0x07, 0x34, 0x2e, 0x01, 0x03
 };
@@ -1929,11 +2480,11 @@ static const u8 PalletTown_ProfessorOaksLab_EventScript_SetSkipPokeBallCheck[] =
 };
 
 static const u8 PalletTown_ProfessorOaksLab_OnTransition[] = {
-    0x29, 0xcf, 0x02, 0x21, 0x55, 0x40, 0x01, 0x00, 0x07, 0x01, 0xee, 0x00, 0x00, 0x00, 0x21, 0x55, 0x40, 0x07, 0x00, 0x07, 0x01, 0xef, 0x00, 0x00, 0x00, 0x21, 0x55, 0x40, 0x08, 0x00, 0x07, 0x01, 0xf0, 0x00, 0x00, 0x00, 0x2b, 0x47, 0x02, 0x07, 0x01, 0xf1, 0x00, 0x00, 0x00, 0x02
+    0x29, 0xcf, 0x02, 0x21, 0x55, 0x40, 0x01, 0x00, 0x07, 0x01, 0x1e, 0x01, 0x00, 0x00, 0x21, 0x55, 0x40, 0x07, 0x00, 0x07, 0x01, 0x1f, 0x01, 0x00, 0x00, 0x21, 0x55, 0x40, 0x08, 0x00, 0x07, 0x01, 0x20, 0x01, 0x00, 0x00, 0x2b, 0x47, 0x02, 0x07, 0x01, 0x21, 0x01, 0x00, 0x00, 0x02
 };
 
 static const u8 PalletTown_ProfessorOaksLab_OnWarp[] = {
-    0x55, 0x40, 0x01, 0x00, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00
+    0x55, 0x40, 0x01, 0x00, 0x22, 0x01, 0x00, 0x00, 0x00, 0x00
 };
 
 static const u8 PalletTown_ProfessorOaksLab_EventScript_EnterForNationalDexScene[] = {
@@ -1941,11 +2492,23 @@ static const u8 PalletTown_ProfessorOaksLab_EventScript_EnterForNationalDexScene
 };
 
 static const u8 PalletTown_ProfessorOaksLab_OnFrame[] = {
-    0x55, 0x40, 0x01, 0x00, 0xf3, 0x00, 0x00, 0x00, 0x55, 0x40, 0x07, 0x00, 0xf4, 0x00, 0x00, 0x00, 0x00, 0x00
+    0x55, 0x40, 0x01, 0x00, 0x23, 0x01, 0x00, 0x00, 0x55, 0x40, 0x07, 0x00, 0x24, 0x01, 0x00, 0x00, 0x00, 0x00
 };
 
 static const u8 PalletTown_ProfessorOaksLab_MapScripts[] = {
-    0x03, 0xf5, 0x00, 0x00, 0x00, 0x04, 0xf6, 0x00, 0x00, 0x00, 0x02, 0xf7, 0x00, 0x00, 0x00, 0x00
+    0x03, 0x25, 0x01, 0x00, 0x00, 0x04, 0x26, 0x01, 0x00, 0x00, 0x02, 0x27, 0x01, 0x00, 0x00, 0x00
+};
+
+static const u8 Route1_MapScripts[] = {
+    0x00
+};
+
+static const u8 ViridianCity_MapScripts[] = {
+    0x03, 0x28, 0x01, 0x00, 0x00, 0x00
+};
+
+static const u8 ViridianCity_Mart_MapScripts[] = {
+    0x01, 0x29, 0x01, 0x00, 0x00, 0x02, 0x2a, 0x01, 0x00, 0x00, 0x00
 };
 
 static const struct ObjectEventTemplate BattleColosseum_2P_ObjectEvents[] = {
@@ -28470,7 +29033,7 @@ static const struct ObjectEventTemplate ViridianCity_ObjectEvents[] = {
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&ViridianCity_EventScript_OldMan,
         .flagId = 0,
     },
     {
@@ -28508,7 +29071,7 @@ static const struct ObjectEventTemplate ViridianCity_ObjectEvents[] = {
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&ViridianCity_EventScript_Woman,
         .flagId = 0,
     },
     {
@@ -28527,7 +29090,7 @@ static const struct ObjectEventTemplate ViridianCity_ObjectEvents[] = {
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&ViridianCity_EventScript_Youngster,
         .flagId = 0,
     },
     {
@@ -28546,7 +29109,7 @@ static const struct ObjectEventTemplate ViridianCity_ObjectEvents[] = {
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&ViridianCity_EventScript_Boy,
         .flagId = 0,
     },
     {
@@ -28639,7 +29202,7 @@ static const struct CoordEvent ViridianCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN,
         .index = 0,
-        .script = NULL,
+        .script = (const u8 *)&ViridianCity_EventScript_RoadBlocked,
     },
     {
         .x = 36,
@@ -28647,7 +29210,7 @@ static const struct CoordEvent ViridianCity_CoordEvents[] = {
         .elevation = 3,
         .trigger = VAR_MAP_SCENE_VIRIDIAN_CITY_GYM_DOOR,
         .index = 0,
-        .script = NULL,
+        .script = (const u8 *)&ViridianCity_EventScript_GymDoorLocked,
     },
     {
         .x = 20,
@@ -28673,35 +29236,35 @@ static const struct BgEvent ViridianCity_BgEvents[] = {
         .y = 1,
         .elevation = 3,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&ViridianCity_EventScript_TrainerTips1 },
     },
     {
         .x = 32,
         .y = 10,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&ViridianCity_EventScript_GymSign },
     },
     {
         .x = 20,
         .y = 31,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&ViridianCity_EventScript_TrainerTips2 },
     },
     {
         .x = 20,
         .y = 16,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&ViridianCity_EventScript_CitySign },
     },
     {
         .x = 36,
         .y = 10,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&ViridianCity_EventScript_GymDoor },
     },
 };
 
@@ -28747,7 +29310,7 @@ extern const struct MapEvents ViridianCity_MapEvents;
 const struct MapHeader ViridianCity = {
     .mapLayout = &ViridianCity_Layout,
     .events = &ViridianCity_MapEvents,
-    .mapScripts = sEmptyMapScripts,
+    .mapScripts = ViridianCity_MapScripts,
     .connections = &ViridianCity_MapConnections,
     .music = MUS_PEWTER,
     .mapLayoutId = LAYOUT_VIRIDIAN_CITY,
@@ -33925,7 +34488,7 @@ static const struct ObjectEventTemplate Route1_ObjectEvents[] = {
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&Route1_EventScript_MartClerk,
         .flagId = 0,
     },
     {
@@ -33944,7 +34507,7 @@ static const struct ObjectEventTemplate Route1_ObjectEvents[] = {
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&Route1_EventScript_Boy,
         .flagId = 0,
     },
 };
@@ -33955,7 +34518,7 @@ static const struct BgEvent Route1_BgEvents[] = {
         .y = 31,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&Route1_EventScript_RouteSign },
     },
 };
 
@@ -33995,7 +34558,7 @@ extern const struct MapEvents Route1_MapEvents;
 const struct MapHeader Route1 = {
     .mapLayout = &Route1_Layout,
     .events = &Route1_MapEvents,
-    .mapScripts = sEmptyMapScripts,
+    .mapScripts = Route1_MapScripts,
     .connections = &Route1_MapConnections,
     .music = MUS_ROUTE1,
     .mapLayoutId = LAYOUT_ROUTE1,
@@ -46513,7 +47076,7 @@ static const struct ObjectEventTemplate ViridianCity_Mart_ObjectEvents[] = {
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&ViridianCity_Mart_EventScript_Clerk,
         .flagId = 0,
     },
     {
@@ -46532,7 +47095,7 @@ static const struct ObjectEventTemplate ViridianCity_Mart_ObjectEvents[] = {
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&ViridianCity_Mart_EventScript_Youngster,
         .flagId = 0,
     },
     {
@@ -46551,7 +47114,7 @@ static const struct ObjectEventTemplate ViridianCity_Mart_ObjectEvents[] = {
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&ViridianCity_Mart_EventScript_Woman,
         .flagId = 0,
     },
 };
@@ -46599,7 +47162,7 @@ extern const struct MapEvents ViridianCity_Mart_MapEvents;
 const struct MapHeader ViridianCity_Mart = {
     .mapLayout = &Mart_Layout,
     .events = &ViridianCity_Mart_MapEvents,
-    .mapScripts = sEmptyMapScripts,
+    .mapScripts = ViridianCity_Mart_MapScripts,
     .connections = NULL,
     .music = MUS_POKE_CENTER,
     .mapLayoutId = LAYOUT_MART,
