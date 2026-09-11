@@ -34,14 +34,8 @@ NATIVE_SCRIPT_ROOTS = {
     "PalletTown_EventScript_OakTriggerRight",
     # Oak's Lab interior: every A-press target the player can reach. The three
     # aides, the rival, the two dex units, the computer terminals, the two signs
-    # and the three starter balls. Oak himself is NOT wired: he is hidden by
-    # FLAG_HIDE_OAK_IN_HIS_LAB (set by EventScript_ResetAllMapFlags) and only the
-    # unported starter scene clears it, and his script's closure pulls the whole
-    # dex/starter-give scene (bag messages, givemon, pokedex ratings) which the
-    # native port has no engine for. The balls compile that give-scene closure
-    # too, but VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB only ever reaches 2
-    # from the lab's own map scripts (not compiled), so they answer with the
-    # pre-starter "Those are POKé BALLS" line.
+    # and the three starter balls; Oak himself is wired with the starter-scene
+    # closure further down.
     "PalletTown_ProfessorOaksLab_EventScript_Aide1",
     "PalletTown_ProfessorOaksLab_EventScript_Aide2",
     "PalletTown_ProfessorOaksLab_EventScript_Aide3",
@@ -71,6 +65,47 @@ NATIVE_SCRIPT_ROOTS = {
     "PalletTown_ProfessorOaksLab_EventScript_ReadyEndSignLadyScene",
     "EventScript_GiveNicknameToStarter",
     "PalletTown_ProfessorOaksLab_EventScript_LastPokeBall",
+    # Oak's Parcel chain: leaving the lab through Pallet Town and Route 1 into
+    # Viridian City, the Mart's ON_FRAME parcel scene (which hands the player
+    # ITEM_OAKS_PARCEL and sets the lab scene var to 5), and the route's
+    # free-Potion clerk.
+    "ViridianCity_Mart_MapScripts",
+    "ViridianCity_Mart_OnLoad",
+    "ViridianCity_Mart_OnFrame",
+    "ViridianCity_Mart_EventScript_HideQuestionnaire",
+    "ViridianCity_Mart_EventScript_ParcelScene",
+    "ViridianCity_Mart_EventScript_Clerk",
+    "ViridianCity_Mart_EventScript_SayHiToOak",
+    "ViridianCity_Mart_Items",
+    "ViridianCity_Mart_EventScript_Woman",
+    "ViridianCity_Mart_EventScript_Youngster",
+    "Route1_MapScripts",
+    "Route1_EventScript_MartClerk",
+    "Route1_EventScript_AlreadyGotPotion",
+    "Route1_EventScript_Boy",
+    "Route1_EventScript_RouteSign",
+    # Viridian City is the road to the Mart: its ON_TRANSITION map script sets
+    # the world-map flag and places the tutorial old man, and its signs and
+    # NPCs are the A-press targets on the way.
+    "ViridianCity_MapScripts",
+    "ViridianCity_OnTransition",
+    "ViridianCity_EventScript_SetOldManNormal",
+    "ViridianCity_EventScript_SetOldManStandingByRoad",
+    "ViridianCity_EventScript_SetOldManBlockingRoad",
+    "ViridianCity_EventScript_TryUnlockGym",
+    "ViridianCity_EventScript_GymDoorLocked",
+    "ViridianCity_EventScript_RoadBlocked",
+    "ViridianCity_EventScript_CitySign",
+    "ViridianCity_EventScript_TrainerTips1",
+    "ViridianCity_EventScript_TrainerTips2",
+    "ViridianCity_EventScript_GymSign",
+    "ViridianCity_EventScript_GymDoor",
+    "ViridianCity_EventScript_Boy",
+    "ViridianCity_EventScript_OldMan",
+    "ViridianCity_EventScript_OldManGymLeaderReturned",
+    "ViridianCity_EventScript_Youngster",
+    "ViridianCity_EventScript_Woman",
+    "ViridianCity_EventScript_WomanRoadBlocked",
 }
 
 
@@ -302,6 +337,8 @@ class TextRegistry:
         self.sources = sources
         self.generated = []
         self.seen = set()
+        # Labels emitted with external linkage for linked engine files.
+        self.generated_globals = set()
 
     def reference(self, label):
         if label not in self.sources:
@@ -311,13 +348,53 @@ class TextRegistry:
             self.generated.append(label)
         return label
 
+    def reference_global(self, label):
+        """Emit a text label that a linked engine file references by extern.
+
+        Engine sources compiled from C (not through tools/preproc, so their
+        `_("...")` strings are not available) expect these symbols to exist in
+        the generated data, exactly as they did in the GBA build's text banks.
+        """
+        if label not in self.sources:
+            raise UnsupportedScript(f"text label {label} is not available")
+        self.generated_globals.add(label)
+        # Appended to `generated` so the definition is emitted; the modifiers in
+        # emit()/the declaration loop switch to external linkage for this label.
+        if label not in self.seen:
+            self.seen.add(label)
+            self.generated.append(label)
+        return label
+
     def emit(self, out):
         for label in self.generated:
             fragments = self.sources[label]
-            out.write(f"static const u8 {label}[] = _(\n")
+            modifier = "const" if label in self.generated_globals else "static const"
+            out.write(f"{modifier} u8 {label}[] = _(\n")
             for fragment in fragments:
                 out.write(f'    "{fragment}"\n')
             out.write(");\n\n")
+
+    def emit_declarations(self, out):
+        for label in sorted(self.generated_globals):
+            out.write(f"extern const u8 {label}[];\n")
+
+
+def collect_engine_text_references(root, text_sources):
+    """Text labels that linked engine .c files reference by `extern const u8`.
+
+    Engine sources built through plain CFLAGS do not go through tools/preproc,
+    so their `_("...")` strings are not compiled; the generated text bank must
+    supply these symbols with external linkage (for example src/prof_pc.c's
+    PokedexRating_Text_* rating messages). Labels that are not text (scripts,
+    movements) are ignored here and emitted by their own registries.
+    """
+    labels = set()
+    for path in sorted((root / "src").rglob("*.c")):
+        for raw in path.read_text(errors="ignore").splitlines():
+            match = re.match(r"\s*extern\s+const\s+u8\s+([A-Za-z_][A-Za-z0-9_]*)\s*\[\s*\]\s*;", raw)
+            if match and match.group(1) in text_sources:
+                labels.add(match.group(1))
+    return labels
 
 
 class MovementRegistry:
@@ -685,6 +762,28 @@ class ScriptRegistry:
                 elif command == "checkitem" and len(args) in (1, 2):
                     quantity = self.resolve(args[1]) if len(args) == 2 else 1
                     output += [0x47] + little_endian(self.resolve(args[0]), 2) + little_endian(quantity, 2)
+                elif command == "checkitemspace" and len(args) in (1, 2):
+                    quantity = self.resolve(args[1]) if len(args) == 2 else 1
+                    output += [0x46] + little_endian(self.resolve(args[0]), 2) + little_endian(quantity, 2)
+                elif command == "bufferitemname" and len(args) == 2:
+                    string_vars = {"STR_VAR_1": 0, "STR_VAR_2": 1, "STR_VAR_3": 2}
+                    if args[0] not in string_vars:
+                        raise UnsupportedScript(f"string var {args[0]} is not supported")
+                    output += [0x80, string_vars[args[0]]] + little_endian(self.resolve(args[1]), 2)
+                elif command == "setmetatile" and len(args) == 4:
+                    output += [0xa2] + little_endian(self.resolve(args[0]), 2) + little_endian(self.resolve(args[1]), 2)
+                    output += little_endian(self.resolve(args[2]), 2) + little_endian(self.resolve(args[3]), 2)
+                elif command == "pokemart" and len(args) == 1:
+                    # The item list is a `label:: .2byte ITEM_*, ITEM_NONE` block;
+                    # compiled as a plain script array it already is the u16 list
+                    # ScrCmd_pokemart reads (it stops at ITEM_NONE, so the trailing
+                    # release/end bytes after the terminator are never reached).
+                    output += [0x86] + self.pointer_for_script(args[0])
+                elif command == ".align" and len(args) == 1:
+                    # Alignment padding for the GBA's u16 tables; the native
+                    # arrays are byte-packed and the interpreter reads through
+                    # ctx->scriptPtr, so no padding is emitted.
+                    pass
                 elif command == "additem" and len(args) in (1, 2):
                     quantity = self.resolve(args[1]) if len(args) == 2 else 1
                     output += [0x44] + little_endian(self.resolve(args[0]), 2) + little_endian(quantity, 2)
@@ -1005,6 +1104,8 @@ def main():
             map_script_tables[map_name] = entries
 
     text_registry = TextRegistry(text_sources)
+    for label in sorted(collect_engine_text_references(root, text_sources)):
+        text_registry.reference_global(label)
     movement_registry = MovementRegistry(movement_sources, constants, movement_actions)
     script_registry = ScriptRegistry(
         script_sources,
@@ -1058,7 +1159,8 @@ def main():
             modifier = "extern const" if is_global_script(name) else "static const"
             f.write(f"{modifier} u8 {name}[];\n")
         for name in text_registry.generated:
-            f.write(f"static const u8 {name}[];\n")
+            modifier = "extern const" if name in text_registry.generated_globals else "static const"
+            f.write(f"{modifier} u8 {name}[];\n")
         for name in movement_registry.generated:
             f.write(f"static const u8 {name}[];\n")
         script_registry.emit_declarations(f)
