@@ -17,6 +17,12 @@
 #include "text.h"
 #include "pokemon.h"
 #include "naming_screen.h"
+#include "pokedex.h"
+#include "save_location.h"
+#include "field_message_box.h"
+#include "constants/flags.h"
+#include "constants/vars.h"
+#include "constants/items.h"
 
 static const u8 sDummyScript[] = { 0x02 };
 
@@ -240,7 +246,6 @@ void Task_ReturnToBagFromContextMenu(u8 taskId) {}
 void Task_StartMenuHandleInput(u8 taskId) {}
 void Task_VsSeeker_0(u8 taskId) {}
 void TransferTilesetAnimsBuffer(void) {}
-void TrySetMapSaveWarpStatus(void) {}
 void UpdateAshFieldEffect(struct Sprite *sprite) {}
 void UpdateBubblesFieldEffect(struct Sprite *sprite) {}
 void UpdateDisguiseFieldEffect(struct Sprite *sprite) {}
@@ -355,6 +360,87 @@ static u16 NativeSpecial_ChangePokemonNickname(void)
     return 0;
 }
 
+extern u8 gQuestLogState;
+// src/prof_pc.c has no header; the GBA build declares these through
+// data/specials.inc's def_special macro.
+u16 GetPokedexCount(void);
+void GetProfOaksRatingMessage(void);
+
+/* The quest log recorder is not linked. PokedexRating_EventScript_RateInPerson
+ * opens with `goto_if_questlog EventScript_ReleaseEnd` and
+ * `special QuestLog_CutRecording`, so the pair must exist and report "not
+ * recording" (QL_STATE 0) to let the rating run. */
+static u16 NativeSpecial_GetQuestLogState(void)
+{
+    gSpecialVar_Result = gQuestLogState;
+    return 0;
+}
+
+static u16 NativeSpecial_QuestLog_CutRecording(void)
+{
+    gQuestLogState = 0;
+    return 0;
+}
+
+/* The help system UI is not ported, but its context bookkeeping is plain
+ * state: src/help_system.c keeps a context id plus a backup. Mirrors
+ * Script_SetHelpContext / BackupHelpContext / RestoreHelpContext so
+ * PokedexRating_EventScript_Rate's save/restore trio is a real round trip
+ * rather than a loud miss (the backup is local since help_system.c is not
+ * linked). */
+static u16 sHelpSystemContextId;
+static u16 sHelpSystemContextIdBackup;
+
+static u16 NativeSpecial_Script_SetHelpContext(void)
+{
+    sHelpSystemContextId = gSpecialVar_0x8004;
+    return 0;
+}
+
+static u16 NativeSpecial_BackupHelpContext(void)
+{
+    sHelpSystemContextIdBackup = sHelpSystemContextId;
+    return 0;
+}
+
+static u16 NativeSpecial_RestoreHelpContext(void)
+{
+    sHelpSystemContextId = sHelpSystemContextIdBackup;
+    return 0;
+}
+
+/* Real functions, wrapped: the special table stores u16 (*)(void) but the
+ * engine declares these as void. The implementations live in linked files
+ * (src/prof_pc.c, src/pokedex.c, src/event_data.c) so no logic is duplicated
+ * here. */
+static u16 NativeSpecial_GetPokedexCount(void)
+{
+    return GetPokedexCount();
+}
+
+static u16 NativeSpecial_GetProfOaksRatingMessage(void)
+{
+    GetProfOaksRatingMessage();
+    return 0;
+}
+
+static u16 NativeSpecial_HasAllMons(void)
+{
+    return HasAllMons();
+}
+
+static u16 NativeSpecial_EnableNationalPokedex(void)
+{
+    EnableNationalPokedex();
+    return 0;
+}
+
+static u16 NativeSpecial_SetUnlockedPokedexFlags(void)
+{
+    SetUnlockedPokedexFlags();
+    return 0;
+}
+
 /* Index-aligned with data/specials.inc: the u16 operands emitted by
  * tools/gen_map_data.py are positions in that table. Specials that are not
  * ported keep a NULL entry, which ScrCmd_special reports instead of calling
@@ -362,11 +448,20 @@ static u16 NativeSpecial_ChangePokemonNickname(void)
 u16 (*const gSpecials[])(void) = {
     [0]   = NativeSpecial_HealPlayerParty,
     [158] = NativeSpecial_ChangePokemonNickname,
+    [212] = NativeSpecial_GetPokedexCount,
+    [213] = NativeSpecial_GetProfOaksRatingMessage,
     [346] = NativeSpecial_DoPicboxCancel,
+    [367] = NativeSpecial_EnableNationalPokedex,
     [368] = NativeSpecial_SetWalkingIntoSignVars,
     [369] = NativeSpecial_DisableMsgBoxWalkaway,
     [371] = NativeSpecial_SetFlavorTextFlagFromSpecialVars,
     [372] = NativeSpecial_UpdatePickStateFromSpecialVar8005,
+    [381] = NativeSpecial_Script_SetHelpContext,
+    [382] = NativeSpecial_BackupHelpContext,
+    [383] = NativeSpecial_RestoreHelpContext,
+    [385] = NativeSpecial_SetUnlockedPokedexFlags,
+    [391] = NativeSpecial_GetQuestLogState,
+    [392] = NativeSpecial_QuestLog_CutRecording,
 };
 u16 (*const *gSpecialsEnd)(void) = gSpecials + ARRAY_COUNT(gSpecials);
 const u8 *const gStdScripts[] = { NULL };
