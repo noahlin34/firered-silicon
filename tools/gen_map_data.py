@@ -31,6 +31,27 @@ NATIVE_SCRIPT_ROOTS = {
     "PalletTown_EventScript_SignLady",
     "PalletTown_EventScript_TownSign",
     "PalletTown_EventScript_TrainerTips",
+    # Oak's Lab interior: every A-press target the player can reach. The three
+    # aides, the rival, the two dex units, the computer terminals, the two signs
+    # and the three starter balls. Oak himself is NOT wired: he is hidden by
+    # FLAG_HIDE_OAK_IN_HIS_LAB (set by EventScript_ResetAllMapFlags) and only the
+    # unported starter scene clears it, and his script's closure pulls the whole
+    # dex/starter-give scene (bag messages, givemon, pokedex ratings) which the
+    # native port has no engine for. The balls compile that give-scene closure
+    # too, but VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB only ever reaches 2
+    # from the lab's own map scripts (not compiled), so they answer with the
+    # pre-starter "Those are POKé BALLS" line.
+    "PalletTown_ProfessorOaksLab_EventScript_Aide1",
+    "PalletTown_ProfessorOaksLab_EventScript_Aide2",
+    "PalletTown_ProfessorOaksLab_EventScript_Aide3",
+    "PalletTown_ProfessorOaksLab_EventScript_Computer",
+    "PalletTown_ProfessorOaksLab_EventScript_LeftSign",
+    "PalletTown_ProfessorOaksLab_EventScript_RightSign",
+    "PalletTown_ProfessorOaksLab_EventScript_Pokedex",
+    "PalletTown_ProfessorOaksLab_EventScript_Rival",
+    "PalletTown_ProfessorOaksLab_EventScript_BulbasaurBall",
+    "PalletTown_ProfessorOaksLab_EventScript_SquirtleBall",
+    "PalletTown_ProfessorOaksLab_EventScript_CharmanderBall",
 }
 
 
@@ -99,6 +120,11 @@ def parse_labels(path, text=False):
                 values.append(match.group(1)[1:-1])
         else:
             line = strip_comment(line)
+            # `.include` is an assembler directive, not script data. The
+            # included files are parsed on their own, so a label that happens to
+            # precede one must not carry it as a command.
+            if line.startswith(".include"):
+                continue
             if line:
                 values.append(line)
     if current is not None:
@@ -124,6 +150,10 @@ def load_defines(root):
         "EQUAL": 1,
         "TRUE": 1,
         "FALSE": 0,
+        # asm/macros/event.inc: YES = 1, NO = 0 (compared against VAR_RESULT
+        # after a MSGBOX_YESNO).
+        "YES": 1,
+        "NO": 0,
     })
 
     # Resolve the simple integer constants used by event scripts. Complex C
@@ -376,6 +406,12 @@ class ScriptRegistry:
             values += [0x6a, 0x5a]
         elif msgbox_type == "MSGBOX_SIGN":
             values += [0x69]
+        elif msgbox_type == "MSGBOX_YESNO":
+            # Std_MsgboxYesNo (data/scripts/std_msgbox.inc): message, waitmessage,
+            # yesnobox 20, 8. Inlined so the box does not depend on gStdScripts,
+            # which this generator does not emit.
+            values += [0x67] + self.pointer_for_message(text) + [0x66, 0x6e, 20, 8]
+            return values
         elif msgbox_type != "MSGBOX_DEFAULT":
             raise UnsupportedScript(f"message box type {msgbox_type} is not supported")
         values += [0x67] + self.pointer_for_message(text) + [0x66, 0x6d]
@@ -526,6 +562,26 @@ class ScriptRegistry:
                     output += [0x28] + little_endian(self.resolve(args[0]), 2)
                 elif command == "textcolor" and len(args) == 1:
                     output += [0xc7, self.resolve(args[0])]
+                elif command == "copyvar" and len(args) == 2:
+                    output += [0x19] + little_endian(self.resolve(args[0]), 2) + little_endian(self.resolve(args[1]), 2)
+                elif command == "waitstate" and not args:
+                    output.append(0x27)
+                elif command == "removeobject" and len(args) == 1:
+                    output += [0x53] + little_endian(self.resolve(args[0]), 2)
+                elif command == "showmonpic" and len(args) == 3:
+                    output += [0x75] + little_endian(self.resolve(args[0]), 2)
+                    output += [self.resolve(args[1]), self.resolve(args[2])]
+                elif command == "hidemonpic" and not args:
+                    output.append(0x76)
+                elif command == "givemon" and len(args) in (2, 3):
+                    item = self.resolve(args[2]) if len(args) == 3 else self.resolve("ITEM_NONE")
+                    output += [0x79] + little_endian(self.resolve(args[0]), 2) + [self.resolve(args[1])]
+                    output += little_endian(item, 2) + [0x00] * 9
+                elif command == "bufferspeciesname" and len(args) == 2:
+                    string_vars = {"STR_VAR_1": 0, "STR_VAR_2": 1, "STR_VAR_3": 2}
+                    if args[0] not in string_vars:
+                        raise UnsupportedScript(f"string var {args[0]} is not supported")
+                    output += [0x7d, string_vars[args[0]]] + little_endian(self.resolve(args[1]), 2)
                 elif command == "signmsg" and not args:
                     output.append(0xca)
                 elif command == "normalmsg" and not args:
@@ -574,6 +630,13 @@ def collect_sources(root):
         text_sources.update(parse_labels(path, text=True))
     for path in sorted((root / "data/text").glob("**/*.inc")):
         text_sources.update(parse_labels(path, text=True))
+    # Event scripts define shared text inline (e.g. Text_GiveNicknameToThisMon)
+    # alongside their scripts; without these the message operands cannot resolve.
+    # Only labels that actually carry .string data are merged, and an existing
+    # data/text/*.inc definition wins.
+    for label, fragments in parse_labels(root / "data/event_scripts.s", text=True).items():
+        if fragments:
+            text_sources.setdefault(label, fragments)
     return script_sources, movement_sources, text_sources
 
 
