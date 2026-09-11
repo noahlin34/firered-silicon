@@ -1,6 +1,10 @@
 CC := clang
 PREPROC := tools/preproc/preproc
 
+# Including spritesheet_rules.mk below defines concrete targets; keep `all` as
+# the default goal rather than the first rule from that file.
+.DEFAULT_GOAL := all
+
 # Top-left FPS overlay in the SDL2 window (src/platform/sdl2.c). Release builds:
 #   rm -f build/native/platform/sdl2.o && make -f Makefile.native FPS_OVERLAY=0
 # Objects do not depend on CFLAGS, so the stale sdl2.o must be removed first.
@@ -12,6 +16,20 @@ CFLAGS := -Wall -Wextra -std=c11 -O2 -DPORTABLE -DMODERN=1 -DFIRERED -DENGLISH -
           -Wno-sign-compare -Wno-unknown-escape-sequence \
           $(if $(filter 1,$(FPS_OVERLAY)),-DFPS_OVERLAY,)
 LDFLAGS := $(shell /opt/homebrew/bin/sdl2-config --libs)
+
+# Canonical overworld spritesheet rules. pret's spritesheet_rules.mk gives every
+# object event sprite the -mwidth/-mheight flags its PNG layout needs; without
+# them gbagfx emits plain row-major tiles, the engine's overworld_frame() macro
+# addresses the wrong tiles, and the first frames come out blank (invisible NPCs).
+GFX := tools/gbagfx/gbagfx
+include spritesheet_rules.mk
+
+OBJ_EVENT_PICS := $(patsubst %.png,%.4bpp,$(wildcard graphics/object_events/pics/*/*.png))
+
+# Sprites with no entry in spritesheet_rules.mk (mostly single-frame misc/pokemon
+# icons) really are row-major; pret relies on this plain rule for them.
+%.4bpp: %.png
+	@$(GFX) $< $@
 
 PLATFORM_SRCS := src/platform/system.c \
                  src/platform/bios.c \
@@ -112,7 +130,7 @@ TARGET := firered-native
 
 all: assets $(TARGET)
 
-assets:
+assets: $(OBJ_EVENT_PICS)
 	@mkdir -p $(OBJ_DIR)/platform
 	@tools/gbagfx/gbagfx graphics/title_screen/border_bg.png graphics/title_screen/border_bg.4bpp
 	@tools/gbagfx/gbagfx graphics/title_screen/border_bg.4bpp graphics/title_screen/border_bg.4bpp.lz
@@ -166,9 +184,6 @@ assets:
 	@tools/gbagfx/gbagfx graphics/text_window/quest_log.png graphics/text_window/quest_log.4bpp
 	@for i in 1 2 3 4 5 6 7 8 9 10; do tools/gbagfx/gbagfx graphics/text_window/type$$i.png graphics/text_window/type$$i.4bpp; tools/gbagfx/gbagfx graphics/text_window/type$$i.png graphics/text_window/type$$i.gbapal; done
 	@for i in 0 1 2 3 4; do tools/gbagfx/gbagfx graphics/text_window/stdpal_$$i.pal graphics/text_window/stdpal_$$i.gbapal; done
-	@tools/gbagfx/gbagfx graphics/object_events/pics/people/red_normal.png graphics/object_events/pics/people/red_normal.4bpp -mwidth 2 -mheight 4
-	@tools/gbagfx/gbagfx graphics/object_events/pics/people/green_normal.png graphics/object_events/pics/people/green_normal.4bpp -mwidth 2 -mheight 4
-	@tools/gbagfx/gbagfx graphics/object_events/pics/people/mom.png graphics/object_events/pics/people/mom.4bpp -mwidth 2 -mheight 4
 	@tools/gbagfx/gbagfx graphics/cave_transition/white.pal graphics/cave_transition/white.gbapal
 	@tools/gbagfx/gbagfx graphics/cave_transition/black.pal graphics/cave_transition/black.gbapal
 	@tools/gbagfx/gbagfx graphics/cave_transition/tiles.png graphics/cave_transition/tiles.gbapal
