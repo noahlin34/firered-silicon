@@ -16,6 +16,16 @@ NATIVE_SCRIPT_ROOTS = {
     "EventScript_Dresser",
     "EventScript_Kitchen",
     "EventScript_PlayerFacingTVScreen",
+    # Pallet Town exterior: A-press interactions (the two wandering NPCs and
+    # every sign). Oak's interception cutscene is a proximity trigger that also
+    # needs door/warp/music commands, so it is not wired here.
+    "PalletTown_EventScript_FatMan",
+    "PalletTown_EventScript_OaksLabSign",
+    "PalletTown_EventScript_PlayersHouseSign",
+    "PalletTown_EventScript_RivalsHouseSign",
+    "PalletTown_EventScript_SignLady",
+    "PalletTown_EventScript_TownSign",
+    "PalletTown_EventScript_TrainerTips",
 }
 
 
@@ -119,7 +129,10 @@ def load_defines(root):
             if name in values:
                 continue
             expr = re.sub(r"\b(?:u8|u16|u32|s8|s16|s32)\b", "", expression)
-            expr = expr.replace("UL", "").replace("U", "")
+            # Strip C integer suffixes from literals only. Removing every 'U'
+            # mangles identifiers (MAX_TRAINERS_COUNT -> MAX_TRAINERS_CONT),
+            # which silently drops every constant derived from SYS_FLAGS.
+            expr = re.sub(r"\b(0[xX][0-9a-fA-F]+|\d+)[uUlL]+\b", r"\1", expr)
             names = set(re.findall(r"\b[A-Za-z_][A-Za-z0-9_]*\b", expr))
             if any(name not in values for name in names):
                 continue
@@ -141,6 +154,50 @@ def load_external_scripts(root):
     for match in re.finditer(r"\b(?:const\s+)?u8\s+([A-Za-z_][A-Za-z0-9_]*)\s*\[", path.read_text()):
         names.add(match.group(1))
     return names
+
+
+def load_movement_actions(root):
+    # asm/macros/movement.inc maps each movement mnemonic to the single
+    # MOVEMENT_ACTION_* byte the script stores.
+    actions = {}
+    path = root / "asm/macros/movement.inc"
+    for raw in path.read_text().splitlines():
+        match = re.match(r"\s*create_movement_action\s+([a-z_][a-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)", raw)
+        if match:
+            actions[match.group(1)] = match.group(2)
+    return actions
+
+
+def collect_equates(root):
+    # Map scripts define local symbols with .equ (e.g. SIGN_LADY_READY).
+    equates = {}
+    paths = sorted((root / "data/maps").glob("*/scripts.inc"))
+    paths += sorted((root / "data/scripts").glob("**/*.inc"))
+    for path in paths:
+        for raw in path.read_text().splitlines():
+            match = re.match(r"\s*\.(?:equ|set)\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*(.+?)\s*$", raw)
+            if match:
+                equates.setdefault(match.group(1), strip_comment(match.group(2)))
+    return equates
+
+
+def resolve_equates(root, constants):
+    equates = collect_equates(root)
+    for _ in range(len(equates) + 1):
+        changed = False
+        for name, expression in equates.items():
+            if name in constants:
+                continue
+            referenced = set(re.findall(r"\b[A-Za-z_][A-Za-z0-9_]*\b", expression))
+            if any(symbol not in constants for symbol in referenced):
+                continue
+            try:
+                constants[name] = int(eval(expression, {"__builtins__": {}}, constants))
+            except (SyntaxError, TypeError, ValueError, NameError, OverflowError):
+                continue
+            changed = True
+        if not changed:
+            break
 
 
 def little_endian(value, size):
@@ -180,8 +237,10 @@ class TextRegistry:
 
 
 class MovementRegistry:
-    def __init__(self, sources):
+    def __init__(self, sources, constants, actions):
         self.sources = sources
+        self.constants = constants
+        self.actions = actions
         self.generated = []
         self.seen = set()
         self.failed = {}
@@ -198,12 +257,14 @@ class MovementRegistry:
         output = []
         for line in self.sources[label]:
             command, args = split_command(line)
-            if command == "face_original_direction" and not args:
-                output.append(0x5a)
-            elif command == "step_end" and not args:
-                output.append(0xfe)
-            else:
+            if args:
+                raise UnsupportedScript(f"movement command {command} takes no arguments")
+            constant = self.actions.get(command)
+            if constant is None:
                 raise UnsupportedScript(f"movement command {command} is not supported")
+            if constant not in self.constants:
+                raise UnsupportedScript(f"movement constant {constant} is not available")
+            output.append(self.constants[constant])
         return output
 
     def emit(self, out):
@@ -443,6 +504,27 @@ class ScriptRegistry:
                             output += self.pointer_for_script(arg)
                         else:
                             output += little_endian(self.resolve(arg), 4)
+                elif command == "playse" and len(args) == 1:
+                    output += [0x2f] + little_endian(self.resolve(args[0]), 2)
+                elif command == "copyobjectxytoperm" and len(args) == 1:
+                    output += [0x64] + little_endian(self.resolve(args[0]), 2)
+                elif command == "famechecker" and len(args) in (2, 3):
+                    # famechecker person, index [, function]
+                    function = args[2] if len(args) == 3 else "SetFlavorTextFlagFromSpecialVars"
+                    special_index = self.constants.get("SPECIAL_" + function)
+                    if special_index is None:
+                        raise UnsupportedScript(f"special {function} is not available")
+                    output += [0x16] + little_endian(self.resolve("VAR_0x8004"), 2) + little_endian(self.resolve(args[0]), 2)
+                    output += [0x16] + little_endian(self.resolve("VAR_0x8005"), 2) + little_endian(self.resolve(args[1]), 2)
+                    output += [0x25] + little_endian(special_index, 2)
+                elif command == "delay" and len(args) == 1:
+                    output += [0x28] + little_endian(self.resolve(args[0]), 2)
+                elif command == "textcolor" and len(args) == 1:
+                    output += [0xc7, self.resolve(args[0])]
+                elif command == "signmsg" and not args:
+                    output.append(0xca)
+                elif command == "normalmsg" and not args:
+                    output.append(0xcb)
                 else:
                     raise UnsupportedScript(f"command {command} is not supported")
             except (IndexError, KeyError, ValueError) as error:
@@ -477,7 +559,11 @@ def collect_sources(root):
             script_sources.update(parse_labels(path))
     script_sources.update(parse_labels(root / "data/event_scripts.s"))
 
-    movement_sources = parse_labels(root / "data/scripts/movement.inc")
+    # Movement sequences live both in data/scripts/movement.inc and beside the
+    # map scripts that use them, so both sets are movement sources.
+    movement_sources = dict(script_sources)
+    movement_sources.update(parse_labels(root / "data/scripts/movement.inc"))
+
     text_sources = {}
     for path in sorted((root / "data").glob("**/text.inc")):
         text_sources.update(parse_labels(path, text=True))
@@ -589,19 +675,42 @@ def main():
 
     constants = load_defines(root)
     constants.update(collect_local_ids(root))
+    resolve_equates(root, constants)
     collect_specials(root, constants)
     script_sources, movement_sources, text_sources = collect_sources(root)
+    movement_actions = load_movement_actions(root)
+    external_scripts = load_external_scripts(root)
+
+    # Compile every requested scene on its own: one unsupported command must not
+    # take down the other scenes, and a scene that fails to compile keeps its
+    # dummy-script fallback instead of being wired into the map data.
+    compiled_roots = set()
+    for script_name in sorted(NATIVE_SCRIPT_ROOTS):
+        probe = ScriptRegistry(
+            script_sources,
+            constants,
+            TextRegistry(text_sources),
+            MovementRegistry(movement_sources, constants, movement_actions),
+            external_scripts,
+        )
+        try:
+            probe.ensure(script_name)
+        except UnsupportedScript as error:
+            print(f"gen_map_data: {script_name} left stubbed: {error}", file=sys.stderr)
+            continue
+        compiled_roots.add(script_name)
+
     text_registry = TextRegistry(text_sources)
-    movement_registry = MovementRegistry(movement_sources)
+    movement_registry = MovementRegistry(movement_sources, constants, movement_actions)
     script_registry = ScriptRegistry(
         script_sources,
         constants,
         text_registry,
         movement_registry,
-        load_external_scripts(root),
+        external_scripts,
     )
 
-    for script_name in sorted(NATIVE_SCRIPT_ROOTS):
+    for script_name in sorted(compiled_roots):
         script_registry.ensure(script_name)
     map_data = {}
     for map_name in all_map_names:
@@ -648,7 +757,7 @@ def main():
 
         def event_script(event, fallback="sDummyScript"):
             script_name = event.get("script")
-            if script_name not in NATIVE_SCRIPT_ROOTS:
+            if script_name not in compiled_roots:
                 return fallback
             return f"(const u8 *)&{script_name}"
 
