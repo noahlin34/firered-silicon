@@ -1981,8 +1981,19 @@ bool8 ScrCmd_pokemart(struct ScriptContext * ctx)
 {
     const void *ptr = (void *)ScriptReadPtr(ctx);
 
+#ifdef PORTABLE
+    // The shop/bag UI is not linked (src/shop.c needs item_menu.c and the item
+    // menu's INCBIN assets). CreatePokemartMenu is a no-op stub, so stopping
+    // the script context here would lock the field with nothing to re-enable
+    // it: the clerk would freeze the player forever on the first A-press.
+    // Report the gap and leave the script running so the clerk's dialogue
+    // completes normally instead.
+    (void)ptr;
+    fprintf(stderr, "[Script] pokemart is not ported\n");
+#else
     CreatePokemartMenu(ptr);
     ScriptContext_Stop();
+#endif
     return TRUE;
 }
 
@@ -1990,8 +2001,13 @@ bool8 ScrCmd_pokemartdecoration(struct ScriptContext * ctx)
 {
     const void *ptr = (void *)ScriptReadPtr(ctx);
 
+#ifdef PORTABLE
+    (void)ptr; // Unported shop UI; see ScrCmd_pokemart.
+    fprintf(stderr, "[Script] pokemartdecoration is not ported\n");
+#else
     CreateDecorationShop1Menu(ptr);
     ScriptContext_Stop();
+#endif
     return TRUE;
 }
 
@@ -2000,8 +2016,13 @@ bool8 ScrCmd_pokemartdecoration2(struct ScriptContext * ctx)
 {
     const void *ptr = (void *)ScriptReadPtr(ctx);
 
+#ifdef PORTABLE
+    (void)ptr; // Unported shop UI; see ScrCmd_pokemart.
+    fprintf(stderr, "[Script] pokemartdecoration2 is not ported\n");
+#else
     CreateDecorationShop2Menu(ptr);
     ScriptContext_Stop();
+#endif
     return TRUE;
 }
 
