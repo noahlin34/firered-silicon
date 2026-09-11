@@ -117,6 +117,7 @@ extern const u8 EventScript_Cabinet[];
 extern const u8 EventScript_Dresser[];
 extern const u8 EventScript_Kitchen[];
 extern const u8 EventScript_PlayerFacingTVScreen[];
+extern const u8 EventScript_CancelMessageBox[];
 extern const u8 PalletTown_PlayersHouse_1F_EventScript_TV[];
 extern const u8 PalletTown_PlayersHouse_2F_EventScript_NES[];
 extern const u8 PalletTown_PlayersHouse_2F_EventScript_Sign[];
@@ -164,6 +165,12 @@ static void TestOverworldInteractions(void)
     uint32_t nesMsgIdx = PalletTown_PlayersHouse_2F_EventScript_NES[2] | (PalletTown_PlayersHouse_2F_EventScript_NES[3] << 8) |
                          (PalletTown_PlayersHouse_2F_EventScript_NES[4] << 16) | (PalletTown_PlayersHouse_2F_EventScript_NES[5] << 24);
     assert(gNativeScriptPtrs[nesMsgIdx] != NULL);
+
+    // 5. Walk-away cancel must run the real script (special DoPicboxCancel,
+    // release, end), not the dummy `end` that left the signpost box on screen.
+    assert(EventScript_CancelMessageBox[0] == 0x25); // special
+    assert(EventScript_CancelMessageBox[3] == 0x6c); // release
+    assert(EventScript_CancelMessageBox[4] == 0x02); // end
 
     printf("[SmokeTest] All Overworld Object & Background Event Scripts verified!\n");
 }
