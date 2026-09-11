@@ -402,7 +402,9 @@ static u8 *MapHeaderGetScriptTable(u8 tag)
         if (*mapScripts == tag)
         {
             mapScripts++;
-            return T2_READ_PTR(mapScripts);
+            // Native scripts store references as u32 indices into the aligned
+            // gNativeScriptPtrs table (fix #23); resolve them here too.
+            return (u8 *)gNativeScriptPtrs[T2_READ_32(mapScripts)];
         }
         mapScripts += 5;
     }
@@ -436,10 +438,9 @@ static u8 *MapHeaderCheckScriptTable(u8 tag)
         // Read second var
         varIndex2 = T1_READ_16(ptr);
         ptr += 2;
-
-        // Run map script if vars are equal
         if (VarGet(varIndex1) == VarGet(varIndex2))
-            return T2_READ_PTR(ptr);
+            return (u8 *)gNativeScriptPtrs[T2_READ_32(ptr)];
+
         ptr += 4;
     }
 }
