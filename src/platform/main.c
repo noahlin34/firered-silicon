@@ -122,6 +122,18 @@ extern const u8 PalletTown_PlayersHouse_1F_EventScript_TV[];
 extern const u8 PalletTown_PlayersHouse_2F_EventScript_NES[];
 extern const u8 PalletTown_PlayersHouse_2F_EventScript_Sign[];
 extern const void *const gNativeScriptPtrs[];
+extern const struct MapHeader PalletTown_ProfessorOaksLab;
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Aide1[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Aide2[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Aide3[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_BulbasaurBall[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_SquirtleBall[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_CharmanderBall[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Rival[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Pokedex[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Computer[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_LeftSign[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_RightSign[];
 
 static void TestOverworldInteractions(void)
 {
@@ -171,6 +183,66 @@ static void TestOverworldInteractions(void)
     assert(EventScript_CancelMessageBox[0] == 0x25); // special
     assert(EventScript_CancelMessageBox[3] == 0x6c); // release
     assert(EventScript_CancelMessageBox[4] == 0x02); // end
+
+    // 6. Oak's Lab: every reachable A-press target must run its real script.
+    //    Oak (localId 4) stays on the dummy: he is hidden by
+    //    FLAG_HIDE_OAK_IN_HIS_LAB and his script's closure needs the unported
+    //    dex/starter-give scene.
+    {
+        const struct MapEvents *labEvents = PalletTown_ProfessorOaksLab.events;
+        assert(labEvents != NULL);
+        assert(labEvents->objectEventCount == 10);
+        assert(labEvents->bgEventCount == 4);
+
+        const u8 *const expectedObjects[] = {
+            PalletTown_ProfessorOaksLab_EventScript_Aide1,   // localId 1
+            PalletTown_ProfessorOaksLab_EventScript_Aide3,   // localId 2
+            PalletTown_ProfessorOaksLab_EventScript_Aide2,   // localId 3
+            NULL,                                            // localId 4: Oak
+            PalletTown_ProfessorOaksLab_EventScript_BulbasaurBall,  // localId 5
+            PalletTown_ProfessorOaksLab_EventScript_SquirtleBall,   // localId 6
+            PalletTown_ProfessorOaksLab_EventScript_CharmanderBall, // localId 7
+            PalletTown_ProfessorOaksLab_EventScript_Rival,          // localId 8
+            PalletTown_ProfessorOaksLab_EventScript_Pokedex,        // localId 9
+            PalletTown_ProfessorOaksLab_EventScript_Pokedex,        // localId 10
+        };
+        for (int i = 0; i < 10; i++)
+        {
+            if (expectedObjects[i] == NULL)
+                assert(labEvents->objectEvents[i].script[0] == 0x02); // sDummyScript
+            else
+                assert(labEvents->objectEvents[i].script == expectedObjects[i]);
+        }
+
+        // NPCs and the rival lock the field first; the item balls ask first.
+        assert(PalletTown_ProfessorOaksLab_EventScript_Aide1[0] == 0x6a); // lock
+        assert(PalletTown_ProfessorOaksLab_EventScript_Aide2[0] == 0x6a);
+        assert(PalletTown_ProfessorOaksLab_EventScript_Aide3[0] == 0x6a);
+        assert(PalletTown_ProfessorOaksLab_EventScript_Rival[0] == 0x6a);
+        for (int i = 4; i <= 6; i++)
+            assert(labEvents->objectEvents[i].script[0] == 0x6a); // lock
+
+        // Background events: both computer terminals and the two signs.
+        const u8 *const expectedBg[] = {
+            PalletTown_ProfessorOaksLab_EventScript_Computer,  // (2,1)
+            PalletTown_ProfessorOaksLab_EventScript_Computer,  // (3,1)
+            PalletTown_ProfessorOaksLab_EventScript_LeftSign,  // (6,1)
+            PalletTown_ProfessorOaksLab_EventScript_RightSign, // (7,1)
+        };
+        for (int i = 0; i < 4; i++)
+        {
+            assert(labEvents->bgEvents[i].bgUnion.script == expectedBg[i]);
+            assert(labEvents->bgEvents[i].bgUnion.script[0] == 0x69); // lockall
+        }
+
+        // The first aide's msgbox operand must resolve through the pointer table.
+        uint32_t aideMsgIdx = PalletTown_ProfessorOaksLab_EventScript_Aide1[12] |
+                              (PalletTown_ProfessorOaksLab_EventScript_Aide1[13] << 8) |
+                              (PalletTown_ProfessorOaksLab_EventScript_Aide1[14] << 16) |
+                              (PalletTown_ProfessorOaksLab_EventScript_Aide1[15] << 24);
+        assert(PalletTown_ProfessorOaksLab_EventScript_Aide1[11] == 0x67); // message
+        assert(gNativeScriptPtrs[aideMsgIdx] != NULL);
+    }
 
     printf("[SmokeTest] All Overworld Object & Background Event Scripts verified!\n");
 }
