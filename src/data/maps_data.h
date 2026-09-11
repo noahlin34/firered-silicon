@@ -17,6 +17,7 @@ static const u8 sDummyScript[] = { 0x02 };
 static const u8 sEmptyMapScripts[] = { 0x00 };
 extern const u8 EventScript_Bookshelf[];
 extern const u8 EventScript_Cabinet[];
+extern const u8 EventScript_CancelMessageBox[];
 extern const u8 EventScript_Dresser[];
 extern const u8 EventScript_Kitchen[];
 extern const u8 EventScript_PlayerFacingTVScreen[];
@@ -304,6 +305,10 @@ const u8 EventScript_Bookshelf[] = {
 
 const u8 EventScript_Cabinet[] = {
     0x69, 0x67, 0x01, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 EventScript_CancelMessageBox[] = {
+    0x25, 0x5a, 0x01, 0x6c, 0x02
 };
 
 const u8 EventScript_Dresser[] = {
