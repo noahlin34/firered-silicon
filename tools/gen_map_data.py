@@ -22,8 +22,7 @@ NATIVE_SCRIPT_ROOTS = {
     # stays drawn on screen.
     "EventScript_CancelMessageBox",
     # Pallet Town exterior: A-press interactions (the two wandering NPCs and
-    # every sign). Oak's interception cutscene is a proximity trigger that also
-    # needs door/warp/music commands, so it is not wired here.
+    # every sign) and Oak's northern exit interception triggers.
     "PalletTown_EventScript_FatMan",
     "PalletTown_EventScript_OaksLabSign",
     "PalletTown_EventScript_PlayersHouseSign",
@@ -31,6 +30,8 @@ NATIVE_SCRIPT_ROOTS = {
     "PalletTown_EventScript_SignLady",
     "PalletTown_EventScript_TownSign",
     "PalletTown_EventScript_TrainerTips",
+    "PalletTown_EventScript_OakTriggerLeft",
+    "PalletTown_EventScript_OakTriggerRight",
     # Oak's Lab interior: every A-press target the player can reach. The three
     # aides, the rival, the two dex units, the computer terminals, the two signs
     # and the three starter balls. Oak himself is NOT wired: he is hidden by
@@ -101,10 +102,29 @@ def parse_args(rest):
 
 def parse_labels(path, text=False):
     labels = {}
+    macros = {}
     current = None
+    current_macro = None
+    macro_lines = []
     values = []
     for raw in path.read_text().splitlines():
         line = raw.strip()
+        if not text and line.startswith(".macro"):
+            parts = line.split(None, 1)
+            current_macro = parts[1].strip() if len(parts) > 1 else ""
+            macro_lines = []
+            continue
+        if not text and line.startswith(".endm"):
+            if current_macro:
+                macros[current_macro] = macro_lines
+                current_macro = None
+                macro_lines = []
+            continue
+        if not text and current_macro is not None:
+            cleaned = strip_comment(line).strip()
+            if cleaned:
+                macro_lines.append(cleaned)
+            continue
         match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)::?\s*$", line)
         if match:
             if current is not None:
@@ -125,7 +145,9 @@ def parse_labels(path, text=False):
             # precede one must not carry it as a command.
             if line.startswith(".include"):
                 continue
-            if line:
+            if line in macros:
+                values.extend(macros[line])
+            elif line:
                 values.append(line)
     if current is not None:
         labels[current] = values
@@ -586,6 +608,49 @@ class ScriptRegistry:
                     output.append(0xca)
                 elif command == "normalmsg" and not args:
                     output.append(0xcb)
+                elif command == "playbgm" and len(args) == 2:
+                    output += [0x33] + little_endian(self.resolve(args[0]), 2) + [self.resolve(args[1])]
+                elif command == "addobject" and len(args) == 1:
+                    output += [0x55] + little_endian(self.resolve(args[0]), 2)
+                elif command == "opendoor" and len(args) == 2:
+                    output += [0xac] + little_endian(self.resolve(args[0]), 2) + little_endian(self.resolve(args[1]), 2)
+                elif command == "closedoor" and len(args) == 2:
+                    output += [0xad] + little_endian(self.resolve(args[0]), 2) + little_endian(self.resolve(args[1]), 2)
+                elif command == "waitdooranim" and not args:
+                    output.append(0xae)
+                elif command == "setworldmapflag" and len(args) == 1:
+                    output += [0xd0] + little_endian(self.resolve(args[0]), 2)
+                elif command == "setobjectxyperm" and len(args) == 3:
+                    output += [0x63] + little_endian(self.resolve(args[0]), 2) + little_endian(self.resolve(args[1]), 2) + little_endian(self.resolve(args[2]), 2)
+                elif command == "setobjectmovementtype" and len(args) == 2:
+                    output += [0x65] + little_endian(self.resolve(args[0]), 2) + [self.resolve(args[1])]
+                elif command == "specialvar" and len(args) == 2:
+                    special_index = self.constants.get("SPECIAL_" + args[1])
+                    if special_index is None:
+                        raise UnsupportedScript(f"special {args[1]} is not available")
+                    output += [0x26] + little_endian(self.resolve(args[0]), 2) + little_endian(special_index, 2)
+                elif command == "buffernumberstring" and len(args) == 2:
+                    string_vars = {"STR_VAR_1": 0, "STR_VAR_2": 1, "STR_VAR_3": 2}
+                    if args[0] not in string_vars:
+                        raise UnsupportedScript(f"string var {args[0]} is not supported")
+                    output += [0x83, string_vars[args[0]]] + little_endian(self.resolve(args[1]), 2)
+                elif command == "warp" and len(args) in (2, 3, 4):
+                    map_id = self.resolve(args[0])
+                    map_group = (map_id >> 8) & 0xff
+                    map_num = map_id & 0xff
+                    if len(args) == 3:
+                        warp_id = 0xff
+                        x = self.resolve(args[1])
+                        y = self.resolve(args[2])
+                    elif len(args) == 4:
+                        warp_id = self.resolve(args[1])
+                        x = self.resolve(args[2])
+                        y = self.resolve(args[3])
+                    else:
+                        warp_id = self.resolve(args[1])
+                        x = -1 & 0xffff
+                        y = -1 & 0xffff
+                    output += [0x39, map_group, map_num, warp_id] + little_endian(x, 2) + little_endian(y, 2)
                 else:
                     raise UnsupportedScript(f"command {command} is not supported")
             except (IndexError, KeyError, ValueError) as error:
