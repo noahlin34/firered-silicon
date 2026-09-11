@@ -1333,3 +1333,14 @@ const u8 gText_Receive[] = _("RECEIVE");
 const u8 gText_Send[] = _("SEND");
 const u8 gText_Toss[] = _("TOSS");
 const u8 gText_DelAllCancelOk[] = _("DEL. ALL{CLEAR_TO 0x57}CANCEL{CLEAR_TO 0xA4}OK");
+
+// Wireless/Cable Club menu descriptions referenced by src/script_menu.c. The
+// multichoice lists are UI-only (never opened in the ported scenes), but the
+// description table must resolve, so the pret strings live here.
+const u8 CableClub_Text_YouMayTradeHere[] = _("You may trade your POKéMON here\nwith another TRAINER.");
+const u8 CableClub_Text_YouMayBattleHere[] = _("You may battle with your friends\nhere.");
+const u8 CableClub_Text_CanMakeBerryPowder[] = _("Two to five TRAINERS can make\nBERRY POWDER together.");
+const u8 CableClub_Text_CancelSelectedItem[] = _("Cancels the selected MENU item.");
+const u8 CableClub_Text_BattleUsingLinkCable[] = _("You may battle another TRAINER\nusing a GBA Game Link cable.");
+const u8 CableClub_Text_TradeMonsUsingLinkCable[] = _("Trade POKéMON with another player\nusing a GBA Game Link cable.");
+const u8 Text_AccessWhichPC[] = _("Which PC should be accessed?");
