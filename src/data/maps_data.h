@@ -20,6 +20,20 @@ extern const u8 EventScript_Cabinet[];
 extern const u8 EventScript_Dresser[];
 extern const u8 EventScript_Kitchen[];
 extern const u8 EventScript_PlayerFacingTVScreen[];
+extern const u8 PalletTown_EventScript_FatMan[];
+extern const u8 PalletTown_EventScript_OaksLabSign[];
+extern const u8 PalletTown_EventScript_PlayersHouseSign[];
+extern const u8 PalletTown_EventScript_RivalsHouseSign[];
+static const u8 PalletTown_EventScript_SignLadyDone[];
+static const u8 PalletTown_EventScript_SignLadyJustShowedSign[];
+static const u8 PalletTown_EventScript_SignLadyShowSign[];
+static const u8 PalletTown_EventScript_SignLadyStartShowSign[];
+static const u8 PalletTown_EventScript_SignLadyGoReadSign[];
+static const u8 PalletTown_EventScript_SignLadyMoveOutOfWayRight[];
+static const u8 PalletTown_EventScript_SignLadyMoveOutOfWayLeft[];
+extern const u8 PalletTown_EventScript_SignLady[];
+extern const u8 PalletTown_EventScript_TownSign[];
+extern const u8 PalletTown_EventScript_TrainerTips[];
 extern const u8 EventScript_OutOfCenterPartyHeal[];
 static const u8 PalletTown_PlayersHouse_1F_EventScript_MomHeal[];
 static const u8 PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouMale[];
@@ -36,6 +50,19 @@ static const u8 Text_DishesPlatesNeatlyLinedUp[];
 static const u8 Text_Dresser[];
 static const u8 Text_Kitchen[];
 static const u8 Text_PlayerFacingTVScreen[];
+static const u8 PalletTown_Text_CanStoreItemsAndMonsInPC[];
+static const u8 PalletTown_Text_OakPokemonResearchLab[];
+static const u8 PalletTown_Text_PlayersHouse[];
+static const u8 PalletTown_Text_RivalsHouse[];
+static const u8 PalletTown_Text_RaisingMonsToo[];
+static const u8 PalletTown_Text_SignsAreUsefulArentThey[];
+static const u8 PalletTown_Text_LookCopiedTrainerTipsSign[];
+static const u8 PalletTown_Text_PressStartToOpenMenuCopy[];
+static const u8 PalletTown_Text_ReadItReadIt[];
+static const u8 PalletTown_Text_HmmIsThatRight[];
+static const u8 PalletTown_Text_OhLookLook[];
+static const u8 PalletTown_Text_TownSign[];
+static const u8 PalletTown_Text_PressStartToOpenMenu[];
 static const u8 PalletTown_PlayersHouse_1F_Text_YouShouldTakeQuickRest[];
 static const u8 PalletTown_PlayersHouse_1F_Text_LookingGreatTakeCare[];
 static const u8 PalletTown_PlayersHouse_1F_Text_AllBoysLeaveOakLookingForYou[];
@@ -45,6 +72,11 @@ static const u8 PalletTown_PlayersHouse_1F_Text_MovieOnTVGirlOnBrickRoad[];
 static const u8 PalletTown_PlayersHouse_1F_Text_OopsWrongSide[];
 static const u8 PalletTown_PlayersHouse_2F_Text_PlayedWithNES[];
 static const u8 PalletTown_PlayersHouse_2F_Text_PressLRForHelp[];
+static const u8 Common_Movement_FacePlayer[];
+static const u8 Common_Movement_ExclamationMark[];
+static const u8 Common_Movement_Delay48[];
+static const u8 PalletTown_Movement_SignLadyMoveOutOfWayRight[];
+static const u8 PalletTown_Movement_SignLadyMoveOutOfWayLeft[];
 static const u8 Common_Movement_FaceOriginalDirection[];
 const void *const gNativeScriptPtrs[] = {
     Text_Bookshelf,
@@ -52,6 +84,31 @@ const void *const gNativeScriptPtrs[] = {
     Text_Dresser,
     Text_Kitchen,
     Text_PlayerFacingTVScreen,
+    PalletTown_Text_CanStoreItemsAndMonsInPC,
+    PalletTown_Text_OakPokemonResearchLab,
+    PalletTown_Text_PlayersHouse,
+    PalletTown_Text_RivalsHouse,
+    Common_Movement_FacePlayer,
+    PalletTown_Text_RaisingMonsToo,
+    PalletTown_EventScript_SignLadyDone,
+    PalletTown_Text_SignsAreUsefulArentThey,
+    PalletTown_EventScript_SignLadyJustShowedSign,
+    PalletTown_Text_LookCopiedTrainerTipsSign,
+    PalletTown_Text_PressStartToOpenMenuCopy,
+    PalletTown_EventScript_SignLadyShowSign,
+    PalletTown_EventScript_SignLadyStartShowSign,
+    PalletTown_Text_ReadItReadIt,
+    PalletTown_EventScript_SignLadyGoReadSign,
+    PalletTown_Text_HmmIsThatRight,
+    Common_Movement_ExclamationMark,
+    Common_Movement_Delay48,
+    PalletTown_Text_OhLookLook,
+    PalletTown_Movement_SignLadyMoveOutOfWayRight,
+    PalletTown_EventScript_SignLadyMoveOutOfWayRight,
+    PalletTown_Movement_SignLadyMoveOutOfWayLeft,
+    PalletTown_EventScript_SignLadyMoveOutOfWayLeft,
+    PalletTown_Text_TownSign,
+    PalletTown_Text_PressStartToOpenMenu,
     PalletTown_PlayersHouse_1F_Text_YouShouldTakeQuickRest,
     EventScript_OutOfCenterPartyHeal,
     PalletTown_PlayersHouse_1F_Text_LookingGreatTakeCare,
@@ -95,6 +152,69 @@ static const u8 Text_Kitchen[] = _(
 static const u8 Text_PlayerFacingTVScreen[] = _(
     "There's a POKéMON on TV!\n"
     "It looks like it's having fun.$"
+);
+
+static const u8 PalletTown_Text_CanStoreItemsAndMonsInPC[] = _(
+    "Technology is incredible!\p"
+    "You can now store and recall items\n"
+    "and POKéMON as data via PC.$"
+);
+
+static const u8 PalletTown_Text_OakPokemonResearchLab[] = _(
+    "OAK POKéMON RESEARCH LAB$"
+);
+
+static const u8 PalletTown_Text_PlayersHouse[] = _(
+    "{PLAYER}'s house$"
+);
+
+static const u8 PalletTown_Text_RivalsHouse[] = _(
+    "{RIVAL}'s house$"
+);
+
+static const u8 PalletTown_Text_RaisingMonsToo[] = _(
+    "I'm raising POKéMON, too.\p"
+    "When they get strong, they can\n"
+    "protect me.$"
+);
+
+static const u8 PalletTown_Text_SignsAreUsefulArentThey[] = _(
+    "Signs are useful, aren't they?$"
+);
+
+static const u8 PalletTown_Text_LookCopiedTrainerTipsSign[] = _(
+    "Look, look!\p"
+    "I copied what it said on one of\n"
+    "those TRAINER TIPS signs!$"
+);
+
+static const u8 PalletTown_Text_PressStartToOpenMenuCopy[] = _(
+    "TRAINER TIPS!\p"
+    "Press START to open the MENU!$"
+);
+
+static const u8 PalletTown_Text_ReadItReadIt[] = _(
+    "Read it, read it!$"
+);
+
+static const u8 PalletTown_Text_HmmIsThatRight[] = _(
+    "Hmm…\n"
+    "Is that right…$"
+);
+
+static const u8 PalletTown_Text_OhLookLook[] = _(
+    "Oh!\n"
+    "Look, look!$"
+);
+
+static const u8 PalletTown_Text_TownSign[] = _(
+    "PALLET TOWN\n"
+    "Shades of your journey await!$"
+);
+
+static const u8 PalletTown_Text_PressStartToOpenMenu[] = _(
+    "TRAINER TIPS\p"
+    "Press START to open the MENU!$"
 );
 
 static const u8 PalletTown_PlayersHouse_1F_Text_YouShouldTakeQuickRest[] = _(
@@ -154,6 +274,26 @@ static const u8 PalletTown_PlayersHouse_2F_Text_PressLRForHelp[] = _(
     "Press the L or R Button!$"
 );
 
+static const u8 Common_Movement_FacePlayer[] = {
+    0x4a, 0xfe,
+};
+
+static const u8 Common_Movement_ExclamationMark[] = {
+    0x62, 0xfe,
+};
+
+static const u8 Common_Movement_Delay48[] = {
+    0x1c, 0x1c, 0x1c, 0xfe,
+};
+
+static const u8 PalletTown_Movement_SignLadyMoveOutOfWayRight[] = {
+    0x13, 0x2f, 0xfe,
+};
+
+static const u8 PalletTown_Movement_SignLadyMoveOutOfWayLeft[] = {
+    0x12, 0x30, 0xfe,
+};
+
 static const u8 Common_Movement_FaceOriginalDirection[] = {
     0x5a, 0xfe,
 };
@@ -178,48 +318,104 @@ const u8 EventScript_PlayerFacingTVScreen[] = {
     0x69, 0x67, 0x04, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
 };
 
+const u8 PalletTown_EventScript_FatMan[] = {
+    0x6a, 0x5a, 0x67, 0x05, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 PalletTown_EventScript_OaksLabSign[] = {
+    0x69, 0x16, 0x04, 0x80, 0x00, 0x00, 0x16, 0x05, 0x80, 0x00, 0x00, 0x25, 0x73, 0x01, 0x67, 0x06, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 PalletTown_EventScript_PlayersHouseSign[] = {
+    0x69, 0x67, 0x07, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 PalletTown_EventScript_RivalsHouseSign[] = {
+    0x69, 0x67, 0x08, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+static const u8 PalletTown_EventScript_SignLadyDone[] = {
+    0x4f, 0x01, 0x00, 0x09, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x67, 0x0a, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+static const u8 PalletTown_EventScript_SignLadyJustShowedSign[] = {
+    0x4f, 0x01, 0x00, 0x09, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x67, 0x0c, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+static const u8 PalletTown_EventScript_SignLadyShowSign[] = {
+    0xc7, 0x01, 0x67, 0x0e, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x28, 0x14, 0x00, 0xc7, 0x03, 0x29, 0x3e, 0x08, 0x16, 0x70, 0x40, 0x01, 0x00, 0x16, 0x02, 0x40, 0x00, 0x00, 0x25, 0x70, 0x01, 0x25, 0x71, 0x01, 0xca, 0x67, 0x0f, 0x00, 0x00, 0x00, 0x66, 0x6d, 0xcb, 0x03
+};
+
+static const u8 PalletTown_EventScript_SignLadyStartShowSign[] = {
+    0x4f, 0x01, 0x00, 0x09, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x04, 0x10, 0x00, 0x00, 0x00, 0x6c, 0x02
+};
+
+static const u8 PalletTown_EventScript_SignLadyGoReadSign[] = {
+    0x4f, 0x01, 0x00, 0x09, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x67, 0x12, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+static const u8 PalletTown_EventScript_SignLadyMoveOutOfWayRight[] = {
+    0x4f, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x03
+};
+
+static const u8 PalletTown_EventScript_SignLadyMoveOutOfWayLeft[] = {
+    0x4f, 0x01, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x03
+};
+
+const u8 PalletTown_EventScript_SignLady[] = {
+    0x6a, 0x21, 0x70, 0x40, 0x02, 0x00, 0x06, 0x01, 0x0b, 0x00, 0x00, 0x00, 0x21, 0x70, 0x40, 0x01, 0x00, 0x06, 0x01, 0x0d, 0x00, 0x00, 0x00, 0x21, 0x02, 0x40, 0x01, 0x00, 0x06, 0x01, 0x11, 0x00, 0x00, 0x00, 0x2b, 0x02, 0x00, 0x06, 0x01, 0x13, 0x00, 0x00, 0x00, 0x67, 0x14, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x4f, 0x01, 0x00, 0x09, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x2f, 0x15, 0x00, 0x4f, 0x01, 0x00, 0x15, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x4f, 0x01, 0x00, 0x16, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x67, 0x17, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x21, 0x0c, 0x80, 0x04, 0x00, 0x07, 0x01, 0x19, 0x00, 0x00, 0x00, 0x21, 0x0c, 0x80, 0x04, 0x00, 0x07, 0x05, 0x1b, 0x00, 0x00, 0x00, 0x64, 0x01, 0x00, 0x29, 0x02, 0x00, 0x6c, 0x02
+};
+
+const u8 PalletTown_EventScript_TownSign[] = {
+    0x69, 0x67, 0x1c, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 PalletTown_EventScript_TrainerTips[] = {
+    0x69, 0x67, 0x1d, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x16, 0x70, 0x40, 0x01, 0x00, 0x6b, 0x02
+};
+
 const u8 EventScript_OutOfCenterPartyHeal[] = {
     0x97, 0x01, 0x31, 0x00, 0x01, 0x32, 0x25, 0x00, 0x00, 0x97, 0x00, 0x03
 };
 
 static const u8 PalletTown_PlayersHouse_1F_EventScript_MomHeal[] = {
-    0x67, 0x05, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x04, 0x06, 0x00, 0x00, 0x00, 0x67, 0x07, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+    0x67, 0x1e, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x68, 0x04, 0x1f, 0x00, 0x00, 0x00, 0x67, 0x20, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
 };
 
 static const u8 PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouMale[] = {
-    0x67, 0x09, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
+    0x67, 0x22, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
 };
 
 static const u8 PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouFemale[] = {
-    0x67, 0x0b, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
+    0x67, 0x24, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
 };
 
 const u8 PalletTown_PlayersHouse_1F_EventScript_Mom[] = {
-    0x6a, 0x5a, 0x2b, 0x58, 0x02, 0x06, 0x01, 0x08, 0x00, 0x00, 0x00, 0xa0, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x07, 0x01, 0x0a, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x07, 0x01, 0x0c, 0x00, 0x00, 0x00, 0x68, 0x4f, 0x01, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x6c, 0x02
+    0x6a, 0x5a, 0x2b, 0x58, 0x02, 0x06, 0x01, 0x21, 0x00, 0x00, 0x00, 0xa0, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x07, 0x01, 0x23, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x07, 0x01, 0x25, 0x00, 0x00, 0x00, 0x68, 0x4f, 0x01, 0x00, 0x26, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x6c, 0x02
 };
 
 static const u8 PalletTown_PlayersHouse_1F_EventScript_TVScreenMale[] = {
-    0x67, 0x0e, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
+    0x67, 0x27, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
 };
 
 static const u8 PalletTown_PlayersHouse_1F_EventScript_TVScreenFemale[] = {
-    0x67, 0x10, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
+    0x67, 0x29, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x03
 };
 
 static const u8 PalletTown_PlayersHouse_1F_EventScript_TVScreen[] = {
-    0xa0, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x07, 0x01, 0x0f, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x07, 0x01, 0x11, 0x00, 0x00, 0x00, 0x6b, 0x02
+    0xa0, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x07, 0x01, 0x28, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x07, 0x01, 0x2a, 0x00, 0x00, 0x00, 0x6b, 0x02
 };
 
 const u8 PalletTown_PlayersHouse_1F_EventScript_TV[] = {
-    0x69, 0x21, 0x0c, 0x80, 0x02, 0x00, 0x06, 0x01, 0x12, 0x00, 0x00, 0x00, 0x67, 0x13, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+    0x69, 0x21, 0x0c, 0x80, 0x02, 0x00, 0x06, 0x01, 0x2b, 0x00, 0x00, 0x00, 0x67, 0x2c, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
 };
 
 const u8 PalletTown_PlayersHouse_2F_EventScript_NES[] = {
-    0x69, 0x67, 0x14, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+    0x69, 0x67, 0x2d, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
 };
 
 const u8 PalletTown_PlayersHouse_2F_EventScript_Sign[] = {
-    0x69, 0x67, 0x15, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+    0x69, 0x67, 0x2e, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
 };
 
 static const struct ObjectEventTemplate BattleColosseum_2P_ObjectEvents[] = {
@@ -26502,7 +26698,7 @@ static const struct ObjectEventTemplate PalletTown_ObjectEvents[] = {
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_EventScript_SignLady,
         .flagId = 0,
     },
     {
@@ -26521,7 +26717,7 @@ static const struct ObjectEventTemplate PalletTown_ObjectEvents[] = {
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_EventScript_FatMan,
         .flagId = 0,
     },
     {
@@ -26605,35 +26801,35 @@ static const struct BgEvent PalletTown_BgEvents[] = {
         .y = 16,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_EventScript_OaksLabSign },
     },
     {
         .x = 4,
         .y = 7,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_EventScript_PlayersHouseSign },
     },
     {
         .x = 13,
         .y = 7,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_EventScript_RivalsHouseSign },
     },
     {
         .x = 9,
         .y = 11,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_EventScript_TownSign },
     },
     {
         .x = 5,
         .y = 14,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_EventScript_TrainerTips },
     },
 };
 
