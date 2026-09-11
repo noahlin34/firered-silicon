@@ -71,6 +71,7 @@ u8 GetRegisteredQuestLogInput(void);
 void ResetFacingNpcOrSignpostVars(void);
 bool8 CanWalkAwayToCancelMsgBox(void);
 void SetWalkingIntoSignVars(void);
+void DisableMsgBoxWalkaway(void);
 bool8 IsMsgBoxWalkawayDisabled(void);
 
 extern const u8 *gRamScriptRetAddr;
