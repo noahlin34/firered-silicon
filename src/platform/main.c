@@ -139,6 +139,41 @@ extern const u8 PalletTown_ProfessorOaksLab_ChooseStarterScene[];
 extern const struct MapHeader PalletTown;
 extern const u8 PalletTown_EventScript_OakTriggerLeft[];
 extern const u8 PalletTown_EventScript_OakTriggerRight[];
+extern const struct MapHeader ViridianCity_Mart;
+extern const struct MapHeader ViridianCity;
+extern const struct MapHeader Route1;
+extern const u8 ViridianCity_Mart_OnLoad[];
+extern const u8 ViridianCity_Mart_EventScript_ParcelScene[];
+extern const u8 ViridianCity_Mart_EventScript_Clerk[];
+extern const u8 ViridianCity_Mart_EventScript_HideQuestionnaire[];
+extern const u8 ViridianCity_Mart_Items[];
+extern const u8 ViridianCity_EventScript_RoadBlocked[];
+extern const u8 ViridianCity_EventScript_CitySign[];
+extern const u8 Route1_EventScript_MartClerk[];
+extern const u8 Route1_EventScript_RouteSign[];
+
+// Native script arrays are emitted without a public length. These smoke
+// checks only need to locate a short opcode sequence inside a small script, so
+// a bounded scan is enough and avoids exporting sizes from the generator.
+static int FindScriptPattern(const u8 *script, const u8 *pattern, int patternLen)
+{
+    const int maxScan = 512;
+    for (int i = 0; i < maxScan; i++)
+    {
+        int match = 1;
+        for (int j = 0; j < patternLen; j++)
+        {
+            if (script[i + j] != pattern[j])
+            {
+                match = 0;
+                break;
+            }
+        }
+        if (match)
+            return i;
+    }
+    return -1;
+}
 
 static void TestOverworldInteractions(void)
 {
@@ -290,6 +325,84 @@ static void TestOverworldInteractions(void)
         const u8 *oakTriggerScript = (const u8 *)gNativeScriptPtrs[triggerIdx];
         assert(oakTriggerScript != NULL);
         assert(oakTriggerScript[0] == 0x16); // setvar (famechecker)
+    }
+
+    // 8. Oak's Parcel chain: the Mart's ON_LOAD/ON_FRAME header tables must be
+    //    compiled (they are what hands over ITEM_OAKS_PARCEL and advances the
+    //    lab scene to 5), and the route/city A-press targets must be real.
+    {
+        const u8 *martMapScripts = ViridianCity_Mart.mapScripts;
+        assert(martMapScripts != NULL);
+        assert(martMapScripts[0] == 0x01);  // MAP_SCRIPT_ON_LOAD
+        assert(martMapScripts[5] == 0x02);  // MAP_SCRIPT_ON_FRAME_TABLE
+
+        uint32_t onLoadIdx = martMapScripts[1] | (martMapScripts[2] << 8) |
+                             (martMapScripts[3] << 16) | (martMapScripts[4] << 24);
+        assert(gNativeScriptPtrs[onLoadIdx] == ViridianCity_Mart_OnLoad);
+
+        uint32_t onFrameIdx = martMapScripts[6] | (martMapScripts[7] << 8) |
+                              (martMapScripts[8] << 16) | (martMapScripts[9] << 24);
+        const u8 *martOnFrame = (const u8 *)gNativeScriptPtrs[onFrameIdx];
+        assert(martOnFrame != NULL);
+        // map_script_2 VAR_MAP_SCENE_VIRIDIAN_CITY_MART, 0, ParcelScene
+        assert(martOnFrame[0] == 0x57 && martOnFrame[1] == 0x40);
+        assert(martOnFrame[2] == 0x00 && martOnFrame[3] == 0x00);
+        uint32_t parcelIdx = martOnFrame[4] | (martOnFrame[5] << 8) |
+                             (martOnFrame[6] << 16) | (martOnFrame[7] << 24);
+        assert(gNativeScriptPtrs[parcelIdx] == ViridianCity_Mart_EventScript_ParcelScene);
+
+        // The parcel scene hands over the parcel and advances Oak's lab scene
+        // to 5 (setvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 5) before
+        // releaseall/end.
+        assert(ViridianCity_Mart_EventScript_ParcelScene[0] == 0x69); // lockall
+        {
+            const u8 labSceneVar5[] = { 0x16, 0x55, 0x40, 0x05, 0x00 };
+            assert(FindScriptPattern(ViridianCity_Mart_EventScript_ParcelScene,
+                                     labSceneVar5, sizeof(labSceneVar5)) >= 0);
+            const u8 giveParcel[] = { 0x44, 0x5d, 0x01, 0x01, 0x00 };
+            assert(FindScriptPattern(ViridianCity_Mart_EventScript_ParcelScene,
+                                     giveParcel, sizeof(giveParcel)) >= 0);
+        }
+
+        // ON_LOAD hides the questionnaire counter via setmetatile (0xa2).
+        assert(ViridianCity_Mart_EventScript_HideQuestionnaire[0] == 0xa2);
+
+        // The clerk's pokemart operand is the item list, which must start with
+        // real items and terminate with ITEM_NONE.
+        assert(ViridianCity_Mart_EventScript_Clerk[0] == 0x6a); // lock
+        int clerkPokemart = -1;
+        for (int i = 0; i < 512; i++)
+        {
+            if (ViridianCity_Mart_EventScript_Clerk[i] == 0x86) // pokemart
+            {
+                clerkPokemart = i;
+                break;
+            }
+        }
+        assert(clerkPokemart >= 0);
+        uint32_t itemsIdx = ViridianCity_Mart_EventScript_Clerk[clerkPokemart + 1] |
+                            (ViridianCity_Mart_EventScript_Clerk[clerkPokemart + 2] << 8) |
+                            (ViridianCity_Mart_EventScript_Clerk[clerkPokemart + 3] << 16) |
+                            (ViridianCity_Mart_EventScript_Clerk[clerkPokemart + 4] << 24);
+        assert(gNativeScriptPtrs[itemsIdx] == ViridianCity_Mart_Items);
+        // ITEM_POKE_BALL, ITEM_POTION, ITEM_ANTIDOTE, ITEM_PARALYZE_HEAL, ITEM_NONE
+        assert(ViridianCity_Mart_Items[0] == 0x04 && ViridianCity_Mart_Items[1] == 0x00);
+        assert(ViridianCity_Mart_Items[2] == 0x0d && ViridianCity_Mart_Items[3] == 0x00);
+        assert(ViridianCity_Mart_Items[8] == 0x00 && ViridianCity_Mart_Items[9] == 0x00);
+
+        // Viridian City's ON_TRANSITION places the tutorial old man; its signs,
+        // the road-block trigger and the free-Potion clerk are all real.
+        const u8 *cityMapScripts = ViridianCity.mapScripts;
+        assert(cityMapScripts != NULL);
+        assert(cityMapScripts[0] == 0x03); // MAP_SCRIPT_ON_TRANSITION
+        assert(ViridianCity.events->coordEventCount == 4);
+        assert(ViridianCity.events->coordEvents[0].script == ViridianCity_EventScript_RoadBlocked);
+        assert(ViridianCity_EventScript_RoadBlocked[0] == 0x69); // lockall
+        assert(ViridianCity.events->bgEvents[3].bgUnion.script == ViridianCity_EventScript_CitySign);
+
+        assert(Route1.mapScripts != NULL);
+        assert(Route1_EventScript_MartClerk[0] == 0x6a); // lock
+        assert(Route1_EventScript_RouteSign[0] == 0x69); // lockall
     }
 
     printf("[SmokeTest] All Overworld Object & Background Event Scripts verified!\n");
