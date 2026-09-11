@@ -91,6 +91,7 @@ ENGINE_SRCS := src/main.c \
                src/wild_encounter.c \
                src/field_message_box.c \
                src/coord_event_weather.c \
+               src/trainer_pokemon_sprites.c \
                src/new_game.c
 
 PREPROC_SRCS := src/title_screen.c \
@@ -120,7 +121,8 @@ PREPROC_SRCS := src/title_screen.c \
                 src/field_effect.c \
                 src/field_door.c \
                 src/maps.c \
-                src/scrcmd.c
+                src/scrcmd.c \
+                src/script_menu.c
 OBJ_DIR := build/native
 OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
 
@@ -163,6 +165,10 @@ assets: $(OBJ_EVENT_PICS)
 	@tools/gbagfx/gbagfx graphics/text_window/unused.png graphics/text_window/unused.4bpp
 	@tools/gbagfx/gbagfx graphics/text_window/menu_message.png graphics/text_window/menu_message.4bpp
 	@tools/gbagfx/gbagfx graphics/interface/std_menu.pal graphics/interface/std_menu.gbapal
+	@tools/gbagfx/gbagfx graphics/script_menu/aerodactyl_fossil.png graphics/script_menu/aerodactyl_fossil.4bpp
+	@tools/gbagfx/gbagfx graphics/script_menu/aerodactyl_fossil.png graphics/script_menu/aerodactyl_fossil.gbapal
+	@tools/gbagfx/gbagfx graphics/script_menu/kabutops_fossil.png graphics/script_menu/kabutops_fossil.4bpp
+	@tools/gbagfx/gbagfx graphics/script_menu/kabutops_fossil.png graphics/script_menu/kabutops_fossil.gbapal
 	@tools/gbagfx/gbagfx graphics/fonts/down_arrows.png graphics/fonts/down_arrows.4bpp
 	@tools/gbagfx/gbagfx graphics/fonts/down_arrow_3.png graphics/fonts/down_arrow_3.4bpp
 	@tools/gbagfx/gbagfx graphics/fonts/down_arrow_4.png graphics/fonts/down_arrow_4.4bpp
@@ -298,6 +304,9 @@ $(OBJ_DIR)/field_door.o: src/field_door.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
 $(OBJ_DIR)/scrcmd.o: src/scrcmd.c
+	@mkdir -p $(dir $@)
+	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(OBJ_DIR)/script_menu.o: src/script_menu.c
 	@mkdir -p $(dir $@)
 	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
 
