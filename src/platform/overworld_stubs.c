@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "global.h"
 #include "task.h"
 #include "sprite.h"
@@ -10,6 +12,8 @@
 #include "overworld.h"
 #include "field_control_avatar.h"
 #include "fame_checker.h"
+#include "event_data.h"
+#include "script.h"
 
 static const u8 sDummyScript[] = { 0x02 };
 
@@ -271,8 +275,54 @@ static u16 NativeSpecial_HealPlayerParty(void)
     return 0;
 }
 
+static u16 NativeSpecial_SetWalkingIntoSignVars(void)
+{
+    SetWalkingIntoSignVars();
+    return 0;
+}
+
+static u16 NativeSpecial_DisableMsgBoxWalkaway(void)
+{
+    DisableMsgBoxWalkaway();
+    return 0;
+}
+
+/* The fame checker UI is not ported, but the save data it edits is plain
+ * state. Both functions mirror src/fame_checker.c so that a save started in
+ * the native port carries the same fame checker bookkeeping. */
+static void NativeUpdatePickStateFromSpecialVar8005(void)
+{
+    if (gSpecialVar_0x8004 < NUM_FAMECHECKER_PERSONS && gSpecialVar_0x8005 < 3)
+    {
+        if (gSpecialVar_0x8005 == FCPICKSTATE_NO_DRAW)
+            return;
+        if (gSpecialVar_0x8005 == FCPICKSTATE_SILHOUETTE
+            && gSaveBlock1Ptr->fameChecker[gSpecialVar_0x8004].pickState == FCPICKSTATE_COLORED)
+            return;
+        gSaveBlock1Ptr->fameChecker[gSpecialVar_0x8004].pickState = gSpecialVar_0x8005;
+    }
+}
+
+static u16 NativeSpecial_SetFlavorTextFlagFromSpecialVars(void)
+{
+    if (gSpecialVar_0x8004 < NUM_FAMECHECKER_PERSONS && gSpecialVar_0x8005 < 6)
+    {
+        gSaveBlock1Ptr->fameChecker[gSpecialVar_0x8004].flavorTextFlags |= (1 << gSpecialVar_0x8005);
+        gSpecialVar_0x8005 = FCPICKSTATE_SILHOUETTE;
+        NativeUpdatePickStateFromSpecialVar8005();
+    }
+    return 0;
+}
+
+/* Index-aligned with data/specials.inc: the u16 operands emitted by
+ * tools/gen_map_data.py are positions in that table. Specials that are not
+ * ported keep a NULL entry, which ScrCmd_special reports instead of calling
+ * through a NULL pointer. */
 u16 (*const gSpecials[])(void) = {
-    NativeSpecial_HealPlayerParty,
+    [0]   = NativeSpecial_HealPlayerParty,
+    [368] = NativeSpecial_SetWalkingIntoSignVars,
+    [369] = NativeSpecial_DisableMsgBoxWalkaway,
+    [371] = NativeSpecial_SetFlavorTextFlagFromSpecialVars,
 };
 u16 (*const *gSpecialsEnd)(void) = gSpecials + ARRAY_COUNT(gSpecials);
 const u8 *const gStdScripts[] = { NULL };
