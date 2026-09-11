@@ -53,10 +53,27 @@ NATIVE_SCRIPT_ROOTS = {
     "PalletTown_ProfessorOaksLab_EventScript_BulbasaurBall",
     "PalletTown_ProfessorOaksLab_EventScript_SquirtleBall",
     "PalletTown_ProfessorOaksLab_EventScript_CharmanderBall",
+    # Lab starter-scene closure. Oak's A-press script plus the
+    # ON_TRANSITION/ON_WARP/ON_FRAME header tables (parsed separately below)
+    # run the whole choose-a-starter flow: the interception cutscene leaves
+    # the scene var at 1 and ON_FRAME then fires ChooseStarterScene, which
+    # walks Oak to the dex desk and hands control to the player.
+    # The _MapScripts header table itself is compiled by MapScriptRegistry
+    # (below), not by ScriptRegistry; it is listed here so main() parses it.
+    "PalletTown_ProfessorOaksLab_MapScripts",
+    "PalletTown_ProfessorOaksLab_EventScript_ReadyPlayerForStarterScene",
+    "PalletTown_ProfessorOaksLab_ChooseStarterScene",
+    "PalletTown_ProfessorOaksLab_EventScript_LeaveStarterSceneTrigger",
+    "PalletTown_ProfessorOaksLab_EventScript_ProfOak",
+    "PalletTown_ProfessorOaksLab_EventScript_ConfirmStarterChoice",
+    "PalletTown_ProfessorOaksLab_EventScript_ChoseStarter",
+    "PalletTown_ProfessorOaksLab_EventScript_RivalPicksStarter",
+    "PalletTown_ProfessorOaksLab_EventScript_ReadyEndSignLadyScene",
+    "EventScript_GiveNicknameToStarter",
+    "PalletTown_ProfessorOaksLab_EventScript_LastPokeBall",
 }
 
 
-# data/maps/*/map.json connection directions -> CONNECTION_* constants.
 CONNECTION_DIRECTIONS = {
     "up": "CONNECTION_NORTH",
     "down": "CONNECTION_SOUTH",
@@ -125,7 +142,7 @@ def parse_labels(path, text=False):
             if cleaned:
                 macro_lines.append(cleaned)
             continue
-        match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)::?\s*$", line)
+        match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*):{1,2}(?:\s*@.*)?$", line)
         if match:
             if current is not None:
                 labels[current] = values
@@ -255,6 +272,16 @@ def resolve_equates(root, constants):
             changed = True
         if not changed:
             break
+
+
+def resolve_map_script_constant(constants, name):
+    value = constants.get(name)
+    if value is None:
+        try:
+            return int(name, 0)
+        except ValueError:
+            raise UnsupportedScript(f"map script constant {name} is not available")
+    return value
 
 
 def little_endian(value, size):
@@ -410,8 +437,8 @@ class ScriptRegistry:
         return [opcode, condition] + self.pointer_for_script(destination)
 
     def compare_branch(self, opcode, condition, left, right, destination):
-        left_value = self.resolve(left)
-        right_value = self.resolve(right)
+        left_value = self.resolve(left) if isinstance(left, str) else left
+        right_value = self.resolve(right) if isinstance(right, str) else right
         left_is_var = left_value >= 0x4000
         right_is_var = right_value >= 0x4000
         if left_is_var and right_is_var:
@@ -582,6 +609,12 @@ class ScriptRegistry:
                     output += [0x25] + little_endian(special_index, 2)
                 elif command == "delay" and len(args) == 1:
                     output += [0x28] + little_endian(self.resolve(args[0]), 2)
+                elif command == "turnobject" and len(args) == 2:
+                    output += [0x5b] + little_endian(self.resolve(args[0]), 2) + [self.resolve(args[1])]
+                elif command == "savebgm" and len(args) == 1:
+                    output += [0x34] + little_endian(self.resolve(args[0]), 2)
+                elif command == "fadedefaultbgm" and not args:
+                    output.append(0x35)
                 elif command == "textcolor" and len(args) == 1:
                     output += [0xc7, self.resolve(args[0])]
                 elif command == "copyvar" and len(args) == 2:
@@ -647,10 +680,65 @@ class ScriptRegistry:
                         x = self.resolve(args[2])
                         y = self.resolve(args[3])
                     else:
-                        warp_id = self.resolve(args[1])
-                        x = -1 & 0xffff
-                        y = -1 & 0xffff
+                        raise UnsupportedScript("warp with explicit warp id is not supported")
                     output += [0x39, map_group, map_num, warp_id] + little_endian(x, 2) + little_endian(y, 2)
+                elif command == "checkitem" and len(args) in (1, 2):
+                    quantity = self.resolve(args[1]) if len(args) == 2 else 1
+                    output += [0x47] + little_endian(self.resolve(args[0]), 2) + little_endian(quantity, 2)
+                elif command == "additem" and len(args) in (1, 2):
+                    quantity = self.resolve(args[1]) if len(args) == 2 else 1
+                    output += [0x44] + little_endian(self.resolve(args[0]), 2) + little_endian(quantity, 2)
+                elif command == "removeitem" and len(args) in (1, 2):
+                    quantity = self.resolve(args[1]) if len(args) == 2 else 1
+                    output += [0x45] + little_endian(self.resolve(args[0]), 2) + little_endian(quantity, 2)
+                elif command == "goto_if_questlog" and len(args) == 1:
+                    # asm/macros/event.inc: special GetQuestLogState,
+                    # compare VAR_RESULT, 2, goto_if_eq dest.
+                    special_index = self.constants.get("SPECIAL_GetQuestLogState")
+                    if special_index is None:
+                        raise UnsupportedScript("special GetQuestLogState is not available")
+                    output += [0x26] + little_endian(self.resolve("VAR_RESULT"), 2) + little_endian(special_index, 2)
+                    output += self.compare_branch(0x06, 1, "VAR_RESULT", 2, args[0])
+                elif command == "compare" and len(args) == 2:
+                    # asm/macros/event.inc: compare_var_to_var when the right
+                    # side is a var/special, else compare_var_to_value.
+                    right = self.resolve(args[1])
+                    if right >= 0x4000:
+                        output += [0x22] + little_endian(self.resolve(args[0]), 2) + little_endian(right, 2)
+                    else:
+                        output += [0x21] + little_endian(self.resolve(args[0]), 2) + little_endian(right, 2)
+                elif command == "map_script_2" and len(args) == 3:
+                    # Conditional-entry sub-table (ON_WARP_INTO_MAP_TABLE /
+                    # ON_FRAME_TABLE) referenced by a map_script header entry.
+                    var = resolve_map_script_constant(self.constants, args[0])
+                    compare = resolve_map_script_constant(self.constants, args[1])
+                    self.ensure(args[2])
+                    output += little_endian(var, 2) + little_endian(compare, 2)
+                    output += self.pointer_bytes(args[2])
+                elif command == ".2byte" and args == ["0"]:
+                    output.append(0x00)  # sub-table terminator
+                elif command == "giveitem_msg" and len(args) in (2, 3, 4):
+                    # asm/macros/event.inc: additem + loadword + three
+                    # setorcopyvar + callstd STD_RECEIVED_ITEM. The std script
+                    # (Std_ReceivedItem) is not compiled natively, so the
+                    # closure is inlined: fanfare, message, wait, waitfanfare,
+                    # restore text color.
+                    amount = self.resolve(args[2]) if len(args) >= 3 else 1
+                    fanfare = self.resolve(args[3]) if len(args) == 4 else self.resolve("MUS_LEVEL_UP")
+                    output += [0x44] + little_endian(self.resolve(args[1]), 2) + little_endian(amount, 2)
+                    output += [0x0f, 0x00] + self.pointer_for_message(args[0])
+                    output += [0x1a] + little_endian(self.resolve("VAR_0x8000"), 2) + little_endian(self.resolve(args[1]), 2)
+                    output += [0x1a] + little_endian(self.resolve("VAR_0x8001"), 2) + little_endian(amount, 2)
+                    output += [0x1a] + little_endian(self.resolve("VAR_0x8002"), 2) + little_endian(fanfare, 2)
+                    if fanfare == self.resolve("MUS_LEVEL_UP"):
+                        output += [0x31] + little_endian(self.resolve("MUS_LEVEL_UP"), 2)
+                    elif fanfare == self.resolve("MUS_OBTAIN_KEY_ITEM"):
+                        output += [0x31] + little_endian(self.resolve("MUS_OBTAIN_KEY_ITEM"), 2)
+                    else:
+                        raise UnsupportedScript(f"giveitem_msg fanfare {fanfare} is not supported")
+                    output += [0x67] + self.pointer_for_message(args[0]) + [0x66, 0x32]
+                    # call EventScript_RestorePrevTextColor
+                    output += [0x04] + self.pointer_for_script("EventScript_RestorePrevTextColor")
                 else:
                     raise UnsupportedScript(f"command {command} is not supported")
             except (IndexError, KeyError, ValueError) as error:
@@ -675,6 +763,43 @@ class ScriptRegistry:
             out.write(f"    {expression},\n")
         out.write("};\n\n")
 
+
+class MapScriptRegistry:
+    """Compiles map_script/map_script_2 header tables into native C.
+
+    GBA assemblers emit the script pointer inside a packed `.4byte`; on the
+    host those bytes must resolve through the aligned gNativeScriptPtrs table
+    (see fix #23), so the table is emitted as a u8 array too. The pointer
+    indices come from the script registry's shared table, and the referenced
+    labels are ensured there as plain scripts.
+    """
+
+    def __init__(self, script_registry):
+        self.scripts = script_registry
+        self.generated = []
+
+    def compile(self, map_name, map_scripts):
+        """map_scripts: list of (tag, label) plain entries and
+        ('table', var, compare, label) conditional entries, in source order."""
+        output = []
+        for entry in map_scripts:
+            if entry[0] == "table":
+                _, var, compare, label = entry
+                output += little_endian(var, 2)
+                output += little_endian(compare, 2)
+                output += self.scripts.pointer_bytes(label)
+            else:
+                tag, label = entry
+                output.append(tag)
+                output += self.scripts.pointer_bytes(label)
+        output.append(0x00)
+        self.generated.append((f"{map_name}_MapScripts", output))
+
+    def emit(self, out):
+        for name, values in self.generated:
+            out.write(f"static const u8 {name}[] = {{\n")
+            out.write("    " + ", ".join(f"0x{value:02x}" for value in values) + "\n")
+            out.write("};\n\n")
 
 def collect_sources(root):
     script_sources = {}
@@ -819,6 +944,8 @@ def main():
     # dummy-script fallback instead of being wired into the map data.
     compiled_roots = set()
     for script_name in sorted(NATIVE_SCRIPT_ROOTS):
+        if script_name.endswith("_MapScripts"):
+            continue  # compiled by MapScriptRegistry below
         probe = ScriptRegistry(
             script_sources,
             constants,
@@ -833,6 +960,50 @@ def main():
             continue
         compiled_roots.add(script_name)
 
+    # Map script header tables (map_script / map_script_2) for maps whose
+    # events were compiled natively. Parsed from each map's scripts.inc after
+    map_script_tables = {}
+    for script_name in sorted(NATIVE_SCRIPT_ROOTS):
+        if not script_name.endswith("_MapScripts"):
+            continue
+        map_name = script_name[:-len("_MapScripts")]
+        map_scripts_path = root / f"data/maps/{map_name}/scripts.inc"
+        if not map_scripts_path.exists():
+            print(f"gen_map_data: {script_name} left stubbed: no scripts.inc", file=sys.stderr)
+            continue
+        entries = []
+        ok = True
+        in_table = False
+        for raw in map_scripts_path.read_text().splitlines():
+            line = strip_comment(raw).strip()
+            if not in_table:
+                if line.startswith(script_name + "::"):
+                    in_table = True
+                continue
+            if re.match(r"^[A-Za-z_][A-Za-z0-9_]*::", line) or not line:
+                break  # next label: table ended
+            if line.startswith("."):
+                if line == ".byte 0":
+                    break  # explicit terminator
+                continue  # .equ and friends
+            command, args = split_command(line)
+            try:
+                if command == "map_script" and len(args) == 2:
+                    tag = resolve_map_script_constant(constants, args[0])
+                    entries.append((tag, args[1]))
+                elif command == "map_script_2" and len(args) == 3:
+                    var = resolve_map_script_constant(constants, args[0])
+                    compare = resolve_map_script_constant(constants, args[1])
+                    entries.append(("table", var, compare, args[2]))
+                else:
+                    raise UnsupportedScript(f"unsupported map script line: {line}")
+            except UnsupportedScript as error:
+                print(f"gen_map_data: {script_name} left stubbed: {error}", file=sys.stderr)
+                ok = False
+                break
+        if ok:
+            map_script_tables[map_name] = entries
+
     text_registry = TextRegistry(text_sources)
     movement_registry = MovementRegistry(movement_sources, constants, movement_actions)
     script_registry = ScriptRegistry(
@@ -845,6 +1016,16 @@ def main():
 
     for script_name in sorted(compiled_roots):
         script_registry.ensure(script_name)
+    map_script_registry = MapScriptRegistry(script_registry)
+    for map_name, entries in map_script_tables.items():
+        try:
+            for entry in entries:
+                label = entry[3] if entry[0] == "table" else entry[1]
+                script_registry.ensure(label)
+            map_script_registry.compile(map_name, entries)
+        except UnsupportedScript as error:
+            print(f"gen_map_data: {map_name}_MapScripts left stubbed: {error}", file=sys.stderr)
+
     map_data = {}
     for map_name in all_map_names:
         map_path = root / f"data/maps/{map_name}/map.json"
@@ -869,9 +1050,8 @@ def main():
         f.write('#include "constants/event_bg.h"\n')
         f.write("static const u8 sDummyScript[] = { 0x02 };\n")
         f.write("static const u8 sEmptyMapScripts[] = { 0x00 };\n")
-
-        for name in sorted(script_registry.external_references):
-            f.write(f"extern const u8 {name}[];\n")
+        for name in movement_registry.generated:
+            f.write(f"static const u8 {name}[];\n")
         if script_registry.external_references:
             f.write("\n")
         for name in script_registry.generated:
@@ -887,6 +1067,7 @@ def main():
         text_registry.emit(f)
         movement_registry.emit(f)
         script_registry.emit(f)
+        map_script_registry.emit(f)
 
         def event_script(event, fallback="sDummyScript"):
             script_name = event.get("script")
@@ -1005,7 +1186,6 @@ def main():
                 f.write(f"    .coordEvents = {'&' + map_name + '_CoordEvents[0]' if coord_events else 'NULL'},\n")
                 f.write(f"    .bgEvents = {'&' + map_name + '_BgEvents[0]' if bg_events else 'NULL'},\n")
                 f.write("};\n\n")
-
             layout_id = m.get('layout', 'LAYOUT_PALLET_TOWN_PLAYERS_HOUSE_2F')
             layout_name = layout_id_to_name.get(layout_id, "PalletTown_PlayersHouse_2F_Layout")
             f.write(f"extern const struct MapLayout {layout_name};\n")
@@ -1015,7 +1195,8 @@ def main():
             f.write(f"const struct MapHeader {map_name} = {{\n")
             f.write(f"    .mapLayout = &{layout_name},\n")
             f.write(f"    .events = &{ev_name}_MapEvents,\n")
-            f.write("    .mapScripts = sEmptyMapScripts,\n")
+            map_scripts_name = f"{map_name}_MapScripts" if map_name in map_script_tables else "sEmptyMapScripts"
+            f.write(f"    .mapScripts = {map_scripts_name},\n")
             f.write(f"    .connections = {connections_name},\n")
             f.write(f"    .music = {m.get('music', 'MUS_PALLET')},\n")
             f.write(f"    .mapLayoutId = {layout_id},\n")
