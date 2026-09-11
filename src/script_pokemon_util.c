@@ -47,8 +47,8 @@ void HealPlayerParty(void)
     }
 }
 
-// Party selection and egg-giving scenes are not linked by the native host yet.
-#ifndef PORTABLE
+// Egg-giving scenes are not linked by the native host yet; ScriptGiveMon is
+// required by Oak's Lab starter-give script.
 u8 ScriptGiveMon(u16 species, u8 level, u16 item, u32 unused1, u32 unused2, u8 unused3)
 {
     u16 nationalDexNum;
@@ -76,6 +76,8 @@ u8 ScriptGiveMon(u16 species, u8 level, u16 item, u32 unused1, u32 unused2, u8 u
     return sentToPc;
 }
 
+// Egg-giving and party-selection helpers stay out of the native host build.
+#ifndef PORTABLE
 u8 ScriptGiveEgg(u16 species)
 {
     struct Pokemon *mon = AllocZeroed(sizeof(struct Pokemon));
@@ -217,4 +219,6 @@ void ReducePlayerPartyToThree(void)
     CalculatePlayerPartyCount();
     Free(party);
 }
+
 #endif
+
