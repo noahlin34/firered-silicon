@@ -134,6 +134,9 @@ extern const u8 PalletTown_ProfessorOaksLab_EventScript_Pokedex[];
 extern const u8 PalletTown_ProfessorOaksLab_EventScript_Computer[];
 extern const u8 PalletTown_ProfessorOaksLab_EventScript_LeftSign[];
 extern const u8 PalletTown_ProfessorOaksLab_EventScript_RightSign[];
+extern const struct MapHeader PalletTown;
+extern const u8 PalletTown_EventScript_OakTriggerLeft[];
+extern const u8 PalletTown_EventScript_OakTriggerRight[];
 
 static void TestOverworldInteractions(void)
 {
@@ -242,6 +245,28 @@ static void TestOverworldInteractions(void)
                               (PalletTown_ProfessorOaksLab_EventScript_Aide1[15] << 24);
         assert(PalletTown_ProfessorOaksLab_EventScript_Aide1[11] == 0x67); // message
         assert(gNativeScriptPtrs[aideMsgIdx] != NULL);
+    }
+
+    // 7. Check Pallet Town Coord Events (Oak exit interception triggers)
+    {
+        const struct MapEvents *ptEvents = PalletTown.events;
+        assert(ptEvents != NULL);
+        assert(ptEvents->coordEventCount == 3);
+        assert(ptEvents->coordEvents[0].x == 12 && ptEvents->coordEvents[0].y == 1);
+        assert(ptEvents->coordEvents[0].script == PalletTown_EventScript_OakTriggerLeft);
+        assert(ptEvents->coordEvents[0].script[0] == 0x69); // lockall
+
+        assert(ptEvents->coordEvents[1].x == 13 && ptEvents->coordEvents[1].y == 1);
+        assert(ptEvents->coordEvents[1].script == PalletTown_EventScript_OakTriggerRight);
+        assert(ptEvents->coordEvents[1].script[0] == 0x69); // lockall
+
+        uint32_t triggerIdx = PalletTown_EventScript_OakTriggerLeft[7] |
+                              (PalletTown_EventScript_OakTriggerLeft[8] << 8) |
+                              (PalletTown_EventScript_OakTriggerLeft[9] << 16) |
+                              (PalletTown_EventScript_OakTriggerLeft[10] << 24);
+        const u8 *oakTriggerScript = (const u8 *)gNativeScriptPtrs[triggerIdx];
+        assert(oakTriggerScript != NULL);
+        assert(oakTriggerScript[0] == 0x16); // setvar (famechecker)
     }
 
     printf("[SmokeTest] All Overworld Object & Background Event Scripts verified!\n");
