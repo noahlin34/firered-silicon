@@ -16,6 +16,11 @@ NATIVE_SCRIPT_ROOTS = {
     "EventScript_Dresser",
     "EventScript_Kitchen",
     "EventScript_PlayerFacingTVScreen",
+    # Walk-away cancel: FieldInput_HandleCancelSignpost sets this up when the
+    # player pushes a direction away from an open signpost message box. Without
+    # the real script (special DoPicboxCancel, release, end) the box's frame
+    # stays drawn on screen.
+    "EventScript_CancelMessageBox",
     # Pallet Town exterior: A-press interactions (the two wandering NPCs and
     # every sign). Oak's interception cutscene is a proximity trigger that also
     # needs door/warp/music commands, so it is not wired here.
