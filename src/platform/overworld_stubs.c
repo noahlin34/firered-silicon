@@ -325,6 +325,12 @@ static u16 NativeSpecial_SetFlavorTextFlagFromSpecialVars(void)
     return 0;
 }
 
+static u16 NativeSpecial_UpdatePickStateFromSpecialVar8005(void)
+{
+    NativeUpdatePickStateFromSpecialVar8005();
+    return 0;
+}
+
 /* Index-aligned with data/specials.inc: the u16 operands emitted by
  * tools/gen_map_data.py are positions in that table. Specials that are not
  * ported keep a NULL entry, which ScrCmd_special reports instead of calling
@@ -335,6 +341,7 @@ u16 (*const gSpecials[])(void) = {
     [368] = NativeSpecial_SetWalkingIntoSignVars,
     [369] = NativeSpecial_DisableMsgBoxWalkaway,
     [371] = NativeSpecial_SetFlavorTextFlagFromSpecialVars,
+    [372] = NativeSpecial_UpdatePickStateFromSpecialVar8005,
 };
 u16 (*const *gSpecialsEnd)(void) = gSpecials + ARRAY_COUNT(gSpecials);
 const u8 *const gStdScripts[] = { NULL };
