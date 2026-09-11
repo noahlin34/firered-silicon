@@ -46,6 +46,38 @@ static const u8 PalletTown_PlayersHouse_1F_EventScript_TVScreen[];
 extern const u8 PalletTown_PlayersHouse_1F_EventScript_TV[];
 extern const u8 PalletTown_PlayersHouse_2F_EventScript_NES[];
 extern const u8 PalletTown_PlayersHouse_2F_EventScript_Sign[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_Aide1GameClear[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Aide1[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_Aide2GameClear[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Aide2[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Aide3[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_LastPokeBall[];
+extern const u8 EventScript_RestorePrevTextColor[];
+extern const u8 EventScript_ChangePokemonNickname[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ReadyEndSignLadyScene[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalTakesStarter[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalWalksToCharmander[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalWalksToBulbasaur[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalWalksToSquirtle[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalPicksStarter[];
+extern const u8 EventScript_GiveNicknameToStarter[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ChoseStarter[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_DeclinedStarter[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ConfirmBulbasaur[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ConfirmSquirtle[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ConfirmCharmander[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ConfirmStarterChoice[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_BulbasaurBall[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_CharmanderBall[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Computer[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_LeftSign[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Pokedex[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RightSignAlt[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_RightSign[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalChoseStarter[];
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalWaitingForStarter[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_Rival[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_SquirtleBall[];
 static const u8 Text_Bookshelf[];
 static const u8 Text_DishesPlatesNeatlyLinedUp[];
 static const u8 Text_Dresser[];
@@ -73,12 +105,38 @@ static const u8 PalletTown_PlayersHouse_1F_Text_MovieOnTVGirlOnBrickRoad[];
 static const u8 PalletTown_PlayersHouse_1F_Text_OopsWrongSide[];
 static const u8 PalletTown_PlayersHouse_2F_Text_PlayedWithNES[];
 static const u8 PalletTown_PlayersHouse_2F_Text_PressLRForHelp[];
+static const u8 PalletTown_ProfessorOaksLab_Text_OakIsGoingToHaveRadioShow[];
+static const u8 PalletTown_ProfessorOaksLab_Text_StudyAsOaksAide[];
+static const u8 PalletTown_ProfessorOaksLab_Text_DaisyWillGroomMons[];
+static const u8 PalletTown_ProfessorOaksLab_Text_OakIsAuthorityOnMons[];
+static const u8 PalletTown_ProfessorOaksLab_Text_OaksLastMon[];
+static const u8 PalletTown_ProfessorOaksLab_Text_OakChoosingBulbasaur[];
+static const u8 PalletTown_ProfessorOaksLab_Text_OakThisMonIsEnergetic[];
+static const u8 PalletTown_ProfessorOaksLab_Text_ReceivedMonFromOak[];
+static const u8 Text_GiveNicknameToThisMon[];
+static const u8 PalletTown_ProfessorOaksLab_Text_RivalIllTakeThisOneThen[];
+static const u8 PalletTown_ProfessorOaksLab_Text_RivalReceivedMonFromOak[];
+static const u8 PalletTown_ProfessorOaksLab_Text_OakChoosingSquirtle[];
+static const u8 PalletTown_ProfessorOaksLab_Text_OakChoosingCharmander[];
+static const u8 PalletTown_ProfessorOaksLab_Text_ThoseArePokeBalls[];
+static const u8 PalletTown_ProfessorOaksLab_Text_EmailMessage[];
+static const u8 PalletTown_ProfessorOaksLab_Text_PressStartToOpenMenu[];
+static const u8 PalletTown_ProfessorOaksLab_Text_BlankEncyclopedia[];
+static const u8 PalletTown_ProfessorOaksLab_Text_AllMonTypesHaveStrongAndWeakPoints[];
+static const u8 PalletTown_ProfessorOaksLab_Text_SaveOptionInMenu[];
+static const u8 PalletTown_ProfessorOaksLab_Text_RivalMyMonLooksTougher[];
+static const u8 PalletTown_ProfessorOaksLab_Text_RivalGoChoosePlayer[];
+static const u8 PalletTown_ProfessorOaksLab_Text_RivalGrampsIsntAround[];
 static const u8 Common_Movement_FacePlayer[];
 static const u8 Common_Movement_ExclamationMark[];
 static const u8 Common_Movement_Delay48[];
 static const u8 PalletTown_Movement_SignLadyMoveOutOfWayRight[];
 static const u8 PalletTown_Movement_SignLadyMoveOutOfWayLeft[];
 static const u8 Common_Movement_FaceOriginalDirection[];
+static const u8 Common_Movement_FaceRight[];
+static const u8 PalletTown_ProfessorOaksLab_Movement_RivalWalksToCharmander[];
+static const u8 PalletTown_ProfessorOaksLab_Movement_RivalWalksToBulbasaur[];
+static const u8 PalletTown_ProfessorOaksLab_Movement_RivalWalksToSquirtle[];
 const void *const gNativeScriptPtrs[] = {
     Text_Bookshelf,
     Text_DishesPlatesNeatlyLinedUp,
@@ -127,6 +185,53 @@ const void *const gNativeScriptPtrs[] = {
     PalletTown_PlayersHouse_1F_Text_OopsWrongSide,
     PalletTown_PlayersHouse_2F_Text_PlayedWithNES,
     PalletTown_PlayersHouse_2F_Text_PressLRForHelp,
+    PalletTown_ProfessorOaksLab_Text_OakIsGoingToHaveRadioShow,
+    PalletTown_ProfessorOaksLab_EventScript_Aide1GameClear,
+    PalletTown_ProfessorOaksLab_Text_StudyAsOaksAide,
+    PalletTown_ProfessorOaksLab_Text_DaisyWillGroomMons,
+    PalletTown_ProfessorOaksLab_EventScript_Aide2GameClear,
+    PalletTown_ProfessorOaksLab_Text_OakIsAuthorityOnMons,
+    PalletTown_ProfessorOaksLab_Text_OaksLastMon,
+    PalletTown_ProfessorOaksLab_EventScript_LastPokeBall,
+    Common_Movement_FaceRight,
+    PalletTown_ProfessorOaksLab_Text_OakChoosingBulbasaur,
+    PalletTown_ProfessorOaksLab_Text_OakThisMonIsEnergetic,
+    EventScript_RestorePrevTextColor,
+    PalletTown_ProfessorOaksLab_Text_ReceivedMonFromOak,
+    Text_GiveNicknameToThisMon,
+    EventScript_ChangePokemonNickname,
+    PalletTown_ProfessorOaksLab_Movement_RivalWalksToCharmander,
+    PalletTown_ProfessorOaksLab_Text_RivalIllTakeThisOneThen,
+    PalletTown_ProfessorOaksLab_Text_RivalReceivedMonFromOak,
+    PalletTown_ProfessorOaksLab_EventScript_ReadyEndSignLadyScene,
+    PalletTown_ProfessorOaksLab_EventScript_RivalTakesStarter,
+    PalletTown_ProfessorOaksLab_EventScript_RivalWalksToCharmander,
+    PalletTown_ProfessorOaksLab_Movement_RivalWalksToBulbasaur,
+    PalletTown_ProfessorOaksLab_EventScript_RivalWalksToBulbasaur,
+    PalletTown_ProfessorOaksLab_Movement_RivalWalksToSquirtle,
+    PalletTown_ProfessorOaksLab_EventScript_RivalWalksToSquirtle,
+    PalletTown_ProfessorOaksLab_EventScript_RivalPicksStarter,
+    EventScript_GiveNicknameToStarter,
+    PalletTown_ProfessorOaksLab_EventScript_ChoseStarter,
+    PalletTown_ProfessorOaksLab_EventScript_DeclinedStarter,
+    PalletTown_ProfessorOaksLab_EventScript_ConfirmBulbasaur,
+    PalletTown_ProfessorOaksLab_Text_OakChoosingSquirtle,
+    PalletTown_ProfessorOaksLab_EventScript_ConfirmSquirtle,
+    PalletTown_ProfessorOaksLab_Text_OakChoosingCharmander,
+    PalletTown_ProfessorOaksLab_EventScript_ConfirmCharmander,
+    PalletTown_ProfessorOaksLab_EventScript_ConfirmStarterChoice,
+    PalletTown_ProfessorOaksLab_Text_ThoseArePokeBalls,
+    PalletTown_ProfessorOaksLab_Text_EmailMessage,
+    PalletTown_ProfessorOaksLab_Text_PressStartToOpenMenu,
+    PalletTown_ProfessorOaksLab_Text_BlankEncyclopedia,
+    PalletTown_ProfessorOaksLab_Text_AllMonTypesHaveStrongAndWeakPoints,
+    PalletTown_ProfessorOaksLab_EventScript_RightSignAlt,
+    PalletTown_ProfessorOaksLab_Text_SaveOptionInMenu,
+    PalletTown_ProfessorOaksLab_Text_RivalMyMonLooksTougher,
+    PalletTown_ProfessorOaksLab_EventScript_RivalChoseStarter,
+    PalletTown_ProfessorOaksLab_Text_RivalGoChoosePlayer,
+    PalletTown_ProfessorOaksLab_EventScript_RivalWaitingForStarter,
+    PalletTown_ProfessorOaksLab_Text_RivalGrampsIsntAround,
 };
 
 
@@ -275,6 +380,142 @@ static const u8 PalletTown_PlayersHouse_2F_Text_PressLRForHelp[] = _(
     "Press the L or R Button!$"
 );
 
+static const u8 PalletTown_ProfessorOaksLab_Text_OakIsGoingToHaveRadioShow[] = _(
+    "PROF. OAK is going to have his own\n"
+    "radio show soon.\p"
+    "The program will be called PROF.\n"
+    "OAK's POKéMON SEMINAR.$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_StudyAsOaksAide[] = _(
+    "I study POKéMON as PROF. OAK's\n"
+    "AIDE.$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_DaisyWillGroomMons[] = _(
+    "Hi, {PLAYER}. I bet you've become\n"
+    "good friends with your POKéMON.\p"
+    "By the way, did you know about\n"
+    "DAISY?\p"
+    "If you show DAISY your POKéMON,\n"
+    "she can tell how much it likes you.\p"
+    "Occasionally, she will even groom\n"
+    "a POKéMON for you.\p"
+    "This is a secret, so please don't\n"
+    "tell anyone.$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_OakIsAuthorityOnMons[] = _(
+    "PROF. OAK may not look like much,\n"
+    "but he's the authority on POKéMON.\p"
+    "Many POKéMON TRAINERS hold him in\n"
+    "high regard.$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_OaksLastMon[] = _(
+    "That's PROF. OAK's last POKéMON.$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_OakChoosingBulbasaur[] = _(
+    "I see! BULBASAUR is your choice.\n"
+    "It's very easy to raise.\p"
+    "So, {PLAYER}, you want to go with\n"
+    "the GRASS POKéMON BULBASAUR?$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_OakThisMonIsEnergetic[] = _(
+    "This POKéMON is really quite\n"
+    "energetic!$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_ReceivedMonFromOak[] = _(
+    "{PLAYER} received the {STR_VAR_1}\n"
+    "from PROF. OAK!$"
+);
+
+static const u8 Text_GiveNicknameToThisMon[] = _(
+    "Do you want to give a nickname to\n"
+    "this {STR_VAR_1}?$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_RivalIllTakeThisOneThen[] = _(
+    "{RIVAL}: I'll take this one, then!$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_RivalReceivedMonFromOak[] = _(
+    "{RIVAL} received the {STR_VAR_1}\n"
+    "from PROF. OAK!$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_OakChoosingSquirtle[] = _(
+    "Hm! SQUIRTLE is your choice.\n"
+    "It's one worth raising.\p"
+    "So, {PLAYER}, you've decided on the\n"
+    "WATER POKéMON SQUIRTLE?$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_OakChoosingCharmander[] = _(
+    "Ah! CHARMANDER is your choice.\n"
+    "You should raise it patiently.\p"
+    "So, {PLAYER}, you're claiming the\n"
+    "FIRE POKéMON CHARMANDER?$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_ThoseArePokeBalls[] = _(
+    "Those are POKé BALLS.\n"
+    "They contain POKéMON!$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_EmailMessage[] = _(
+    "There's an e-mail message here.\p"
+    "…\p"
+    "Finally!\n"
+    "The ultimate TRAINERS of the\l"
+    "POKéMON LEAGUE are ready to\l"
+    "take on all comers!\p"
+    "Bring your best POKéMON and see\n"
+    "how you rate as a TRAINER!\p"
+    "POKéMON LEAGUE HQ\n"
+    "INDIGO PLATEAU\p"
+    "PROF. OAK, please visit us!\n"
+    "…$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_PressStartToOpenMenu[] = _(
+    "Press START to open the MENU!$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_BlankEncyclopedia[] = _(
+    "It's like an encyclopedia, but the\n"
+    "pages are blank.$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_AllMonTypesHaveStrongAndWeakPoints[] = _(
+    "All POKéMON types have strong and\n"
+    "weak points against others.$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_SaveOptionInMenu[] = _(
+    "The SAVE option is on the MENU.\n"
+    "Use it regularly.$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_RivalMyMonLooksTougher[] = _(
+    "{RIVAL}: My POKéMON looks a lot\n"
+    "tougher than yours.$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_RivalGoChoosePlayer[] = _(
+    "{RIVAL}: Heh, I don't need to be\n"
+    "greedy like you. I'm mature!\p"
+    "Go ahead and choose, {PLAYER}!$"
+);
+
+static const u8 PalletTown_ProfessorOaksLab_Text_RivalGrampsIsntAround[] = _(
+    "{RIVAL}: What, it's only {PLAYER}?\n"
+    "Gramps isn't around.$"
+);
+
 static const u8 Common_Movement_FacePlayer[] = {
     0x4a, 0xfe,
 };
@@ -297,6 +538,22 @@ static const u8 PalletTown_Movement_SignLadyMoveOutOfWayLeft[] = {
 
 static const u8 Common_Movement_FaceOriginalDirection[] = {
     0x5a, 0xfe,
+};
+
+static const u8 Common_Movement_FaceRight[] = {
+    0x03, 0xfe,
+};
+
+static const u8 PalletTown_ProfessorOaksLab_Movement_RivalWalksToCharmander[] = {
+    0x10, 0x10, 0x13, 0x13, 0x13, 0x13, 0x13, 0x11, 0xfe,
+};
+
+static const u8 PalletTown_ProfessorOaksLab_Movement_RivalWalksToBulbasaur[] = {
+    0x10, 0x13, 0x13, 0x13, 0x2e, 0xfe,
+};
+
+static const u8 PalletTown_ProfessorOaksLab_Movement_RivalWalksToSquirtle[] = {
+    0x10, 0x13, 0x13, 0x13, 0x13, 0x2e, 0xfe,
 };
 
 const u8 EventScript_Bookshelf[] = {
@@ -421,6 +678,134 @@ const u8 PalletTown_PlayersHouse_2F_EventScript_NES[] = {
 
 const u8 PalletTown_PlayersHouse_2F_EventScript_Sign[] = {
     0x69, 0x67, 0x2e, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_Aide1GameClear[] = {
+    0x16, 0x04, 0x80, 0x00, 0x00, 0x16, 0x05, 0x80, 0x05, 0x00, 0x25, 0x73, 0x01, 0x67, 0x2f, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 PalletTown_ProfessorOaksLab_EventScript_Aide1[] = {
+    0x6a, 0x5a, 0x2b, 0x2c, 0x08, 0x06, 0x01, 0x30, 0x00, 0x00, 0x00, 0x67, 0x31, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_Aide2GameClear[] = {
+    0x16, 0x04, 0x80, 0x01, 0x00, 0x16, 0x05, 0x80, 0x00, 0x00, 0x25, 0x73, 0x01, 0x67, 0x32, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 PalletTown_ProfessorOaksLab_EventScript_Aide2[] = {
+    0x6a, 0x5a, 0x2b, 0x2c, 0x08, 0x06, 0x01, 0x33, 0x00, 0x00, 0x00, 0x67, 0x31, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 PalletTown_ProfessorOaksLab_EventScript_Aide3[] = {
+    0x6a, 0x5a, 0x16, 0x04, 0x80, 0x00, 0x00, 0x16, 0x05, 0x80, 0x02, 0x00, 0x25, 0x73, 0x01, 0x67, 0x34, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_LastPokeBall[] = {
+    0x67, 0x35, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 EventScript_RestorePrevTextColor[] = {
+    0x19, 0x12, 0x80, 0x13, 0x80, 0x03
+};
+
+const u8 EventScript_ChangePokemonNickname[] = {
+    0x97, 0x01, 0x25, 0x9e, 0x00, 0x27, 0x03
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ReadyEndSignLadyScene[] = {
+    0x16, 0x70, 0x40, 0x01, 0x00, 0x03
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalTakesStarter[] = {
+    0xc7, 0x00, 0x67, 0x3f, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x53, 0x04, 0x40, 0xc7, 0x03, 0x7d, 0x00, 0x03, 0x40, 0x67, 0x40, 0x00, 0x00, 0x00, 0x66, 0x31, 0x3e, 0x01, 0x32, 0x16, 0x55, 0x40, 0x03, 0x00, 0x2b, 0x3e, 0x08, 0x07, 0x01, 0x41, 0x00, 0x00, 0x00, 0x6c, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalWalksToCharmander[] = {
+    0x4f, 0x08, 0x00, 0x3e, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x05, 0x42, 0x00, 0x00, 0x00, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalWalksToBulbasaur[] = {
+    0x4f, 0x08, 0x00, 0x44, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x05, 0x42, 0x00, 0x00, 0x00, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalWalksToSquirtle[] = {
+    0x4f, 0x08, 0x00, 0x46, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x05, 0x42, 0x00, 0x00, 0x00, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalPicksStarter[] = {
+    0x68, 0x21, 0x01, 0x40, 0x00, 0x00, 0x06, 0x01, 0x43, 0x00, 0x00, 0x00, 0x21, 0x01, 0x40, 0x01, 0x00, 0x06, 0x01, 0x45, 0x00, 0x00, 0x00, 0x21, 0x01, 0x40, 0x02, 0x00, 0x06, 0x01, 0x47, 0x00, 0x00, 0x00, 0x02
+};
+
+const u8 EventScript_GiveNicknameToStarter[] = {
+    0x16, 0x04, 0x80, 0x00, 0x00, 0x04, 0x3d, 0x00, 0x00, 0x00, 0x05, 0x48, 0x00, 0x00, 0x00, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ChoseStarter[] = {
+    0x76, 0x53, 0x0f, 0x80, 0x67, 0x39, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x04, 0x3a, 0x00, 0x00, 0x00, 0x29, 0x28, 0x08, 0x29, 0x91, 0x02, 0x79, 0x02, 0x40, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x31, 0x40, 0x01, 0x40, 0x7d, 0x00, 0x02, 0x40, 0x67, 0x3b, 0x00, 0x00, 0x00, 0x66, 0x31, 0x3e, 0x01, 0x32, 0x67, 0x3c, 0x00, 0x00, 0x00, 0x66, 0x6e, 0x14, 0x08, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x06, 0x01, 0x49, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x06, 0x01, 0x48, 0x00, 0x00, 0x00, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_DeclinedStarter[] = {
+    0x76, 0x6c, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ConfirmBulbasaur[] = {
+    0x67, 0x38, 0x00, 0x00, 0x00, 0x66, 0x6e, 0x14, 0x08, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x06, 0x01, 0x4a, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x06, 0x01, 0x4b, 0x00, 0x00, 0x00, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ConfirmSquirtle[] = {
+    0x67, 0x4d, 0x00, 0x00, 0x00, 0x66, 0x6e, 0x14, 0x08, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x06, 0x01, 0x4a, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x06, 0x01, 0x4b, 0x00, 0x00, 0x00, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ConfirmCharmander[] = {
+    0x67, 0x4f, 0x00, 0x00, 0x00, 0x66, 0x6e, 0x14, 0x08, 0x21, 0x0d, 0x80, 0x01, 0x00, 0x06, 0x01, 0x4a, 0x00, 0x00, 0x00, 0x21, 0x0d, 0x80, 0x00, 0x00, 0x06, 0x01, 0x4b, 0x00, 0x00, 0x00, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_ConfirmStarterChoice[] = {
+    0x4f, 0x04, 0x00, 0x37, 0x00, 0x00, 0x00, 0x51, 0x00, 0x00, 0x75, 0x02, 0x40, 0x0a, 0x03, 0xc7, 0x00, 0x21, 0x01, 0x40, 0x00, 0x00, 0x06, 0x01, 0x4c, 0x00, 0x00, 0x00, 0x21, 0x01, 0x40, 0x01, 0x00, 0x06, 0x01, 0x4e, 0x00, 0x00, 0x00, 0x21, 0x01, 0x40, 0x02, 0x00, 0x06, 0x01, 0x50, 0x00, 0x00, 0x00, 0x02
+};
+
+const u8 PalletTown_ProfessorOaksLab_EventScript_BulbasaurBall[] = {
+    0x6a, 0x5a, 0x16, 0x01, 0x40, 0x00, 0x00, 0x16, 0x02, 0x40, 0x01, 0x00, 0x16, 0x03, 0x40, 0x04, 0x00, 0x16, 0x04, 0x40, 0x07, 0x00, 0x21, 0x55, 0x40, 0x03, 0x00, 0x06, 0x04, 0x36, 0x00, 0x00, 0x00, 0x21, 0x55, 0x40, 0x02, 0x00, 0x06, 0x01, 0x51, 0x00, 0x00, 0x00, 0x67, 0x52, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 PalletTown_ProfessorOaksLab_EventScript_CharmanderBall[] = {
+    0x6a, 0x5a, 0x16, 0x01, 0x40, 0x02, 0x00, 0x16, 0x02, 0x40, 0x04, 0x00, 0x16, 0x03, 0x40, 0x07, 0x00, 0x16, 0x04, 0x40, 0x06, 0x00, 0x21, 0x55, 0x40, 0x03, 0x00, 0x06, 0x04, 0x36, 0x00, 0x00, 0x00, 0x21, 0x55, 0x40, 0x02, 0x00, 0x06, 0x01, 0x51, 0x00, 0x00, 0x00, 0x67, 0x52, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 PalletTown_ProfessorOaksLab_EventScript_Computer[] = {
+    0x69, 0x67, 0x53, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 PalletTown_ProfessorOaksLab_EventScript_LeftSign[] = {
+    0x69, 0x67, 0x54, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 PalletTown_ProfessorOaksLab_EventScript_Pokedex[] = {
+    0x6a, 0x5a, 0x67, 0x55, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RightSignAlt[] = {
+    0x67, 0x56, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+const u8 PalletTown_ProfessorOaksLab_EventScript_RightSign[] = {
+    0x69, 0x21, 0x55, 0x40, 0x06, 0x00, 0x06, 0x04, 0x57, 0x00, 0x00, 0x00, 0x67, 0x58, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6b, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalChoseStarter[] = {
+    0x67, 0x59, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+static const u8 PalletTown_ProfessorOaksLab_EventScript_RivalWaitingForStarter[] = {
+    0x67, 0x5b, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 PalletTown_ProfessorOaksLab_EventScript_Rival[] = {
+    0x6a, 0x5a, 0x21, 0x55, 0x40, 0x03, 0x00, 0x06, 0x01, 0x5a, 0x00, 0x00, 0x00, 0x21, 0x55, 0x40, 0x02, 0x00, 0x06, 0x01, 0x5c, 0x00, 0x00, 0x00, 0x67, 0x5d, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
+};
+
+const u8 PalletTown_ProfessorOaksLab_EventScript_SquirtleBall[] = {
+    0x6a, 0x5a, 0x16, 0x01, 0x40, 0x01, 0x00, 0x16, 0x02, 0x40, 0x07, 0x00, 0x16, 0x03, 0x40, 0x01, 0x00, 0x16, 0x04, 0x40, 0x05, 0x00, 0x21, 0x55, 0x40, 0x03, 0x00, 0x06, 0x04, 0x36, 0x00, 0x00, 0x00, 0x21, 0x55, 0x40, 0x02, 0x00, 0x06, 0x01, 0x51, 0x00, 0x00, 0x00, 0x67, 0x52, 0x00, 0x00, 0x00, 0x66, 0x6d, 0x6c, 0x02
 };
 
 static const struct ObjectEventTemplate BattleColosseum_2P_ObjectEvents[] = {
@@ -44111,7 +44496,7 @@ static const struct ObjectEventTemplate PalletTown_ProfessorOaksLab_ObjectEvents
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_Aide1,
         .flagId = 0,
     },
     {
@@ -44130,7 +44515,7 @@ static const struct ObjectEventTemplate PalletTown_ProfessorOaksLab_ObjectEvents
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_Aide3,
         .flagId = 0,
     },
     {
@@ -44149,7 +44534,7 @@ static const struct ObjectEventTemplate PalletTown_ProfessorOaksLab_ObjectEvents
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_Aide2,
         .flagId = 0,
     },
     {
@@ -44187,7 +44572,7 @@ static const struct ObjectEventTemplate PalletTown_ProfessorOaksLab_ObjectEvents
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_BulbasaurBall,
         .flagId = FLAG_HIDE_BULBASAUR_BALL,
     },
     {
@@ -44206,7 +44591,7 @@ static const struct ObjectEventTemplate PalletTown_ProfessorOaksLab_ObjectEvents
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_SquirtleBall,
         .flagId = FLAG_HIDE_SQUIRTLE_BALL,
     },
     {
@@ -44225,7 +44610,7 @@ static const struct ObjectEventTemplate PalletTown_ProfessorOaksLab_ObjectEvents
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_CharmanderBall,
         .flagId = FLAG_HIDE_CHARMANDER_BALL,
     },
     {
@@ -44244,7 +44629,7 @@ static const struct ObjectEventTemplate PalletTown_ProfessorOaksLab_ObjectEvents
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_Rival,
         .flagId = FLAG_HIDE_RIVAL_IN_LAB,
     },
     {
@@ -44263,7 +44648,7 @@ static const struct ObjectEventTemplate PalletTown_ProfessorOaksLab_ObjectEvents
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_Pokedex,
         .flagId = FLAG_HIDE_POKEDEX,
     },
     {
@@ -44282,7 +44667,7 @@ static const struct ObjectEventTemplate PalletTown_ProfessorOaksLab_ObjectEvents
                 .trainerRange_berryTreeId = 0,
             }
         },
-        .script = sDummyScript,
+        .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_Pokedex,
         .flagId = FLAG_HIDE_POKEDEX,
     },
 };
@@ -44371,28 +44756,28 @@ static const struct BgEvent PalletTown_ProfessorOaksLab_BgEvents[] = {
         .y = 1,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_Computer },
     },
     {
         .x = 3,
         .y = 1,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_Computer },
     },
     {
         .x = 6,
         .y = 1,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_LeftSign },
     },
     {
         .x = 7,
         .y = 1,
         .elevation = 0,
         .kind = BG_EVENT_PLAYER_FACING_ANY,
-        .bgUnion = { .script = sDummyScript },
+        .bgUnion = { .script = (const u8 *)&PalletTown_ProfessorOaksLab_EventScript_RightSign },
     },
 };
 
