@@ -14,6 +14,7 @@
 #include "fame_checker.h"
 #include "event_data.h"
 #include "script.h"
+#include "text.h"
 
 static const u8 sDummyScript[] = { 0x02 };
 
@@ -35,7 +36,6 @@ const u8 EventScript_BeautifulSkyWindow[] = { 0x02 };
 const u8 EventScript_BlinkingLights[] = { 0x02 };
 const u8 EventScript_Blueprints[] = { 0x02 };
 const u8 EventScript_Burglary[] = { 0x02 };
-const u8 EventScript_CancelMessageBox[] = { 0x02 };
 const u8 EventScript_CantUseWaterfall[] = { 0x02 };
 const u8 EventScript_Computer[] = { 0x02 };
 const u8 EventScript_Cup[] = { 0x02 };
@@ -287,6 +287,17 @@ static u16 NativeSpecial_DisableMsgBoxWalkaway(void)
     return 0;
 }
 
+/* Mirrors DoPicboxCancel (src/field_specials.c). EventScript_CancelMessageBox
+ * runs it before `release` to cancel whatever printer/window the message box
+ * left behind. The mon-pic window it also closes (PicboxCancel, src/script_menu.c)
+ * can never be open here: ScriptMenu_ShowPokemonPic is not linked. */
+static u16 NativeSpecial_DoPicboxCancel(void)
+{
+    u8 t = EOS;
+    AddTextPrinterParameterized(0, FONT_NORMAL, &t, 0, 1, 0, NULL);
+    return 0;
+}
+
 /* The fame checker UI is not ported, but the save data it edits is plain
  * state. Both functions mirror src/fame_checker.c so that a save started in
  * the native port carries the same fame checker bookkeeping. */
@@ -320,6 +331,7 @@ static u16 NativeSpecial_SetFlavorTextFlagFromSpecialVars(void)
  * through a NULL pointer. */
 u16 (*const gSpecials[])(void) = {
     [0]   = NativeSpecial_HealPlayerParty,
+    [346] = NativeSpecial_DoPicboxCancel,
     [368] = NativeSpecial_SetWalkingIntoSignVars,
     [369] = NativeSpecial_DisableMsgBoxWalkaway,
     [371] = NativeSpecial_SetFlavorTextFlagFromSpecialVars,
