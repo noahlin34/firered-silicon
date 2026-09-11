@@ -15,6 +15,8 @@
 #include "event_data.h"
 #include "script.h"
 #include "text.h"
+#include "pokemon.h"
+#include "naming_screen.h"
 
 static const u8 sDummyScript[] = { 0x02 };
 
@@ -105,7 +107,6 @@ void CB2_ShowPartyMenuForItemUse(void) {}
 bool8 CheckForTrainersWantingBattle(void) { return FALSE; }
 void ClearLinkCallback_2(void) {}
 u8 CountDigits(u32 number) { return 1; }
-void CreateMonPicSprite_HandleDeoxys(u16 species, u32 personality, u16 x, u16 y, u8 priority) {}
 void CreateTask_ReestablishCableClubLink(void) {}
 void CreateWarpArrowSprite(void) {}
 s8 DexScreen_GetSetPokedexFlag(u16 nationalNum, u8 caseId) { return 0; }
@@ -121,7 +122,6 @@ void FadeOutAndPlayNewMapMusic(u16 song, u8 speed) {}
 void FieldCB_RushInjuredPokemonToCenter(void) {}
 u8 FindTallGrassFieldEffectSpriteId(u8 a) { return 0; }
 bool32 ForestMapPreviewScreenIsRunning(void) { return TRUE; }
-void FreeAndDestroyMonPicSprite(u8 spriteId) {}
 u32 GetBerryPowder(void) { return 0; }
 u32 GetCoins(void) { return 0; }
 u16 GetCurrentMapMusic(void) { return 0; }
@@ -203,7 +203,6 @@ void QuestLog_OnEscalatorWarp(u8 a) {}
 bool8 QuestLog_ShouldEndSceneOnMapChange(void) { return FALSE; }
 void QuestLog_TryRecordDepartedLocation(void) {}
 void ReadMail(struct Mail *mail, void *cb, bool8 a) {}
-void ResetAllPicSprites(void) {}
 void ResetContextNpcTextColor(void) {}
 void ResetCyclingRoadChallengeData(void) {}
 void ResetSafariZoneFlag(void) {}
@@ -331,12 +330,38 @@ static u16 NativeSpecial_UpdatePickStateFromSpecialVar8005(void)
     return 0;
 }
 
+/* Mirrors ChangePokemonNickname (src/field_specials.c). Oak's Lab starter
+ * script offers the player a nickname after `givemon` (special 158,
+ * data/specials.inc); DoNamingScreen and the party accessors are linked, so a
+ * local copy avoids pulling all of field_specials.c into the host build. */
+static void NativeChangePokemonNickname_CB(void)
+{
+    SetMonData(&gPlayerParty[gSpecialVar_0x8004], MON_DATA_NICKNAME, gStringVar2);
+    CB2_ReturnToFieldContinueScriptPlayMapMusic();
+}
+
+static u16 NativeSpecial_ChangePokemonNickname(void)
+{
+    u16 species;
+    u8 gender;
+    u32 personality;
+
+    GetMonData(&gPlayerParty[gSpecialVar_0x8004], MON_DATA_NICKNAME, gStringVar3);
+    GetMonData(&gPlayerParty[gSpecialVar_0x8004], MON_DATA_NICKNAME, gStringVar2);
+    species = GetMonData(&gPlayerParty[gSpecialVar_0x8004], MON_DATA_SPECIES, NULL);
+    gender = GetMonGender(&gPlayerParty[gSpecialVar_0x8004]);
+    personality = GetMonData(&gPlayerParty[gSpecialVar_0x8004], MON_DATA_PERSONALITY, NULL);
+    DoNamingScreen(NAMING_SCREEN_NICKNAME, gStringVar2, species, gender, personality, NativeChangePokemonNickname_CB);
+    return 0;
+}
+
 /* Index-aligned with data/specials.inc: the u16 operands emitted by
  * tools/gen_map_data.py are positions in that table. Specials that are not
  * ported keep a NULL entry, which ScrCmd_special reports instead of calling
  * through a NULL pointer. */
 u16 (*const gSpecials[])(void) = {
     [0]   = NativeSpecial_HealPlayerParty,
+    [158] = NativeSpecial_ChangePokemonNickname,
     [346] = NativeSpecial_DoPicboxCancel,
     [368] = NativeSpecial_SetWalkingIntoSignVars,
     [369] = NativeSpecial_DisableMsgBoxWalkaway,
@@ -346,7 +371,6 @@ u16 (*const gSpecials[])(void) = {
 u16 (*const *gSpecialsEnd)(void) = gSpecials + ARRAY_COUNT(gSpecials);
 const u8 *const gStdScripts[] = { NULL };
 const u8 *const gStdScriptsEnd[] = { NULL };
-const u8 *const gStdStringPtrs[] = { NULL };
 
 void AddCoins(u16 coins) { (void)coins; }
 void RemoveCoins(u16 coins) { (void)coins; }
@@ -372,17 +396,9 @@ bool8 IsBGMPausedOrStopped(void) { return FALSE; }
 u8 GetLeadMonIndex(void) { return 0; }
 void MapPreview_SetFlag(u16 a) { (void)a; }
 void PlayCry_Script(u16 species, u8 a) { (void)species; (void)a; }
-void QL_AvoidDisplay(void *a) { (void)a; }
-void QL_DestroyAbortedDisplay(void) {}
-void QuestLog_RecordEnteredMap(u16 a) { (void)a; }
+bool8 QL_AvoidDisplay(void (*callback)(void)) { (void)callback; return FALSE; }
+void QuestLog_RecordEnteredMap(u16 map) { (void)map; }
 u8 ScriptGiveEgg(u16 species) { (void)species; return 0; }
-u8 ScriptGiveMon(u16 species, u8 level, u16 item, u32 a, u32 b, u8 c) { return 0; }
-bool8 ScriptMenu_HidePokemonPic(void) { return FALSE; }
-bool8 ScriptMenu_ShowPokemonPic(u16 species, u8 x, u8 y) { return FALSE; }
-bool8 ScriptMenu_Multichoice(u8 left, u8 top, u8 multichoiceId, bool8 ignoreBPress) { return FALSE; }
-bool8 ScriptMenu_MultichoiceGrid(u8 left, u8 top, u8 multichoiceId, bool8 ignoreBPress, u8 columnCount) { return FALSE; }
-bool8 ScriptMenu_MultichoiceWithDefault(u8 left, u8 top, u8 multichoiceId, bool8 ignoreBPress, u8 defaultChoice) { return FALSE; }
-bool8 ScriptMenu_YesNo(u8 left, u8 top) { return FALSE; }
-void ScriptSetMonMoveSlot(u8 partyIdx, u16 move, u8 slot) {}
+void ScriptSetMonMoveSlot(u8 partyIdx, u16 move, u8 slot) { (void)partyIdx; (void)move; (void)slot; }
 void SetMysteryEventScriptStatus(u8 status) { (void)status; }
 void SetSavedWeather(u16 weather) { (void)weather; }
