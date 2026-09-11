@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "global.h"
 #include "gflib.h"
 #include "script.h"
@@ -98,22 +100,48 @@ bool8 ScrCmd_gotonative(struct ScriptContext * ctx)
 
 bool8 ScrCmd_special(struct ScriptContext * ctx)
 {
-    u16 (*const *specialPtr)(void) = &gSpecials[ScriptReadHalfword(ctx)];
+    u16 specialId = ScriptReadHalfword(ctx);
+    u16 (*const *specialPtr)(void) = &gSpecials[specialId];
     if (specialPtr < gSpecialsEnd)
+    {
+#ifdef PORTABLE
+        // Unported specials keep a NULL slot in the native table; report the
+        // gap rather than calling through a NULL pointer.
+        if (*specialPtr != NULL)
+            (*specialPtr)();
+        else
+            fprintf(stderr, "[Script] special %u is not ported\n", specialId);
+#else
         (*specialPtr)();
+#endif
+    }
     else
+    {
         AGB_ASSERT_EX(0, ABSPATH("scrcmd.c"), 241);
+    }
     return FALSE;
 }
 
 bool8 ScrCmd_specialvar(struct ScriptContext * ctx)
 {
     u16 * varPtr = GetVarPointer(ScriptReadHalfword(ctx));
-    u16 (*const *specialPtr)(void) = &gSpecials[ScriptReadHalfword(ctx)];
+    u16 specialId = ScriptReadHalfword(ctx);
+    u16 (*const *specialPtr)(void) = &gSpecials[specialId];
     if (specialPtr < gSpecialsEnd)
+    {
+#ifdef PORTABLE
+        if (*specialPtr != NULL)
+            *varPtr = (*specialPtr)();
+        else
+            fprintf(stderr, "[Script] special %u is not ported\n", specialId);
+#else
         *varPtr = (*specialPtr)();
+#endif
+    }
     else
+    {
         AGB_ASSERT_EX(0, ABSPATH("scrcmd.c"), 263);
+    }
     return FALSE;
 }
 
