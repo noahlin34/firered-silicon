@@ -131,6 +131,8 @@ PREPROC_SRCS := src/title_screen.c \
                 src/fldeff_flash.c \
                 src/tilesets.c \
                 src/field_effect.c \
+                src/field_effect_helpers.c \
+                src/data/field_effects/ptr_table.c \
                 src/field_door.c \
                 src/maps.c \
                 src/scrcmd.c \

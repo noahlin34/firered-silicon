@@ -426,9 +426,20 @@ static bool8 FieldEffectCmd_loadfadedpal_callnative(const u8 **script, u32 *resu
     return TRUE;
 }
 
-static u32 FieldEffectScript_ReadWord(const u8 **script)
+// Returns an address operand. The return type is host-width because the
+// original u32 could not carry a 64-bit pointer: each caller casts the result
+// straight to a struct pointer or a function pointer (fix #41 pattern).
+static uintptr_t FieldEffectScript_ReadWord(const u8 **script)
 {
+#ifdef PORTABLE
+    // Generated scripts store an address operand as a u32 index into the
+    // aligned gNativeFieldEffectPtrs table (fix #23). Index 0 is reserved as
+    // NULL, so an unclassified operand cannot alias a real symbol.
+    extern const void *const gNativeFieldEffectPtrs[];
+    return (uintptr_t)gNativeFieldEffectPtrs[T2_READ_32(*script)];
+#else
     return T2_READ_32(*script);
+#endif
 }
 
 static void FieldEffectScript_LoadTiles(const u8 **script)
