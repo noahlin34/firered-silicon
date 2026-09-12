@@ -20,6 +20,7 @@
 #include "pokedex.h"
 #include "save_location.h"
 #include "field_message_box.h"
+#include "battle_setup.h"
 #include "constants/flags.h"
 #include "constants/vars.h"
 #include "constants/items.h"
@@ -418,12 +419,28 @@ static u16 NativeSpecial_SetUnlockedPokedexFlags(void)
     return 0;
 }
 
+/* Real functions, wrapped: the special table stores u16 (*)(void) while
+ * battle_setup.c declares these as void or a different return width. The
+ * implementations are in linked src/battle_setup.c. */
+static u16 NativeSpecial_PlayTrainerEncounterMusic(void)
+{
+    PlayTrainerEncounterMusic();
+    return 0;
+}
+
+static u16 NativeSpecial_SetBattledTrainerFlag(void)
+{
+    SetBattledTrainerFlag();
+    return 0;
+}
+
 /* Index-aligned with data/specials.inc: the u16 operands emitted by
  * tools/gen_map_data.py are positions in that table. Specials that are not
  * ported keep a NULL entry, which ScrCmd_special reports instead of calling
  * through a NULL pointer. */
 u16 (*const gSpecials[])(void) = {
     [0]   = NativeSpecial_HealPlayerParty,
+    [56]  = NativeSpecial_PlayTrainerEncounterMusic,
     [158] = NativeSpecial_ChangePokemonNickname,
     [212] = NativeSpecial_GetPokedexCount,
     [213] = NativeSpecial_GetProfOaksRatingMessage,
@@ -439,6 +456,7 @@ u16 (*const gSpecials[])(void) = {
     [385] = NativeSpecial_SetUnlockedPokedexFlags,
     [391] = NativeSpecial_GetQuestLogState,
     [392] = NativeSpecial_QuestLog_CutRecording,
+    [399] = NativeSpecial_SetBattledTrainerFlag,
 };
 u16 (*const *gSpecialsEnd)(void) = gSpecials + ARRAY_COUNT(gSpecials);
 const u8 *const gStdScripts[] = { NULL };
