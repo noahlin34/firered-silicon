@@ -8,6 +8,8 @@
 #include "global.h"
 #include "platform/platform.h"
 #include "global.fieldmap.h"
+#include "field_effect.h"
+#include "constants/field_effects.h"
 
 static void CrashHandler(int sig)
 {
@@ -458,6 +460,36 @@ static void TestOverworldInteractions(void)
             assert(FindScriptPattern(battleScript, cmp, sizeof(cmp)) >= 0);
         }
     }
+
+    printf("[SmokeTest] Testing Field Effect Scripts...\n");
+    {
+        // The whole chain, not just the table: the script must decode to
+        // `loadfadedpal_callnative <palette>, <native>, end` with operands that
+        // index real gNativeFieldEffectPtrs entries.
+        extern const u8 *const gFieldEffectScriptPointers[];
+        extern const void *const gNativeFieldEffectPtrs[];
+        extern const struct SpritePalette gSpritePalette_GeneralFieldEffect1;
+        extern u32 FldEff_TallGrass(void);
+        const u8 *script = gFieldEffectScriptPointers[FLDEFF_TALL_GRASS];
+        assert(script != NULL);                      // effect is ported at all
+
+        // loadfadedpal_callnative = opcode(1) + palette(4) + native(4) + end(1).
+        assert(script[0] == 7);
+        assert(script[9] == 4);
+        assert((const struct SpritePalette *)gNativeFieldEffectPtrs[T2_READ_32(&script[1])]
+               == &gSpritePalette_GeneralFieldEffect1);
+        assert((u32 (*)(void))gNativeFieldEffectPtrs[T2_READ_32(&script[5])]
+               == FldEff_TallGrass);
+
+        // The rest of the grass family shares this template/native path, and an
+        // unported effect must stay NULL rather than point at a bogus script.
+        assert(gFieldEffectScriptPointers[FLDEFF_SHORT_GRASS] != NULL);
+        assert(gFieldEffectScriptPointers[FLDEFF_LONG_GRASS] != NULL);
+        assert(gFieldEffectScriptPointers[FLDEFF_JUMP_TALL_GRASS] != NULL);
+        assert(gFieldEffectScriptPointers[FLDEFF_DUST] != NULL);
+        assert(gFieldEffectScriptPointers[FLDEFF_USE_CUT_ON_GRASS] == NULL);
+    }
+    printf("[SmokeTest] All Field Effect Scripts verified!\n");
 
     printf("[SmokeTest] All Overworld Object & Background Event Scripts verified!\n");
 }
