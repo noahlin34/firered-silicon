@@ -81,6 +81,10 @@ void ScrollWindow(u8 windowId, u8 direction, u8 distance, u8 fillValue);
 void CallWindowFunction(u8 windowId, WindowFunc func);
 bool8 SetWindowAttribute(u8 windowId, u8 attributeId, u32 value);
 u32 GetWindowAttribute(u8 windowId, u8 attributeId);
+// WINDOW_TILE_DATA holds a host pointer. GetWindowAttribute returns u32, which
+// truncates it on 64-bit hosts, so pointer-typed attributes have their own
+// accessor (the same trap as SetPointerTaskArg / GetPointerTaskArg).
+u8 *GetWindowTileDataPtr(u8 windowId);
 u16 AddWindow8Bit(const struct WindowTemplate *template);
 void FillWindowPixelBuffer8Bit(u8 windowId, u8 fillValue);
 void FillWindowPixelRect8Bit(u8 windowId, u8 fillValue, u16 x, u16 y, u16 width, u16 height);
