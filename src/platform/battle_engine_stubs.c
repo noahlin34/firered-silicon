@@ -287,7 +287,11 @@ void m4aMPlayVolumeControl(struct MusicPlayerInfo *mplayInfo, u16 trackBits, u16
 const u8 gBattleText_GetPumped[];
 const u8 gBattleText_MistShroud[];
 const u8 gBattleText_Rose[];
-const u8 gCB2_AfterEvolution[] = {0xFF};
+/* Real type, not a `const u8[]`: battle_main.c and party_menu.c assign the
+ * post-battle main callback into this variable, so a read-only byte array both
+ * mismatches the declaration in include/evolution_scene.h and faults on write
+ * the first time a battle finishes. */
+void (*gCB2_AfterEvolution)(void) = NULL;
 const struct MonCoords gCastformFrontSpriteCoords[];
 const u8 *const gStatNamesTable[];
 #define ABILITY_ON_OPPOSING_FIELD(battlerId, abilityId)(AbilityBattleEffects(ABILITYEFFECT_CHECK_OTHER_SIDE, battlerId, abilityId, 0, 0)) { return 0; }
