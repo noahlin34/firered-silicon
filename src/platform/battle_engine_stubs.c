@@ -195,139 +195,54 @@ struct LinkPlayer gLinkPlayers[MAX_RFU_PLAYERS];
 u8 gNumSafariBalls;
 const struct OamData gOamData_AffineNormal_ObjNormal_64x64;
 // Real battle-animation descriptors also used by Pikachu and Oak's platform.
-const struct OamData gOamData_AffineOff_ObjBlend_32x32 =
-{
-    .affineMode = ST_OAM_AFFINE_OFF,
-    .objMode = ST_OAM_OBJ_BLEND,
-    .bpp = ST_OAM_4BPP,
-    .shape = SPRITE_SHAPE(32x32),
-    .size = SPRITE_SIZE(32x32),
-    .priority = 2,
-};
-const struct OamData gOamData_AffineOff_ObjNormal_16x8 =
-{
-    .affineMode = ST_OAM_AFFINE_OFF,
-    .objMode = ST_OAM_OBJ_NORMAL,
-    .bpp = ST_OAM_4BPP,
-    .shape = SPRITE_SHAPE(16x8),
-    .size = SPRITE_SIZE(16x8),
-    .priority = 2,
-};
-const struct OamData gOamData_AffineOff_ObjNormal_32x16 =
-{
-    .affineMode = ST_OAM_AFFINE_OFF,
-    .objMode = ST_OAM_OBJ_NORMAL,
-    .bpp = ST_OAM_4BPP,
-    .shape = SPRITE_SHAPE(32x16),
-    .size = SPRITE_SIZE(32x16),
-    .priority = 2,
-};
-const struct OamData gOamData_AffineOff_ObjNormal_32x32 =
-{
-    .affineMode = ST_OAM_AFFINE_OFF,
-    .objMode = ST_OAM_OBJ_NORMAL,
-    .bpp = ST_OAM_4BPP,
-    .shape = SPRITE_SHAPE(32x32),
-    .size = SPRITE_SIZE(32x32),
-    .priority = 2,
-};
 struct PokedudeBattlerState *gPokedudeBattlerStates[MAX_BATTLERS_COUNT];
 bool8 gReceivedRemoteLinkPlayers;
 struct PokemonStorageSystemData *gStorage;
 u16 gTrainerBattleOpponent_A;
 
 /* ---- functions ---- */
-void AllocateBattleSpritesData(void) { }
-void AllocateMonSpritesGfx(void) { }
-u8 AnimateBallOpenParticles(u8 x, u8 y, u8 priority, u8 subpriority, u8 ballId) { return 0; }
 void AnimateBoxScrollArrows(bool8 species) { (void)species; }
 void BackupHelpContext(void) {}
-void BattleAI_HandleItemUseBeforeAISetup(void) {}
-s8 BattleAnimAdjustPanning(s8 pan) { BattleStubHit("BattleAnimAdjustPanning"); return 0; }
-void BattleControllerDummy(void) { BattleStubHit("BattleControllerDummy"); }
-bool8 BattleInitAllSprites(u8 *state, u8 *battlerId) { BattleStubHit("BattleInitAllSprites"); return 0; }
-void BattleInterfaceSetWindowPals(void) {}
-u8 BattleSetup_GetTerrainId(void) { BattleStubHit("BattleSetup_GetTerrainId"); return 0; }
-void BattleStopLowHpSound(void) {}
 void BeginEvolutionScene(struct Pokemon* mon, u16 speciesToEvolve, u8, u8 partyId) {}
 u8 BitmaskAllOtherLinkPlayers(void) { return 0; }
-void BufferBattlePartyCurrentOrderBySide(u8 battlerId, u8 flankId) {}
-s16 CalculatePanIncrement(s16 sourcePan, s16 targetPan, s16 incrementPan) { return 0; }
 void CheckShouldAdvanceLinkState(void) {}
-void ClearBattleAnimationVars(void) {}
-void ClearRematchStateByTrainerId(void) {}
-void ClearTemporarySpeciesSpriteData(u8 battlerId, bool8 dontClearSubstitute) {}
 void CommitQuestLogWindow1(void) {}
 u8 ContextNpcGetTextColor(void) { return 0; }
-void CopyEReaderTrainerName5(u8 *dest) {}
 u8 CountPartyAliveNonEggMonsExcept(u8 slotToIgnore) { return 0; }
 u8 CountPartyMons(void) { return 0; }
 void CreateBoxMonIconAtPos(u8 boxPosition) {}
 u8 CreateHelpMessageWindow(void) { return 0; }
 void CreateMovingMonIcon(void) {}
 void CreateWirelessStatusIndicatorSprite(u8, u8) {}
-void DestroyAnimSoundTask(u8 taskId) {}
-void DestroyAnimSprite(struct Sprite *sprite) {}
-void DestroyAnimVisualTask(u8 taskId) {}
 void DestroyHelpMessageWindow(u8 a0) {}
 void DestroyMovingMonIcon(void) {}
 void DestroyPartyMonIcon(u8 partyId) {}
 void DestroyReleaseMonIcon(void) {}
 void DestroyTask_RfuIdle(void) {}
 void DoReleaseMonAnim(u8 mode, u8 position) {}
-void DrawBattleEntryBackground(void) {}
 void EvolutionScene(struct Pokemon* mon, u16 speciesToEvolve, u8, u8 partyId) {}
 u16 FontFunc_Braille(struct TextPrinter *textPrinter) { return 0; }
-void FreeBattleSpritesData(void) {}
-void FreeMonSpritesGfx(void) {}
-void FreeTrainerTowerBattleStruct(void) {}
-s32 GetAnimBgAttribute(u8 bgId, u8 attributeId) { return 0; }
-u8 GetBattleTowerTrainerClassNameId(void) { return 0; }
-void GetBattleTowerTrainerName(u8 *text) {}
-u8 GetBattlerTurnOrderNum(u8 battlerId) { return 0; }
-const struct Berry *GetBerryInfo(u8 berry) { return 0; }
 u8 GetBlockReceivedStatus(void) { return 0; }
-u8 GetEreaderTrainerClassId(void) { return 0; }
 s16 GetFirstFreeBoxSpot(u8 boxId) { return 0; }
 u8 GetLastViewedMonIndex(void) { return 0; }
 u8 GetLinkPlayerCount_2(void) { return 0; }
 u8 GetMultiplayerId(void) { return 0; }
 u16 GetPCBoxToSendMon(void) { return 0; }
-u8 GetPartyIdFromBattlePartyId(u8 battlePartyId) { return 0; }
-u16 GetRivalBattleFlags(void) { return 0; }
-const u8 *GetTrainerALoseText(void) { return 0; }
-u8 GetTrainerBattleMode(void) { return 0; }
-u8 GetTrainerTowerOpponentClass(void) { return 0; }
-void GetTrainerTowerOpponentLoseText(u8 *dest, u8 opponentIdx) {}
-void GetTrainerTowerOpponentName(u8 *text) {}
-void GetTrainerTowerOpponentWinText(u8 *dest, u8 opponentIdx) {}
-const u8 *GetTrainerWonSpeech(void) { return 0; }
 bool32 InUnionRoom(void) { return 0; }
-void InitBattleBgsVideo(void) {}
-void InitLinkBattleVsScreen(u8 taskId) {}
-void InitTrainerTowerBattleStruct(void) {}
 bool8 IsActiveItemMoving(void) { return 0; }
 bool8 IsBGMPlaying(void) { return 0; }
-bool8 IsBattlerSpriteVisible(u8 battlerId) { return 0; }
 /* Audio engine (m4a_1.s) is not ported; cries never start, so "finished"
  * must report TRUE or Task_OakSpeech_IsInhabitedFarAndWide spins forever. */
 bool8 IsCryFinished(void) { return TRUE; }
 bool8 IsCryPlaying(void) { return FALSE; }
 bool8 IsCryPlayingOrClearCrySongs(void) { return FALSE; }
 bool8 IsDestinationBoxFull(void) { return 0; }
-bool32 IsEnigmaBerryValid(void) { return 0; }
 bool8 IsItemIconAnimActive(void) { return 0; }
 bool32 IsLinkRecvQueueAtOverworldMax(void) { return 0; }
 bool8 IsLinkRfuTaskFinished(void) { return 0; }
-u8 ItemIdToBallId(u16 itemId) { return 0; }
-u8 ItemIdToBerryType(u16 item) { return 0; }
-s16 KeepPanInRange(s16 a, s32 oldPan) { return 0; }
-u8 LaunchBallFadeMonTask(bool8 unFadeLater, u8 battlerId, u32 arg2, u8 ballId) { return 0; }
 u8 ListMenuAddCursorObjectInternal(const struct CursorStruct *cursor, u32 cursorKind) { return 0; }
 void ListMenuRemoveCursorObject(u8 taskId, u32 cursorKind) {}
 void ListMenuUpdateCursorObject(u8 taskId, u16 x, u16 y, u32 cursorKind) {}
-void LoadBattleMenuWindowGfx(void) {}
-void LoadBattleTextboxAndBackground(void) {}
 void LoadWirelessStatusIndicatorSpriteGfx(void) {}
 void MapNamePopupWindowIdSetDummy(void) {}
 bool8 MultiMove_CanPlaceSelection(void) { return 0; }
@@ -341,25 +256,16 @@ void PlayNewMapMusic(u16 songNum) {}
 void PlaySE1WithPanning(u16 songNum, s8 pan) {}
 void PlaySE2WithPanning(u16 songNum, s8 pan) {}
 void PrintTextOnHelpMessageWindow(const u8 * text, u8 mode) {}
-void RecordAbilityBattle(u8 bank, u8 abilityId) {}
-void RecordItemEffectBattle(u8 bank, u8 itemEffect) {}
 void ResetBlockReceivedFlag(u8) {}
 void ResetBlockReceivedFlags(void) {}
 void ResetMapMusic(void) {}
 void RestoreHelpContext(void) {}
 bool8 SendBlock(u8, const void *, u16) { return 0; }
-void SetAnimBgAttribute(u8 bgId, u8 attributeId, u8 value) {}
 void SetCloseLinkCallback(void) {}
 void SetControllerToLinkOpponent(void) {}
 void SetControllerToLinkPartner(void) {}
-void SetControllerToOakOrOldMan(void) {}
-void SetControllerToOpponent(void) {}
-void SetControllerToPlayer(void) {}
-void SetControllerToPokedude(void) {}
 void SetControllerToSafari(void) {}
-void SetHealthboxSpriteVisible(u8 healthboxSpriteId) {}
 void SetLinkStandbyCallback(void) {}
-void SetMoveEffect(bool8 primary, u8 certain) {}
 void SetMovingMonPriority(u8 priority) {}
 void SetMovingMonSprite(u8 cursorArea, u8 cursorPos) {}
 void SetPCBoxToSendMon(u8) {}
@@ -367,17 +273,13 @@ void SetPlacedMonSprite(u8 cursorArea, u8 cursorPos) {}
 void SetShiftMonSpritePtr(u8 boxId, u8 position) {}
 void SetWirelessCommType1(void) {}
 bool8 ShiftMons(void) { return 0; }
-bool32 ShouldPlayNormalMonCry(struct Pokemon *mon) { return 0; }
-void ShowPartyMenuToShowcaseMultiBattleParty(void) {}
 void StopCryAndClearCrySongs(void) {}
-void SwitchPartyMonSlots(u8 slot, u8 slot2) {}
 void Task_WaitForLinkPlayerConnection(u8 taskId) {}
 void TryHideItemIconAtPos(u8 cursorArea, u8 cursorPos) {}
 bool8 TryHideReleaseMonSprite(void) { return 0; }
 void TryLoadItemIconAtPos(u8 cursorArea, u8 cursorPos) {}
 void TrySetQuestLogBattleEvent(void) {}
 void TrySetQuestLogLinkBattleEvent(void) {}
-bool8 UproarWakeUpCheck(u8 battlerId) { return 0; }
 void m4aMPlayVolumeControl(struct MusicPlayerInfo *mplayInfo, u16 trackBits, u16 volume) {}
 
 
@@ -388,66 +290,10 @@ const u8 gBattleText_Rose[];
 const u8 gCB2_AfterEvolution[] = {0xFF};
 const struct MonCoords gCastformFrontSpriteCoords[];
 const u8 *const gStatNamesTable[];
-const u8 gText_BadEgg[] = {0xFF};
-const u8 gText_Burn[] = {0xFF};
-const u8 gText_Confusion[] = {0xFF};
-const u8 gText_DefendersStatRose[] = {0xFF};
-const u8 gText_Ice[] = {0xFF};
-const u8 gText_Love[] = {0xFF};
-const u8 gText_Paralysis[] = {0xFF};
-const u8 gText_PkmnsXPreventsSwitching[] = {0xFF};
-const u8 gText_Poison[] = {0xFF};
-const u8 gText_Sleep[] = {0xFF};
 #define ABILITY_ON_OPPOSING_FIELD(battlerId, abilityId)(AbilityBattleEffects(ABILITYEFFECT_CHECK_OTHER_SIDE, battlerId, abilityId, 0, 0)) { return 0; }
-void AllocateBattleResources(void) {}
-bool8 AnimTranslateLinear(struct Sprite *sprite) { return 0; }
-bool8 AreAllMovesUnusable(void) { return 0; }
-void BattleScriptExecute(const u8 *BS_ptr) { BattleStubHit("BattleScriptExecute"); }
-u32 BattleStringExpandPlaceholders(const u8 *src, u8 *dst) { return 0; }
-u32 BattleStringExpandPlaceholdersToDisplayedString(const u8 *src) { return 0; }
-void BtlController_EmitChooseAction(u8 bufferId, u8 action, u16 itemId) {}
-void BtlController_EmitChooseItem(u8 bufferId, u8 *arg1) {}
-void BtlController_EmitChooseMove(u8 bufferId, bool8 isDoubleBattle, bool8 NoPpNumber, struct ChooseMoveStruct *movePpData) {}
-void BtlController_EmitChoosePokemon(u8 bufferId, u8 caseId, u8 arg2, u8 abilityId, u8 *arg4) {}
-void BtlController_EmitDrawPartyStatusSummary(u8 bufferId, struct HpAndStatus *hpAndStatus, u8 param) {}
-void BtlController_EmitDrawTrainerPic(u8 bufferId) {}
-void BtlController_EmitEndBounceEffect(u8 bufferId) {}
-void BtlController_EmitGetMonData(u8 bufferId, u8 requestId, u8 monToCheck) {}
-void BtlController_EmitIntroSlide(u8 bufferId, u8 terrainId) {}
-void BtlController_EmitIntroTrainerBallThrow(u8 bufferId) {}
-void BtlController_EmitLinkStandbyMsg(u8 bufferId, u8 mode) {}
-void BtlController_EmitLoadMonSprite(u8 bufferId) {}
-void CancelMultiTurnMoves(u8 battler) {}
-void ClearFuryCutterDestinyBondGrudge(u8 battlerId) {}
-u8 DoBattlerEndTurnEffects(void) { return 0; }
-u8 DoFieldEndTurnEffects(void) { return 0; }
-void FreeBattleResources(void) {}
-u8 GetBattlerAtPosition(u8 position) { return 0; }
 #define GET_BATTLER_SIDE(battler)((GetBattlerPosition(battler) & BIT_SIDE)) { return 0; }
-u8 GetBattlerSide(u8 battlerId) { return 0; }
-u8 GetBattlerSpriteCoord(u8 battlerId, u8 coordType) { return 0; }
-u8 GetMoveTarget(u16 move, u8 setTarget) { return 0; }
-void HandleAction_RunBattleScript(void) {}
-bool8 HandleFaintedMonActions(void) { return 0; }
-void HandleLinkBattleSetup(void) {}
-bool8 HandleWishPerishSongOnTurnEnd(void) { return 0; }
-void InitAnimArcTranslation(struct Sprite *sprite) {}
-void InitBattleControllers(void) { BattleStubHit("InitBattleControllers"); }
-bool8 IsDoubleBattle(void) { return 0; }
-u8 ItemBattleEffects(u8 caseID, u8 battlerId, bool8 moveTurn) { return 0; }
-void MarkBattlerForControllerExec(u8 battlerId) {}
-void PrepareStringBattle(u16 stringId, u8 battler) {}
-void ResetSentPokesToOpponentValue(void) {}
-void SetUpBattleVars(void) {}
-bool8 TranslateAnimHorizontalArc(struct Sprite *sprite) { return 0; }
-void TryClearRageStatuses(void) {}
-u8 TrySetCantSelectMoveBattleScript(void) { return 0; }
-void UpdateSentPokesToOpponentValue(u8 battler) {}
 
 /* ---- final ---- */
-u8 AbilityBattleEffects(u8 caseID, u8 battler, u8 ability, u8 special, u16 moveArg) { (void)caseID; (void)battler; (void)ability; (void)special; (void)moveArg; return 0; }
-u8 GetBattlerPosition(u8 battlerId) { (void)battlerId; return 0; }
-void (* const gBattleScriptingCommandsTable[])(void) = { NULL };
 
 /* ---- new_game dependencies and stubs ---- */
 #define SCRIPT_SETFLAG(f) 0x29, (u8)((f) & 0xFF), (u8)(((f) >> 8) & 0xFF)
@@ -541,12 +387,10 @@ void ResetFameChecker(void)
     gSaveBlock1Ptr->fameChecker[0].pickState = 1;
 }
 
-void ClearEnigmaBerries(void) {}
 void ClearMysteryGift(void) {}
 void ClearPlayerLinkBattleRecords(void) {}
 void ResetTrainerFanClub(void) {}
 void UnionRoomChat_InitializeRegisteredTexts(void) {}
-void ResetTrainerTowerResults(void) {}
 void ResetPokemonJumpRecords(void) {}
 void ResetBagCursorPositions(void) {}
 void ResetTMCaseCursorPos(void) {}
@@ -557,5 +401,4 @@ void NewGameInitPCItems(void) { AddPCItem(ITEM_POTION, 1); }
 void ApplyNewEncryptionKeyToBerryPowder(u32 key) { (void)key; }
 void QL_AddASLROffset(void *oldSaveBlockPtr) { (void)oldSaveBlockPtr; }
 void QuestLogSetFlagOrVar(bool8 isFlag, u16 idx, u16 value) { (void)isFlag; (void)idx; (void)value; }
-void SetQuestLogEvent(u16 eventId, const u16 *data) { (void)eventId; (void)data; }
 u16 GetStarterSpecies(void) { return SPECIES_BULBASAUR; }
