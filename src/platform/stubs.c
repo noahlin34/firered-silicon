@@ -67,7 +67,6 @@ u8 SetSLoopSvc(void) { return 0; }
 void LinkVSync(void) {}
 void RfuVSync(void) {}
 bool8 HandleLinkConnection(void) { return FALSE; }
-bool32 TryReceiveLinkBattleData(void) { return FALSE; }
 void UpdateWirelessStatusIndicatorSprite(void) {}
 void rfu_REQ_stopMode(void) {}
 u16 rfu_waitREQComplete(void) { return 0; }
@@ -203,7 +202,6 @@ s32 GetGlyphWidth_Braille(u16 fontId, bool32 isJapanese) { (void)fontId; (void)i
 const u8 *DynamicPlaceholderTextUtil_GetPlaceholderPtr(u8 id) { (void)id; return NULL; }
 struct MusicPlayerInfo gMPlayInfo_BGM = {0};
 u8 gQuestLogState = 0;
-const struct OamData gOamData_AffineOff_ObjNormal_16x16 = {0};
 void CB2_InitMysteryGift(void) {}
 bool8 IsWirelessAdapterConnected(void) { return FALSE; }
 void TryStartQuestLogPlayback(u8 taskId) { (void)taskId; }
