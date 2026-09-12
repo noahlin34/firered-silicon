@@ -2210,7 +2210,7 @@ static u8 *AddTextPrinterAndCreateWindowOnHealthbox(const u8 *str, u32 x, u32 y,
     AddTextPrinterParameterized4(winId, FONT_SMALL, x, y, 0, 0, color, -1, str);
 
     *windowId = winId;
-    return (u8 *)(GetWindowAttribute(winId, WINDOW_TILE_DATA));
+    return GetWindowTileDataPtr(winId);
 }
 
 static void RemoveWindowOnHealthbox(u32 windowId)
