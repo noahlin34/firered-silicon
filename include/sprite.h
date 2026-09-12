@@ -213,8 +213,14 @@ struct Sprite
              u8 affineAnimPaused:1;
     /*0x2D*/ u8 animLoopCounter;
 
-    // general purpose data fields
+    // General purpose data fields. Wide enough (in bytes) to hold a host
+    // pointer: battle-anim sprites store a SpriteCallback across data[6..7]
+    // (StoreSpriteCallbackInData6), and a 64-bit address needs 8 bytes.
+#ifdef PORTABLE
+    /*0x2E*/ s32 data[8];
+#else
     /*0x2E*/ s16 data[8];
+#endif
 
     /*0x3E*/ u16 inUse:1;               //1
              u16 coordOffsetEnabled:1;  //2
