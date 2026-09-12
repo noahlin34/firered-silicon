@@ -58,6 +58,19 @@ NATIVE_SCRIPT_ROOTS = {
     "PalletTown_ProfessorOaksLab_EventScript_ReadyPlayerForStarterScene",
     "PalletTown_ProfessorOaksLab_ChooseStarterScene",
     "PalletTown_ProfessorOaksLab_EventScript_LeaveStarterSceneTrigger",
+    # Leaving the lab after picking a starter walks over the scene-3 coord
+    # events at (5..7, 8), which stop the player and start the first rival
+    # battle. The three triggers differ only in VAR_TEMP_2 (the player's
+    # column), which picks the rival's approach path.
+    "PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerLeft",
+    "PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerMid",
+    "PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerRight",
+    # The engine jumps into these from BattleSetup_ConfigureTrainerBattle
+    # (battle_setup.c returns EventScript_DoNoIntroTrainerBattle for
+    # TRAINER_BATTLE_EARLY_RIVAL). They were engine-stub `{0x02}` no-ops, so
+    # the rival battle was configured and then instantly ended.
+    "EventScript_DoNoIntroTrainerBattle",
+    "EventScript_EndQuestLogBattle",
     "PalletTown_ProfessorOaksLab_EventScript_ProfOak",
     "PalletTown_ProfessorOaksLab_EventScript_ConfirmStarterChoice",
     "PalletTown_ProfessorOaksLab_EventScript_ChoseStarter",
@@ -785,6 +798,17 @@ class ScriptRegistry:
                     output += little_endian(self.resolve(args[2]), 2)
                     for pointer in args[3:]:
                         output += self.pointer_bytes(pointer)
+                elif command == "trainerbattle_earlyrival" and len(args) == 4:
+                    # asm/macros/event.inc: trainerbattle_earlyrival trainer,
+                    # flags, defeat_text, victory_text expands to
+                    # trainerbattle TRAINER_BATTLE_EARLY_RIVAL, ... — the third
+                    # 16-bit operand carries RIVAL_BATTLE_* flags rather than a
+                    # local id (see sEarlyRivalBattleParams in battle_setup.c).
+                    output += [0x5c, self.resolve("TRAINER_BATTLE_EARLY_RIVAL")]
+                    output += little_endian(self.resolve(args[0]), 2)
+                    output += little_endian(self.resolve(args[1]), 2)
+                    output += self.pointer_bytes(self.text_registry.reference(args[2]))
+                    output += self.pointer_bytes(self.text_registry.reference(args[3]))
                 elif command == "dotrainerbattle" and not args:
                     # 0x5d: start the trainer battle configured above.
                     output.append(0x5d)
