@@ -139,6 +139,9 @@ extern const u8 PalletTown_ProfessorOaksLab_ChooseStarterScene[];
 extern const struct MapHeader PalletTown;
 extern const u8 PalletTown_EventScript_OakTriggerLeft[];
 extern const u8 PalletTown_EventScript_OakTriggerRight[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerLeft[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerMid[];
+extern const u8 PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerRight[];
 extern const struct MapHeader ViridianCity_Mart;
 extern const struct MapHeader ViridianCity;
 extern const struct MapHeader Route1;
@@ -403,6 +406,57 @@ static void TestOverworldInteractions(void)
         assert(Route1.mapScripts != NULL);
         assert(Route1_EventScript_MartClerk[0] == 0x6a); // lock
         assert(Route1_EventScript_RouteSign[0] == 0x69); // lockall
+    }
+
+    // 9. Leaving Oak's Lab with a starter (scene 3) must start the rival battle.
+    //    The three coord events at (5..7, 8) stop the player and run the
+    //    trigger scripts; a NULL here is walked straight over, and the rival
+    //    battle never happens.
+    {
+        const struct MapEvents *labEvents = PalletTown_ProfessorOaksLab.events;
+        const u8 *const expectedTriggers[] = {
+            PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerLeft,  // (5,8)
+            PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerMid,   // (6,8)
+            PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerRight, // (7,8)
+        };
+        assert(labEvents->coordEventCount == 6);
+        for (int i = 0; i < 3; i++)
+        {
+            const struct CoordEvent *coord = &labEvents->coordEvents[3 + i];
+            assert(coord->x == 5 + i && coord->y == 8);
+            assert(coord->trigger == VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB);
+            assert(coord->index == 3);
+            assert(coord->script == expectedTriggers[i]);
+            assert(coord->script[0] == 0x69); // lockall
+        }
+
+        // Each trigger sets VAR_TEMP_2 (1/2/3, the player's column) so the
+        // rival's approach path matches, then jumps to the shared battle script.
+        for (int i = 0; i < 3; i++)
+        {
+            assert(expectedTriggers[i][0] == 0x69); // lockall
+            assert(expectedTriggers[i][1] == 0x16); // setvar
+            assert(expectedTriggers[i][2] == 0x02 && expectedTriggers[i][3] == 0x40); // VAR_TEMP_2
+            assert(expectedTriggers[i][4] == i + 1 && expectedTriggers[i][5] == 0x00);
+            assert(expectedTriggers[i][6] == 0x05); // goto
+        }
+
+        // The trigger's goto resolves through the pointer table to the shared
+        // battle script, which dispatches on VAR_STARTER_MON (0x4031) with one
+        // goto_if_eq per starter. This is the wiring the scene depends on: the
+        // trigger stops the player, and the shared script picks the rival's
+        // counter-pick approach.
+        uint32_t battleIdx = expectedTriggers[1][7] | (expectedTriggers[1][8] << 8) |
+                             (expectedTriggers[1][9] << 16) | (expectedTriggers[1][10] << 24);
+        const u8 *battleScript = (const u8 *)gNativeScriptPtrs[battleIdx];
+        assert(battleScript != NULL);
+        assert(battleScript[0] == 0xc7); // textcolor
+        // compare VAR_STARTER_MON against 0/1/2, each followed by goto_if_eq.
+        for (int starter = 0; starter < 3; starter++)
+        {
+            const u8 cmp[] = { 0x21, 0x31, 0x40, (u8)starter, 0x00 };
+            assert(FindScriptPattern(battleScript, cmp, sizeof(cmp)) >= 0);
+        }
     }
 
     printf("[SmokeTest] All Overworld Object & Background Event Scripts verified!\n");
