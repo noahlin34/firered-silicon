@@ -630,6 +630,13 @@ bool8 IsBattleTransitionDone(void)
     u8 taskId = FindTaskIdByFunc(Task_BattleTransition);
     if (gTasks[taskId].tTransitionDone)
     {
+        // Clear the transition's interrupt callbacks BEFORE freeing the state
+        // they dereference. On the GBA the VBlank handler runs in an interrupt,
+        // but here VBlankIntr() is called directly from the frame loop and can
+        // still run once more with sTransitionData == NULL, crashing in
+        // VBlankCB_Slice (which reads sTransitionData->win0V).
+        SetVBlankCallback(NULL);
+        SetHBlankCallback(NULL);
         InitTransitionData();
         FREE_AND_SET_NULL(sTransitionData);
         DestroyTask(taskId);
