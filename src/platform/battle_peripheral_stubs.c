@@ -38,7 +38,10 @@
  */
 
 /* ---- inert scripts and text used only by unlinked peripheral scenes ---- */
-const u8 EventScript_DoNoIntroTrainerBattle[] = { 0x02 };
+/* EventScript_DoNoIntroTrainerBattle and EventScript_EndQuestLogBattle are now
+ * compiled from data/scripts/trainer_battle.inc (see NATIVE_SCRIPT_ROOTS): the
+ * early rival battle runs through them, and a `{0x02}` stub ended the script
+ * before the battle could start. */
 const u8 EventScript_DoTrainerBattleFromApproach[] = { 0x02 };
 const u8 EventScript_TryDoDoubleRematchBattle[] = { 0x02 };
 const u8 EventScript_TryDoDoubleTrainerBattle[] = { 0x02 };
