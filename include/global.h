@@ -105,13 +105,31 @@
 #define T1_READ_8(ptr)  ((ptr)[0])
 #define T1_READ_16(ptr) ((ptr)[0] | ((ptr)[1] << 8))
 #define T1_READ_32(ptr) ((ptr)[0] | ((ptr)[1] << 8) | ((ptr)[2] << 16) | ((ptr)[3] << 24))
-#define T1_READ_PTR(ptr) (u8 *) T1_READ_32(ptr)
+// T1_READ_PTR is defined below, with the PORTABLE index-table override.
 
 // T2_READ_8 is a duplicate to remain consistent with each group.
 #define T2_READ_8(ptr)  ((ptr)[0])
 #define T2_READ_16(ptr) ((ptr)[0] + ((ptr)[1] << 8))
 #define T2_READ_32(ptr) ((ptr)[0] + ((ptr)[1] << 8) + ((ptr)[2] << 16) + ((ptr)[3] << 24))
+
+#ifdef PORTABLE
+// Native battle scripts store a 4-byte operand address as a u32 index into the
+// aligned gNativeBattlePtrs table (defined in src/data/battle/ptr_table.h),
+// because a 32-bit address cannot hold a 64-bit host pointer. Both reader
+// macros resolve that index. Every numeric reader (T*_READ_8/16/32) is left
+// untouched: the two kinds of operand share the same 4-byte width but are
+// disjoint per slot.
+//
+// Only the declaration belongs here — the table's definition references the
+// generated script labels, so it is included by the battle sources after their
+// own headers.
+extern const void *const gNativeBattlePtrs[];
+#define T1_READ_PTR(ptr) (u8 *) gNativeBattlePtrs[T1_READ_32(ptr)]
+#define T2_READ_PTR(ptr) (void *) gNativeBattlePtrs[T2_READ_32(ptr)]
+#else
+#define T1_READ_PTR(ptr) (u8 *) T1_READ_32(ptr)
 #define T2_READ_PTR(ptr) (void *) T2_READ_32(ptr)
+#endif
 
 // This macro is required to prevent the compiler from optimizing
 // a dpad up/down check in sub_812CAD8 (fame_checker.c).
