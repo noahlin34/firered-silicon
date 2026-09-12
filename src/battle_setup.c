@@ -732,7 +732,15 @@ static inline void SetU16(void *ptr, u16 value)
 
 static inline void SetU32(void *ptr, u32 value)
 {
+#ifdef PORTABLE
+    // Some TRAINER_PARAM_*_32BIT entries point at pointer variables
+    // (sTrainerAIntroSpeech / sTrainerADefeatSpeech are `u8 *`). Writing a u32
+    // through a `u8 **` leaves the upper 4 bytes of the 8-byte host pointer
+    // untouched, so the value must be stored at the pointee's full width.
+    *(uintptr_t *)(ptr) = (uintptr_t)value;
+#else
     *(u32 *)(ptr) = value;
+#endif
 }
 
 static inline void SetPtr(const void *ptr, const void *value)
