@@ -10,7 +10,7 @@ PREPROC := tools/preproc/preproc
 # Objects do not depend on CFLAGS, so the stale sdl2.o must be removed first.
 FPS_OVERLAY ?= 1
 
-CFLAGS := -Wall -Wextra -std=c11 -O2 -DPORTABLE -DMODERN=1 -DFIRERED -DENGLISH -DREVISION=0 -Iinclude \
+CFLAGS := -Wall -Wextra -std=c11 -O2 -DPORTABLE -DMODERN=1 -DFIRERED -DENGLISH -DREVISION=0 -Iinclude -Isrc \
           $(shell /opt/homebrew/bin/sdl2-config --cflags) \
           -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable \
           -Wno-sign-compare -Wno-unknown-escape-sequence \
@@ -23,6 +23,13 @@ LDFLAGS := $(shell /opt/homebrew/bin/sdl2-config --libs)
 # addresses the wrong tiles, and the first frames come out blank (invisible NPCs).
 GFX := tools/gbagfx/gbagfx
 include spritesheet_rules.mk
+
+# Battle engine INCBIN targets (terrain, transitions, interface, records) plus
+# the battle-animation sprite sheets. Both are generated from checked-in
+# PNG/PAL/BIN sources; see the included files for the per-asset rules.
+include tools/battle_assets.mk
+include tools/anim_sprite_assets.mk
+include tools/battle_extra_assets.mk
 
 OBJ_EVENT_PICS := $(patsubst %.png,%.4bpp,$(wildcard graphics/object_events/pics/*/*.png))
 
@@ -38,11 +45,14 @@ PLATFORM_SRCS := src/platform/system.c \
                  src/platform/stubs.c \
                  src/platform/new_game_intro_text.c \
                  src/platform/battle_engine_stubs.c \
+                 src/platform/battle_peripheral_stubs.c \
                  src/platform/overworld_stubs.c \
                  src/platform/dev_boot.c \
                  src/platform/main.c
 
 ENGINE_SRCS := src/main.c \
+               src/battle_util.c \
+               src/battle_util2.c \
                src/gpu_regs.c \
                src/palette.c \
                src/task.c \
@@ -124,17 +134,82 @@ PREPROC_SRCS := src/title_screen.c \
                 src/field_door.c \
                 src/maps.c \
                 src/scrcmd.c \
-                src/script_menu.c
+                src/script_menu.c \
+                src/data/battle/ptr_table.c \
+                src/battle_script_commands.c \
+                src/battle_ai_script_commands.c \
+                src/battle_interface.c \
+                src/battle_message.c \
+                src/battle_anim.c \
+                src/battle_anim_bug.c \
+                src/battle_anim_dark.c \
+                src/battle_anim_dragon.c \
+                src/battle_anim_electric.c \
+                src/battle_anim_effects_1.c \
+                src/battle_anim_effects_2.c \
+                src/battle_anim_effects_3.c \
+                src/battle_anim_fight.c \
+                src/battle_anim_fire.c \
+                src/battle_anim_flying.c \
+                src/battle_anim_ghost.c \
+                src/battle_anim_ground.c \
+                src/battle_anim_ice.c \
+                src/battle_anim_mon_movement.c \
+                src/battle_anim_mons.c \
+                src/battle_anim_normal.c \
+                src/battle_anim_poison.c \
+                src/battle_anim_psychic.c \
+                src/battle_anim_rock.c \
+                src/battle_anim_smokescreen.c \
+                src/battle_anim_sound_tasks.c \
+                src/battle_anim_special.c \
+                src/battle_anim_status_effects.c \
+                src/battle_anim_utility_funcs.c \
+                src/battle_anim_water.c \
+                src/battle_setup.c \
+                src/battle_transition.c \
+                src/battle_bg.c \
+                src/battle_controllers.c \
+                src/battle_controller_player.c \
+                src/battle_controller_opponent.c \
+                src/battle_controller_oak_old_man.c \
+                src/battle_controller_pokedude.c \
+                src/battle_gfx_sfx_util.c \
+                src/reshow_battle_screen.c \
+                src/pokemon_special_anim.c \
+                src/learn_move.c \
+                src/berry.c \
+                src/battle_ai_switch_items.c \
+                src/safari_zone.c \
+                src/battle_tower.c \
+                src/battle_intro.c \
+                src/fldeff_poison.c \
+                src/vs_seeker.c \
+                src/trainer_tower.c \
+                src/quest_log_events.c \
+                src/party_menu.c
+
 OBJ_DIR := build/native
 OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
 
 TARGET := firered-native
 
-.PHONY: all clean run assets
+.PHONY: all clean run assets battle-scripts
 
 all: assets $(TARGET)
 
-assets: $(OBJ_EVENT_PICS)
+# Battle script bytecode + the shared native pointer table. Regenerate whenever
+# the pret script sources, their macros, or the C readers they are classified
+# against change (the classification is derived from those readers).
+BATTLE_SCRIPT_SOURCES := $(wildcard data/battle_scripts_*.s data/battle_anim_scripts.s data/battle_ai_scripts.s) \
+                         $(wildcard asm/macros/battle_script.inc asm/macros/battle_anim_script.inc asm/macros/battle_ai_script.inc) \
+                         src/battle_script_commands.c src/battle_anim.c src/battle_ai_script_commands.c \
+                         tools/gen_battle_data.py
+
+battle-scripts: $(BATTLE_SCRIPT_SOURCES)
+	@python3 tools/gen_battle_data.py
+
+assets: $(OBJ_EVENT_PICS) battle-assets anim-sprite-assets battle-extra-assets
 	@mkdir -p $(OBJ_DIR)/platform
 	@tools/gbagfx/gbagfx graphics/title_screen/border_bg.png graphics/title_screen/border_bg.4bpp
 	@tools/gbagfx/gbagfx graphics/title_screen/border_bg.4bpp graphics/title_screen/border_bg.4bpp.lz
@@ -205,112 +280,21 @@ $(OBJ_DIR)/%.o: src/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJ_DIR)/title_screen.o: src/title_screen.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+# Sources containing charmap text (`_("...")`) or INCBIN assets must be run
+# through tools/preproc (fix #2). GNU Make 3.81 (macOS) rejects static pattern
+# rules carrying a generated target list, so one rule per source is emitted via
+# $(eval). Adding a file to PREPROC_SRCS is then all that is needed.
+#
+# `$$` is deliberate: the rule text passes through $(call) (one expansion) and
+# then $(eval) (parses the result), so a single `$$` survives as `$` in the
+# recipe where `$@`/`$<` must expand at build time.
+define PREPROC_RULE
+$(OBJ_DIR)/$(1).o: src/$(1).c | battle-scripts
+	@mkdir -p $$(dir $$@)
+	$$(CC) -E $$(CFLAGS) $$< | $$(PREPROC) -i $$< charmap.txt | $$(CC) $$(CFLAGS) -x c -c -o $$@ -
+endef
 
-$(OBJ_DIR)/sprite.o: src/sprite.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/text.o: src/text.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/text_window.o: src/text_window.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/text_window_graphics.o: src/text_window_graphics.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/naming_screen.o: src/naming_screen.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/graphics.o: src/graphics.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/data.o: src/data.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/pokemon.o: src/pokemon.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/util.o: src/util.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/battle_main.o: src/battle_main.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/pokemon_icon.o: src/pokemon_icon.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/keyboard_text.o: src/keyboard_text.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/new_menu_helpers.o: src/new_menu_helpers.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/oak_speech.o: src/oak_speech.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/strings.o: src/strings.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-
-$(OBJ_DIR)/main_menu.o: src/main_menu.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/string_util.o: src/string_util.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/item.o: src/item.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/move_descriptions.o: src/move_descriptions.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/field_player_avatar.o: src/field_player_avatar.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/event_object_movement.o: src/event_object_movement.c graphics/object_events/pics/people/mom.4bpp graphics/object_events/palettes/npc_blue.gbapal | assets
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/field_weather.o: src/field_weather.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/fldeff_flash.o: src/fldeff_flash.c | assets
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/tilesets.o: src/tilesets.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/field_effect.o: src/field_effect.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/maps.o: src/maps.c src/data/maps_data.h src/data/layouts_data.h
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/field_door.o: src/field_door.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/scrcmd.o: src/scrcmd.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
-$(OBJ_DIR)/script_menu.o: src/script_menu.c
-	@mkdir -p $(dir $@)
-	$(CC) -E $(CFLAGS) $< | $(PREPROC) -i $< charmap.txt | $(CC) $(CFLAGS) -x c -c -o $@ -
+$(foreach src,$(PREPROC_SRCS),$(eval $(call PREPROC_RULE,$(patsubst src/%.c,%,$(src)))))
 
 
 $(TARGET): $(OBJS)
