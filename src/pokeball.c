@@ -672,8 +672,10 @@ static void SpriteCB_BallThrow_Shake(struct Sprite *sprite)
 #define tCryTaskSpecies         data[0]
 #define tCryTaskPan             data[1]
 #define tCryTaskWantedCry       data[2]
-#define tCryTaskMonPtr1         data[3]
-#define tCryTaskMonPtr2         data[4]
+// The mon pointer needs the full 64-bit width: pret split it across two 16-bit
+// task slots, which truncates a host address (see fix #26). The helpers below
+// store it whole starting at the slot the old tCryTaskMonPtr1 macro used.
+#define tCryTaskMonPtrSlot      3
 #define tCryTaskFrames          data[10]
 #define tCryTaskState           data[15]
 
@@ -682,7 +684,7 @@ static void Task_PlayCryWhenReleasedFromBall(u8 taskId)
     u8 wantedCry = gTasks[taskId].tCryTaskWantedCry;
     s8 pan = gTasks[taskId].tCryTaskPan;
     u16 species = gTasks[taskId].tCryTaskSpecies;
-    struct Pokemon *mon = (void *)(u32)((gTasks[taskId].tCryTaskMonPtr1 << 16) | (u16)(gTasks[taskId].tCryTaskMonPtr2));
+    struct Pokemon *mon = GetPointerTaskArg(taskId, tCryTaskMonPtrSlot);
 
     switch (gTasks[taskId].tCryTaskState)
     {
@@ -816,8 +818,7 @@ static void SpriteCB_ReleaseMonFromBall(struct Sprite *sprite)
         gTasks[taskId].tCryTaskSpecies = species;
         gTasks[taskId].tCryTaskPan = pan;
         gTasks[taskId].tCryTaskWantedCry = wantedCryCase;
-        gTasks[taskId].tCryTaskMonPtr1 = (u32)(mon) >> 16;
-        gTasks[taskId].tCryTaskMonPtr2 = (u32)(mon);
+        SetPointerTaskArg(taskId, tCryTaskMonPtrSlot, mon);
         gTasks[taskId].tCryTaskState = 0;
     }
 
@@ -829,8 +830,7 @@ static void SpriteCB_ReleaseMonFromBall(struct Sprite *sprite)
 #undef tCryTaskSpecies
 #undef tCryTaskPan
 #undef tCryTaskWantedCry
-#undef tCryTaskMonPtr1
-#undef tCryTaskMonPtr2
+#undef tCryTaskMonPtrSlot
 #undef tCryTaskFrames
 #undef tCryTaskState
 
