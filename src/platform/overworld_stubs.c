@@ -98,8 +98,6 @@ u32 gOverworldBackgroundLayerFlags = 0;
 struct Link gLink = {0};
 u16 gLinkPartnersHeldKeys[6] = {0};
 struct RfuManager gRfu = {0};
-u8 gItemUseCB = 0;
-const struct OamData gOamData_AffineOff_ObjNormal_8x8 = {0};
 const u8 mus_victory_gym_leader[] = {0};
 struct FieldInput gQuestLogFieldInput = {0};
 
@@ -109,7 +107,6 @@ void BerryPouch_SetExitCallback(void *cb) {}
 void BerryPouch_StartFadeToExitCallback(u8 taskId) {}
 void CB2_BagMenuFromBattle(void) {}
 void CB2_BagMenuFromStartMenu(void) {}
-void CB2_ShowPartyMenuForItemUse(void) {}
 bool8 CheckForTrainersWantingBattle(void) { return FALSE; }
 void ClearLinkCallback_2(void) {}
 u8 CountDigits(u32 number) { return 1; }
@@ -122,7 +119,6 @@ void DisplayItemMessageInBerryPouch(u8 taskId, u8 fontId, const u8 *str, void *c
 void DoCurrentWeather(void) {}
 void DoOutwardBarnDoorWipe(void) {}
 void DoPoisonFieldEffect(void) {}
-void EnterPartyFromItemMenuInBattle(u8 taskId) {}
 void FadeOutAndFadeInNewMapMusic(u16 song, u8 speed) {}
 void FadeOutAndPlayNewMapMusic(u16 song, u8 speed) {}
 void FieldCB_RushInjuredPokemonToCenter(void) {}
@@ -131,10 +127,8 @@ bool32 ForestMapPreviewScreenIsRunning(void) { return TRUE; }
 u32 GetBerryPowder(void) { return 0; }
 u32 GetCoins(void) { return 0; }
 u16 GetCurrentMapMusic(void) { return 0; }
-u8 GetCursorSelectionMonId(void) { return 0; }
 u16 GetHealLocation(u8 index) { return 0; }
 u8 GetHiddenItemAttr(u16 hiddenItemId, u8 attr) { return 0; }
-u8 GetItemEffectType(u16 item) { return 0; }
 u32 GetLinkRecvQueueLength(void) { return 0; }
 u8 GetQuestLogStartType(void) { return 0; }
 const u8 *GetSeeingLinkPlayerCardMsg(u8 id) { return NULL; }
@@ -158,21 +152,12 @@ bool32 IsSendingKeysToLink(void) { return FALSE; }
 bool8 IsSpecialSEPlaying(void) { return FALSE; }
 void ItemMenu_SetExitCallback(void *cb) {}
 void ItemMenu_StartFadeToExitCallback(u8 taskId) {}
-void ItemUseCB_EvolutionStone(u8 taskId) {}
-void ItemUseCB_Medicine(u8 taskId) {}
-void ItemUseCB_MedicineStep(u8 taskId) {}
-void ItemUseCB_PPUp(u8 taskId) {}
-void ItemUseCB_RareCandy(u8 taskId) {}
-void ItemUseCB_SacredAsh(u8 taskId) {}
-void ItemUseCB_TryRestorePP(u8 taskId) {}
 void ItemUseOnFieldCB_Itemfinder(u8 taskId) {}
 void LinkRfu_FatalError(void) {}
 bool8 MapHasPreviewScreen(u8 mapSec, u8 type) { return FALSE; }
 bool8 MapHasPreviewScreen_HandleQLState2(u8 mapSec, u8 type) { return FALSE; }
 void MapPreview_LoadGfx(u8 mapSec) {}
 void MapPreview_StartForestTransition(u8 mapSec) {}
-void MapResetTrainerRematches(u16 grp, u16 num) {}
-bool8 MonKnowsMove(struct Pokemon *mon, u16 move) { return FALSE; }
 void MovementAction_RevealTrainer_RunTrainerSeeFuncList(struct ObjectEvent *obj, struct Sprite *sprite) {}
 void PlayCry_NormalNoDucking(u16 species, s8 pan, u8 volume, u8 priority) {}
 void PlayFanfareByFanfareNum(u8 num) {}
@@ -206,19 +191,15 @@ void QuestLog_CutRecording(void) {}
 void QuestLog_DrawPreviouslyOnQuestHeaderIfInPlaybackMode(void) {}
 void QuestLog_InitPalettesBackup(void) {}
 void QuestLog_OnEscalatorWarp(u8 a) {}
-bool8 QuestLog_ShouldEndSceneOnMapChange(void) { return FALSE; }
 void QuestLog_TryRecordDepartedLocation(void) {}
 void ReadMail(struct Mail *mail, void *cb, bool8 a) {}
 void ResetContextNpcTextColor(void) {}
 void ResetCyclingRoadChallengeData(void) {}
-void ResetSafariZoneFlag(void) {}
 void ResumePausedWeather(void) {}
 void RunMassageCooldownStepCounter(void) {}
 void RunQuestLogCB(void) {}
-bool8 SafariZoneTakeStep(void) { return FALSE; }
 void SetBerryPowder(u32 *powder, u32 amount) {}
 void SetHelpContextForMap(void) {}
-void SetQuestLogEvent_Arrived(void) {}
 void SetSavedWeatherFromCurrMapHeader(void) {}
 void SetSpriteInvisible(u8 spriteId) {}
 void SetSurfBlob_BobState(u8 a, u8 b) {}
@@ -234,9 +215,7 @@ void ShowWarpArrowSprite(u8 a, u8 b, u8 c) {}
 void StartAshFieldEffect(s16 a, s16 b, u16 c, s16 d) {}
 void StartEscalator(bool8 a) {}
 void StartRevealDisguise(struct ObjectEvent *obj) {}
-void StartRoamerBattle(void) {}
 void StartSendingKeysToLink(void) {}
-void StartWildBattle(void) {}
 void StopEscalator(void) {}
 void StopMapMusic(void) {}
 void StopPokemonLeagueLightingEffectTask(void) {}
@@ -244,7 +223,6 @@ void Task_BarnDoorWipe(u8 taskId) {}
 void Task_BerryPouch_DestroyDialogueWindowAndRefreshListMenu(u8 taskId) {}
 void Task_ReturnToBagFromContextMenu(u8 taskId) {}
 void Task_StartMenuHandleInput(u8 taskId) {}
-void Task_VsSeeker_0(u8 taskId) {}
 void TransferTilesetAnimsBuffer(void) {}
 void UpdateAshFieldEffect(struct Sprite *sprite) {}
 void UpdateBubblesFieldEffect(struct Sprite *sprite) {}
@@ -262,7 +240,6 @@ void UpdateSplashFieldEffect(struct Sprite *sprite) {}
 void UpdateSurfBlobFieldEffect(struct Sprite *sprite) {}
 void UpdateTallGrassFieldEffect(struct Sprite *sprite) {}
 void UpdateTilesetAnimations(void) {}
-void UpdateVsSeekerStepCounter(void) {}
 void UseFameChecker(MainCallback savedCallback) { (void)savedCallback; }
 void UseRegisteredKeyItemOnField(void) {}
 void UsedPokemonCenterWarp(void) {}
@@ -474,25 +451,16 @@ void HideCoinsWindow(void) {}
 void PrintCoinsString(u16 coins) { (void)coins; }
 void PlaySlotMachine(u8 a, void *cb) { (void)a; (void)cb; }
 void AnimateFlash(u8 a) { (void)a; }
-void BattleSetup_ConfigureTrainerBattle(const u8 *script) { (void)script; }
-const u8 *BattleSetup_GetScriptAddrAfterBattle(void) { return NULL; }
-const u8 *BattleSetup_GetTrainerPostBattleScript(void) { return NULL; }
-void ClearTrainerFlag(u16 id) { (void)id; }
-void SetTrainerFlag(u16 id) { (void)id; }
-bool8 HasTrainerBeenFought(u16 id) { (void)id; return FALSE; }
 void CreateDecorationShop1Menu(void) {}
 void CreateDecorationShop2Menu(void) {}
 void CreatePokemartMenu(const u16 *items) { (void)items; }
 void CreateScriptedWildMon(u16 species, u8 level, u16 item) { (void)species; (void)level; (void)item; }
-void StartScriptedWildBattle(void) {}
-void StartTrainerBattle(void) {}
 void FadeOutBGMTemporarily(u8 a) { (void)a; }
 bool8 IsBGMPausedOrStopped(void) { return FALSE; }
 u8 GetLeadMonIndex(void) { return 0; }
 void MapPreview_SetFlag(u16 a) { (void)a; }
 void PlayCry_Script(u16 species, u8 a) { (void)species; (void)a; }
 bool8 QL_AvoidDisplay(void (*callback)(void)) { (void)callback; return FALSE; }
-void QuestLog_RecordEnteredMap(u16 map) { (void)map; }
 u8 ScriptGiveEgg(u16 species) { (void)species; return 0; }
 void ScriptSetMonMoveSlot(u8 partyIdx, u16 move, u8 slot) { (void)partyIdx; (void)move; (void)slot; }
 void SetMysteryEventScriptStatus(u8 status) { (void)status; }
