@@ -88,6 +88,20 @@ class Macro:
             for p in params
             if "=" in p
         }
+        # A ``:vararg`` parameter absorbs every remaining argument as one
+        # comma-separated list. The anim macros rely on this:
+        # `createsprite template, ANIM_ATTACKER, 2, 0, 0, ANIM_TARGET, 2` has
+        # three fixed parameters and four varargs. Treating the vararg as an
+        # ordinary parameter silently drops all but its first argument and
+        # desyncs the whole script stream.
+        self.vararg_index = next(
+            (
+                i
+                for i, p in enumerate(params)
+                if p.split(":")[1:2] == ["vararg"]
+            ),
+            None,
+        )
         self.body = body  # list of stripped source lines
 
 
@@ -181,6 +195,59 @@ def substitute(text, substitution):
             text,
         )
     return text
+
+
+def filter_conditionals(body, evaluate):
+    """Keep only the active branch of ``.if``/``.elseif``/``.else``/``.endif``.
+
+    Macro bodies may branch on a parameter (`createsprite`'s
+    ``.if \\anim_battler == ANIM_TARGET``), and the script files branch on the
+    build revision (``.if REVISION >= 0xA``). Emitting both branches produces a
+    stream that desynchronises the interpreter; dropping the whole construct
+    drops the real bytes.
+
+    ``evaluate`` returns the truth of one condition expression and is only
+    called for levels whose parent is active, so an unresolvable condition in a
+    skipped branch cannot raise.
+    """
+    kept = []
+    # One entry per open `.if`: (parent_active, any_branch_taken_yet).
+    stack = []
+    active = True
+    for line in body:
+        stripped = line.strip()
+        if stripped.startswith(".if"):
+            parent = active
+            cond = evaluate(stripped[3:]) if parent else False
+            stack.append([parent, cond])
+            active = parent and cond
+            continue
+        if stripped.startswith(".elseif"):
+            if not stack:
+                raise MacroError(f".elseif without .if: {line!r}")
+            level = stack[-1]
+            cond = evaluate(stripped[len(".elseif"):]) if level[0] and not level[1] else False
+            level[1] = level[1] or cond
+            active = level[0] and cond
+            continue
+        if stripped.startswith(".else"):
+            if not stack:
+                raise MacroError(f".else without .if: {line!r}")
+            level = stack[-1]
+            active = level[0] and not level[1]
+            level[1] = True
+            continue
+        if stripped.startswith(".endif"):
+            if not stack:
+                raise MacroError(f".endif without .if: {line!r}")
+            stack.pop()
+            active = stack[-1][0] if stack else True
+            continue
+        if active:
+            kept.append(line)
+    if stack:
+        raise MacroError("unterminated .if")
+    return kept
 
 
 # --------------------------------------------------------------------------
@@ -926,6 +993,9 @@ class Assembler:
         # references them precedes their definition in the macro body
         # (`createsprite` emits the vararg count, then defines .Lsprite_X_1).
         body = [substitute(line, substitution).replace("\\@", str(unique)) for line in macro.body]
+        # Only the taken branch of `.if \\param == X` may be emitted; emitting
+        # both desynchronises every following command.
+        body = filter_conditionals(body, self.evaluate_expression)
         labels = self.layout_labels(body, macro_name)
 
         for line in body:
@@ -961,7 +1031,9 @@ class Assembler:
                 continue
             elif op in self.macros:
                 inner = self.macros[op]
-                nested_args = self.split_args(operand, len(inner.params))
+                nested_args = self.split_args(
+                    operand, len(inner.params), inner.vararg_index
+                )
                 emitted += self.emit_macro(op, nested_args, output)
             else:
                 raise MacroError(f"{macro_name}: unknown macro line {line!r}")
@@ -991,7 +1063,9 @@ class Assembler:
                     emitted += DIRECTIVE_SIZES[op] * len(self.split_operands(operand))
             elif op in self.macros:
                 inner = self.macros[op]
-                nested_args = self.split_args(operand, len(inner.params))
+                nested_args = self.split_args(
+                    operand, len(inner.params), inner.vararg_index
+                )
                 emitted += self.macro_size(inner, nested_args)
         return offsets
 
@@ -1008,8 +1082,9 @@ class Assembler:
             for i, param in enumerate(macro.params)
         }
         total = 0
-        for line in macro.body:
-            text = substitute(line, substitution)
+        body = [substitute(line, substitution) for line in macro.body]
+        body = filter_conditionals(body, self.evaluate_expression)
+        for text in body:
             tokens = text.split(None, 1)
             op = tokens[0]
             operand = tokens[1] if len(tokens) > 1 else ""
@@ -1021,7 +1096,9 @@ class Assembler:
                 )
             elif op in self.macros:
                 inner = self.macros[op]
-                nested_args = self.split_args(operand, len(inner.params))
+                nested_args = self.split_args(
+                    operand, len(inner.params), inner.vararg_index
+                )
                 total += self.macro_size(inner, nested_args, depth + 1)
         return total
 
@@ -1050,7 +1127,11 @@ class Assembler:
         first, second, divisor = match.group(1), match.group(2), int(match.group(3))
         if first not in labels or second not in labels:
             raise MacroError(f"unresolved layout label in {operand!r}")
-        return ((labels[second] - labels[first]) // divisor) & 0xFF
+        # `first` names the end label and `second` the start label (the macro
+        # writes `(.Lend - .Lstart)`), so the count is end - start. Reversing
+        # them yields a negative count that the interpreter uses as a loop
+        # bound, walking the anim argument list off the end of the command.
+        return ((labels[first] - labels[second]) // divisor) & 0xFF
 
     @staticmethod
     def split_operands(operand):
@@ -1073,7 +1154,7 @@ class Assembler:
         return parts
 
     @classmethod
-    def split_args(cls, operand, param_count):
+    def split_args(cls, operand, param_count, vararg_index=None):
         """Split a macro invocation's arguments the way GNU as does.
 
         GNU as separates macro arguments on commas, but also accepts whitespace
@@ -1085,7 +1166,25 @@ class Assembler:
         So: split on commas first, and if that yields fewer pieces than the
         macro declares parameters, split on whitespace with the final parameter
         absorbing the remainder.
+
+        A ``:vararg`` parameter absorbs *every* remaining argument as one
+        comma-separated list, which is how the animation macros pass sprite and
+        task arguments:
+
+            createsprite gBasicHitSplatSpriteTemplate, ANIM_ATTACKER, 2, 0, 0, ANIM_TARGET, 2
+
+        Three fixed parameters plus four varargs. Splitting positionally would
+        bind ``argv`` to the first vararg and silently drop the rest, which
+        desynchronises the emitted script.
         """
+        if vararg_index is not None and param_count:
+            parts = cls.split_operands(operand)
+            if len(parts) == 1 and vararg_index:
+                words = parts[0].split(None, vararg_index)
+                if len(words) == vararg_index + 1:
+                    parts = words
+            if len(parts) > vararg_index:
+                return parts[:vararg_index] + [", ".join(parts[vararg_index:])]
         parts = cls.split_operands(operand)
         if len(parts) >= param_count or param_count == 0:
             return parts
@@ -1104,10 +1203,12 @@ class Assembler:
         lines = open(path).read().splitlines()
         current = None
         pending_table = None
-        condition = None  # None = active; False = skipping
-        skipping_from = None
 
-        for raw in lines:
+        # Conditional assembly (`REVISION >= 0xA`) uses the same semantics as a
+        # macro body's `.if`, so both go through one filter.
+        kept_lines = filter_conditionals(lines, self.evaluate_condition)
+
+        for raw in kept_lines:
             line = raw.split("@", 1)[0].rstrip() if not raw.strip().startswith("@") else ""
             stripped = line.strip()
             if not stripped:
@@ -1115,19 +1216,6 @@ class Assembler:
             if stripped.startswith("#include") or stripped.startswith(".include"):
                 continue
             if stripped.startswith(".section") or stripped.startswith(".align") or stripped.startswith(".set"):
-                continue
-            if stripped.startswith(".if"):
-                condition = self.evaluate_condition(stripped[3:])
-                skipping_from = not condition
-                continue
-            if stripped.startswith(".else"):
-                condition = not bool(skipping_from)
-                continue
-            if stripped.startswith(".endif"):
-                condition = None
-                skipping_from = None
-                continue
-            if skipping_from:
                 continue
 
             label = LABEL_RE.match(stripped)
@@ -1170,10 +1258,15 @@ class Assembler:
             arg_text = parts[1] if len(parts) > 1 else ""
             if opcode not in self.macros:
                 raise MacroError(f"{rel}: unknown script command {opcode!r}")
-            args = self.split_args(arg_text, len(self.macros[opcode].params))
+            args = self.split_args(
+                arg_text,
+                len(self.macros[opcode].params),
+                self.macros[opcode].vararg_index,
+            )
             self.emit_macro(opcode, args, current[1])
 
     def evaluate_condition(self, expression):
+        """Truth of a script-file ``.if`` (e.g. ``REVISION >= 0xA``)."""
         expression = expression.strip()
         try:
             return bool(self.symbols.evaluate(expression))
@@ -1181,6 +1274,22 @@ class Assembler:
             # Unresolvable conditions (e.g. REVISION) fall back to the
             # non-.A branch, which is what REVISION=0 selects.
             return False
+
+    def evaluate_expression(self, expression):
+        """Truth of a macro-body ``.if``, after parameter substitution.
+
+        Macro bodies are substituted before filtering, so the expression is
+        already concrete (``0 == ANIM_TARGET``). Unlike the file-level form,
+        an unresolvable condition here is a generator bug: silently choosing a
+        branch would desynchronise the script.
+        """
+        expression = expression.strip()
+        if not expression:
+            raise MacroError("empty .if condition")
+        try:
+            return bool(self.symbols.evaluate(expression))
+        except MacroError as error:
+            raise MacroError(f"cannot evaluate .if {expression!r}: {error}") from error
 
 
 # --------------------------------------------------------------------------
