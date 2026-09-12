@@ -34,6 +34,10 @@
 #include "constants/pokemon.h"
 #include "constants/trainers.h"
 
+// Generated native scripts store pointer operands as u32 indices into this
+// aligned table (fix #23); the trainerbattle operands are resolved through it.
+extern const void *const gNativeScriptPtrs[];
+
 enum {
     TRANSITION_TYPE_NORMAL,
     TRANSITION_TYPE_CAVE,
@@ -737,7 +741,12 @@ static inline void SetU32(void *ptr, u32 value)
     // (sTrainerAIntroSpeech / sTrainerADefeatSpeech are `u8 *`). Writing a u32
     // through a `u8 **` leaves the upper 4 bytes of the 8-byte host pointer
     // untouched, so the value must be stored at the pointee's full width.
-    *(uintptr_t *)(ptr) = (uintptr_t)value;
+    //
+    // The generated trainer scripts store every pointer operand as a u32 index
+    // into the aligned gNativeScriptPtrs table (fix #23), so the index is
+    // resolved here as well; without this the speech pointers would hold the
+    // index itself and StringExpandPlaceholders would read unmapped memory.
+    *(uintptr_t *)(ptr) = (uintptr_t)gNativeScriptPtrs[value];
 #else
     *(u32 *)(ptr) = value;
 #endif
@@ -773,7 +782,9 @@ static void TrainerBattleLoadArgs(const struct TrainerBattleParameter *specs, co
             SetU16(specs->varPtr, 0);
             break;
         case TRAINER_PARAM_CLEAR_VAL_32BIT:
-            SetU32(specs->varPtr, 0);
+            // Not SetU32: index 0 is a real gNativeScriptPtrs entry, and a
+            // cleared speech pointer must be NULL.
+            SetPtr(specs->varPtr, NULL);
             break;
         case TRAINER_PARAM_LOAD_SCRIPT_RET_ADDR:
             SetPtr(specs->varPtr, data);
