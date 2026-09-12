@@ -773,6 +773,38 @@ class ScriptRegistry:
                 elif command == "setmetatile" and len(args) == 4:
                     output += [0xa2] + little_endian(self.resolve(args[0]), 2) + little_endian(self.resolve(args[1]), 2)
                     output += little_endian(self.resolve(args[2]), 2) + little_endian(self.resolve(args[3]), 2)
+                elif command == "trainerbattle" and len(args) >= 4:
+                    # trainerbattle type, trainer, local_id, ptr1[, ptr2, ...]
+                    # The trailing operands are text/script pointers; the engine's
+                    # TrainerBattleLoadArgs reads them as raw 32-bit values, so
+                    # they are emitted through the shared pointer table the same
+                    # way every other script pointer operand is (fix #23).
+                    battle_type = self.resolve(args[0])
+                    output += [0x5c, battle_type & 0xFF]
+                    output += little_endian(self.resolve(args[1]), 2)
+                    output += little_endian(self.resolve(args[2]), 2)
+                    for pointer in args[3:]:
+                        output += self.pointer_bytes(pointer)
+                elif command == "dotrainerbattle" and not args:
+                    # 0x5d: start the trainer battle configured above.
+                    output.append(0x5d)
+                elif command == "gotopostbattlescript" and not args:
+                    # 0x5e: ScrCmd_gotopostbattlescript
+                    output.append(0x5e)
+                elif command == "gotobeatenscript" and not args:
+                    # 0x5f: ScrCmd_gotobeatenscript
+                    output.append(0x5f)
+                elif command == "setwildbattle" and len(args) >= 2:
+                    # setwildbattle species, level[, item] -> 0xb6, .2byte species,
+                    # .byte level, .2byte item. ScrCmd_setwildbattle reads the
+                    # operands in that order and creates the mon into gEnemyParty.
+                    item = self.resolve(args[2]) if len(args) >= 3 else self.constants.get("ITEM_NONE", 0)
+                    output += [0xb6] + little_endian(self.resolve(args[0]), 2)
+                    output += [self.resolve(args[1]) & 0xFF] + little_endian(item, 2)
+                elif command == "dowildbattle" and not args:
+                    # 0xb7: ScrCmd_dowildbattle starts the battle set up by
+                    # setwildbattle and stops the script context until it ends.
+                    output.append(0xb7)
                 elif command == "pokemart" and len(args) == 1:
                     # The item list is a `label:: .2byte ITEM_*, ITEM_NONE` block;
                     # compiled as a plain script array it already is the u16 list
