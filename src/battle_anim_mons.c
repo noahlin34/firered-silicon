@@ -376,15 +376,28 @@ u8 GetAnimBattlerSpriteId(u8 animBattler)
 
 void StoreSpriteCallbackInData6(struct Sprite *sprite, SpriteCallback callback)
 {
+    // Stored whole across data[6..7]. Under PORTABLE those elements are s32, so
+    // two of them hold the full 64-bit host pointer; on GBA the two s16 elements
+    // hold the 32-bit address exactly as pret wrote it.
+#ifdef PORTABLE
+    uintptr_t value = (uintptr_t)callback;
+    memcpy(&sprite->data[6], &value, sizeof(value));
+#else
     sprite->data[6] = (u32)(callback) & 0xFFFF;
     sprite->data[7] = (u32)(callback) >> 16;
+#endif
 }
 
 static void SetCallbackToStoredInData6(struct Sprite *sprite)
 {
+#ifdef PORTABLE
+    uintptr_t value;
+    memcpy(&value, &sprite->data[6], sizeof(value));
+    sprite->callback = (SpriteCallback)value;
+#else
     u32 callback = (u16)sprite->data[6] | (sprite->data[7] << 16);
-    
     sprite->callback = (SpriteCallback)callback;
+#endif
 }
 
 // Sprite data for TranslateSpriteInCircle/Ellipse and related
