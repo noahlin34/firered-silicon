@@ -90,9 +90,9 @@ const u8 TradeCenter_TerminateLink[] = { 0x02 };
 const u8 TrainerTower_EventScript_ShowTime[] = { 0x02 };
 
 /* Data stubs */
-/* No field-effect scripts are ported yet; keep the table full-size so
- * FieldEffectStart's lookup stays in bounds. */
-const u8 *const gFieldEffectScriptPointers[FLDEFF_COUNT] = { 0 };
+/* gFieldEffectScriptPointers is now the real generated table in
+ * src/data/field_effects/ptr_table.c (see tools/gen_field_effect_data.py);
+ * the all-NULL stub that used to live here is deleted (fix #8). */
 const u8 gPokedexEntries[] = { 0 };
 u8 gMaxFlashLevel = 0;
 u32 gOverworldBackgroundLayerFlags = 0;
@@ -112,7 +112,6 @@ bool8 CheckForTrainersWantingBattle(void) { return FALSE; }
 void ClearLinkCallback_2(void) {}
 u8 CountDigits(u32 number) { return 1; }
 void CreateTask_ReestablishCableClubLink(void) {}
-void CreateWarpArrowSprite(void) {}
 s8 DexScreen_GetSetPokedexFlag(u16 nationalNum, u8 caseId) { return 0; }
 void DismissMapNamePopup(void) {}
 void DisplayItemMessageInBag(u8 taskId, u8 fontId, const u8 *str, void *cb) {}
@@ -123,7 +122,6 @@ void DoPoisonFieldEffect(void) {}
 void FadeOutAndFadeInNewMapMusic(u16 song, u8 speed) {}
 void FadeOutAndPlayNewMapMusic(u16 song, u8 speed) {}
 void FieldCB_RushInjuredPokemonToCenter(void) {}
-u8 FindTallGrassFieldEffectSpriteId(u8 a) { return 0; }
 bool32 ForestMapPreviewScreenIsRunning(void) { return TRUE; }
 u32 GetBerryPowder(void) { return 0; }
 u32 GetCoins(void) { return 0; }
@@ -202,20 +200,12 @@ void RunQuestLogCB(void) {}
 void SetBerryPowder(u32 *powder, u32 amount) {}
 void SetHelpContextForMap(void) {}
 void SetSavedWeatherFromCurrMapHeader(void) {}
-void SetSpriteInvisible(u8 spriteId) {}
-void SetSurfBlob_BobState(u8 a, u8 b) {}
-void SetSurfBlob_DontSyncAnim(u8 a, bool8 b) {}
-void SetSurfBlob_PlayerOffset(u8 a, s16 b, s16 c) {}
-void SetUpReflection(struct ObjectEvent *obj, struct Sprite *sprite, bool8 a) {}
 void SetUpReturnToStartMenu(void) {}
 void SetWhiteoutRespawnWarpAndHealerNpc(struct WarpData *warp) {}
 bool8 ShouldEggHatch(void) { return FALSE; }
 void ShowMapNamePopup(bool8 a) {}
 void ShowStartMenu(void) {}
-void ShowWarpArrowSprite(u8 a, u8 b, u8 c) {}
-void StartAshFieldEffect(s16 a, s16 b, u16 c, s16 d) {}
 void StartEscalator(bool8 a) {}
-void StartRevealDisguise(struct ObjectEvent *obj) {}
 void StartSendingKeysToLink(void) {}
 void StopEscalator(void) {}
 void StopMapMusic(void) {}
@@ -225,28 +215,12 @@ void Task_BerryPouch_DestroyDialogueWindowAndRefreshListMenu(u8 taskId) {}
 void Task_ReturnToBagFromContextMenu(u8 taskId) {}
 void Task_StartMenuHandleInput(u8 taskId) {}
 void TransferTilesetAnimsBuffer(void) {}
-void UpdateAshFieldEffect(struct Sprite *sprite) {}
-void UpdateBubblesFieldEffect(struct Sprite *sprite) {}
-void UpdateDisguiseFieldEffect(struct Sprite *sprite) {}
-void UpdateFootprintsTireTracksFieldEffect(struct Sprite *sprite) {}
-void UpdateHotSpringsWaterFieldEffect(struct Sprite *sprite) {}
-void UpdateJumpImpactEffect(struct Sprite *sprite) {}
-void UpdateLongGrassFieldEffect(struct Sprite *sprite) {}
-void UpdateRevealDisguise(struct Sprite *sprite) {}
-void UpdateSandPileFieldEffect(struct Sprite *sprite) {}
-void UpdateShadowFieldEffect(struct Sprite *sprite) {}
-void UpdateShortGrassFieldEffect(struct Sprite *sprite) {}
-void UpdateSparkleFieldEffect(struct Sprite *sprite) {}
-void UpdateSplashFieldEffect(struct Sprite *sprite) {}
-void UpdateSurfBlobFieldEffect(struct Sprite *sprite) {}
-void UpdateTallGrassFieldEffect(struct Sprite *sprite) {}
 void UpdateTilesetAnimations(void) {}
 void UseFameChecker(MainCallback savedCallback) { (void)savedCallback; }
 void UseRegisteredKeyItemOnField(void) {}
 void UsedPokemonCenterWarp(void) {}
 bool8 ValidateSavedWonderCard(void) { return FALSE; }
 void WaitFanfare(bool8 a) {}
-bool8 WaitFieldEffectSpriteAnim(struct Sprite *sprite) { return TRUE; }
 void WonderNews_IncrementStepCounter(void) {}
 void WriteFlashScanlineEffectBuffer(u8 a) {}
 
