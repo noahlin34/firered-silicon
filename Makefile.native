@@ -61,7 +61,6 @@ ENGINE_SRCS := src/main.c \
                src/dma3_manager.c \
                src/bg.c \
                src/random.c \
-               src/string_util.c \
                src/pokeball.c \
                src/math_util.c \
                src/trig.c \
@@ -109,6 +108,7 @@ ENGINE_SRCS := src/main.c \
 PREPROC_SRCS := src/title_screen.c \
                 src/sprite.c \
                 src/text.c \
+                src/string_util.c \
                 src/text_window.c \
                 src/text_window_graphics.c \
                 src/strings.c \
