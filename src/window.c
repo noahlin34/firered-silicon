@@ -500,6 +500,13 @@ u32 GetWindowAttribute(u8 windowId, u8 attributeId)
     }
 }
 
+u8 *GetWindowTileDataPtr(u8 windowId)
+{
+    // Returned whole rather than through GetWindowAttribute's u32, which would
+    // truncate the 64-bit host pointer.
+    return gWindows[windowId].tileData;
+}
+
 static u8 GetNumActiveWindowsOnBg(u8 bgId)
 {
     u8 windowsNum = 0;
