@@ -37,7 +37,9 @@ EWRAM_DATA u8 sSpecialFlags[SPECIAL_FLAGS_SIZE] = {};
 
 COMMON_DATA u16 gLastQuestLogStoredFlagOrVarIdx = 0;
 
-u16 gSpecialVar_ItemId = 0;
+/* gSpecialVar_ItemId is owned by src/item_menu.c (EWRAM_DATA there); it was
+ * defined here only while that file was unlinked. The gSpecialVars table below
+ * still references it through item_menu.h. */
 
 u16 *const gSpecialVars[] = {
     &gSpecialVar_0x8000,
