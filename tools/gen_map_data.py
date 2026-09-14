@@ -21,6 +21,9 @@ NATIVE_SCRIPT_ROOTS = {
     # the real script (special DoPicboxCancel, release, end) the box's frame
     # stays drawn on screen.
     "EventScript_CancelMessageBox",
+    # START menu / BAG: registering an item to SELECT runs this message script
+    # from src/item_menu.c. Without it the registration path jumps into a NULL.
+    "EventScript_BagItemCanBeRegistered",
     # Pallet Town exterior: A-press interactions (the two wandering NPCs and
     # every sign) and Oak's northern exit interception triggers.
     "PalletTown_EventScript_FatMan",
