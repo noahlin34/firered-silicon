@@ -240,9 +240,6 @@ bool8 IsDestinationBoxFull(void) { return 0; }
 bool8 IsItemIconAnimActive(void) { return 0; }
 bool32 IsLinkRecvQueueAtOverworldMax(void) { return 0; }
 bool8 IsLinkRfuTaskFinished(void) { return 0; }
-u8 ListMenuAddCursorObjectInternal(const struct CursorStruct *cursor, u32 cursorKind) { return 0; }
-void ListMenuRemoveCursorObject(u8 taskId, u32 cursorKind) {}
-void ListMenuUpdateCursorObject(u8 taskId, u16 x, u16 y, u32 cursorKind) {}
 void LoadWirelessStatusIndicatorSpriteGfx(void) {}
 void MapNamePopupWindowIdSetDummy(void) {}
 bool8 MultiMove_CanPlaceSelection(void) { return 0; }
@@ -396,7 +393,6 @@ void ClearPlayerLinkBattleRecords(void) {}
 void ResetTrainerFanClub(void) {}
 void UnionRoomChat_InitializeRegisteredTexts(void) {}
 void ResetPokemonJumpRecords(void) {}
-void ResetBagCursorPositions(void) {}
 void ResetTMCaseCursorPos(void) {}
 void BerryPouch_CursorResetToTop(void) {}
 void ResetQuestLog(void) {}
