@@ -141,17 +141,10 @@ const struct TrainerTowerFloor *const gTrainerTowerFloors[NUM_TOWER_CHALLENGE_TY
 
 /* Battle-only friendship and menu bookkeeping are not linked into the port. */
 
-void AppendToList(u8 *list, u8 *pos, u8 newEntry)
-{
-    (void)list;
-    (void)pos;
-    (void)newEntry;
-}
 
 /* Safari Zone, Teachy TV, and battle-menu transitions are unlinked. */
 void CB2_OpenFlyMap(void) {}
 void CB2_ReturnToTeachyTV(void) {}
-void CB2_SetUpReshowBattleScreenAfterMenu(void) {}
 bool32 CEReaderTool_LoadTrainerTower(struct EReaderTrainerTowerSet *ttdata)
 {
     (void)ttdata;
@@ -323,15 +316,7 @@ s32 GetUnionRoomTradeMessageId(struct RfuGameCompatibilityData rfuPlayer,
     return 0;
 }
 
-void GoToBagMenu(u8 menuType, u8 pocket, MainCallback callback)
-{
-    (void)menuType;
-    (void)pocket;
-    (void)callback;
-}
 
-void InitOldManBag(void) {}
-void InitPokedudeBag(u8 a0) { (void)a0; }
 bool32 IsSpeciesAllowedInPokemonJump(u16 species)
 {
     (void)species;
