@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "global.h"
+#include "main.h"
 #include "platform/platform.h"
 #include "platform/ppu.h"
 
@@ -28,13 +29,24 @@
 #define WINMASK_BG3     (1 << 3)
 #define WINMASK_OBJ     (1 << 4)
 #define WINMASK_CLR     (1 << 5)
-#define WINMASK_WINOUT  (1 << 6)
+
+// Which GBA window a pixel belongs to. Priority is WIN0 > WIN1 > OBJWIN > outside.
+enum
+{
+    WINREGION_OUTSIDE,
+    WINREGION_WIN0,
+    WINREGION_WIN1,
+    WINREGION_OBJWIN,
+};
 
 struct scanlineData {
     uint16_t layers[4][DISPLAY_WIDTH];
     uint16_t spriteLayers[4][DISPLAY_WIDTH];
     uint16_t bgcnts[4];
+    // Effective per-pixel layer enables, in WININ/WINOUT bit order
+    // (bit 0-3 = BG0-3, bit 4 = OBJ, bit 5 = colour effect).
     uint16_t winMask[DISPLAY_WIDTH];
+    uint8_t winRegion[DISPLAY_WIDTH];
     char bgtoprio[4];
     char prioritySortedBgs[4][4];
     char prioritySortedBgsCount[4];
@@ -270,6 +282,76 @@ static bool alphaBlendSelectTargetB(struct scanlineData *scanline, uint16_t *col
     return false;
 }
 
+// Compute, for every pixel of this scanline, which window region it falls in
+// and therefore which layers that region allows. The engine's battle
+// transitions and menu animations are built entirely out of this: a transition
+// wipes by animating WIN0H/WIN0V so that BG0 (the effect layer) replaces the
+// field only inside the window, and the menu screens dim everything except the
+// cursor row by putting just that row inside WIN0.
+//
+// Window region priority is WIN0 > WIN1 > OBJWIN > outside. When neither WIN0
+// nor WIN1 is enabled on the display control, masking is inactive and the
+// ordinary DISPCNT layer enables apply everywhere.
+static void ComputeWindowMask(struct scanlineData *scanline, int vcount)
+{
+    bool win0On = (REG_DISPCNT & DISPCNT_WIN0_ON) != 0;
+    bool win1On = (REG_DISPCNT & DISPCNT_WIN1_ON) != 0;
+    bool objWinOn = (REG_DISPCNT & DISPCNT_OBJWIN_ON) != 0;
+    uint16_t win0H = REG_WIN0H;
+    uint16_t win0V = REG_WIN0V;
+    uint16_t win1H = REG_WIN1H;
+    uint16_t win1V = REG_WIN1V;
+
+    bool inWin0Row = false;
+    bool inWin1Row = false;
+
+    if (win0On)
+    {
+        int top = win0V >> 8;
+        int bottom = win0V & 0xFF;
+
+        inWin0Row = (vcount >= top && vcount < bottom);
+    }
+
+    if (win1On)
+    {
+        int top = win1V >> 8;
+        int bottom = win1V & 0xFF;
+
+        inWin1Row = (vcount >= top && vcount < bottom);
+    }
+
+    for (int x = 0; x < DISPLAY_WIDTH; x++)
+    {
+        uint8_t region;
+
+        if (inWin0Row && x >= (win0H >> 8) && x < (win0H & 0xFF))
+            region = WINREGION_WIN0;
+        else if (inWin1Row && x >= (win1H >> 8) && x < (win1H & 0xFF))
+            region = WINREGION_WIN1;
+        else
+            region = WINREGION_OUTSIDE;
+
+        scanline->winRegion[x] = region;
+
+        switch (region)
+        {
+        case WINREGION_WIN0:
+            scanline->winMask[x] = REG_WININ & 0x3F;
+            break;
+        case WINREGION_WIN1:
+            scanline->winMask[x] = (REG_WININ >> 8) & 0x3F;
+            break;
+        case WINREGION_OBJWIN:
+            scanline->winMask[x] = (REG_WINOUT >> 8) & 0x3F;
+            break;
+        default:
+            scanline->winMask[x] = REG_WINOUT & 0x3F;
+            break;
+        }
+    }
+}
+
 static void DrawSprites(struct scanlineData *scanline, uint16_t vcount, bool windowsEnabled)
 {
     void *objtiles = VRAM_ + 0x10000;
@@ -319,8 +401,35 @@ static void DrawSprites(struct scanlineData *scanline, uint16_t vcount, bool win
         if (y >= DISPLAY_HEIGHT)
             y -= 256;
 
+        // Affine (rotated/scaled) sprites transform around their centre and, in
+        // double-size mode, draw into a bounding box twice the sprite's size.
+        // The engine rotates the Poké Ball this way while it is thrown, spins
+        // battler sprites, and scales mons during the ball send-out; without
+        // this the matrices are computed but never sampled (the ball flew
+        // without spinning and battler growth/shrink did nothing).
+        int32_t pa = 0x100, pb = 0, pc = 0, pd = 0x100;
+
+        if (isAffine)
+        {
+            const struct OamMatrix *mat = &gOamMatrices[oam->matrixNum & 0x1F];
+
+            pa = mat->a;
+            pb = mat->b;
+            pc = mat->c;
+            pd = mat->d;
+        }
+
         int half_width = width / 2;
         int half_height = height / 2;
+
+        if (isAffine && (oam->affineMode >> 1) & 1)
+        {
+            // Double-size affine boxes span twice the object's dimensions.
+            width *= 2;
+            height *= 2;
+            half_width = width / 2;
+            half_height = height / 2;
+        }
 
         x += half_width;
         y += half_height;
@@ -335,6 +444,15 @@ static void DrawSprites(struct scanlineData *scanline, uint16_t vcount, bool win
             bool flipY = !isAffine && ((oam->matrixNum >> 4) & 1);
             bool is8BPP = oam->bpp & 1;
 
+            // Source-space span of the sprite's own pixels, used to reject
+            // texels that a rotation would otherwise sample from outside it.
+            const int src_width = (oam->shape == 0) ? (1 << oam->size) * 8
+                                : (oam->shape == 1) ? (int)spriteSizes[oam->size][1]
+                                : (int)spriteSizes[oam->size][0];
+            const int src_height = (oam->shape == 0) ? (1 << oam->size) * 8
+                                 : (oam->shape == 1) ? (int)spriteSizes[oam->size][0]
+                                 : (int)spriteSizes[oam->size][1];
+
             for (int local_x = -half_width; local_x < half_width; local_x++)
             {
                 uint8_t *tiledata = (uint8_t *)objtiles;
@@ -344,22 +462,40 @@ static void DrawSprites(struct scanlineData *scanline, uint16_t vcount, bool win
                 if (global_x < 0 || global_x >= DISPLAY_WIDTH)
                     continue;
 
-                int tex_x = local_x + half_width;
-                int tex_y = local_y + half_height;
+                int tex_x;
+                int tex_y;
 
-                if (tex_x >= (int)width || tex_y >= (int)height || tex_x < 0 || tex_y < 0)
+                if (isAffine)
+                {
+                    // Inverse affine transform: the OAM matrix maps screen space
+                    // back into the sprite's texture.
+                    int32_t dx = local_x;
+                    int32_t dy = local_y;
+
+                    tex_x = (int)((pa * dx + pb * dy) >> 8) + (src_width / 2);
+                    tex_y = (int)((pc * dx + pd * dy) >> 8) + (src_height / 2);
+                }
+                else
+                {
+                    tex_x = local_x + half_width;
+                    tex_y = local_y + half_height;
+                }
+
+                if (tex_x >= src_width || tex_y >= src_height || tex_x < 0 || tex_y < 0)
                     continue;
 
                 if (flipX)
-                    tex_x = width - tex_x - 1;
+                    tex_x = src_width - tex_x - 1;
                 if (flipY)
-                    tex_y = height - tex_y - 1;
+                    tex_y = src_height - tex_y - 1;
 
                 int tile_x = tex_x % 8;
                 int tile_y = tex_y % 8;
                 int block_x = tex_x / 8;
                 int block_y = tex_y / 8;
-                int block_offset = (block_y * (REG_DISPCNT & 0x40 ? (width / 8) : 16)) + block_x;
+                // Tile stride follows the object's own dimensions: an affine
+                // double-size sprite stores its tiles as if undoubled.
+                int block_offset = (block_y * (REG_DISPCNT & 0x40 ? (src_width / 8) : 16)) + block_x;
                 uint16_t pixel = 0;
 
                 if (!is8BPP)
@@ -382,10 +518,20 @@ static void DrawSprites(struct scanlineData *scanline, uint16_t vcount, bool win
 
                     if (isObjWin)
                     {
-                        if (scanline->winMask[global_x] & WINMASK_WINOUT)
+                        // An OBJ-window sprite is not drawn; its opaque pixels
+                        // mark the OBJ-window region, which only applies where
+                        // no rectangular window already claimed the pixel.
+                        if (scanline->winRegion[global_x] == WINREGION_OUTSIDE)
+                        {
+                            scanline->winRegion[global_x] = WINREGION_OBJWIN;
                             scanline->winMask[global_x] = (REG_WINOUT >> 8) & 0x3F;
+                        }
                         continue;
                     }
+
+                    // The region's OBJ bit must allow sprites here.
+                    if (windowsEnabled && !(scanline->winMask[global_x] & WINMASK_OBJ))
+                        continue;
 
                     bool winShouldBlendPixel = (!windowsEnabled || (scanline->winMask[global_x] & WINMASK_CLR));
 
@@ -416,11 +562,37 @@ void PPU_RenderScanline(uint16_t *pixels, int vcount)
     unsigned int mode = REG_DISPCNT & 3;
     struct scanlineData scanline;
     unsigned int blendMode = (REG_BLDCNT >> 6) & 3;
+    // Masking is active only while WIN0 (or WIN1/OBJWIN) is switched on in
+    // DISPCNT; otherwise the ordinary layer enables apply everywhere.
+    bool windowsEnabled = (REG_DISPCNT & (DISPCNT_WIN0_ON | DISPCNT_WIN1_ON | DISPCNT_OBJWIN_ON)) != 0;
 
     memset(scanline.layers, 0, sizeof(scanline.layers));
     memset(scanline.winMask, 0, sizeof(scanline.winMask));
+    memset(scanline.winRegion, 0, sizeof(scanline.winRegion));
     memset(scanline.spriteLayers, 0, sizeof(scanline.spriteLayers));
     memset(scanline.prioritySortedBgsCount, 0, sizeof(scanline.prioritySortedBgsCount));
+
+    ComputeWindowMask(&scanline, vcount);
+
+    // Backdrop fill. On the GBA the backdrop is itself a blend target
+    // (BLDCNT_TGT1_BD), and the window's colour-effect bit gates whether that
+    // darkening/lightening applies per pixel — this is how the menus dim the
+    // screen everywhere except the cursor row.
+    for (int x = 0; x < DISPLAY_WIDTH; x++)
+    {
+        uint16_t backdropColor = *(uint16_t *)PLTT;
+        bool effectAllowed = !windowsEnabled || (scanline.winMask[x] & WINMASK_CLR);
+
+        if ((REG_BLDCNT & BLDCNT_TGT1_BD) && effectAllowed)
+        {
+            if (blendMode == 2)
+                backdropColor = alphaBrightnessIncrease(backdropColor);
+            else if (blendMode == 3)
+                backdropColor = alphaBrightnessDecrease(backdropColor);
+        }
+
+        pixels[x] = backdropColor;
+    }
 
     for (int bgnum = 0; bgnum < 4; bgnum++)
     {
@@ -462,7 +634,7 @@ void PPU_RenderScanline(uint16_t *pixels, int vcount)
     }
 
     if (REG_DISPCNT & DISPCNT_OBJ_ON)
-        DrawSprites(&scanline, vcount, false);
+        DrawSprites(&scanline, vcount, windowsEnabled);
 
     for (int prnum = 3; prnum >= 0; prnum--)
     {
@@ -478,6 +650,9 @@ void PPU_RenderScanline(uint16_t *pixels, int vcount)
                     if (!getAlphaBit(color))
                         continue;
 
+                    if (windowsEnabled && !(scanline.winMask[xpos] & (1 << bgnum)))
+                        continue;
+
                     if (blendMode != 0 && (REG_BLDCNT & (1 << bgnum)))
                     {
                         uint16_t targetA = color;
@@ -485,14 +660,18 @@ void PPU_RenderScanline(uint16_t *pixels, int vcount)
                         switch (blendMode)
                         {
                             case 1:
+                                if (windowsEnabled && !(scanline.winMask[xpos] & WINMASK_CLR))
+                                    break;
                                 if (alphaBlendSelectTargetB(&scanline, &targetB, prnum, prsub + 1, xpos, (REG_BLDCNT & BLDCNT_TGT2_OBJ) ? true : false))
                                     color = alphaBlendColor(targetA, targetB);
                                 break;
                             case 2:
-                                color = alphaBrightnessIncrease(targetA);
+                                if (!windowsEnabled || (scanline.winMask[xpos] & WINMASK_CLR))
+                                    color = alphaBrightnessIncrease(targetA);
                                 break;
                             case 3:
-                                color = alphaBrightnessDecrease(targetA);
+                                if (!windowsEnabled || (scanline.winMask[xpos] & WINMASK_CLR))
+                                    color = alphaBrightnessDecrease(targetA);
                                 break;
                         }
                     }
@@ -520,21 +699,22 @@ void PPU_RenderFrame(uint16_t *framebuffer)
     {
         REG_VCOUNT = i;
 
-        uint16_t backdropColor = *(uint16_t *)PLTT;
-        unsigned int blendMode = (REG_BLDCNT >> 6) & 3;
-        if (REG_BLDCNT & BLDCNT_TGT1_BD)
-        {
-            if (blendMode == 2)
-                backdropColor = alphaBrightnessIncrease(backdropColor);
-            else if (blendMode == 3)
-                backdropColor = alphaBrightnessDecrease(backdropColor);
-        }
-
         uint16_t *scanline = &framebuffer[i * DISPLAY_WIDTH];
-        for (int x = 0; x < DISPLAY_WIDTH; x++)
-            scanline[x] = backdropColor;
 
         PPU_RenderScanline(scanline, i);
+
+        // H-Blank work happens after the scanline is drawn and takes effect on
+        // the NEXT one. On the GBA the VBlank callback arms DMA0 with the
+        // per-scanline buffer and writes the first line's register by hand, so
+        // the first transfer here must consume entry 1, not entry 0 — which is
+        // why the engine seeds dmaSrcBuffers to buffer + 1.
+        //
+        // REG_IE gates the callback exactly as the hardware interrupt would:
+        // scenes that never call EnableInterrupts(INTR_FLAG_HBLANK) keep their
+        // callback dormant.
+        Platform_RunHBlankDma();
+        if ((REG_IE & INTR_FLAG_HBLANK) && gMain.hblankCallback)
+            gMain.hblankCallback();
     }
 
     for (int i = DISPLAY_HEIGHT; i < 228; i++)
