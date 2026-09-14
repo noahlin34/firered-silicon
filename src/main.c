@@ -526,10 +526,12 @@ static void WaitForVBlank(void)
         if (sEngineFrameCount >= 6280 && sEngineFrameCount <= 6285)
             REG_KEYINPUT &= ~(1 << 0); // A to interact with NES in bedroom
     }
-    else if (gEngineMaxFrames > 0)
+    else if (gEngineMaxFrames > 0 && !gPlatformSkipStory)
     {
         // Dev boot (--skip-intro): the bedroom is already live, so replay the same
-        // NES interaction the full boot test only reaches at frame 6280.
+        // NES interaction the full boot test only reaches at frame 6280. The
+        // --post-rival boot starts in Oak's Lab, where that interaction does not
+        // exist, so it gets no scripted input at all.
         if (sEngineFrameCount >= 60 && sEngineFrameCount <= 65)
             REG_KEYINPUT &= ~(1 << 6); // UP to face North towards NES in bedroom
         if (sEngineFrameCount >= 90 && sEngineFrameCount <= 95)
