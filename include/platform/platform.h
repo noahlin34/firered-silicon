@@ -8,6 +8,16 @@
 #define GBA_SCREEN_WIDTH  240
 #define GBA_SCREEN_HEIGHT 160
 
+// Portable DMA model. On the GBA, a DMA channel started with DMA_START_HBLANK
+// copies its source into a video register once per scanline; that is how the
+// engine drives per-scanline effects (battle-transition swirls, the battle
+// intro slide, the underground flash). With no real DMA hardware, DmaSet
+// records the channel here and the software PPU replays one transfer per
+// rendered scanline.
+void PortableDmaSet(unsigned int dmaNum, const void *src, void *dest, uint32_t control);
+void PortableDmaStop(unsigned int dmaNum);
+void Platform_RunHBlankDma(void);
+
 // GBA Hardware Memory Buffers
 extern uint8_t REG_BASE[0x400];
 extern uint8_t PLTT_[0x400];
