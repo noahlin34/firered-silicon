@@ -48,7 +48,12 @@ static inline void PortableDmaFill(const void *src, void *dest, size_t size, int
 static inline void PortableDmaCopy(const void *src, void *dest, size_t size) {
     memcpy(dest, src, size);
 }
-#define DmaSet(dmaNum, src, dest, control) do {} while (0)
+// HBlank-timed transfers are recorded and replayed per scanline by the PPU
+// (see PortableDmaSet in src/platform/system.c); immediate transfers still
+// run inline below.
+void PortableDmaSet(unsigned int dmaNum, const void *src, void *dest, uint32_t control);
+#define DmaSet(dmaNum, src, dest, control) \
+    PortableDmaSet(dmaNum, (const void *)(src), (void *)(dest), (control))
 #define DMA_FILL(dmaNum, value, dest, size, bit)                                              \
 {                                                                                             \
     vu##bit tmp = (vu##bit)(value);                                                           \
@@ -108,12 +113,14 @@ static inline void PortableDmaCopy(const void *src, void *dest, size_t size) {
 #define DmaCopy16(dmaNum, src, dest, size) DMA_COPY(dmaNum, src, dest, size, 16)
 #define DmaCopy32(dmaNum, src, dest, size) DMA_COPY(dmaNum, src, dest, size, 32)
 
-#define DmaStop(dmaNum)                                         \
+void PortableDmaStop(unsigned int dmaNum);
+#define DmaStop(dmaNum) \
 {                                                               \
     vu16 *dmaRegs = (vu16 *)REG_ADDR_DMA##dmaNum;               \
     dmaRegs[5] &= ~(DMA_START_MASK | DMA_DREQ_ON | DMA_REPEAT); \
     dmaRegs[5] &= ~DMA_ENABLE;                                  \
     dmaRegs[5];                                                 \
+    PortableDmaStop(dmaNum);                                    \
 }
 
 #define DmaCopyLarge(dmaNum, src, dest, size, block, bit) \
