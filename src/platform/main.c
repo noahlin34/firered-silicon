@@ -638,6 +638,12 @@ int main(int argc, char **argv)
             gPlatformSkipIntro = true;
             printf("[Engine] Dev boot: fresh save, spawning in the player's bedroom (intro skipped).\n");
         }
+        else if (strcmp(argv[i], "--post-rival") == 0)
+        {
+            gPlatformSkipIntro = true;
+            gPlatformSkipStory = true;
+            printf("[Engine] Dev boot: fresh save, starter received and first rival battle won (Oak's Lab).\n");
+        }
     }
 
     printf("[Engine] Booting Pokemon FireRed CPU Engine (AgbMain)...\n");
