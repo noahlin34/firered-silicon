@@ -18,6 +18,7 @@
 #include "pokemon.h"
 #include "naming_screen.h"
 #include "pokedex.h"
+#include "save.h"
 #include "save_location.h"
 #include "field_message_box.h"
 #include "battle_setup.h"
@@ -26,6 +27,18 @@
 #include "constants/items.h"
 
 static const u8 sDummyScript[] = { 0x02 };
+
+/* START menu's SAVE dialog text. src/start_menu.c is built from plain C, so its
+ * `_("...")` strings are not compiled by tools/preproc; these externs make
+ * tools/gen_map_data.py's collect_engine_text_references emit them into the
+ * generated text bank with external linkage (same mechanism as src/prof_pc.c's
+ * PokedexRating_Text_*). The SAVE action itself reports the gap — see below. */
+extern const u8 gText_WouldYouLikeToSaveTheGame[];
+extern const u8 gText_AlreadySaveFile_WouldLikeToOverwrite[];
+extern const u8 gText_SavingDontTurnOffThePower[];
+extern const u8 gText_PlayerSavedTheGame[];
+extern const u8 gText_DifferentGameFile[];
+extern const u8 gText_SaveError_PleaseExchangeBackupMemory[];
 
 /* Dummy Event Scripts */
 const u8 BattleColosseum_2P_EventScript_PlayerSpot0[] = { 0x02 };
@@ -102,19 +115,34 @@ struct RfuManager gRfu = {0};
 const u8 mus_victory_gym_leader[] = {0};
 struct FieldInput gQuestLogFieldInput = {0};
 
+/* START menu entries whose scenes are not linked yet, plus the SAVE dialog's
+ * flash-write path (src/save.c needs the GBA linker-script layout constants and
+ * src/quest_log.c is mostly stub). These report the gap on stderr instead of
+ * running. gSaveAttemptStatus stays a real writable variable so the save
+ * result check can read it. */
+u16 gSaveAttemptStatus = SAVE_STATUS_ERROR;
+
+void CB2_OpenPokedexFromStartMenu(void) { printf("[Menu] POKéDEX scene is not ported\n"); }
+void ShowPlayerTrainerCard(void (*callback)(void)) { (void)callback; printf("[Menu] TRAINER CARD scene is not ported\n"); }
+void ShowTrainerCardInLink(u8 whoseCard, MainCallback callback) { (void)whoseCard; (void)callback; printf("[Menu] TRAINER CARD scene is not ported\n"); }
+void CB2_ReturnToPokeStorage(void) { printf("[Menu] POKéMON storage scene is not ported\n"); }
+void SaveQuestLogData(void) {}
+void SetUsingUnionRoomStartMenu(void) {}
+void Pokedude_InitTMCase(void) {}
+void RecordItemTransaction(u16 itemId, u16 quantity, u8 logEventId) { (void)itemId; (void)quantity; (void)logEventId; }
+bool8 WriteSaveBlock2(void) { printf("[Menu] saving is not ported\n"); return FALSE; }
+bool8 WriteSaveBlock1Sector(void) { printf("[Menu] saving is not ported\n"); return FALSE; }
+void Task_LinkFullSave(u8 taskId) { (void)taskId; printf("[Menu] saving is not ported\n"); }
+
 /* Function stubs */
-void Bag_BeginCloseWin0Animation(void) {}
 void BerryPouch_SetExitCallback(void *cb) {}
 void BerryPouch_StartFadeToExitCallback(u8 taskId) {}
-void CB2_BagMenuFromBattle(void) {}
-void CB2_BagMenuFromStartMenu(void) {}
 bool8 CheckForTrainersWantingBattle(void) { return FALSE; }
 void ClearLinkCallback_2(void) {}
 u8 CountDigits(u32 number) { return 1; }
 void CreateTask_ReestablishCableClubLink(void) {}
 s8 DexScreen_GetSetPokedexFlag(u16 nationalNum, u8 caseId) { return 0; }
 void DismissMapNamePopup(void) {}
-void DisplayItemMessageInBag(u8 taskId, u8 fontId, const u8 *str, void *cb) {}
 void DisplayItemMessageInBerryPouch(u8 taskId, u8 fontId, const u8 *str, void *cb) {}
 void DoCurrentWeather(void) {}
 void DoOutwardBarnDoorWipe(void) {}
@@ -149,8 +177,6 @@ bool8 IsEscalatorMoving(void) { return FALSE; }
 bool32 IsRfuRecvQueueEmpty(void) { return TRUE; }
 bool32 IsSendingKeysToLink(void) { return FALSE; }
 bool8 IsSpecialSEPlaying(void) { return FALSE; }
-void ItemMenu_SetExitCallback(void *cb) {}
-void ItemMenu_StartFadeToExitCallback(u8 taskId) {}
 void ItemUseOnFieldCB_Itemfinder(u8 taskId) {}
 void LinkRfu_FatalError(void) {}
 bool8 MapHasPreviewScreen(u8 mapSec, u8 type) { return FALSE; }
@@ -160,8 +186,6 @@ void MapPreview_StartForestTransition(u8 mapSec) {}
 void MovementAction_RevealTrainer_RunTrainerSeeFuncList(struct ObjectEvent *obj, struct Sprite *sprite) {}
 void PlayCry_NormalNoDucking(u16 species, s8 pan, u8 volume, u8 priority) {}
 void PlayFanfareByFanfareNum(u8 num) {}
-void PocketCalculateInitialCursorPosAndItemsAbove(void) {}
-void Pocket_CalculateNItemsAndMaxShowed(u8 pocket) {}
 void QL_AfterRecordFishActionSuccessful(void) {}
 void QL_CopySaveState(void) {}
 u8 QL_GetPlaybackState(void) { return 0; }
@@ -200,11 +224,9 @@ void RunQuestLogCB(void) {}
 void SetBerryPowder(u32 *powder, u32 amount) {}
 void SetHelpContextForMap(void) {}
 void SetSavedWeatherFromCurrMapHeader(void) {}
-void SetUpReturnToStartMenu(void) {}
 void SetWhiteoutRespawnWarpAndHealerNpc(struct WarpData *warp) {}
 bool8 ShouldEggHatch(void) { return FALSE; }
 void ShowMapNamePopup(bool8 a) {}
-void ShowStartMenu(void) {}
 void StartEscalator(bool8 a) {}
 void StartSendingKeysToLink(void) {}
 void StopEscalator(void) {}
@@ -212,12 +234,9 @@ void StopMapMusic(void) {}
 void StopPokemonLeagueLightingEffectTask(void) {}
 void Task_BarnDoorWipe(u8 taskId) {}
 void Task_BerryPouch_DestroyDialogueWindowAndRefreshListMenu(u8 taskId) {}
-void Task_ReturnToBagFromContextMenu(u8 taskId) {}
-void Task_StartMenuHandleInput(u8 taskId) {}
 void TransferTilesetAnimsBuffer(void) {}
 void UpdateTilesetAnimations(void) {}
 void UseFameChecker(MainCallback savedCallback) { (void)savedCallback; }
-void UseRegisteredKeyItemOnField(void) {}
 void UsedPokemonCenterWarp(void) {}
 bool8 ValidateSavedWonderCard(void) { return FALSE; }
 void WaitFanfare(bool8 a) {}
