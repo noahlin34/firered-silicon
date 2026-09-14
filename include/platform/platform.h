@@ -23,6 +23,11 @@ extern struct SoundInfo *SOUND_INFO_PTR;
 extern bool gPlatformSkipIntro;
 void Platform_DevBootNewGame(void);
 
+// Dev boot (--post-rival): same fresh save, but with the starter already
+// received and the first rival battle already won, standing in Oak's Lab.
+extern bool gPlatformSkipStory;
+void Platform_DevBootApplyStoryProgress(void);
+
 // Platform Host Functions
 int  Platform_Init(int argc, char **argv);
 void Platform_MainLoop(void);
