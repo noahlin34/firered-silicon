@@ -6,6 +6,13 @@
 
 COMMON_DATA struct Task gTasks[NUM_TASKS] = {0};
 
+#ifdef PORTABLE
+// Follow-up task functions, held out-of-band because a host function pointer
+// does not fit in struct Task's 16-bit data slots. See
+// SetTaskFuncWithFollowupFunc. Only task.c reads this table.
+static TaskFunc sTaskFollowupFuncs[NUM_TASKS];
+#endif
+
 static void InsertTask(u8 newTaskId);
 static u8 FindFirstActiveTask();
 
@@ -93,6 +100,9 @@ void DestroyTask(u8 taskId)
     if (gTasks[taskId].isActive)
     {
         gTasks[taskId].isActive = FALSE;
+#ifdef PORTABLE
+        sTaskFollowupFuncs[taskId] = NULL;
+#endif
 
         if (gTasks[taskId].prev == HEAD_SENTINEL)
         {
@@ -145,18 +155,33 @@ void TaskDummy(u8 taskId)
 
 void SetTaskFuncWithFollowupFunc(u8 taskId, TaskFunc func, TaskFunc followupFunc)
 {
+#ifdef PORTABLE
+    // A host function pointer is 64-bit and does not fit in the GBA's two
+    // half-word slots; splitting it truncates the address and the next
+    // RunTasks jumps into unmapped memory (the same trap as fixes #26/#45).
+    // It cannot reuse data[12..15] either: src/item_menu.c's pocket-switch task
+    // keeps tSwitchCounter/tSwitchState in data[12]/data[13]. Keep the pointer
+    // in a side table keyed by taskId instead, so no task's data slots are
+    // reserved and no existing layout shifts.
+    sTaskFollowupFuncs[taskId] = followupFunc;
+#else
     u8 followupFuncIndex = NUM_TASK_DATA - 2; // Should be const.
 
     gTasks[taskId].data[followupFuncIndex] = (s16)((u32)followupFunc);
     gTasks[taskId].data[followupFuncIndex + 1] = (s16)((u32)followupFunc >> 16); // Store followupFunc as two half-words in the data array.
+#endif
     gTasks[taskId].func = func;
 }
 
 void SwitchTaskToFollowupFunc(u8 taskId)
 {
+#ifdef PORTABLE
+    gTasks[taskId].func = sTaskFollowupFuncs[taskId];
+#else
     u8 followupFuncIndex = NUM_TASK_DATA - 2; // Should be const.
 
     gTasks[taskId].func = (TaskFunc)((u16)(gTasks[taskId].data[followupFuncIndex]) | (gTasks[taskId].data[followupFuncIndex + 1] << 16));
+#endif
 }
 
 bool8 FuncIsActiveTask(TaskFunc func)
