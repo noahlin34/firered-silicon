@@ -137,6 +137,9 @@ PREPROC_SRCS := src/title_screen.c \
                 src/maps.c \
                 src/scrcmd.c \
                 src/script_menu.c \
+                src/item_menu.c \
+                src/bag.c \
+                src/menu_indicators.c \
                 src/data/battle/ptr_table.c \
                 src/battle_script_commands.c \
                 src/battle_ai_script_commands.c \
@@ -189,7 +192,11 @@ PREPROC_SRCS := src/title_screen.c \
                 src/vs_seeker.c \
                 src/trainer_tower.c \
                 src/quest_log_events.c \
-                src/party_menu.c
+                src/party_menu.c \
+                src/start_menu.c \
+                src/item_menu_icons.c \
+                src/option_menu.c \
+                src/save_menu_util.c
 
 OBJ_DIR := build/native
 OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
@@ -244,6 +251,16 @@ assets: $(OBJ_EVENT_PICS) battle-assets anim-sprite-assets battle-extra-assets
 	@tools/gbagfx/gbagfx graphics/text_window/unused.png graphics/text_window/unused.4bpp
 	@tools/gbagfx/gbagfx graphics/text_window/menu_message.png graphics/text_window/menu_message.4bpp
 	@tools/gbagfx/gbagfx graphics/interface/std_menu.pal graphics/interface/std_menu.gbapal
+	@tools/gbagfx/gbagfx graphics/item_menu/bag_window_pal.pal graphics/item_menu/bag_window_pal.gbapal
+	@tools/gbagfx/gbagfx graphics/interface/select_button.png graphics/interface/select_button.4bpp
+	@tools/gbagfx/gbagfx graphics/interface/red_arrow.pal graphics/interface/red_arrow.gbapal
+	@tools/gbagfx/gbagfx graphics/interface/red_arrow.png graphics/interface/red_arrow.4bpp
+	@tools/gbagfx/gbagfx graphics/interface/red_arrow.4bpp graphics/interface/red_arrow.4bpp.lz
+	@tools/gbagfx/gbagfx graphics/interface/red_arrow_other.png graphics/interface/red_arrow_other.4bpp
+	@tools/gbagfx/gbagfx graphics/interface/red_arrow_other.4bpp graphics/interface/red_arrow_other.4bpp.lz
+	@tools/gbagfx/gbagfx graphics/interface/selector_outline.png graphics/interface/selector_outline.4bpp
+	@tools/gbagfx/gbagfx graphics/interface/selector_outline.4bpp graphics/interface/selector_outline.4bpp.lz
+	@tools/gbagfx/gbagfx graphics/misc/option_menu.pal graphics/misc/option_menu.gbapal
 	@tools/gbagfx/gbagfx graphics/script_menu/aerodactyl_fossil.png graphics/script_menu/aerodactyl_fossil.4bpp
 	@tools/gbagfx/gbagfx graphics/script_menu/aerodactyl_fossil.png graphics/script_menu/aerodactyl_fossil.gbapal
 	@tools/gbagfx/gbagfx graphics/script_menu/kabutops_fossil.png graphics/script_menu/kabutops_fossil.4bpp
