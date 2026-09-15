@@ -236,6 +236,19 @@ These bugs are subtle and WILL recur if new engine files are linked. Understand 
 
     Verify build-system changes from a real clone (`git clone . /tmp/x && cd /tmp/x && make -f Makefile.native`), never from the working tree: the untracked artifacts here make local success meaningless.
 
+54. **A big prerequisite list on a target the top-level make walks makes GNU Make 3.81 spin under `-j`.** The symptom is unmistakable once seen: `make -f Makefile.native -j8` never finishes, `sample` shows make recursing inside its own dependency code (`+0x15e0c` ↔ `+0x17714`), **no child process is ever started**, and CPU sits at 100% (or, on some runs, wall time is far larger than user time because make is stat-ing). The same tree builds in ~29 s with `-j1`. It is not a cycle — make prints no circular-dependency warning, and `overriding commands` is 0.
+
+    The trigger is list *size*, and bisection pinned it exactly: a target carrying 1178 prerequisites is fine; 1179 spins. The 1179th entry was an ordinary `graphics/battle_anims/backgrounds/attract.4bpp.lz`, so it is a threshold, not a special file. Concretely, `assets: … $(INCBIN_ASSETS) …` with the derived list (~6400 paths) was enough on its own; removing just that token from the line turned a >60 s wedge into 0.6 s with no other change.
+
+    Structure that avoids it (and the reason `Makefile.native` looks the way it does):
+    - The large list is never a prerequisite in the graph object compilation walks. `$(OBJS)` takes one real-file stamp (`build/native/.assets.stamp`) order-only; the stamp's recipe drives the two asset phases through sub-makes.
+    - Those sub-makes **must** pass `-j1`. A sub-make inherits `MAKEFLAGS`, so a parallel one reproduces the identical spin internally — the first attempt at this fix hung for exactly that reason.
+    - `all` does not name the phony `assets` target: a phony target with thousands of prerequisites gets re-walked from every dependent.
+
+    Related trap found in the same file: `.PHONY` on a *generated* target makes it unconditionally out of date. The five split anim sheets were declared phony, so every build re-ran `cat` over the sheet parts, touched the sheet, and forced its `.4bpp.lz` and everything downstream — turning a 10 s incremental build into the wedge above. `graphics_file_rules.mk` already declares real prerequisites for those `cat` rules, so the phony declaration was pure harm.
+
+    When a parallel build spins with no children, reach for this before suspecting the compiler: check for a target with an enormous prerequisite list, and test the same tree with `-j1` to confirm it is make's graph walk rather than the build itself.
+
 ### Native Frame Timing
 - **The game clock is not the display clock.** The original native loop relied on `SDL_RENDERER_PRESENTVSYNC` without an independent timer; that allowed high-refresh presentation to accelerate frame-based gameplay, while the fallback renderer did not explicitly request VSync. This timing gap was found after movement appeared too fast. The pre-fix runtime frame rate was not measured.
 - **Target the hardware frame period:** 280,896 CPU cycles per frame at 16,777,216 Hz, or approximately 59.7275 Hz (16.7427 ms per tick). Do not change movement speeds, animation counters, or emulate CPU clock speed to compensate for host performance.
