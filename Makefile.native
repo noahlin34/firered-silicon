@@ -270,6 +270,10 @@ PREPROC_SRCS := src/title_screen.c \
                 src/util.c \
                 src/battle_main.c \
                 src/pokemon_icon.c \
+                src/trainer_card.c \
+                src/easy_chat.c \
+                src/mystery_gift.c \
+                src/wonder_news.c \
                 src/keyboard_text.c \
                 src/item.c \
                 src/move_descriptions.c \
