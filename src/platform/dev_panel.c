@@ -13,11 +13,15 @@
 //     which runs while the engine is part-way through a frame.
 //
 // The panel never touches the 240x160 framebuffer or any screenshot path; it
-// draws into its own window through its own renderer.
+// draws into its own window through its own renderer. That window is resizable
+// and its layout is written in logical points, scaled to the display's real
+// pixel density -- so it stays sharp and legible at any window size rather than
+// magnifying a small fixed bitmap.
 //
-// Input: the panel window owns its own keyboard focus, so a headless run (which
-// can never focus a window) drives it through --dev-panel-keys, which injects
-// one keystroke per frame.
+// It takes both input kinds: SDL mouse events (click to select, double-click to
+// warp, wheel to page) and keyboard, routed by window id so neither window's
+// input leaks into the other. A headless run, which can never focus a window,
+// drives it through --dev-panel-keys, which injects one token per frame.
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,6 +50,11 @@ static int sCurrentKey;
 static int sKeyRepeats;
 static bool sSequenceStarted;
 
+// Command-token state (CLICK:12:7, RESIZE:900:700), consumed the same way.
+static char sCommandName[16];
+static int sCommandArgs[4];
+static int sCommandArgCount;
+
 // Emitted by tools/gen_map_data.py, next to the tables they describe. The map
 // layout structs carry no names, so the names come from the generator's JSON.
 extern const struct MapHeader *const *const gMapGroups[];
@@ -54,8 +63,14 @@ extern const char *const gMapGroupNames[];
 extern const u16 gMapGroupFirstMap[];
 extern const char *const gMapNames[];
 
-#define DEV_PANEL_WIDTH        400
-#define DEV_PANEL_HEIGHT       256
+// Design metrics, in logical window points. The panel's pixel scale (2 on a
+// retina display) multiplies every one of these at draw time, so the layout is
+// written once in points and the window renders crisply at any display density
+// instead of scaling a small bitmap up.
+#define DEV_PANEL_DEFAULT_W    460
+#define DEV_PANEL_DEFAULT_H    600
+#define DEV_PANEL_MIN_W        340
+#define DEV_PANEL_MIN_H        300
 #define DEV_PANEL_MARGIN       8
 
 #define DEV_PANEL_FONT_W       5
@@ -63,12 +78,9 @@ extern const char *const gMapNames[];
 #define DEV_PANEL_FONT_SPACING 1
 #define DEV_PANEL_ADVANCE      (DEV_PANEL_FONT_W + DEV_PANEL_FONT_SPACING)
 
-#define DEV_PANEL_LIST_ROWS    12
-#define DEV_PANEL_LIST_ROW_H   10
-#define DEV_PANEL_LIST_X       DEV_PANEL_MARGIN
-#define DEV_PANEL_LIST_Y       44
-#define DEV_PANEL_LIST_W       (DEV_PANEL_WIDTH - 2 * DEV_PANEL_MARGIN)
-#define DEV_PANEL_LIST_H       (DEV_PANEL_LIST_ROWS * DEV_PANEL_LIST_ROW_H + 4)
+#define DEV_PANEL_ROW_H        13   // list row pitch (7px glyphs + 6px leading)
+#define DEV_PANEL_LINE_H       10   // one text line (7px glyphs + 3px leading)
+#define DEV_PANEL_FIELD_H      12   // text field box (7px glyphs + 2px padding)
 
 // Rows are one per warp event, plus one walk-in row for a map with no warp
 // events at all. FireRed has 425 maps and 1294 warp events, so this has room to
@@ -129,7 +141,46 @@ static SDL_Texture *sPanelTexture = NULL;
 static u32 *sPanelPixels = NULL;
 static bool sPanelDirty = true;
 
+// Physical pixels per logical point (2 on a retina display). Every design metric
+// above is multiplied by this when drawing, so resizing the window rebuilds the
+// layout at the new size instead of scaling a finished bitmap up.
+//
+// sDrawableW/sDrawableH are the buffer's true dimensions and are authoritative:
+// the scale is derived from them, never used to reconstruct them, so an odd
+// drawable size cannot leave the texture pitch and the buffer stride disagreeing.
+static int sPixelScale = 1;
+static int sDrawableW;
+static int sDrawableH;
+
+// Mouse state, in logical panel points. sHoverRow is -1 when the pointer is not
+// over a list row, which is also what keeps the hover highlight off.
+static int sHoverRow = -1;
+static bool sHoverButton;
+static bool sButtonDown;
+
+// One panel layout, computed from the current window size each frame and shared
+// by the renderer and the hit-testing, so a click can never land on a widget
+// that was drawn somewhere else. All coordinates are logical points.
+struct DevPanelLayout
+{
+    int width, height;      // logical window size the layout was built for
+    int listX, listY, listW, listH;
+    int rows;               // visible list rows, derived from listH
+    int filterX, filterY, filterW;
+    int textY[DEV_PANEL_TEXT_ROWS];
+    int warpX, warpY, warpW, warpH;
+    int countsY;
+    int hintY;
+    int statusY;
+};
+
+static struct DevPanelLayout sLayout;
+
+static void ComputeLayout(int width, int height);
 static void EnsureTables(void);
+static void HandleMouseMotion(int x, int y);
+static void HandleMouseButton(int x, int y, bool down, u8 clicks);
+static void HandleMouseWheel(int delta);
 
 // Panel palette, ARGB8888. These are the colours themselves, not indices into
 // a table: a name that has to be looked up in a second declaration is one more
@@ -143,6 +194,12 @@ static void EnsureTables(void);
 #define COL_SEL_TEXT  0xFFFFFFFF
 #define COL_CURSOR    0xFF7FD4FF
 #define COL_GOOD      0xFF7FCF6A
+#define COL_HOVER     0xFF1C2733
+#define COL_ACCENT    0xFF4C8DFF
+#define COL_BTN       0xFF243040
+#define COL_BTN_HOT   0xFF34506E
+#define COL_BTN_TEXT  0xFFE8EEF6
+#define COL_BAR       0xFF4C8DFF
 
 // 5x7 glyphs for ASCII 32..126, one entry per printable character. Bit 4 is the
 // leftmost column, matching the orientation SDL draws them in.
@@ -283,13 +340,20 @@ static int TokenKey(const char *token)
 }
 
 // Advances to the next token, setting sCurrentKey and sKeyRepeats. Returns
-// false once the sequence is exhausted.
+// false once the sequence is exhausted. A token is either a key name (plus an
+// optional *N repeat) or a NAME:arg:arg command, which drives the panel's mouse
+// and resize handlers directly. Colons separate the arguments rather than commas
+// because a comma already separates tokens.
 static bool NextSequenceKey(void)
 {
     const char *end;
-    char token[16];
+    char token[32];
     int length;
     s32 repeats = 1;
+
+    sCommandName[0] = '\0';
+    sCommandArgCount = 0;
+    sCurrentKey = 0;
 
     if (sKeySequence == NULL)
         return false;
@@ -320,9 +384,71 @@ static bool NextSequenceKey(void)
             sKeySequence++;
     }
 
+    {
+        char *colon = strchr(token, ':');
+
+        if (colon != NULL)
+        {
+            const char *args = colon + 1;
+
+            *colon = '\0';
+            snprintf(sCommandName, sizeof(sCommandName), "%s", token);
+
+            while (*args != '\0' && sCommandArgCount < (int)ARRAY_COUNT(sCommandArgs))
+            {
+                sCommandArgs[sCommandArgCount++] = atoi(args);
+                while (*args != '\0' && *args != ':')
+                    args++;
+                if (*args == ':')
+                    args++;
+            }
+
+            sKeyRepeats = repeats;
+            return true;
+        }
+    }
+
     sCurrentKey = TokenKey(token);
     sKeyRepeats = repeats;
     return true;
+}
+
+// Scripted mouse and resize support (--dev-panel-keys "CLICK:12:7" /
+// "RESIZE:900:700"): the panel window cannot be clicked or resized headlessly,
+// so a token can drive the same handlers the SDL events do. Development aid.
+static bool ApplyScriptedPanelCommand(const char *name, int *args, int argCount)
+{
+    if (strcmp(name, "CLICK") == 0 && argCount == 2)
+    {
+        HandleMouseMotion(args[0], args[1]);
+        HandleMouseButton(args[0], args[1], true, 1);
+        HandleMouseButton(args[0], args[1], false, 1);
+        return true;
+    }
+    if (strcmp(name, "DBLCLICK") == 0 && argCount == 2)
+    {
+        HandleMouseMotion(args[0], args[1]);
+        HandleMouseButton(args[0], args[1], true, 2);
+        HandleMouseButton(args[0], args[1], false, 2);
+        return true;
+    }
+    if (strcmp(name, "MOVE") == 0 && argCount == 2)
+    {
+        HandleMouseMotion(args[0], args[1]);
+        return true;
+    }
+    if (strcmp(name, "WHEEL") == 0 && argCount == 1)
+    {
+        HandleMouseWheel(args[0]);
+        return true;
+    }
+    if (strcmp(name, "RESIZE") == 0 && argCount == 2)
+    {
+        if (sPanelWindow != NULL)
+            SDL_SetWindowSize(sPanelWindow, args[0], args[1]);
+        return true;
+    }
+    return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -421,6 +547,7 @@ static void FindWalkableCoords(const struct MapHeader *header, s16 *outX, s16 *o
 static void BuildDestinations(void)
 {
     u32 group;
+    int mapCount = 0;
 
     sCount = 0;
 
@@ -434,6 +561,8 @@ static void BuildDestinations(void)
             const struct MapEvents *events = header->events;
             u32 rows = (events != NULL && events->warpCount > 0) ? events->warpCount : 1;
             u32 i;
+
+            mapCount++;
 
             for (i = 0; i < rows; i++)
             {
@@ -477,7 +606,8 @@ static void BuildDestinations(void)
         }
     }
 
-    printf("[DevPanel] %d warp destinations across %d maps\n", sCount, (int)MAP_GROUPS_COUNT);
+    printf("[DevPanel] %d warp destinations across %d maps in %d groups\n",
+           sCount, mapCount, (int)MAP_GROUPS_COUNT);
 }
 
 // ---------------------------------------------------------------------------
@@ -528,8 +658,15 @@ static void RebuildMatches(void)
     sPanelDirty = true;
 }
 
+static int VisibleRows(void)
+{
+    return sLayout.rows > 0 ? sLayout.rows : 1;
+}
+
 static void ClampSelection(void)
 {
+    int maxScroll;
+
     if (sMatchCount == 0)
     {
         sSelected = 0;
@@ -544,8 +681,17 @@ static void ClampSelection(void)
 
     if (sSelected < sScroll)
         sScroll = sSelected;
-    if (sSelected >= sScroll + DEV_PANEL_LIST_ROWS)
-        sScroll = sSelected - DEV_PANEL_LIST_ROWS + 1;
+    if (sSelected >= sScroll + VisibleRows())
+        sScroll = sSelected - VisibleRows() + 1;
+
+    // A shrinking window can leave the scroll offset past the end of the list.
+    maxScroll = sMatchCount - VisibleRows();
+    if (maxScroll < 0)
+        maxScroll = 0;
+    if (sScroll > maxScroll)
+        sScroll = maxScroll;
+    if (sScroll < 0)
+        sScroll = 0;
 }
 
 static void MoveSelection(int delta)
@@ -712,20 +858,33 @@ static void CopySelectionToText(int row)
 // Rendering
 // ---------------------------------------------------------------------------
 
+// Every draw call works in logical points and multiplies by sPixelScale, so the
+// panel is resolution-independent: a 2x retina display gets 2x2 blocks of real
+// pixels rather than a magnified bitmap.
 static void FillRect(int x, int y, int w, int h, u32 color)
 {
+    int x0 = x * sPixelScale;
+    int y0 = y * sPixelScale;
+    int x1 = (x + w) * sPixelScale;
+    int y1 = (y + h) * sPixelScale;
     int px, py;
+    int width = sDrawableW;
+    int height = sDrawableH;
 
-    for (py = y; py < y + h; py++)
+    if (x0 < 0)
+        x0 = 0;
+    if (y0 < 0)
+        y0 = 0;
+    if (x1 > width)
+        x1 = width;
+    if (y1 > height)
+        y1 = height;
+
+    for (py = y0; py < y1; py++)
     {
-        if (py < 0 || py >= DEV_PANEL_HEIGHT)
-            continue;
-        for (px = x; px < x + w; px++)
-        {
-            if (px < 0 || px >= DEV_PANEL_WIDTH)
-                continue;
-            sPanelPixels[py * DEV_PANEL_WIDTH + px] = color;
-        }
+        u32 *row = &sPanelPixels[py * width];
+        for (px = x0; px < x1; px++)
+            row[px] = color;
     }
 }
 
@@ -767,13 +926,32 @@ static void DrawText(int x, int y, const char *text, u32 color, int maxChars)
         DrawGlyph(x + i * DEV_PANEL_ADVANCE, y, text[i], color);
 }
 
+static int TextWidth(const char *text)
+{
+    return StringLength(text) * DEV_PANEL_ADVANCE;
+}
+
+// A filled rounded-ish button with a centred label. Returns its rect so callers
+// can hit-test the same numbers they drew.
+static void DrawButton(int x, int y, int w, int h, const char *label, bool hot, bool accent)
+{
+    u32 fill = hot ? COL_BTN_HOT : COL_BTN;
+    int textW = TextWidth(label);
+    int textX = x + (w - textW) / 2;
+    int textY = y + (h - DEV_PANEL_FONT_H) / 2;
+
+    FillRect(x, y, w, h, fill);
+    DrawFrame(x, y, w, h, accent ? COL_ACCENT : COL_FRAME);
+    DrawText(textX, textY, label, COL_BTN_TEXT, w / DEV_PANEL_ADVANCE);
+}
+
 static void DrawTextField(int x, int y, int width, const char *value, int scroll, bool focused)
 {
-    int capacity = width / DEV_PANEL_ADVANCE;
+    int capacity = (width - 6) / DEV_PANEL_ADVANCE;
     int length = StringLength(value);
 
-    FillRect(x, y, width, DEV_PANEL_FONT_H + 4, COL_FIELD);
-    DrawFrame(x, y, width, DEV_PANEL_FONT_H + 4, focused ? COL_CURSOR : COL_FRAME);
+    FillRect(x, y, width, DEV_PANEL_FIELD_H, COL_FIELD);
+    DrawFrame(x, y, width, DEV_PANEL_FIELD_H, focused ? COL_CURSOR : COL_FRAME);
 
     // Keep the caret in view for values longer than the field, which TEXT 2 can
     // reach on a long group name.
@@ -792,33 +970,114 @@ static void DrawTextField(int x, int y, int width, const char *value, int scroll
     }
 }
 
+// Bottom-up: the status line and the text fields are a fixed height, the list
+// takes whatever is left, and the list's row count follows from that. This is
+// what makes the window resizable -- growing it adds rows instead of stretching
+// the existing ones. Every y the renderer needs is stored here, so nothing is
+// re-derived from another widget's coordinate (which is how the footer lines
+// used to end up drawn on top of each other).
+static void ComputeLayout(int width, int height)
+{
+    int m = DEV_PANEL_MARGIN;
+    int y;
+    int ruleY;
+    int i;
+
+    sLayout.width = width;
+    sLayout.height = height;
+
+    // Header, top down: title, legend, rule, action button.
+    ruleY = m + 2 * DEV_PANEL_LINE_H + 5;
+    sLayout.warpW = 68;
+    sLayout.warpH = DEV_PANEL_FIELD_H;
+    sLayout.warpX = width - m - sLayout.warpW;
+    sLayout.warpY = m - 2;
+
+    sLayout.filterY = ruleY + 8;
+    sLayout.filterX = m + 44;
+    sLayout.filterW = width - m - sLayout.filterX;
+    if (sLayout.filterW < 40)
+        sLayout.filterW = 40;
+
+    sLayout.listX = m;
+    sLayout.listY = sLayout.filterY + DEV_PANEL_FIELD_H + 8;
+    sLayout.listW = width - 2 * m;
+
+    // Footer, bottom up: status, TEXT 2, TEXT 1, the copy hint, then the two
+    // selection-detail lines. The list gets what remains.
+    y = height - m - DEV_PANEL_LINE_H;
+    sLayout.statusY = y;
+
+    for (i = DEV_PANEL_TEXT_ROWS - 1; i >= 0; i--)
+    {
+        y -= DEV_PANEL_FIELD_H + 8;
+        sLayout.textY[i] = y;
+    }
+
+    y -= DEV_PANEL_LINE_H + 4;
+    sLayout.hintY = y;
+
+    y -= 2 * DEV_PANEL_LINE_H + 4;
+    sLayout.countsY = y;
+
+    y -= 6;
+    sLayout.listH = y - sLayout.listY;
+    if (sLayout.listH < DEV_PANEL_ROW_H + 4)
+        sLayout.listH = DEV_PANEL_ROW_H + 4;
+
+    sLayout.rows = (sLayout.listH - 4) / DEV_PANEL_ROW_H;
+    if (sLayout.rows < 1)
+        sLayout.rows = 1;
+}
+
 static void RenderPanel(void)
 {
+    int m = DEV_PANEL_MARGIN;
     int row;
-    int maxChars = (DEV_PANEL_LIST_W - 8) / DEV_PANEL_ADVANCE;
+    int listInnerW = sLayout.listW - 10;
+    int maxChars = listInnerW / DEV_PANEL_ADVANCE;
+    int width = sLayout.width;
+    int height = sLayout.height;
 
     if (sPanelRenderer == NULL || sPanelTexture == NULL)
         return;
 
-    FillRect(0, 0, DEV_PANEL_WIDTH, DEV_PANEL_HEIGHT, COL_BG);
+    FillRect(0, 0, width, height, COL_BG);
 
-    DrawText(DEV_PANEL_MARGIN, 6, "FIRERED DEV PANEL - WARP", COL_TEXT, 40);
-    DrawText(DEV_PANEL_MARGIN, 16,
-             "F3 toggle  UP/DOWN row  PGUP/PGDN page  ENTER warp  TAB field  ESC back",
-             COL_DIM, 80);
+    // Header: title, the shortcut legend, the action button, then an accent rule.
+    DrawText(m, m, "FIRERED DEV PANEL", COL_TEXT, 30);
+    DrawText(m + 18 * DEV_PANEL_ADVANCE, m, "WARP", COL_ACCENT, 4);
+    {
+        // Two legends: the full one needs ~74 characters, which the default
+        // window width cannot fit, and a truncated word reads as a bug.
+        int legendChars = (sLayout.warpX - m) / DEV_PANEL_ADVANCE - 2;
 
-    DrawText(DEV_PANEL_MARGIN, 30, "FILTER", COL_DIM, 6);
-    DrawTextField(DEV_PANEL_MARGIN + 44, 28, DEV_PANEL_WIDTH - 2 * DEV_PANEL_MARGIN - 44,
+        if (legendChars >= 74)
+            DrawText(m, m + DEV_PANEL_LINE_H + 2,
+                     "click or UP/DOWN select   ENTER or double-click warp   TAB field   F3 hide",
+                     COL_DIM, legendChars);
+        else
+            DrawText(m, m + DEV_PANEL_LINE_H + 2,
+                     "click/UP-DOWN select   ENTER or dbl-click warp   TAB field",
+                     COL_DIM, legendChars);
+    }
+    DrawButton(sLayout.warpX, sLayout.warpY, sLayout.warpW, sLayout.warpH, "WARP",
+               sHoverButton, sMatchCount > 0);
+    FillRect(m, m + 2 * DEV_PANEL_LINE_H + 5, width - 2 * m, 1, COL_FRAME);
+
+    DrawText(m, sLayout.filterY + 2, "FILTER", COL_DIM, 6);
+    DrawTextField(sLayout.filterX, sLayout.filterY, sLayout.filterW,
                   sFilter, 0, sFocus == DEV_PANEL_FOCUS_FILTER);
 
-    DrawFrame(DEV_PANEL_LIST_X, DEV_PANEL_LIST_Y, DEV_PANEL_LIST_W, DEV_PANEL_LIST_H, COL_FRAME);
+    DrawFrame(sLayout.listX, sLayout.listY, sLayout.listW, sLayout.listH, COL_FRAME);
 
-    for (row = 0; row < DEV_PANEL_LIST_ROWS; row++)
+    for (row = 0; row < sLayout.rows; row++)
     {
         int matchIndex = sScroll + row;
-        int y = DEV_PANEL_LIST_Y + 2 + row * DEV_PANEL_LIST_ROW_H;
+        int y = sLayout.listY + 2 + row * DEV_PANEL_ROW_H;
         const struct DevDestination *dest;
         bool selected;
+        bool hovered;
         char line[96];
 
         if (matchIndex >= sMatchCount)
@@ -826,52 +1085,83 @@ static void RenderPanel(void)
 
         dest = &sTable[sMatches[matchIndex]];
         selected = (matchIndex == sSelected);
+        hovered = (row == sHoverRow - sScroll);
+
         if (selected)
-            FillRect(DEV_PANEL_LIST_X + 2, y - 1, DEV_PANEL_LIST_W - 4, DEV_PANEL_LIST_ROW_H, COL_SEL);
+            FillRect(sLayout.listX + 1, y - 1, sLayout.listW - 2, DEV_PANEL_ROW_H, COL_SEL);
+        else if (hovered)
+            FillRect(sLayout.listX + 1, y - 1, sLayout.listW - 2, DEV_PANEL_ROW_H, COL_HOVER);
 
-        snprintf(line, sizeof(line), "%-18s %-14s %3d,%3d",
-                 gMapGroupNames[dest->group], DestinationName(dest),
-                 (int)dest->x, (int)dest->y);
-        DrawText(DEV_PANEL_LIST_X + 4, y, line, selected ? COL_SEL_TEXT : COL_TEXT, maxChars);
-    }
-
-    {
-        char line[96];
-
-        snprintf(line, sizeof(line), "%d of %d destinations%s%s",
-                 sMatchCount, sCount,
-                 sFilter[0] != '\0' ? " matching " : "", sFilter);
-        DrawText(DEV_PANEL_MARGIN, DEV_PANEL_LIST_Y + DEV_PANEL_LIST_H + 4, line, COL_DIM, 60);
-    }
-
-    if (sMatchCount > 0)
-    {
-        const struct DevDestination *dest = &sTable[sMatches[sSelected]];
-        char line[96];
-
+        // Warp id first: it is the thing being picked, and it keeps the map name
+        // flush left where the eye scans.
         if (dest->warpId == WARP_ID_NONE)
-            snprintf(line, sizeof(line), "NO WARP EVENT - walking in at %d,%d",
+            snprintf(line, sizeof(line), "%-16s %-12s  walk-in %3d,%3d",
+                     gMapGroupNames[dest->group], DestinationName(dest),
                      (int)dest->x, (int)dest->y);
         else
-            snprintf(line, sizeof(line), "WARP EVENT %d at %d,%d in %s",
-                     dest->warpId, (int)dest->x, (int)dest->y, gMapGroupNames[dest->group]);
-        DrawText(DEV_PANEL_MARGIN, 182, line, COL_DIM, 64);
+            snprintf(line, sizeof(line), "%-16s %-12s  #%-3d %3d,%3d",
+                     gMapGroupNames[dest->group], DestinationName(dest),
+                     dest->warpId, (int)dest->x, (int)dest->y);
+        DrawText(sLayout.listX + 4, y, line, selected ? COL_SEL_TEXT : COL_TEXT, maxChars);
     }
 
-    DrawText(DEV_PANEL_MARGIN, 194, "TEXT 1", COL_DIM, 6);
-    DrawTextField(DEV_PANEL_MARGIN + 44, 192, DEV_PANEL_WIDTH - 2 * DEV_PANEL_MARGIN - 44,
-                  sTextFields[0], sTextScroll[0], sFocus == DEV_PANEL_FOCUS_TEXT1);
+    // Scrollbar: only when the filtered list does not fit, so a short result set
+    // does not imply there is more below.
+    if (sMatchCount > sLayout.rows)
+    {
+        int trackX = sLayout.listX + sLayout.listW - 4;
+        int trackY = sLayout.listY + 2;
+        int trackH = sLayout.listH - 4;
+        int thumbH = trackH * sLayout.rows / sMatchCount;
+        int thumbY;
 
-    DrawText(DEV_PANEL_MARGIN, 210, "TEXT 2", COL_DIM, 6);
-    DrawTextField(DEV_PANEL_MARGIN + 44, 208, DEV_PANEL_WIDTH - 2 * DEV_PANEL_MARGIN - 44,
-                  sTextFields[1], sTextScroll[1], sFocus == DEV_PANEL_FOCUS_TEXT2);
+        if (thumbH < 8)
+            thumbH = 8;
+        thumbY = trackY + (trackH - thumbH) * sScroll / (sMatchCount - sLayout.rows);
 
-    DrawText(DEV_PANEL_MARGIN, 222,
-             "1 copy map name   2 copy group and index   (list focus)", COL_DIM, 72);
+        FillRect(trackX, trackY, 3, trackH, COL_FIELD);
+        FillRect(trackX, thumbY, 3, thumbH, COL_BAR);
+    }
 
-    DrawText(DEV_PANEL_MARGIN, 238, sStatus, COL_GOOD, 76);
+    // Two summary lines below the list: the counts, then what the selection is.
+    {
+        char line[96];
 
-    SDL_UpdateTexture(sPanelTexture, NULL, sPanelPixels, DEV_PANEL_WIDTH * sizeof(u32));
+        snprintf(line, sizeof(line), "%d of %d destinations", sMatchCount, sCount);
+        DrawText(m, sLayout.countsY, line, COL_DIM, 30);
+
+        if (sMatchCount > 0)
+        {
+            const struct DevDestination *dest = &sTable[sMatches[sSelected]];
+
+            if (dest->warpId == WARP_ID_NONE)
+                snprintf(line, sizeof(line), "%s  walk-in at %d,%d  (%s)",
+                         DestinationName(dest), (int)dest->x, (int)dest->y,
+                         gMapGroupNames[dest->group]);
+            else
+                snprintf(line, sizeof(line), "%s  warp event %d at %d,%d  (%s)",
+                         DestinationName(dest), dest->warpId, (int)dest->x, (int)dest->y,
+                         gMapGroupNames[dest->group]);
+            DrawText(m, sLayout.countsY + DEV_PANEL_LINE_H, line, COL_TEXT,
+                     (width - 2 * m) / DEV_PANEL_ADVANCE);
+        }
+    }
+
+    DrawText(m, sLayout.hintY,
+             "1 copy map name   2 copy group and index", COL_DIM, 44);
+    for (row = 0; row < DEV_PANEL_TEXT_ROWS; row++)
+    {
+        char label[8];
+        snprintf(label, sizeof(label), "TEXT %d", row + 1);
+        DrawText(m, sLayout.textY[row] + 2, label, COL_DIM, 6);
+        DrawTextField(m + 44, sLayout.textY[row], width - m - (m + 44),
+                      sTextFields[row], sTextScroll[row],
+                      sFocus == (row == 0 ? DEV_PANEL_FOCUS_TEXT1 : DEV_PANEL_FOCUS_TEXT2));
+    }
+
+    DrawText(m, sLayout.statusY, sStatus, COL_GOOD, (width - 2 * m) / DEV_PANEL_ADVANCE);
+
+    SDL_UpdateTexture(sPanelTexture, NULL, sPanelPixels, sDrawableW * sizeof(u32));
     SDL_RenderClear(sPanelRenderer);
     SDL_RenderCopy(sPanelRenderer, sPanelTexture, NULL, NULL);
     SDL_RenderPresent(sPanelRenderer);
@@ -882,20 +1172,86 @@ static void RenderPanel(void)
 // Window lifecycle
 // ---------------------------------------------------------------------------
 
+// Reads the window's drawable size and rebuilds the pixel buffer to match. The
+// panel's backing store is the drawable itself, so a resize (or a drag onto a
+// display with a different scale) reallocates rather than scales.
+static void SyncPanelSize(void)
+{
+    int width, height;
+    int drawableW, drawableH;
+
+    if (sPanelWindow == NULL)
+        return;
+
+    SDL_GetWindowSize(sPanelWindow, &width, &height);
+    if (width < 1)
+        width = 1;
+    if (height < 1)
+        height = 1;
+
+    if (!SDL_GetRendererOutputSize(sPanelRenderer, &drawableW, &drawableH) || drawableW < 1)
+    {
+        drawableW = width;
+        drawableH = height;
+    }
+
+    sPixelScale = drawableW / width;
+    if (sPixelScale < 1)
+        sPixelScale = 1;
+
+    if (sPanelPixels == NULL || sDrawableW != drawableW || sDrawableH != drawableH)
+    {
+        u32 *pixels = realloc(sPanelPixels, (size_t)drawableW * drawableH * sizeof(u32));
+
+        if (pixels == NULL)
+        {
+            fprintf(stderr, "[DevPanel] out of memory for a %dx%d panel buffer\n",
+                    drawableW, drawableH);
+            return;
+        }
+
+        sPanelPixels = pixels;
+        sDrawableW = drawableW;
+        sDrawableH = drawableH;
+
+        if (sPanelTexture != NULL)
+        {
+            SDL_DestroyTexture(sPanelTexture);
+            sPanelTexture = NULL;
+        }
+        sPanelTexture = SDL_CreateTexture(sPanelRenderer, SDL_PIXELFORMAT_ARGB8888,
+                                          SDL_TEXTUREACCESS_STREAMING, drawableW, drawableH);
+        if (sPanelTexture != NULL)
+            SDL_SetTextureScaleMode(sPanelTexture, SDL_ScaleModeNearest);
+
+        sPanelDirty = true;
+    }
+
+    if (sLayout.width != width || sLayout.height != height)
+    {
+        ComputeLayout(width, height);
+        ClampSelection();
+        sPanelDirty = true;
+    }
+}
+
 static void CreatePanelWindow(void)
 {
     if (sPanelWindow != NULL)
         return;
 
-    sPanelWindow = SDL_CreateWindow("FireRed Dev Panel - Warp",
+    sPanelWindow = SDL_CreateWindow("FireRed Dev Panel",
                                     SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                    DEV_PANEL_WIDTH, DEV_PANEL_HEIGHT,
-                                    SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI);
+                                    DEV_PANEL_DEFAULT_W, DEV_PANEL_DEFAULT_H,
+                                    SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+                                    | SDL_WINDOW_ALLOW_HIGHDPI);
     if (sPanelWindow == NULL)
     {
         fprintf(stderr, "[DevPanel] failed to create window: %s\n", SDL_GetError());
         return;
     }
+
+    SDL_SetWindowMinimumSize(sPanelWindow, DEV_PANEL_MIN_W, DEV_PANEL_MIN_H);
 
     sPanelRenderer = SDL_CreateRenderer(sPanelWindow, -1, SDL_RENDERER_ACCELERATED);
     if (sPanelRenderer == NULL)
@@ -906,20 +1262,9 @@ static void CreatePanelWindow(void)
         return;
     }
 
-    // One panel pixel per logical pixel, so the 5x7 glyphs stay crisp on a
-    // high-DPI display.
-    SDL_RenderSetLogicalSize(sPanelRenderer, DEV_PANEL_WIDTH, DEV_PANEL_HEIGHT);
-
-    sPanelTexture = SDL_CreateTexture(sPanelRenderer, SDL_PIXELFORMAT_ARGB8888,
-                                      SDL_TEXTUREACCESS_STREAMING,
-                                      DEV_PANEL_WIDTH, DEV_PANEL_HEIGHT);
-    if (sPanelTexture == NULL)
-    {
-        fprintf(stderr, "[DevPanel] failed to create texture: %s\n", SDL_GetError());
-        return;
-    }
-
-    sPanelPixels = malloc(DEV_PANEL_WIDTH * DEV_PANEL_HEIGHT * sizeof(u32));
+    // No logical size: the texture is already the drawable's own resolution, so
+    // SDL blits it 1:1 and the panel's text stays pixel-exact.
+    SyncPanelSize();
     sPanelDirty = true;
 }
 
@@ -994,10 +1339,10 @@ static void HandlePanelKey(int key)
         MoveSelection(1);
         break;
     case SDLK_PAGEUP:
-        MoveSelection(-DEV_PANEL_LIST_ROWS);
+        MoveSelection(-VisibleRows());
         break;
     case SDLK_PAGEDOWN:
-        MoveSelection(DEV_PANEL_LIST_ROWS);
+        MoveSelection(VisibleRows());
         break;
     case SDLK_HOME:
         sSelected = 0;
@@ -1042,22 +1387,188 @@ bool Platform_DevPanelHandleEvent(void *sdlEvent)
 
     panelWindowId = SDL_GetWindowID(sPanelWindow);
 
-    if (event->type == SDL_KEYDOWN && event->key.windowID == panelWindowId)
+    switch (event->type)
     {
-        HandlePanelKey(event->key.keysym.sym);
-        return true;
-    }
+    case SDL_KEYDOWN:
+        if (event->key.windowID == panelWindowId)
+        {
+            HandlePanelKey(event->key.keysym.sym);
+            return true;
+        }
+        return false;
 
-    if (event->type == SDL_WINDOWEVENT && event->window.windowID == panelWindowId)
-    {
-        if (event->window.event == SDL_WINDOWEVENT_CLOSE)
+    case SDL_MOUSEMOTION:
+        if (event->motion.windowID == panelWindowId)
+        {
+            HandleMouseMotion(event->motion.x, event->motion.y);
+            return true;
+        }
+        return false;
+
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP:
+        if (event->button.windowID == panelWindowId && event->button.button == SDL_BUTTON_LEFT)
+        {
+            HandleMouseButton(event->button.x, event->button.y,
+                              event->type == SDL_MOUSEBUTTONDOWN, event->button.clicks);
+            return true;
+        }
+        return false;
+
+    case SDL_MOUSEWHEEL:
+        // SDL routes the wheel to the window under the cursor; the GBA window's
+        // wheel must not scroll the panel's list.
+        if (event->wheel.windowID == panelWindowId)
+        {
+            HandleMouseWheel(event->wheel.y);
+            return true;
+        }
+        return false;
+
+    case SDL_WINDOWEVENT:
+        if (event->window.windowID != panelWindowId)
+            return false;
+
+        switch (event->window.event)
+        {
+        case SDL_WINDOWEVENT_CLOSE:
             DestroyPanelWindow();
-        else if (event->window.event == SDL_WINDOWEVENT_EXPOSED)
+            break;
+        case SDL_WINDOWEVENT_EXPOSED:
+        case SDL_WINDOWEVENT_SIZE_CHANGED:
+        case SDL_WINDOWEVENT_RESIZED:
+            // The reallocation happens on the next frame, not here: the pixel
+            // buffer and texture are shared with the renderer, and the event
+            // pump runs while the engine is part-way through a frame.
             sPanelDirty = true;
+            break;
+        case SDL_WINDOWEVENT_LEAVE:
+            if (sHoverRow != -1 || sHoverButton)
+            {
+                sHoverRow = -1;
+                sHoverButton = false;
+                sPanelDirty = true;
+            }
+            break;
+        default:
+            break;
+        }
         return true;
+
+    default:
+        return false;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Mouse
+// ---------------------------------------------------------------------------
+
+// Maps a window-space mouse position to logical panel points. SDL reports mouse
+// coordinates in window space even for a high-DPI window, so the drawable-space
+// divide is what keeps a click on a row landing on that row.
+static int RowAtPoint(int x, int y)
+{
+    int row;
+
+    if (x < sLayout.listX || x >= sLayout.listX + sLayout.listW)
+        return -1;
+    if (y < sLayout.listY + 2 || y >= sLayout.listY + sLayout.listH - 2)
+        return -1;
+
+    row = (y - (sLayout.listY + 2)) / DEV_PANEL_ROW_H;
+    if (row < 0 || row >= sLayout.rows)
+        return -1;
+    if (sScroll + row >= sMatchCount)
+        return -1;
+
+    return sScroll + row;
+}
+
+static bool PointInRect(int x, int y, int rx, int ry, int rw, int rh)
+{
+    return x >= rx && x < rx + rw && y >= ry && y < ry + rh;
+}
+
+static int FieldAtPoint(int x, int y)
+{
+    int i;
+
+    if (PointInRect(x, y, sLayout.filterX, sLayout.filterY, sLayout.filterW, DEV_PANEL_FIELD_H))
+        return DEV_PANEL_FOCUS_FILTER;
+
+    for (i = 0; i < DEV_PANEL_TEXT_ROWS; i++)
+    {
+        int fx = DEV_PANEL_MARGIN + 44;
+        int fw = sLayout.width - DEV_PANEL_MARGIN - fx;
+
+        if (PointInRect(x, y, fx, sLayout.textY[i], fw, DEV_PANEL_FIELD_H))
+            return i == 0 ? DEV_PANEL_FOCUS_TEXT1 : DEV_PANEL_FOCUS_TEXT2;
     }
 
-    return false;
+    return -1;
+}
+
+static void HandleMouseMotion(int x, int y)
+{
+    int row = RowAtPoint(x, y);
+    bool button = PointInRect(x, y, sLayout.warpX, sLayout.warpY, sLayout.warpW, sLayout.warpH);
+
+    if (row != sHoverRow || button != sHoverButton)
+    {
+        sHoverRow = row;
+        sHoverButton = button;
+        sPanelDirty = true;
+    }
+}
+
+static void HandleMouseButton(int x, int y, bool down, u8 clicks)
+{
+    int field;
+
+    if (!down)
+    {
+        sButtonDown = false;
+        sPanelDirty = true;
+        return;
+    }
+
+    sButtonDown = true;
+    sPanelDirty = true;
+
+    // The WARP button is the only click target that acts immediately; a list
+    // click selects first, so a mis-click cannot teleport the player.
+    if (PointInRect(x, y, sLayout.warpX, sLayout.warpY, sLayout.warpW, sLayout.warpH))
+    {
+        RequestWarp();
+        return;
+    }
+
+    field = FieldAtPoint(x, y);
+    if (field >= 0)
+    {
+        sFocus = field;
+        return;
+    }
+
+    if (RowAtPoint(x, y) >= 0)
+    {
+        sSelected = sHoverRow;
+        ClampSelection();
+        // A double-click on a row is the mouse equivalent of ENTER.
+        if (clicks >= 2)
+            RequestWarp();
+    }
+}
+
+static void HandleMouseWheel(int delta)
+{
+    if (delta == 0)
+        return;
+
+    // Wheel moves the whole page like PGDN/PGUP rather than a single row: the
+    // list can hold hundreds of entries and row-stepping would be tedious.
+    MoveSelection(delta > 0 ? -VisibleRows() : VisibleRows());
 }
 
 // ---------------------------------------------------------------------------
@@ -1111,6 +1622,10 @@ void Platform_DevPanelUpdate(void)
         {
             gPlatformDevPanelKeySequence = NULL;
             sCurrentKey = 0;
+            // Clear the command too: the dispatch below would otherwise re-run
+            // the final CLICK/RESIZE token on every remaining frame.
+            sCommandName[0] = '\0';
+            sCommandArgCount = 0;
         }
         else
         {
@@ -1140,8 +1655,17 @@ void Platform_DevPanelUpdate(void)
     if (sMatches == NULL)
         return;
 
+    // A resize may have arrived since the last frame; this reallocates the
+    // buffer and recomputes the layout before anything is drawn or hit-tested.
+    SyncPanelSize();
+    if (sPanelPixels == NULL)
+        return;
+
     if (scriptedKey != 0)
         HandlePanelKey(scriptedKey);
+    else if (sCommandName[0] != '\0' && sCommandArgCount > 0
+             && ApplyScriptedPanelCommand(sCommandName, sCommandArgs, sCommandArgCount))
+        sPanelDirty = true;
 
     if (sStatusCountdown > 0)
     {
@@ -1217,7 +1741,9 @@ void Platform_DevPanelSaveScreenshot(const char *filename)
     u8 header[54];
     u32 imageSize;
     u32 fileSize;
-    int y;
+    u32 width;
+    u32 height;
+    u32 y;
     bool ok = true;
 
     if (sPanelPixels == NULL)
@@ -1226,9 +1752,14 @@ void Platform_DevPanelSaveScreenshot(const char *filename)
         return;
     }
 
-    // 400 * 3 is already a multiple of 4, but compute the padded stride anyway.
-    imageSize = (u32)DEV_PANEL_WIDTH * 3;
-    imageSize = ((imageSize + 3) / 4) * 4 * DEV_PANEL_HEIGHT;
+    // The buffer is the drawable, not the logical size, so the capture carries
+    // the panel's real pixels whatever the display scale or window size is.
+    width = (u32)sDrawableW;
+    height = (u32)sDrawableH;
+
+    // Rows are padded to a 4-byte boundary; compute the stride rather than
+    // assuming the width happens to be a multiple of 4.
+    imageSize = ((width * 3 + 3) / 4) * 4 * height;
     fileSize = 54 + imageSize;
 
     memset(header, 0, sizeof(header));
@@ -1240,14 +1771,14 @@ void Platform_DevPanelSaveScreenshot(const char *filename)
     header[5] = (u8)(fileSize >> 24);
     header[10] = 54; // pixel data offset
     header[14] = 40; // BITMAPINFOHEADER
-    header[18] = (u8)(DEV_PANEL_WIDTH);
-    header[19] = (u8)(DEV_PANEL_WIDTH >> 8);
-    header[20] = (u8)(DEV_PANEL_WIDTH >> 16);
-    header[21] = (u8)(DEV_PANEL_WIDTH >> 24);
-    header[22] = (u8)(DEV_PANEL_HEIGHT);
-    header[23] = (u8)(DEV_PANEL_HEIGHT >> 8);
-    header[24] = (u8)(DEV_PANEL_HEIGHT >> 16);
-    header[25] = (u8)(DEV_PANEL_HEIGHT >> 24);
+    header[18] = (u8)(width);
+    header[19] = (u8)(width >> 8);
+    header[20] = (u8)(width >> 16);
+    header[21] = (u8)(width >> 24);
+    header[22] = (u8)(height);
+    header[23] = (u8)(height >> 8);
+    header[24] = (u8)(height >> 16);
+    header[25] = (u8)(height >> 24);
     header[26] = 1; // planes
     header[28] = 24; // bits per pixel
     header[34] = (u8)(imageSize);
@@ -1265,13 +1796,13 @@ void Platform_DevPanelSaveScreenshot(const char *filename)
     fwrite(header, 1, sizeof(header), file);
 
     // BMP rows run bottom-up and store BGR.
-    for (y = DEV_PANEL_HEIGHT - 1; y >= 0 && ok; y--)
+    for (y = height; y-- > 0 && ok;)
     {
-        int x;
+        u32 x;
 
-        for (x = 0; x < DEV_PANEL_WIDTH; x++)
+        for (x = 0; x < width; x++)
         {
-            u32 pixel = sPanelPixels[y * DEV_PANEL_WIDTH + x];
+            u32 pixel = sPanelPixels[y * width + x];
             u8 bgr[3];
 
             bgr[0] = (u8)(pixel & 0xFF);         // blue
@@ -1284,12 +1815,31 @@ void Platform_DevPanelSaveScreenshot(const char *filename)
                 break;
             }
         }
+
+        // Pad the row out to the 4-byte stride.
+        {
+            u32 written = width * 3;
+            while (ok && written % 4 != 0)
+            {
+                if (fwrite("\0", 1, 1, file) != 1)
+                    ok = false;
+                written++;
+            }
+        }
     }
 
     fclose(file);
 
     if (ok)
+    {
+        // Report the state alongside the capture: a headless run cannot read the
+        // panel's widgets, and "the field is empty" is not visible in a BMP.
         printf("[DevPanel] Saved panel screenshot to %s\n", filename);
+        printf("[DevPanel] state: focus=%d rows=%d matches=%d selected=%d scroll=%d hover=%d "
+               "filter=\"%s\" text1=\"%s\" text2=\"%s\" status=\"%s\"\n",
+               sFocus, sLayout.rows, sMatchCount, sSelected, sScroll, sHoverRow,
+               sFilter, sTextFields[0], sTextFields[1], sStatus);
+    }
     else
         fprintf(stderr, "[DevPanel] failed writing %s\n", filename);
 }
