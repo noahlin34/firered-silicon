@@ -11,6 +11,7 @@
 #include "malloc.h"
 #include "decompress.h"
 #include "text.h"
+#include "main.h"
 void m4aSoundInit(void) {}
 void m4aSoundMain(void) {}
 void m4aSoundVSync(void) {}
@@ -195,6 +196,14 @@ void SetPokemonCryStereo(u32 mode) { (void)mode; }
 void HelpSystem_Disable(void) {}
 void HelpSystem_Enable(void) {}
 void SetHelpContext(u8 helpContext) { (void)helpContext; }
+
+// ROM header fields. On the GBA these live in src/rom_header.s, which only
+// gbafix populates and which cannot be assembled for the host. src/mystery_gift.c
+// copies them into the Mystery Gift link game data. The values are the ones this
+// build's config.mk hands to gbafix: GAME_VERSION=FIRERED/GAME_LANGUAGE=ENGLISH
+// gives the code "BPRE", and GAME_REVISION=0 gives software version 0.
+const char RomHeaderGameCode[GAME_CODE_LENGTH] = { 'B', 'P', 'R', 'E' };
+const char RomHeaderSoftwareVersion = 0;
 
 // Font & UI Stubs
 
