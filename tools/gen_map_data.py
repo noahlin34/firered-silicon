@@ -1385,6 +1385,37 @@ def main():
             f.write(f"    gMapGroup_{grp},\n")
         f.write("};\n\n")
 
+        # Per-group names and counts, plus the flat per-map name table, for the
+        # native developer panel (src/platform/dev_panel.c). gMapGroups gives the
+        # panel every map the engine can load, but a group's map count is not
+        # recoverable from the pointer array alone, the group identifiers
+        # (gMapGroup_TownsAndRoutes) are far more legible than a bare index, and
+        # struct MapLayout carries no name -- the map's own name (`PalletTown`)
+        # only exists in the JSON. All three are emitted here, next to the tables
+        # they describe, from the same source.
+        group_order = groups_json["group_order"]
+        f.write("const u8 gMapGroupCounts[] = {\n")
+        for grp in group_order:
+            f.write(f"    {len(groups_json[grp])}, // {grp}\n")
+        f.write("};\n\n")
+        f.write("const char *const gMapGroupNames[] = {\n")
+        for grp in group_order:
+            name = grp[len("gMapGroup_"):] if grp.startswith("gMapGroup_") else grp
+            f.write(f'    "{name}",\n')
+        f.write("};\n\n")
+
+        first = 0
+        f.write("const u16 gMapGroupFirstMap[] = {\n")
+        for grp in group_order:
+            f.write(f"    {first}, // {grp}\n")
+            first += len(groups_json[grp])
+        f.write("};\n\n")
+        f.write("const char *const gMapNames[] = {\n")
+        for grp in group_order:
+            for map_name in groups_json[grp]:
+                f.write(f'    "{map_name}",\n')
+        f.write("};\n\n")
+
     print(f"Wrote {out_maps_file}")
 
 
