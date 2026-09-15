@@ -22,7 +22,23 @@ LDFLAGS := $(shell /opt/homebrew/bin/sdl2-config --libs)
 # them gbagfx emits plain row-major tiles, the engine's overworld_frame() macro
 # addresses the wrong tiles, and the first frames come out blank (invisible NPCs).
 GFX := tools/gbagfx/gbagfx
+
+OBJ_EVENT_PICS := $(patsubst %.png,%.4bpp,$(wildcard graphics/object_events/pics/*/*.png))
+
+# pret's per-asset rules carry the conversion flags that matter (-num_tiles,
+# -mwidth/-mheight, and the two-palette `cat` for textbox.gbapal). Without them
+# those assets convert with the defaults and either fail or decode wrong.
+include graphics_file_rules.mk
+include tileset_rules.mk
 include spritesheet_rules.mk
+
+# NOTE: graphics_file_rules.mk is pret's file, kept verbatim except for one
+# deletion: its rule for graphics/unused/redyellowgreen_frame.bin `cat`s four
+# frame .bin files that do not exist in this repository or upstream, while the
+# concatenated result IS tracked. An absent prerequisite with no rule is a hard
+# make error even though the target exists, and it cannot be neutralised from
+# here (rules accumulate prerequisites, and an empty recipe on the inputs makes
+# `cat` run and truncate the tracked file). The tracked .bin is a source.
 
 # Battle engine INCBIN targets (terrain, transitions, interface, records) plus
 # the battle-animation sprite sheets. Both are generated from checked-in
@@ -31,12 +47,135 @@ include tools/battle_assets.mk
 include tools/anim_sprite_assets.mk
 include tools/battle_extra_assets.mk
 
-OBJ_EVENT_PICS := $(patsubst %.png,%.4bpp,$(wildcard graphics/object_events/pics/*/*.png))
+# --- Generated constants headers -------------------------------------------
+# pret's Makefile generates these from JSON and gitignores them (they are build
+# products). `Makefile.native` never did, so a fresh clone was missing the
+# headers the engine includes -- map_groups.h alone is reachable from every
+# file that names a map. Generate them the same way pret does, from the same
+# tools and the same inputs, so the output matches the checked-in pret build.
+MAPJSON  := tools/mapjson/mapjson
+JSONPROC := tools/jsonproc/jsonproc
+
+# gbagfx, preproc, mapjson and jsonproc are build products, not sources: all
+# are gitignored, so a fresh clone has none and every asset rule dies with
+# "No such file or directory". Build them on demand.
+$(GFX) $(PREPROC) $(MAPJSON) $(JSONPROC):
+	@$(MAKE) -C $(dir $@)
+
+MAP_JSONS := $(wildcard data/maps/*/map.json)
+
+GEN_HEADERS := \
+	include/constants/map_groups.h \
+	include/constants/layouts.h \
+	include/constants/map_event_ids.h \
+	include/constants/region_map_sections.h \
+	include/constants/heal_locations.h \
+	src/data/items.h \
+	src/data/wild_encounters.h \
+	src/data/heal_locations.h \
+	src/data/region_map/region_map_entries.h \
+	src/data/region_map/region_map_entry_strings.h
+
+# map_groups.json also emits the .inc files the GBA build consumes; only the
+# header is needed here, so invoke the generator per header instead of copying
+# pret's recipe (which writes several outputs from one rule).
+include/constants/map_groups.h: data/maps/map_groups.json | $(MAPJSON)
+	@$(MAPJSON) groups firered $< data/maps include/constants
+
+include/constants/layouts.h: data/layouts/layouts.json | $(MAPJSON)
+	@$(MAPJSON) layouts firered $< data/layouts include/constants
+
+# Event constants depend on every map.json, so this is the slow one.
+include/constants/map_event_ids.h: $(MAP_JSONS) | $(MAPJSON)
+	@$(MAPJSON) event_constants firered $(MAP_JSONS) $@
+
+include/constants/region_map_sections.h: src/data/region_map/region_map_sections.json src/data/region_map/region_map_sections.constants.json.txt | $(JSONPROC)
+	@$(JSONPROC) $^ $@
+
+include/constants/heal_locations.h: src/data/heal_locations.json src/data/heal_locations.constants.json.txt | $(JSONPROC)
+	@$(JSONPROC) $^ $@
+
+src/data/items.h: src/data/items.json src/data/items.json.txt | $(JSONPROC)
+	@$(JSONPROC) $^ $@
+
+src/data/wild_encounters.h: src/data/wild_encounters.json src/data/wild_encounters.json.txt | $(JSONPROC)
+	@$(JSONPROC) $^ $@
+
+src/data/heal_locations.h: src/data/heal_locations.json src/data/heal_locations.json.txt | $(JSONPROC)
+	@$(JSONPROC) $^ $@
+
+src/data/region_map/region_map_entries.h: src/data/region_map/region_map_sections.json src/data/region_map/region_map_sections.entries.json.txt | $(JSONPROC)
+	@$(JSONPROC) $^ $@
+
+src/data/region_map/region_map_entry_strings.h: src/data/region_map/region_map_sections.json src/data/region_map/region_map_sections.strings.json.txt | $(JSONPROC)
+	@$(JSONPROC) $^ $@
+
+generated-headers: $(GEN_HEADERS)
+
+# The generated assets are prerequisites of `assets`, and make may start them in
+# parallel with `tools`, so every asset target names the tool as an order-only
+# prerequisite instead of relying on the order of `assets`'s own prerequisites.
+# Order-only keeps a rebuilt tool from forcing every asset to regenerate.
+$(OBJ_EVENT_PICS) \
+$(BATTLE_4BPP_FROM_PNG) $(BATTLE_GBAPAL_FROM_PAL) $(BATTLE_GBAPAL_FROM_PNG) \
+$(BATTLE_4BPP_LZ) $(BATTLE_GBAPAL_LZ) $(BATTLE_BIN_LZ) \
+$(BATTLE_EXTRA_4BPP_FROM_PNG) $(BATTLE_EXTRA_GBAPAL_FROM_PAL) \
+$(BATTLE_EXTRA_GBAPAL_FROM_PNG) $(BATTLE_EXTRA_4BPP_LZ) $(BATTLE_EXTRA_BIN_LZ) \
+$(ANIM_SPRITE_4BPP) $(ANIM_SPRITE_TARGETS): | $(GFX)
 
 # Sprites with no entry in spritesheet_rules.mk (mostly single-frame misc/pokemon
 # icons) really are row-major; pret relies on this plain rule for them.
-%.4bpp: %.png
+# `Makefile.native` originally had only the .4bpp-from-PNG half of pret's
+# implicit conversion set, so a clean tree failed on the .pal -> .gbapal, PNG ->
+# .gbapal and uncompressed -> .lz steps for assets outside the rule files.
+%.4bpp: %.png | $(GFX)
 	@$(GFX) $< $@
+%.8bpp: %.png | $(GFX)
+	@$(GFX) $< $@
+%.1bpp: %.png | $(GFX)
+	@$(GFX) $< $@
+%.gbapal: %.pal | $(GFX)
+	@$(GFX) $< $@
+%.gbapal: %.png | $(GFX)
+	@$(GFX) $< $@
+%.lz: % | $(GFX)
+	@$(GFX) $< $@
+
+# Every INCBIN the sources reach, derived from the sources themselves so the
+# list cannot drift: tools/list_incbin_assets.py scans src/ and returns each
+# untracked target it can resolve through the build's own rules. pret's
+# dependency on these files is implicit; naming them explicitly is what lets
+# object compilation wait for `assets`.
+INCBIN_ASSETS := $(shell python3 tools/list_incbin_assets.py)
+
+# Build the conversion tools before any asset recipe can run.
+#
+# With `-j`, make starts an asset conversion while gbagfx is still compiling and
+# the recipe then fails with "make: tools/gbagfx/gbagfx: No such file or
+# directory". pret's rule files use pattern rules and static pattern rules whose
+# target list is a generated variable, so there is no single point to attach the
+# tool to, and attaching it to the tool's own rule is a self-dependency. The
+# tool is therefore an order-only prerequisite of every enumerated asset target
+# (below), and the sub-make covers the pattern-rule paths that cannot be
+# enumerated. Order-only, so a rebuilt tool does not force assets to regenerate.
+.PHONY: tools
+tools:
+	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) $(GFX) $(PREPROC) $(MAPJSON) $(JSONPROC)
+
+# Every concrete asset target named by the rule files, read back out of them so
+# the list cannot drift. The tools themselves are excluded: depending on gbagfx
+# from gbagfx's own rule is a cycle, which make drops with a warning and then
+# schedules the asset recipes before the tool exists.
+RULE_FILE_TARGETS := $(shell python3 tools/list_incbin_assets.py --list-targets)
+
+$(INCBIN_ASSETS) $(OBJ_EVENT_PICS) $(RULE_FILE_TARGETS) \
+$(BATTLE_4BPP_FROM_PNG) $(BATTLE_GBAPAL_FROM_PAL) $(BATTLE_GBAPAL_FROM_PNG) \
+$(BATTLE_4BPP_LZ) $(BATTLE_GBAPAL_LZ) $(BATTLE_BIN_LZ) \
+$(BATTLE_EXTRA_4BPP_FROM_PNG) $(BATTLE_EXTRA_GBAPAL_FROM_PAL) \
+$(BATTLE_EXTRA_GBAPAL_FROM_PNG) $(BATTLE_EXTRA_4BPP_LZ) $(BATTLE_EXTRA_BIN_LZ) \
+$(ANIM_SPRITE_4BPP) $(ANIM_SPRITE_TARGETS): | $(GFX)
+
+assets: | tools
 
 PLATFORM_SRCS := src/platform/system.c \
                  src/platform/bios.c \
@@ -203,9 +342,9 @@ OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREP
 
 TARGET := firered-native
 
-.PHONY: all clean run assets battle-scripts
+.PHONY: all clean run assets battle-scripts tools generated-headers
 
-all: assets $(TARGET)
+all: assets $(GEN_HEADERS) $(TARGET)
 
 # Battle script bytecode + the shared native pointer table. Regenerate whenever
 # the pret script sources, their macros, or the C readers they are classified
@@ -218,7 +357,7 @@ BATTLE_SCRIPT_SOURCES := $(wildcard data/battle_scripts_*.s data/battle_anim_scr
 battle-scripts: $(BATTLE_SCRIPT_SOURCES)
 	@python3 tools/gen_battle_data.py
 
-assets: $(OBJ_EVENT_PICS) battle-assets anim-sprite-assets battle-extra-assets
+assets: $(GFX) $(PREPROC) $(GEN_HEADERS) $(INCBIN_ASSETS) $(OBJ_EVENT_PICS) battle-assets anim-sprite-assets battle-extra-assets
 	@mkdir -p $(OBJ_DIR)/platform
 	@tools/gbagfx/gbagfx graphics/title_screen/border_bg.png graphics/title_screen/border_bg.4bpp
 	@tools/gbagfx/gbagfx graphics/title_screen/border_bg.4bpp graphics/title_screen/border_bg.4bpp.lz
@@ -295,7 +434,7 @@ assets: $(OBJ_EVENT_PICS) battle-assets anim-sprite-assets battle-extra-assets
 	@tools/gbagfx/gbagfx graphics/object_events/palettes/player.pal graphics/object_events/palettes/player.gbapal
 	@tools/gbagfx/gbagfx graphics/object_events/palettes/npc_blue.pal graphics/object_events/palettes/npc_blue.gbapal
 
-$(OBJ_DIR)/%.o: src/%.c
+$(OBJ_DIR)/%.o: src/%.c | $(GEN_HEADERS)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -308,13 +447,20 @@ $(OBJ_DIR)/%.o: src/%.c
 # then $(eval) (parses the result), so a single `$$` survives as `$` in the
 # recipe where `$@`/`$<` must expand at build time.
 define PREPROC_RULE
-$(OBJ_DIR)/$(1).o: src/$(1).c | battle-scripts
+$(OBJ_DIR)/$(1).o: src/$(1).c | battle-scripts $(PREPROC) $(GFX) $(GEN_HEADERS)
 	@mkdir -p $$(dir $$@)
 	$$(CC) -E $$(CFLAGS) $$< | $$(PREPROC) -i $$< charmap.txt | $$(CC) $$(CFLAGS) -x c -c -o $$@ -
 endef
 
 $(foreach src,$(PREPROC_SRCS),$(eval $(call PREPROC_RULE,$(patsubst src/%.c,%,$(src)))))
 
+
+# Every object INCBINDs generated assets (graphics, tilesets) during
+# preprocessing, so `assets` must finish before the first object compiles.
+# Without this, `all` builds assets and objects in parallel and a clean tree
+# races: the preprocessor opens a file the asset rule has not created yet.
+# `assets` is phony, so this is order-only and changes no rebuild semantics.
+$(OBJS): | assets
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@

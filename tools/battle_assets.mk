@@ -182,10 +182,6 @@ BATTLE_REQUIRED := \
 battle-assets: $(BATTLE_REQUIRED)
 	@for asset in $(BATTLE_REQUIRED); do test -e "$$asset" || exit 1; done
 
-$(BATTLE_4BPP_FROM_PNG): %.4bpp: %.png
-	@mkdir -p $(dir $@)
-	@$(GFX) $< $@
-
 $(BATTLE_GBAPAL_FROM_PAL): %.gbapal: %.pal
 	@mkdir -p $(dir $@)
 	@$(GFX) $< $@
