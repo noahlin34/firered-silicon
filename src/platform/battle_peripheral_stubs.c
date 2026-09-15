@@ -166,30 +166,13 @@ void ChooseMonForSoftboiled(u8 taskId)
     (void)taskId;
 }
 
-/* Easy Chat and placeholder expansion are peripheral UI paths. */
-u8 *ConvertEasyChatWordsToString(u8 *dest, const u16 *src, u16 columns, u16 rows)
-{
-    (void)dest;
-    (void)src;
-    (void)columns;
-    (void)rows;
-    return NULL;
-}
-
+/* Easy Chat screen UI is a peripheral path; the word/string helpers are real
+   now that src/easy_chat.c is linked. */
 void DoEasyChatScreen(u8 type, u16 *words, MainCallback callback)
 {
     (void)type;
     (void)words;
     (void)callback;
-}
-
-bool8 EC_DoesEasyChatStringFitOnLine(const u16 *easyChatWords, u8 columns, u8 rows, u16 maxLength)
-{
-    (void)easyChatWords;
-    (void)columns;
-    (void)rows;
-    (void)maxLength;
-    return FALSE;
 }
 
 u8 *DynamicPlaceholderTextUtil_ExpandPlaceholders(u8 *dest, const u8 *src)
