@@ -539,11 +539,17 @@ static void WaitForVBlank(void)
     }
     REG_VCOUNT = 160; // Start of VBlank
     VBlankIntr();
+    // The developer panel paints before presenting so a warp it requests takes
+    // effect on the next frame's script context -- the same ordering the engine
+    // gives ScrCmd_warp, and never mid-frame.
+    Platform_DevPanelUpdate();
     Platform_RenderAndPresent();
     if (gEngineMaxFrames > 0 && ++sEngineFrameCount >= gEngineMaxFrames)
     {
         printf("[Engine] Reached %d frames in boot test! Saving screenshot...\n", sEngineFrameCount);
         Platform_SaveScreenshot("engine_boot_output.bmp");
+        if (gPlatformDevPanelEnabled)
+            Platform_DevPanelSaveScreenshot("dev_panel_output.bmp");
         printf("[Engine] Engine boot test successful!\n");
         exit(0);
     }
