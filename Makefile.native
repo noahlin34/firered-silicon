@@ -17,6 +17,21 @@ CFLAGS := -Wall -Wextra -std=c11 -O2 -DPORTABLE -DMODERN=1 -DFIRERED -DENGLISH -
           $(if $(filter 1,$(FPS_OVERLAY)),-DFPS_OVERLAY,)
 LDFLAGS := $(shell /opt/homebrew/bin/sdl2-config --libs)
 
+# Header dependency tracking. Without it a header edit is invisible to make --
+# `touch src/data/maps_data.h` plans nothing -- because object files depend on
+# their .c only. That is how a `git pull` that changed the tracked generated
+# header src/data/maps_data.h produced a link with undefined script/text
+# symbols: src/maps.c (the only file including it) was unchanged, so maps.o kept
+# exporting the old symbol set while main.o, which did change, referenced the
+# new one. -MMD -MP writes a .d per object that is -include'd at the bottom of
+# this file; -MP adds phony targets for headers so a deleted one is not a hard
+# error. Each rule passes -MT $@ as well: clang otherwise names the target after
+# the output argument it saw, and in the preproc pipeline that is not the object
+# path, so the generated rule would attach to a target make never builds. Keep
+# these out of CFLAGS -- CFLAGS also builds the link command, where they are
+# meaningless.
+DEPFLAGS := -MMD -MP
+
 # Canonical overworld spritesheet rules. pret's spritesheet_rules.mk gives every
 # object event sprite the -mwidth/-mheight flags its PNG layout needs; without
 # them gbagfx emits plain row-major tiles, the engine's overworld_frame() macro
@@ -465,7 +480,7 @@ assets: $(GFX) $(PREPROC) $(GEN_HEADERS) $(OBJ_EVENT_PICS) battle-assets anim-sp
 
 $(OBJ_DIR)/%.o: src/%.c | $(GEN_HEADERS)
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(DEPFLAGS) -MT $@ -c -o $@ $<
 
 # Sources containing charmap text (`_("...")`) or INCBIN assets must be run
 # through tools/preproc (fix #2). GNU Make 3.81 (macOS) rejects static pattern
@@ -478,7 +493,7 @@ $(OBJ_DIR)/%.o: src/%.c | $(GEN_HEADERS)
 define PREPROC_RULE
 $(OBJ_DIR)/$(1).o: src/$(1).c | battle-scripts $(PREPROC) $(GFX) $(GEN_HEADERS)
 	@mkdir -p $$(dir $$@)
-	$$(CC) -E $$(CFLAGS) $$< | $$(PREPROC) -i $$< charmap.txt | $$(CC) $$(CFLAGS) -x c -c -o $$@ -
+	$$(CC) -E $$(DEPFLAGS) -MT $$@ -MF $$(@:.o=.d) $$(CFLAGS) $$< | $$(PREPROC) -i $$< charmap.txt | $$(CC) $$(CFLAGS) -x c -c -o $$@ -
 endef
 
 $(foreach src,$(PREPROC_SRCS),$(eval $(call PREPROC_RULE,$(patsubst src/%.c,%,$(src)))))
@@ -500,3 +515,8 @@ run: $(TARGET)
 
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
+
+# Header dependencies, one .d per object, written by DEPFLAGS above. Last, so
+# every rule is already defined; -include (not include) because the files do not
+# exist on a clean tree.
+-include $(OBJS:.o=.d)
