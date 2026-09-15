@@ -146,6 +146,13 @@ extern const u8 PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerMid[];
 extern const u8 PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerRight[];
 extern const struct MapHeader ViridianCity_Mart;
 extern const struct MapHeader ViridianCity;
+extern const struct MapHeader PalletTown_RivalsHouse;
+extern const u8 PalletTown_RivalsHouse_EventScript_Daisy[];
+extern const u8 PalletTown_RivalsHouse_EventScript_TownMap[];
+extern const u8 PalletTown_RivalsHouse_EventScript_GiveTownMap[];
+extern const u8 PalletTown_RivalsHouse_EventScript_Bookshelf[];
+extern const u8 PalletTown_RivalsHouse_EventScript_Picture[];
+extern u16 (*const gSpecials[])(void);
 extern const struct MapHeader Route1;
 extern const u8 ViridianCity_Mart_OnLoad[];
 extern const u8 ViridianCity_Mart_EventScript_ParcelScene[];
@@ -526,6 +533,74 @@ static void TestOverworldInteractions(void)
         assert(dest[0] == 0);
     }
     printf("[SmokeTest] All HBlank DMA replay verified!\n");
+
+    // 11. Rival's house: Daisy's A-press script and the room's map-script
+    //     header must be compiled, not left on the dummy `end`. Before this the
+    //     whole map was sDummyScript -- Daisy did nothing and the TOWN MAP she
+    //     hands over after Oak's parcel was unreachable.
+    {
+        const struct MapEvents *houseEvents = PalletTown_RivalsHouse.events;
+        assert(houseEvents != NULL);
+        assert(houseEvents->objectEventCount == 2);
+        assert(houseEvents->bgEventCount == 3);
+
+        // Daisy (localId 1) and the TOWN MAP object (localId 2)
+        assert(houseEvents->objectEvents[0].script == PalletTown_RivalsHouse_EventScript_Daisy);
+        assert(houseEvents->objectEvents[1].script == PalletTown_RivalsHouse_EventScript_TownMap);
+        assert(houseEvents->objectEvents[1].flagId == FLAG_HIDE_TOWN_MAP);
+
+        // Daisy opens with lock + faceplayer
+        assert(PalletTown_RivalsHouse_EventScript_Daisy[0] == 0x6a);
+        assert(PalletTown_RivalsHouse_EventScript_Daisy[1] == 0x5a);
+
+        // Both bookshelves and the Clefairy picture are real scripts
+        assert(houseEvents->bgEvents[0].bgUnion.script == PalletTown_RivalsHouse_EventScript_Bookshelf);
+        assert(houseEvents->bgEvents[1].bgUnion.script == PalletTown_RivalsHouse_EventScript_Bookshelf);
+        assert(houseEvents->bgEvents[2].bgUnion.script == PalletTown_RivalsHouse_EventScript_Picture);
+
+        // ON_TRANSITION must be compiled: it moves Daisy to the table before
+        // the parcel errand and pre-sets RECEIVED_TOWN_MAP afterwards. Without
+        // it she stands at her default (10,6) and never walks over.
+        assert(PalletTown_RivalsHouse.mapScripts != NULL);
+        assert(PalletTown_RivalsHouse.mapScripts[0] == 0x03); // MAP_SCRIPT_ON_TRANSITION
+        // ...and the entry's script operand must resolve through the pointer
+        // table to a real script, not to a truncated address.
+        {
+            u32 index = PalletTown_RivalsHouse.mapScripts[1]
+                      | (PalletTown_RivalsHouse.mapScripts[2] << 8)
+                      | (PalletTown_RivalsHouse.mapScripts[3] << 16)
+                      | (PalletTown_RivalsHouse.mapScripts[4] << 24);
+            assert(gNativeScriptPtrs[index] != NULL);
+        }
+
+        // The give branch must contain the sequence that grants the TOWN MAP:
+        // removeobject (0x53), setvar, and giveitem_msg's additem (0x44).
+        // NOTE: scan a fixed window rather than stopping at the first 0x02 --
+        // 0x02 is also a legitimate operand byte (e.g. the quantity operand in
+        // checkitemspace, which is exactly what this branch emits).
+        {
+            const u8 *s = PalletTown_RivalsHouse_EventScript_GiveTownMap;
+            int sawRemoveobject = 0, sawAdditem = 0, i;
+            for (i = 0; i < 128; i++)
+            {
+                if (s[i] == 0x53) sawRemoveobject = 1;
+                if (s[i] == 0x44) sawAdditem = 1;
+            }
+            assert(sawRemoveobject);
+            assert(sawAdditem);
+        }
+
+        // The five specials Daisy's closure calls must be registered, not left
+        // NULL (which would print "special N is not ported" and leave the script
+        // stuck mid-branch): ChoosePartyMon 159, GetPartyMonSpecies 327,
+        // GetLeadMonFriendship 230, DaisyMassageServices 407, BufferMonNickname 124.
+        assert(gSpecials[124] != NULL);
+        assert(gSpecials[159] != NULL);
+        assert(gSpecials[230] != NULL);
+        assert(gSpecials[327] != NULL);
+        assert(gSpecials[407] != NULL);
+    }
+    printf("[SmokeTest] Rival's house (Daisy) verified!\n");
 
     printf("[SmokeTest] All Overworld Object & Background Event Scripts verified!\n");
 }
