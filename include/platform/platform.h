@@ -38,23 +38,26 @@ void Platform_DevBootNewGame(void);
 extern bool gPlatformSkipStory;
 void Platform_DevBootApplyStoryProgress(void);
 
-// Developer panel (--dev-panel): a separate SDL2 window listing every map the
-// engine can load, so a warp destination can be picked by name. Toggle with F3.
+// Developer panel (--dev-panel): a separate, resizable SDL2 window listing every
+// map the engine can load, so a warp destination can be picked by name -- by
+// click or by keyboard. Toggle with F3.
 // Platform_DevPanelInit() builds the destination table and must run before
 // AgbMain starts, while the engine is stopped.
 extern bool gPlatformDevPanelEnabled;
-// --dev-panel-keys: comma-separated keycodes or names, played one per frame
-// (e.g. "TAB,O,A,ENTER,DOWN*3,ENTER" or "WAIT*120,ENTER"). Names: UP DOWN LEFT
-// RIGHT PGUP PGDN HOME END ENTER TAB ESC BACKSPACE F3 SPACE WAIT. `*N` repeats a
-// token, and a single character stands for itself. Headless only: the panel
-// window's own keys arrive through SDL.
+// --dev-panel-keys: comma-separated tokens, played one per frame (e.g.
+// "TAB,O,A,ENTER,DOWN*3,ENTER", "WAIT*120,ENTER", or "RESIZE:700:820,MOVE:100:150,
+// CLICK:100:150"). Key names: UP DOWN LEFT RIGHT PGUP PGDN HOME END ENTER TAB ESC
+// BACKSPACE F3 SPACE WAIT. Mouse/resize commands use `:` between their arguments:
+// CLICK:x:y, DBLCLICK:x:y, MOVE:x:y, WHEEL:n, RESIZE:w:h. `*N` repeats a token,
+// and a single character stands for itself. Headless only: the panel window's own
+// events arrive through SDL.
 extern const char *gPlatformDevPanelKeySequence;
 void Platform_DevPanelUpdate(void);
 void Platform_DevPanelInit(void);
 bool Platform_DevPanelHandleEvent(void *sdlEvent);
 bool Platform_DevPanelToggleKey(int key);
-// Writes the panel's own pixels to a BMP; development aid, pairs with
-// Platform_SaveScreenshot.
+// Writes the panel's own pixels to a BMP and reports its widget state to stdout;
+// development aid, pairs with Platform_SaveScreenshot.
 void Platform_DevPanelSaveScreenshot(const char *filename);
 
 // Platform Host Functions
