@@ -35,6 +35,34 @@ NATIVE_SCRIPT_ROOTS = {
     "PalletTown_EventScript_TrainerTips",
     "PalletTown_EventScript_OakTriggerLeft",
     "PalletTown_EventScript_OakTriggerRight",
+    # The rival's house: Daisy's A-press script and the room's two bookshelves
+    # and Clefairy picture. The map-scripts header is what moves her to the
+    # table before the parcel errand and marks the town map as already received
+    # afterwards, so both branches stay reachable.
+    "PalletTown_RivalsHouse_MapScripts",
+    "PalletTown_RivalsHouse_OnTransition",
+    "PalletTown_RivalsHouse_EventScript_MoveDaisyToTable",
+    "PalletTown_RivalsHouse_EventScript_AlreadyReceivedTownMap",
+    "PalletTown_RivalsHouse_EventScript_Daisy",
+    "PalletTown_RivalsHouse_EventScript_Bookshelf",
+    "PalletTown_RivalsHouse_EventScript_Picture",
+    "PalletTown_RivalsHouse_EventScript_TownMap",
+    "PalletTown_RivalsHouse_EventScript_GiveTownMap",
+    "PalletTown_RivalsHouse_EventScript_NoRoomForTownMap",
+    "PalletTown_RivalsHouse_EventScript_ExplainTownMap",
+    "PalletTown_RivalsHouse_EventScript_PleaseGiveMonsRest",
+    "PalletTown_RivalsHouse_EventScript_HeardBattledRival",
+    "PalletTown_RivalsHouse_EventScript_GroomMon",
+    "PalletTown_RivalsHouse_EventScript_RateMonFriendship",
+    "PalletTown_RivalsHouse_EventScript_DeclineGrooming",
+    "PalletTown_RivalsHouse_EventScript_CantGroomEgg",
+    "PalletTown_RivalsHouse_EventScript_MonFriendshipLowest",
+    "PalletTown_RivalsHouse_EventScript_MonFriendshipLower",
+    "PalletTown_RivalsHouse_EventScript_MonFriendshipLow",
+    "PalletTown_RivalsHouse_EventScript_MonFriendshipMid",
+    "PalletTown_RivalsHouse_EventScript_MonFriendshipHigh",
+    "PalletTown_RivalsHouse_EventScript_MonFriendshipHigher",
+    "PalletTown_RivalsHouse_EventScript_MonFriendshipHighest",
     # Oak's Lab interior: every A-press target the player can reach. The three
     # aides, the rival, the two dex units, the computer terminals, the two signs
     # and the three starter balls; Oak himself is wired with the starter-scene
@@ -865,6 +893,15 @@ class ScriptRegistry:
                         output += [0x22] + little_endian(self.resolve(args[0]), 2) + little_endian(right, 2)
                     else:
                         output += [0x21] + little_endian(self.resolve(args[0]), 2) + little_endian(right, 2)
+                elif command == "switch" and len(args) == 1:
+                    # asm/macros/event.inc: `switch var` is copyvar VAR_0x8000, var.
+                    # The `case` lines that follow compare against it.
+                    output += [0x19] + little_endian(self.resolve("VAR_0x8000"), 2)
+                    output += little_endian(self.resolve(args[0]), 2)
+                elif command == "case" and len(args) == 2:
+                    # asm/macros/event.inc: `case condition, dest` is
+                    # compare VAR_0x8000, condition then goto_if_eq dest.
+                    output += self.compare_branch(0x06, 1, "VAR_0x8000", args[0], args[1])
                 elif command == "map_script_2" and len(args) == 3:
                     # Conditional-entry sub-table (ON_WARP_INTO_MAP_TABLE /
                     # ON_FRAME_TABLE) referenced by a map_script header entry.
