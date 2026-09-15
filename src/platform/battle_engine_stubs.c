@@ -388,7 +388,6 @@ void ResetFameChecker(void)
     gSaveBlock1Ptr->fameChecker[0].pickState = 1;
 }
 
-void ClearMysteryGift(void) {}
 void ClearPlayerLinkBattleRecords(void) {}
 void ResetTrainerFanClub(void) {}
 void UnionRoomChat_InitializeRegisteredTexts(void) {}
@@ -396,7 +395,6 @@ void ResetPokemonJumpRecords(void) {}
 void ResetTMCaseCursorPos(void) {}
 void BerryPouch_CursorResetToTop(void) {}
 void ResetQuestLog(void) {}
-void InitEasyChatPhrases(void) {}
 void NewGameInitPCItems(void) { AddPCItem(ITEM_POTION, 1); }
 void ApplyNewEncryptionKeyToBerryPowder(u32 key) { (void)key; }
 void QL_AddASLROffset(void *oldSaveBlockPtr) { (void)oldSaveBlockPtr; }
