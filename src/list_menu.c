@@ -39,6 +39,40 @@ struct MoveMenuInfoIcon
 
 static EWRAM_DATA struct MysteryGiftLinkMenuStruct sMysteryGiftLinkMenu = {0};
 
+#ifdef PORTABLE
+// struct ListMenu holds three host-width pointers (its template's items,
+// moveCursorFunc and itemPrintFunc), so on a 64-bit host it is 48 bytes while a
+// task's data[] holds only 32. Casting data[] to struct ListMenu * therefore
+// wrote 16 bytes past the array: template.windowId/fontId/cursorKind spilled
+// over the *next* task's func/isActive/next fields, and the list's own window
+// and font ids read back as garbage. Moving the cursor in the BAG segfaulted
+// inside AddTextPrinter for exactly that reason. Keep the list menu's state in a
+// side table keyed by taskId, the same treatment the follow-up TaskFunc gets
+// (fix #50); no task's data layout shifts and no other task's slots are
+// reserved. The GBA struct is 0x20 bytes and still fits data[] exactly.
+static struct ListMenu sListMenus[NUM_TASKS];
+
+// The side table exists only because the host struct outgrows data[]. If either
+// side of this stops holding, revisit ListMenuGetTaskData rather than casting
+// data[] again.
+STATIC_ASSERT(sizeof(struct ListMenu) > sizeof(gTasks[0].data), ListMenuOutgrowsTaskDataOnHost);
+#else
+// On the GBA the state lives in a task's data[] and the struct is exactly 0x20
+// bytes, so it must keep fitting.
+STATIC_ASSERT(sizeof(struct ListMenu) <= sizeof(gTasks[0].data), ListMenuFitsTaskDataOnGba);
+#endif
+
+// The stored list-menu state for a list task. Every access to a list task's
+// state goes through here so the host/GBA split lives in one place.
+static struct ListMenu *ListMenuGetTaskData(u8 listTaskId)
+{
+#ifdef PORTABLE
+    return &sListMenus[listTaskId];
+#else
+    return (struct ListMenu *)gTasks[listTaskId].data;
+#endif
+}
+
 COMMON_DATA struct ListMenuOverride gListMenuOverride = {0};
 COMMON_DATA struct ListMenuTemplate gMultiuseListMenuTemplate = {0};
 
@@ -165,7 +199,7 @@ u8 ListMenuInitInRect(const struct ListMenuTemplate *listMenuTemplate, const str
 
 s32 ListMenu_ProcessInput(u8 listTaskId)
 {
-    struct ListMenu *list = (struct ListMenu *)gTasks[listTaskId].data;
+    struct ListMenu *list = ListMenuGetTaskData(listTaskId);
 
     if (JOY_NEW(A_BUTTON))
     {
@@ -223,7 +257,7 @@ s32 ListMenu_ProcessInput(u8 listTaskId)
 
 void DestroyListMenuTask(u8 listTaskId, u16 *cursorPos, u16 *itemsAbove)
 {
-    struct ListMenu *list = (struct ListMenu *)gTasks[listTaskId].data;
+    struct ListMenu *list = ListMenuGetTaskData(listTaskId);
 
     if (cursorPos != NULL)
         *cursorPos = list->cursorPos;
@@ -238,7 +272,7 @@ void DestroyListMenuTask(u8 listTaskId, u16 *cursorPos, u16 *itemsAbove)
 
 void RedrawListMenu(u8 listTaskId)
 {
-    struct ListMenu *list = (struct ListMenu *)gTasks[listTaskId].data;
+    struct ListMenu *list = ListMenuGetTaskData(listTaskId);
 
     FillWindowPixelBuffer(list->template.windowId, PIXEL_FILL(list->template.fillValue));
     ListMenuPrintEntries(list, list->cursorPos, 0, list->template.maxShowed);
@@ -248,7 +282,7 @@ void RedrawListMenu(u8 listTaskId)
 
 static void ChangeListMenuPals(u8 listTaskId, u8 cursorPal, u8 fillValue, u8 cursorShadowPal)
 {
-    struct ListMenu *list = (struct ListMenu *)gTasks[listTaskId].data;
+    struct ListMenu *list = ListMenuGetTaskData(listTaskId);
 
     list->template.cursorPal = cursorPal;
     list->template.fillValue = fillValue;
@@ -257,7 +291,7 @@ static void ChangeListMenuPals(u8 listTaskId, u8 cursorPal, u8 fillValue, u8 cur
 
 static void ChangeListMenuCoords(u8 listTaskId, u8 x, u8 y)
 {
-    struct ListMenu *list = (struct ListMenu *)gTasks[listTaskId].data;
+    struct ListMenu *list = ListMenuGetTaskData(listTaskId);
 
     SetWindowAttribute(list->template.windowId, WINDOW_TILEMAP_LEFT, x);
     SetWindowAttribute(list->template.windowId, WINDOW_TILEMAP_TOP, y);
@@ -286,7 +320,7 @@ static s32 ListMenuTestInput(struct ListMenuTemplate *template, u32 cursorPos, u
 
 static void ListMenuGetCurrentItemArrayId(u8 listTaskId, u16 *arrayId)
 {
-    struct ListMenu *list = (struct ListMenu *)gTasks[listTaskId].data;
+    struct ListMenu *list = ListMenuGetTaskData(listTaskId);
 
     if (arrayId != NULL)
         *arrayId = list->cursorPos + list->itemsAbove;
@@ -294,7 +328,7 @@ static void ListMenuGetCurrentItemArrayId(u8 listTaskId, u16 *arrayId)
 
 void ListMenuGetScrollAndRow(u8 listTaskId, u16 *cursorPos, u16 *itemsAbove)
 {
-    struct ListMenu *list = (struct ListMenu *)gTasks[listTaskId].data;
+    struct ListMenu *list = ListMenuGetTaskData(listTaskId);
 
     if (cursorPos != NULL)
         *cursorPos = list->cursorPos;
@@ -304,7 +338,7 @@ void ListMenuGetScrollAndRow(u8 listTaskId, u16 *cursorPos, u16 *itemsAbove)
 
 u16 ListMenuGetYCoordForPrintingArrowCursor(u8 listTaskId)
 {
-    struct ListMenu *list = (struct ListMenu *)gTasks[listTaskId].data;
+    struct ListMenu *list = ListMenuGetTaskData(listTaskId);
     u8 yMultiplier = GetFontAttribute(list->template.fontId, FONTATTR_MAX_LETTER_HEIGHT) + list->template.itemVerticalPadding;
 
     return list->itemsAbove * yMultiplier + list->template.upText_Y;
@@ -313,7 +347,7 @@ u16 ListMenuGetYCoordForPrintingArrowCursor(u8 listTaskId)
 static u8 ListMenuInitInternal(const struct ListMenuTemplate *listMenuTemplate, u16 cursorPos, u16 itemsAbove)
 {
     u8 listTaskId = CreateTask(ListMenuDummyTask, 0);
-    struct ListMenu *list = (struct ListMenu *)gTasks[listTaskId].data;
+    struct ListMenu *list = ListMenuGetTaskData(listTaskId);
 
     list->template = *listMenuTemplate;
     list->cursorPos = cursorPos;
@@ -625,7 +659,7 @@ void ListMenuDefaultCursorMoveFunc(s32 itemIndex, bool8 onInit, struct ListMenu 
 
 static s32 ListMenuGetTemplateField(u8 taskId, u8 field)
 {
-    struct ListMenu *data = (struct ListMenu *)gTasks[taskId].data;
+    struct ListMenu *data = ListMenuGetTaskData(taskId);
 
     switch (field)
     {
@@ -669,7 +703,7 @@ static s32 ListMenuGetTemplateField(u8 taskId, u8 field)
 
 void ListMenuSetTemplateField(u8 taskId, u8 field, s32 value)
 {
-    struct ListMenu *data = (struct ListMenu *)gTasks[taskId].data;
+    struct ListMenu *data = ListMenuGetTaskData(taskId);
 
     switch (field)
     {
