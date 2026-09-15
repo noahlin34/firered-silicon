@@ -123,8 +123,6 @@ struct FieldInput gQuestLogFieldInput = {0};
 u16 gSaveAttemptStatus = SAVE_STATUS_ERROR;
 
 void CB2_OpenPokedexFromStartMenu(void) { printf("[Menu] POKéDEX scene is not ported\n"); }
-void ShowPlayerTrainerCard(void (*callback)(void)) { (void)callback; printf("[Menu] TRAINER CARD scene is not ported\n"); }
-void ShowTrainerCardInLink(u8 whoseCard, MainCallback callback) { (void)whoseCard; (void)callback; printf("[Menu] TRAINER CARD scene is not ported\n"); }
 void CB2_ReturnToPokeStorage(void) { printf("[Menu] POKéMON storage scene is not ported\n"); }
 void SaveQuestLogData(void) {}
 void SetUsingUnionRoomStartMenu(void) {}
@@ -238,9 +236,7 @@ void TransferTilesetAnimsBuffer(void) {}
 void UpdateTilesetAnimations(void) {}
 void UseFameChecker(MainCallback savedCallback) { (void)savedCallback; }
 void UsedPokemonCenterWarp(void) {}
-bool8 ValidateSavedWonderCard(void) { return FALSE; }
 void WaitFanfare(bool8 a) {}
-void WonderNews_IncrementStepCounter(void) {}
 void WriteFlashScanlineEffectBuffer(u8 a) {}
 
 /* Specials and Scrcmd Stubs */
