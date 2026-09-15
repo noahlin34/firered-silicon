@@ -22,9 +22,16 @@
 #include "save_location.h"
 #include "field_message_box.h"
 #include "battle_setup.h"
+#include "field_specials.h"
+#include "string_util.h"
+#include "palette.h"
+#include "party_menu.h"
 #include "constants/flags.h"
 #include "constants/vars.h"
 #include "constants/items.h"
+#include "constants/maps.h"
+#include "constants/pokemon.h"
+#include "constants/rgb.h"
 
 static const u8 sDummyScript[] = { 0x02 };
 
@@ -137,7 +144,29 @@ void BerryPouch_SetExitCallback(void *cb) {}
 void BerryPouch_StartFadeToExitCallback(u8 taskId) {}
 bool8 CheckForTrainersWantingBattle(void) { return FALSE; }
 void ClearLinkCallback_2(void) {}
-u8 CountDigits(u32 number) { return 1; }
+/* src/field_specials.c: CountDigits. Declared s32 in include/field_specials.h
+ * and used by linked src/scrcmd.c and src/overworld.c. */
+s32 CountDigits(s32 number)
+{
+    if (number / 10 == 0)
+        return 1;
+    else if (number / 100 == 0)
+        return 2;
+    else if (number / 1000 == 0)
+        return 3;
+    else if (number / 10000 == 0)
+        return 4;
+    else if (number / 100000 == 0)
+        return 5;
+    else if (number / 1000000 == 0)
+        return 6;
+    else if (number / 10000000 == 0)
+        return 7;
+    else if (number / 100000000 == 0)
+        return 8;
+    else
+        return 1;
+}
 void CreateTask_ReestablishCableClubLink(void) {}
 s8 DexScreen_GetSetPokedexFlag(u16 nationalNum, u8 caseId) { return 0; }
 void DismissMapNamePopup(void) {}
@@ -148,19 +177,33 @@ void DoPoisonFieldEffect(void) {}
 void FadeOutAndFadeInNewMapMusic(u16 song, u8 speed) {}
 void FadeOutAndPlayNewMapMusic(u16 song, u8 speed) {}
 void FieldCB_RushInjuredPokemonToCenter(void) {}
-bool32 ForestMapPreviewScreenIsRunning(void) { return TRUE; }
 u32 GetBerryPowder(void) { return 0; }
 u32 GetCoins(void) { return 0; }
 u16 GetCurrentMapMusic(void) { return 0; }
 u16 GetHealLocation(u8 index) { return 0; }
-u8 GetHiddenItemAttr(u16 hiddenItemId, u8 attr) { return 0; }
+/* src/field_specials.c: GetHiddenItemAttr. Called by linked
+ * src/field_control_avatar.c when the player faces a hidden-item bg event, so
+ * the old always-0 stub made every hidden item resolve to item 0 / flag 1000.
+ * The bit layout lives in include/global.fieldmap.h. */
+u16 GetHiddenItemAttr(u32 hiddenItem, u8 attr)
+{
+    if (attr == HIDDEN_ITEM_ITEM)
+        return GET_HIDDEN_ITEM_ITEM(hiddenItem);
+    else if (attr == HIDDEN_ITEM_FLAG)
+        return GET_HIDDEN_ITEM_FLAG(hiddenItem) + FLAG_HIDDEN_ITEMS_START;
+    else if (attr == HIDDEN_ITEM_QUANTITY)
+        return GET_HIDDEN_ITEM_QUANTITY(hiddenItem);
+    else if (attr == HIDDEN_ITEM_UNDERFOOT)
+        return GET_HIDDEN_ITEM_UNDERFOOT(hiddenItem);
+    else
+        return 1;
+}
 u32 GetLinkRecvQueueLength(void) { return 0; }
 u8 GetQuestLogStartType(void) { return 0; }
 const u8 *GetSeeingLinkPlayerCardMsg(u8 id) { return NULL; }
 void IncrementBirthIslandRockStepCount(void) {}
 void IncrementResortGorgeousStepCounter(void) {}
 void InitBerryPouch(u8 type, void *cb) {}
-void InitRegionMapWithExitCB(u8 type, void *cb) {}
 void InitSecondaryTilesetAnimation(void) {}
 void InitTMCase(u8 type, void *cb, bool8 a) {}
 void InitTeachyTvController(void) {}
@@ -177,10 +220,6 @@ bool32 IsSendingKeysToLink(void) { return FALSE; }
 bool8 IsSpecialSEPlaying(void) { return FALSE; }
 void ItemUseOnFieldCB_Itemfinder(u8 taskId) {}
 void LinkRfu_FatalError(void) {}
-bool8 MapHasPreviewScreen(u8 mapSec, u8 type) { return FALSE; }
-bool8 MapHasPreviewScreen_HandleQLState2(u8 mapSec, u8 type) { return FALSE; }
-void MapPreview_LoadGfx(u8 mapSec) {}
-void MapPreview_StartForestTransition(u8 mapSec) {}
 void MovementAction_RevealTrainer_RunTrainerSeeFuncList(struct ObjectEvent *obj, struct Sprite *sprite) {}
 void PlayCry_NormalNoDucking(u16 species, s8 pan, u8 volume, u8 priority) {}
 void PlayFanfareByFanfareNum(u8 num) {}
@@ -217,7 +256,17 @@ void ReadMail(struct Mail *mail, void *cb, bool8 a) {}
 void ResetContextNpcTextColor(void) {}
 void ResetCyclingRoadChallengeData(void) {}
 void ResumePausedWeather(void) {}
-void RunMassageCooldownStepCounter(void) {}
+/* src/field_specials.c: RunMassageCooldownStepCounter. Daisy offers to groom a
+ * mon only once VAR_MASSAGE_COOLDOWN_STEP_COUNTER reaches 500, and
+ * DaisyMassageServices resets it. A no-op counter would gate her on a value
+ * that never moves, so the real increment lives here (called from
+ * ProcessPlayerFieldInput on every step). */
+void RunMassageCooldownStepCounter(void)
+{
+    u16 count = VarGet(VAR_MASSAGE_COOLDOWN_STEP_COUNTER);
+    if (count < 500)
+        VarSet(VAR_MASSAGE_COOLDOWN_STEP_COUNTER, count + 1);
+}
 void RunQuestLogCB(void) {}
 void SetBerryPowder(u32 *powder, u32 amount) {}
 void SetHelpContextForMap(void) {}
@@ -235,7 +284,46 @@ void Task_BerryPouch_DestroyDialogueWindowAndRefreshListMenu(u8 taskId) {}
 void TransferTilesetAnimsBuffer(void) {}
 void UpdateTilesetAnimations(void) {}
 void UseFameChecker(MainCallback savedCallback) { (void)savedCallback; }
-void UsedPokemonCenterWarp(void) {}
+/* src/field_specials.c: UsedPokemonCenterWarp. Called by linked
+ * src/overworld.c when resolving a whiteout, to decide whether the player's
+ * last warp was a Pokémon Center (respawn there) or an ordinary map warp.
+ * The old always-false stub made every whiteout respawn at the current map. */
+const u16 sPokeCenter1FMaps[] = {
+    MAP_VIRIDIAN_CITY_POKEMON_CENTER_1F,
+    MAP_PEWTER_CITY_POKEMON_CENTER_1F,
+    MAP_CERULEAN_CITY_POKEMON_CENTER_1F,
+    MAP_LAVENDER_TOWN_POKEMON_CENTER_1F,
+    MAP_VERMILION_CITY_POKEMON_CENTER_1F,
+    MAP_CELADON_CITY_POKEMON_CENTER_1F,
+    MAP_FUCHSIA_CITY_POKEMON_CENTER_1F,
+    MAP_CINNABAR_ISLAND_POKEMON_CENTER_1F,
+    MAP_INDIGO_PLATEAU_POKEMON_CENTER_1F,
+    MAP_SAFFRON_CITY_POKEMON_CENTER_1F,
+    MAP_ROUTE4_POKEMON_CENTER_1F,
+    MAP_ROUTE10_POKEMON_CENTER_1F,
+    MAP_ONE_ISLAND_POKEMON_CENTER_1F,
+    MAP_TWO_ISLAND_POKEMON_CENTER_1F,
+    MAP_THREE_ISLAND_POKEMON_CENTER_1F,
+    MAP_FOUR_ISLAND_POKEMON_CENTER_1F,
+    MAP_FIVE_ISLAND_POKEMON_CENTER_1F,
+    MAP_SEVEN_ISLAND_POKEMON_CENTER_1F,
+    MAP_SIX_ISLAND_POKEMON_CENTER_1F,
+    MAP_UNION_ROOM,
+    MAP_UNDEFINED
+};
+
+bool8 UsedPokemonCenterWarp(void)
+{
+    s32 i;
+    u16 mapno = (gLastUsedWarp.mapGroup << 8) + gLastUsedWarp.mapNum;
+
+    for (i = 0; sPokeCenter1FMaps[i] != MAP_UNDEFINED; i++)
+    {
+        if (sPokeCenter1FMaps[i] == mapno)
+            return TRUE;
+    }
+    return FALSE;
+}
 void WaitFanfare(bool8 a) {}
 void WriteFlashScanlineEffectBuffer(u8 a) {}
 
@@ -423,6 +511,85 @@ static u16 NativeSpecial_SetBattledTrainerFlag(void)
     return 0;
 }
 
+/* Daisy's house (MAP_PALLET_TOWN_RIVALS_HOUSE). The five specials her script
+ * closure calls are the last reason src/field_specials.c is not linked: it also
+ * carries the diploma, Elite Four lighting and Sevii rock paths, which pull in
+ * src/diploma.c, src/help_system.c and src/region_map.c. These mirror the real
+ * bodies (src/field_specials.c, src/party_menu_specials.c) against linked
+ * accessors so no logic is duplicated and no new file joins the link. */
+
+/* field_specials.c: GetLeadMonFriendship. Buckets the lead mon's friendship
+ * for the post-game friendship-rating branch (case 0..6). */
+static u16 NativeSpecial_GetLeadMonFriendship(void)
+{
+    struct Pokemon *mon = &gPlayerParty[GetLeadMonIndex()];
+    u32 friendship = GetMonData(mon, MON_DATA_FRIENDSHIP, NULL);
+
+    if (friendship == 255)
+        return 6;
+    else if (friendship >= 200)
+        return 5;
+    else if (friendship >= 150)
+        return 4;
+    else if (friendship >= 100)
+        return 3;
+    else if (friendship >= 50)
+        return 2;
+    else if (friendship > 0)
+        return 1;
+    else
+        return 0;
+}
+
+/* field_specials.c: GetPartyMonSpecies, used to reject eggs before grooming. */
+static u16 NativeSpecial_GetPartyMonSpecies(void)
+{
+    return GetMonData(&gPlayerParty[gSpecialVar_0x8004], MON_DATA_SPECIES_OR_EGG, NULL);
+}
+
+/* field_specials.c: DaisyMassageServices. The friendship gain is real
+ * (src/pokemon.c); the cooldown var is what gates the offer to every 500th
+ * step, so it must be reset here or Daisy would keep offering. */
+static u16 NativeSpecial_DaisyMassageServices(void)
+{
+    AdjustFriendship(&gPlayerParty[gSpecialVar_0x8004], FRIENDSHIP_EVENT_MASSAGE);
+    VarSet(VAR_MASSAGE_COOLDOWN_STEP_COUNTER, 0);
+    return 0;
+}
+
+/* field_specials.c: BufferMonNickname. */
+static u16 NativeSpecial_BufferMonNickname(void)
+{
+    GetMonData(&gPlayerParty[gSpecialVar_0x8004], MON_DATA_NICKNAME, gStringVar1);
+    StringGet_Nickname(gStringVar1);
+    return 0;
+}
+
+/* src/party_menu_specials.c: ChoosePartyMon. Starts the party menu in
+ * CHOOSE_SINGLE_MON mode and stops the field until the player picks a slot;
+ * HandleChooseMonSelection writes the chosen index to VAR_0x8004 and
+ * Task_PartyMenuWaitForFade (src/party_menu.c) re-enables the script context. */
+static void Task_ChoosePartyMonSpecials(u8 taskId)
+{
+    if (!gPaletteFade.active)
+    {
+        gPaletteFade.bufferTransferDisabled = TRUE;
+        ChoosePartyMonByMenuType((u8)gTasks[taskId].data[0]);
+        DestroyTask(taskId);
+    }
+}
+
+static u16 NativeSpecial_ChoosePartyMon(void)
+{
+    u8 taskId;
+
+    LockPlayerFieldControls();
+    taskId = CreateTask(Task_ChoosePartyMonSpecials, 10);
+    gTasks[taskId].data[0] = PARTY_MENU_TYPE_CHOOSE_SINGLE_MON;
+    BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 0x10, RGB_BLACK);
+    return 0;
+}
+
 /* Index-aligned with data/specials.inc: the u16 operands emitted by
  * tools/gen_map_data.py are positions in that table. Specials that are not
  * ported keep a NULL entry, which ScrCmd_special reports instead of calling
@@ -430,9 +597,13 @@ static u16 NativeSpecial_SetBattledTrainerFlag(void)
 u16 (*const gSpecials[])(void) = {
     [0]   = NativeSpecial_HealPlayerParty,
     [56]  = NativeSpecial_PlayTrainerEncounterMusic,
+    [124] = NativeSpecial_BufferMonNickname,
     [158] = NativeSpecial_ChangePokemonNickname,
+    [159] = NativeSpecial_ChoosePartyMon,
     [212] = NativeSpecial_GetPokedexCount,
     [213] = NativeSpecial_GetProfOaksRatingMessage,
+    [230] = NativeSpecial_GetLeadMonFriendship,
+    [327] = NativeSpecial_GetPartyMonSpecies,
     [346] = NativeSpecial_DoPicboxCancel,
     [367] = NativeSpecial_EnableNationalPokedex,
     [368] = NativeSpecial_SetWalkingIntoSignVars,
@@ -446,6 +617,7 @@ u16 (*const gSpecials[])(void) = {
     [391] = NativeSpecial_GetQuestLogState,
     [392] = NativeSpecial_QuestLog_CutRecording,
     [399] = NativeSpecial_SetBattledTrainerFlag,
+    [407] = NativeSpecial_DaisyMassageServices,
 };
 u16 (*const *gSpecialsEnd)(void) = gSpecials + ARRAY_COUNT(gSpecials);
 const u8 *const gStdScripts[] = { NULL };
@@ -464,8 +636,23 @@ void CreatePokemartMenu(const u16 *items) { (void)items; }
 void CreateScriptedWildMon(u16 species, u8 level, u16 item) { (void)species; (void)level; (void)item; }
 void FadeOutBGMTemporarily(u8 a) { (void)a; }
 bool8 IsBGMPausedOrStopped(void) { return FALSE; }
-u8 GetLeadMonIndex(void) { return 0; }
-void MapPreview_SetFlag(u16 a) { (void)a; }
+/* src/field_specials.c: GetLeadMonIndex. The first party slot holding a real
+ * mon (not empty, not an egg). Returning 0 unconditionally would report an
+ * empty slot's friendship to Daisy's rating branch and to
+ * ScrCmd_bufferleadmonspeciesname. */
+u8 GetLeadMonIndex(void)
+{
+    u8 partyCount = CalculatePlayerPartyCount();
+    u8 i;
+
+    for (i = 0; i < partyCount; i++)
+    {
+        u16 speciesOrEgg = GetMonData(&gPlayerParty[i], MON_DATA_SPECIES_OR_EGG, NULL);
+        if (speciesOrEgg != SPECIES_EGG && speciesOrEgg != SPECIES_NONE)
+            return i;
+    }
+    return 0;
+}
 void PlayCry_Script(u16 species, u8 a) { (void)species; (void)a; }
 bool8 QL_AvoidDisplay(void (*callback)(void)) { (void)callback; return FALSE; }
 u8 ScriptGiveEgg(u16 species) { (void)species; return 0; }
