@@ -491,6 +491,42 @@ static void TestOverworldInteractions(void)
     }
     printf("[SmokeTest] All Field Effect Scripts verified!\n");
 
+    printf("[SmokeTest] Testing HBlank DMA replay...\n");
+    {
+        // An HBlank-timed DMA must write its per-scanline value to the SAME
+        // register on every scanline. The control word packs flags in its high
+        // halfword and the transfer count in the low one, so reading a flag out
+        // of the low halfword reads the count and makes the destination look
+        // like "increment" — each scanline's write then walked one register
+        // further through the I/O block, clobbering WIN0H/WIN0V/WIN1H/WIN1V/
+        // BLDCNT/BLDALPHA/BLDY/MOSAIC and tearing the battle transitions.
+        static const uint16_t src[] = { 0x1111, 0x2222, 0x3333, 0x4444 };
+        // Consecutive so the walk this guards against is observable: with the
+        // bug, the fourth scanline lands on dest[3] instead of dest[0].
+        volatile uint16_t dest[4] = { 0, 0, 0, 0 };
+
+        // B_TRANS_DMA_FLAGS shape: count 1, src inc, dest FIXED, 16-bit, HBlank.
+        DmaSet(0, src, (void *)&dest[0],
+               1 | ((DMA_SRC_INC | DMA_DEST_FIXED | DMA_REPEAT | DMA_16BIT | DMA_START_HBLANK | DMA_ENABLE) << 16));
+        for (int line = 0; line < 4; line++)
+        {
+            uint16_t expected = src[line];
+            Platform_RunHBlankDma();
+            assert(dest[0] == expected);   // same register, next source entry
+            assert(dest[1] == 0);          // and nothing past it
+            assert(dest[2] == 0);
+            assert(dest[3] == 0);
+        }
+        DmaStop(0);
+        assert(dest[0] == src[3]);
+
+        // A stopped channel must not keep writing.
+        dest[0] = 0;
+        Platform_RunHBlankDma();
+        assert(dest[0] == 0);
+    }
+    printf("[SmokeTest] All HBlank DMA replay verified!\n");
+
     printf("[SmokeTest] All Overworld Object & Background Event Scripts verified!\n");
 }
 
