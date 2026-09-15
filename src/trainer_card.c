@@ -473,6 +473,14 @@ static void CB2_TrainerCard(void)
 
 static void CloseTrainerCard(u8 taskId)
 {
+    // VBlankCB_TrainerCard/BlinkTimeColon dereference sTrainerCardDataPtr, and on
+    // this port VBlankIntr() runs directly from the frame loop right after
+    // CallCallbacks(). Freeing the state here would leave that callback installed
+    // for the VBlank that follows in the same frame, reading NULL. (On the GBA the
+    // address reads the read-only BIOS region, so it went unnoticed.) Clear both
+    // callbacks before the free, as fix #42 does for the battle transition.
+    SetVBlankCallback(NULL);
+    SetHBlankCallback(NULL);
     SetMainCallback2(sTrainerCardDataPtr->callback2);
     FreeAllWindowBuffers();
     FREE_AND_SET_NULL(sTrainerCardDataPtr);
