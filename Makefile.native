@@ -349,7 +349,9 @@ PREPROC_SRCS := src/title_screen.c \
                 src/start_menu.c \
                 src/item_menu_icons.c \
                 src/option_menu.c \
-                src/save_menu_util.c
+                src/save_menu_util.c \
+                src/map_preview_screen.c \
+                src/region_map.c
 
 OBJ_DIR := build/native
 OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
