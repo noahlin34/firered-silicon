@@ -71,26 +71,32 @@ void PortableDmaStop(unsigned int dmaNum)
 // Replay one transfer for each active HBlank-timed DMA channel. Called once
 // per rendered scanline by the PPU.
 //
-// These are all DMA0 transfers, and DMA0 ignores the repeat/reload bits: the
-// channel copies `count` units at the start of every scanline, the source
-// keeps advancing from where the previous scanline left it, and the
-// destination stays put. That is exactly what the engine expects — each
-// scanline consumes the next entry of gScanlineEffectRegBuffers and writes it
-// to one video register, producing the swirl/ripple/wave. The engine re-arms
-// the channel from the buffer start every VBlank, which is what resets the
-// source.
+// Every arm site in the engine is DMA0 with a count of 1: the source walks the
+// per-scanline buffer while the write stays on a single register (REG_WIN0H /
+// REG_BG0HOFS / REG_BLDY), so each scanline consumes the next source entry and
+// overwrites the same register. The engine arms the channel from the buffer
+// start every VBlank, which resets the source.
+//
+// The control word packs the transfer count in the low halfword and every
+// address/bit-width flag in the high halfword, so the flags must be read from
+// the high halfword: reading them from the low one reads the count (1) and
+// decodes a fixed destination as "increment", which walks the write one
+// register further along the I/O block on every scanline and clobbers
+// WIN0H/WIN0V/WIN1H/WIN1V/BLDCNT/BLDALPHA/BLDY/MOSAIC.
 void Platform_RunHBlankDma(void)
 {
     for (unsigned int i = 0; i < 4; i++)
     {
         struct PortableDmaChannel *ch = &sDmaChannel[i];
+        uint32_t ctrl;
         uint32_t unit;
         uint32_t count;
 
         if (!ch->active)
             continue;
 
-        unit = (ch->control & (DMA_32BIT << 16)) ? 4 : 2;
+        ctrl = ch->control >> 16;
+        unit = (ctrl & DMA_32BIT) ? 4 : 2;
         count = ch->control & 0xFFFF;
 
         for (uint32_t n = 0; n < count; n++)
@@ -100,18 +106,21 @@ void Platform_RunHBlankDma(void)
             else
                 *(uint16_t *)ch->dest = *(const uint16_t *)ch->src;
 
-            switch ((ch->control >> 7) & 3)
+            switch ((ctrl >> 7) & 3)
             {
             case 1: ch->src -= unit; break;
             case 2: break;
             default: ch->src += unit; break;
             }
 
-            switch ((ch->control >> 5) & 3)
+            // Destination control (0=increment, 1=decrement, 2=fixed,
+            // 3=reload). A reload restores the register the CPU wrote, which
+            // for count 1 is the same as fixed.
+            switch ((ctrl >> 5) & 3)
             {
+            case 0: ch->dest += unit; break;
             case 1: ch->dest -= unit; break;
-            case 2: break;
-            default: ch->dest += unit; break;
+            default: break;
             }
         }
     }
