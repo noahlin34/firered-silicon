@@ -38,6 +38,25 @@ void Platform_DevBootNewGame(void);
 extern bool gPlatformSkipStory;
 void Platform_DevBootApplyStoryProgress(void);
 
+// Developer panel (--dev-panel): a separate SDL2 window listing every map the
+// engine can load, so a warp destination can be picked by name. Toggle with F3.
+// Platform_DevPanelInit() builds the destination table and must run before
+// AgbMain starts, while the engine is stopped.
+extern bool gPlatformDevPanelEnabled;
+// --dev-panel-keys: comma-separated keycodes or names, played one per frame
+// (e.g. "TAB,O,A,ENTER,DOWN*3,ENTER" or "WAIT*120,ENTER"). Names: UP DOWN LEFT
+// RIGHT PGUP PGDN HOME END ENTER TAB ESC BACKSPACE F3 SPACE WAIT. `*N` repeats a
+// token, and a single character stands for itself. Headless only: the panel
+// window's own keys arrive through SDL.
+extern const char *gPlatformDevPanelKeySequence;
+void Platform_DevPanelUpdate(void);
+void Platform_DevPanelInit(void);
+bool Platform_DevPanelHandleEvent(void *sdlEvent);
+bool Platform_DevPanelToggleKey(int key);
+// Writes the panel's own pixels to a BMP; development aid, pairs with
+// Platform_SaveScreenshot.
+void Platform_DevPanelSaveScreenshot(const char *filename);
+
 // Platform Host Functions
 int  Platform_Init(int argc, char **argv);
 void Platform_MainLoop(void);
@@ -46,5 +65,8 @@ void Platform_PresentFrame(const uint16_t *framebuffer);
 void Platform_RenderAndPresent(void);
 void Platform_SaveScreenshot(const char *filename);
 void Platform_Cleanup(void);
+// Closes the developer panel's window; called from Platform_Cleanup so both
+// windows own their own teardown.
+void Platform_DevPanelShutdown(void);
 
 #endif // GUARD_PLATFORM_H
