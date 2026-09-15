@@ -150,14 +150,10 @@ INCBIN_ASSETS := $(shell python3 tools/list_incbin_assets.py)
 
 # Build the conversion tools before any asset recipe can run.
 #
-# With `-j`, make starts an asset conversion while gbagfx is still compiling and
-# the recipe then fails with "make: tools/gbagfx/gbagfx: No such file or
-# directory". pret's rule files use pattern rules and static pattern rules whose
-# target list is a generated variable, so there is no single point to attach the
-# tool to, and attaching it to the tool's own rule is a self-dependency. The
-# tool is therefore an order-only prerequisite of every enumerated asset target
-# (below), and the sub-make covers the pattern-rule paths that cannot be
-# enumerated. Order-only, so a rebuilt tool does not force assets to regenerate.
+# gbagfx, preproc, mapjson and jsonproc are gitignored build products, so a
+# fresh clone has none. Each asset target takes the one it needs as an order-only
+# prerequisite (below), and the stamp's sub-make ordering covers the pattern-rule
+# paths that cannot be enumerated. This target remains as a manual entry point.
 .PHONY: tools
 tools:
 	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) $(GFX) $(PREPROC) $(MAPJSON) $(JSONPROC)
@@ -174,8 +170,6 @@ $(BATTLE_4BPP_LZ) $(BATTLE_GBAPAL_LZ) $(BATTLE_BIN_LZ) \
 $(BATTLE_EXTRA_4BPP_FROM_PNG) $(BATTLE_EXTRA_GBAPAL_FROM_PAL) \
 $(BATTLE_EXTRA_GBAPAL_FROM_PNG) $(BATTLE_EXTRA_4BPP_LZ) $(BATTLE_EXTRA_BIN_LZ) \
 $(ANIM_SPRITE_4BPP) $(ANIM_SPRITE_TARGETS): | $(GFX)
-
-assets: | tools
 
 PLATFORM_SRCS := src/platform/system.c \
                  src/platform/bios.c \
@@ -342,9 +336,13 @@ OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREP
 
 TARGET := firered-native
 
-.PHONY: all clean run assets battle-scripts tools generated-headers
+# `all` does not name the phony `assets` target. Naming a target with thousands
+# of prerequisites makes make re-walk that subgraph from every dependent, which
+# is the pathology the stamp below exists to avoid; the objects get their
+# ordering edge from the stamp, and `assets` stays a manual entry point.
+all: $(TARGET)
 
-all: assets $(GEN_HEADERS) $(TARGET)
+.PHONY: all clean run assets battle-scripts tools generated-headers
 
 # Battle script bytecode + the shared native pointer table. Regenerate whenever
 # the pret script sources, their macros, or the C readers they are classified
@@ -357,7 +355,38 @@ BATTLE_SCRIPT_SOURCES := $(wildcard data/battle_scripts_*.s data/battle_anim_scr
 battle-scripts: $(BATTLE_SCRIPT_SOURCES)
 	@python3 tools/gen_battle_data.py
 
-assets: $(GFX) $(PREPROC) $(GEN_HEADERS) $(INCBIN_ASSETS) $(OBJ_EVENT_PICS) battle-assets anim-sprite-assets battle-extra-assets
+# The ordering edge the objects need, and the fix for a make pathology worth
+# understanding before touching this file.
+#
+# The asset graph has several thousand nodes (the derived INCBIN list alone is
+# ~6400 paths). Naming that list as a prerequisite of any target the top-level
+# make walks makes GNU Make 3.81 recurse inside its own dependency walk under
+# `-j` instead of starting children: no child process appears, CPU sits at 100%,
+# and the build never finishes. Measured on this Makefile, a derived-list
+# prerequisite of 1179 entries is enough to trigger it; either phase alone
+# (derived list, or the aggregates) completes in under a second.
+#
+# So the large list is never a prerequisite in the top-level graph. The objects
+# depend on this one real-file stamp, and the stamp's recipe drives both asset
+# phases through sub-makes. `-j1` is required there: the sub-make inherits
+# MAKEFLAGS, so a parallel sub-make reproduces the same spin internally.
+ASSET_STAMP := $(OBJ_DIR)/.assets.stamp
+
+$(ASSET_STAMP): $(GEN_HEADERS) | $(GFX) $(PREPROC)
+	@$(MAKE) -s -j1 -f $(firstword $(MAKEFILE_LIST)) derived-assets
+	@$(MAKE) -s -j1 -f $(firstword $(MAKEFILE_LIST)) assets
+	@mkdir -p $(dir $@)
+	@touch $@
+
+# The rule-driven half of the asset set: every INCBIN the sources reach that the
+# aggregates do not already list. Only ever built through the stamp above.
+.PHONY: derived-assets
+derived-assets: $(INCBIN_ASSETS)
+	@:
+
+# `make assets` generates the rest. This is the documented "generate the assets
+# and stop" entry point and the target the stamp's sub-make runs.
+assets: $(GFX) $(PREPROC) $(GEN_HEADERS) $(OBJ_EVENT_PICS) battle-assets anim-sprite-assets battle-extra-assets
 	@mkdir -p $(OBJ_DIR)/platform
 	@tools/gbagfx/gbagfx graphics/title_screen/border_bg.png graphics/title_screen/border_bg.4bpp
 	@tools/gbagfx/gbagfx graphics/title_screen/border_bg.4bpp graphics/title_screen/border_bg.4bpp.lz
@@ -456,11 +485,12 @@ $(foreach src,$(PREPROC_SRCS),$(eval $(call PREPROC_RULE,$(patsubst src/%.c,%,$(
 
 
 # Every object INCBINDs generated assets (graphics, tilesets) during
-# preprocessing, so `assets` must finish before the first object compiles.
-# Without this, `all` builds assets and objects in parallel and a clean tree
-# races: the preprocessor opens a file the asset rule has not created yet.
-# `assets` is phony, so this is order-only and changes no rebuild semantics.
-$(OBJS): | assets
+# preprocessing, so the assets must exist before the first object compiles.
+# Without this, a clean tree races: the preprocessor opens a file the asset rule
+# has not created yet. The dependency is the stamp, not the phony `assets`
+# target — see the comment on ASSET_STAMP. Order-only, so it changes no rebuild
+# semantics.
+$(OBJS): | $(ASSET_STAMP)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@

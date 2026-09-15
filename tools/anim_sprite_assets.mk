@@ -8,11 +8,18 @@ ANIM_SPRITE_SPLIT_NAMES := flower ice_crystals ice_cube mud_sand spark
 ANIM_SPRITE_SPLIT_4BPP := $(ANIM_SPRITE_SPLIT_NAMES:%=$(ANIM_SPRITE_DIR)/%.4bpp)
 ANIM_SPRITE_4BPP := $(ANIM_SPRITE_TARGETS:.4bpp.lz=.4bpp)
 
-# Keep the uncompressed files so a second invocation only rebuilds the five
-# deliberately unconditional split sheets.
+# Keep the uncompressed files so a second invocation only rebuilds what changed.
 .SECONDARY: $(ANIM_SPRITE_4BPP)
 
-.PHONY: anim-sprite-assets $(ANIM_SPRITE_SPLIT_4BPP)
+# The five split sheets are NOT phony. Marking a target `.PHONY` makes it
+# unconditionally out of date, so every build re-ran `cat` over the parts, which
+# touched the sheet, which forced its `.4bpp.lz`, which then forced every
+# downstream conversion and object that depends on it. On an already-built tree
+# that turned a 10-second incremental build into one that never finished (make
+# spun in its own graph walk, no child processes, 100% CPU). The `cat` rules in
+# graphics_file_rules.mk declare real prerequisites, so make tracks them
+# correctly without the phony declaration.
+.PHONY: anim-sprite-assets
 anim-sprite-assets: $(ANIM_SPRITE_TARGETS)
 	@for asset in $(ANIM_SPRITE_TARGETS); do test -s "$$asset" || exit 1; done
 
