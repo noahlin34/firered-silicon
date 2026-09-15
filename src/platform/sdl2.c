@@ -57,6 +57,9 @@ static uint16_t sKeyState = 0x03FF;
 #define KEY_R_MASK      (1 << 8)
 #define KEY_L_MASK      (1 << 9)
 
+// F3 toggles the developer panel from either window. Every event is offered to
+// the panel first: its own window's keys and window events are consumed there,
+// and a key aimed at the game window falls through to the GBA key mapping.
 static void HandleKeyEvent(SDL_Keycode key, bool pressed)
 {
     uint16_t mask = 0;
@@ -316,6 +319,13 @@ void Platform_UpdateInput(void)
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
+        // The developer panel window is drawn by its own renderer and owns its
+        // own keyboard focus; events that belong to it are consumed here so they
+        // never reach the GBA key mapping (the panel's ENTER must not also be
+        // the GBA's START).
+        if (Platform_DevPanelHandleEvent(&event))
+            continue;
+
         switch (event.type)
         {
             case SDL_QUIT:
@@ -328,6 +338,8 @@ void Platform_UpdateInput(void)
                     sRunning = false;
                     exit(0);
                 }
+                if (Platform_DevPanelToggleKey(event.key.keysym.sym))
+                    break;
                 HandleKeyEvent(event.key.keysym.sym, true);
                 break;
             case SDL_KEYUP:
@@ -385,6 +397,8 @@ void Platform_SaveScreenshot(const char *filename)
 }
 void Platform_Cleanup(void)
 {
+    Platform_DevPanelShutdown();
+
     if (sTexture)
     {
         SDL_DestroyTexture(sTexture);
