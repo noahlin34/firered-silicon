@@ -143,7 +143,6 @@ const struct TrainerTowerFloor *const gTrainerTowerFloors[NUM_TOWER_CHALLENGE_TY
 
 
 /* Safari Zone, Teachy TV, and battle-menu transitions are unlinked. */
-void CB2_OpenFlyMap(void) {}
 void CB2_ReturnToTeachyTV(void) {}
 bool32 CEReaderTool_LoadTrainerTower(struct EReaderTrainerTowerSet *ttdata)
 {
@@ -275,13 +274,6 @@ void PSA_UseTM_SetUpZoomOutAnim(void) {}
 
 /* Union Room, trade, link, and field-move helpers are deliberately inert. */
 struct RfuGameData *GetHostRfuGameData(void) { return NULL; }
-u8 *GetMapNameGeneric(u8 *dest, u16 mapsec)
-{
-    (void)dest;
-    (void)mapsec;
-    return NULL;
-}
-
 u8 GetMoveSlotToReplace(void) { return 0; }
 
 s32 GetUnionRoomTradeMessageId(struct RfuGameCompatibilityData rfuPlayer,
