@@ -196,6 +196,7 @@ PLATFORM_SRCS := src/platform/system.c \
                  src/platform/battle_peripheral_stubs.c \
                  src/platform/overworld_stubs.c \
                  src/platform/dev_boot.c \
+                 src/platform/dev_panel.c \
                  src/platform/main.c
 
 ENGINE_SRCS := src/main.c \
