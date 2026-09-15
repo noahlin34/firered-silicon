@@ -680,7 +680,25 @@ int main(int argc, char **argv)
             gPlatformSkipStory = true;
             printf("[Engine] Dev boot: fresh save, starter received and first rival battle won (Oak's Lab).\n");
         }
+        else if (strcmp(argv[i], "--dev-panel") == 0)
+        {
+            gPlatformDevPanelEnabled = true;
+            printf("[Engine] Dev panel: warp window enabled (F3 toggles).\n");
+        }
+        else if (strcmp(argv[i], "--dev-panel-keys") == 0)
+        {
+            // Headless panel driving: one keystroke per frame, taken verbatim
+            // from the next argument. e.g. --dev-panel-keys "2,13,5"
+            // (2 characters of the filter, ENTER, then DOWN and ENTER).
+            if (i + 1 < argc)
+                gPlatformDevPanelKeySequence = argv[++i];
+        }
     }
+
+    // The destination table walks gMapGroups and the map layouts, which the
+    // engine rewrites while it runs, so it is built here -- after Platform_Init
+    // has an SDL context and every flag has been read, before AgbMain starts.
+    Platform_DevPanelInit();
 
     printf("[Engine] Booting Pokemon FireRed CPU Engine (AgbMain)...\n");
     AgbMain();
