@@ -37,8 +37,8 @@
 
 // Mach-O section bounds. The linker synthesizes these for any section name; they
 // are the whole discovery mechanism, so there is no test list to maintain.
-extern const struct OmpTest omp_tests_start __asm("section$start$__DATA$omp_tests");
-extern const struct OmpTest omp_tests_end __asm("section$end$__DATA$omp_tests");
+extern const struct FireRedTest firered_tests_start __asm("section$start$__DATA$firered_tests");
+extern const struct FireRedTest firered_tests_end __asm("section$end$__DATA$firered_tests");
 
 #define CRASH_EXIT_CODE 99
 #define MAX_TESTS 512
@@ -46,13 +46,13 @@ extern const struct OmpTest omp_tests_end __asm("section$end$__DATA$omp_tests");
 
 struct TestEntry
 {
-    const struct OmpTest *test;
+    const struct FireRedTest *test;
     enum TestFixture fixture;
 };
 
 // The fixture a test needs, taken from its tags. A test with no fixture tag is
 // a pure-function test: it never touches the engine and needs no boot.
-static enum TestFixture FixtureForTest(const struct OmpTest *test)
+static enum TestFixture FixtureForTest(const struct FireRedTest *test)
 {
     if (strstr(test->tags, "fixture:lab") != NULL)
         return FIXTURE_OAKS_LAB;
@@ -61,7 +61,7 @@ static enum TestFixture FixtureForTest(const struct OmpTest *test)
     return FIXTURE_BEDROOM;
 }
 
-static bool NeedsEngine(const struct OmpTest *test)
+static bool NeedsEngine(const struct FireRedTest *test)
 {
     return strstr(test->tags, "engine") != NULL;
 }
@@ -78,10 +78,10 @@ static const char *FixtureName(enum TestFixture fixture)
 
 static int Collect(struct TestEntry *entries, int max)
 {
-    const struct OmpTest *p;
+    const struct FireRedTest *p;
     int n = 0;
 
-    for (p = &omp_tests_start; p < &omp_tests_end; p++)
+    for (p = &firered_tests_start; p < &firered_tests_end; p++)
     {
         if (n >= max)
             break;
@@ -189,7 +189,7 @@ static int RunOne(const struct TestEntry *entry, int timeoutSeconds)
 // reached the overworld with the SDL translation units excluded.
 static int RunEngineSelfTest(void)
 {
-    static const struct OmpTest probe = { "harness/boots-the-engine",
+    static const struct FireRedTest probe = { "harness/boots-the-engine",
                                           "engine fixture:bedroom", NULL };
     pid_t pid;
     int status;
