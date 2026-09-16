@@ -3,7 +3,16 @@
 
 extern const u8 gCgb3Vol[];
 
+/* `.bss.code` is a GBA linker-script section: the ARM7TDMI code that follows
+ * it must be reachable from IWRAM without a bank switch. Mach-O rejects a bare
+ * `.bss.code` ("requires a segment and section separated by a comma") and has no
+ * such constraint, so under PORTABLE this buffer is ordinary bss. Only
+ * src/m4a_1.s (GBA assembly, not assembled for the host) references it. */
+#ifdef PORTABLE
+#define BSS_CODE
+#else
 #define BSS_CODE __attribute__((section(".bss.code")))
+#endif
 
 BSS_CODE ALIGNED(4) char SoundMainRAM_Buffer[0x800] = {0};
 
