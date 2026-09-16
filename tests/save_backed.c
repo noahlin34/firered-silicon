@@ -17,7 +17,7 @@
 
 // gPokedexEntries used to be a 1-byte stub indexed as 0x24-byte structs, so every
 // read walked off the end of the array. Seen/caught must stick.
-OMP_TEST("save/pokedex seen and caught flags persist", "engine fixture:bedroom",
+FIRERED_TEST("save/pokedex seen and caught flags persist", "engine fixture:bedroom",
          save_pokedex_flags)
 {
     TEST_EQ(GetSetPokedexFlag(NATIONAL_DEX_MEWTWO, FLAG_GET_CAUGHT), 0);
@@ -33,7 +33,7 @@ OMP_TEST("save/pokedex seen and caught flags persist", "engine fixture:bedroom",
 // AddCoins/RemoveCoins were void stubs, so the Game Corner's "you can't carry any
 // more" branch and the Coin Case both read garbage. RemoveCoins must refuse when
 // the balance is short, and a refusal must not change the balance.
-OMP_TEST("save/coins add, remove and refuse to overdraw", "engine fixture:bedroom",
+FIRERED_TEST("save/coins add, remove and refuse to overdraw", "engine fixture:bedroom",
          save_coins)
 {
     TEST_EQ(AddCoins(50), TRUE);
@@ -50,7 +50,7 @@ OMP_TEST("save/coins add, remove and refuse to overdraw", "engine fixture:bedroo
 // both GETS and SETS; a stub that always returned 0 meant the dex never recorded
 // anything, Oak's rating was pinned to its lowest tier and the Repeat Ball's
 // caught-bonus was dead.
-OMP_TEST("save/pokedex counts reflect caught mons", "engine fixture:bedroom",
+FIRERED_TEST("save/pokedex counts reflect caught mons", "engine fixture:bedroom",
          save_pokedex_count)
 {
     u16 before = GetNationalPokedexCount(FLAG_GET_CAUGHT);
