@@ -17,7 +17,7 @@ extern const u8 PalletTown_EventScript_OakTriggerLeft[];
 extern const u8 PalletTown_EventScript_OakTriggerRight[];
 
 // Both northern-exit tiles run Oak's interception when the scene var is 0.
-OMP_TEST("pallet/coord events stop the player at the northern exit", "maps pallet pure",
+FIRERED_TEST("pallet/coord events stop the player at the northern exit", "maps pallet pure",
          pallet_oak_trigger)
 {
     const struct MapEvents *events = PalletTown.events;
@@ -38,7 +38,7 @@ OMP_TEST("pallet/coord events stop the player at the northern exit", "maps palle
 
 // The trigger's body must go somewhere real: its goto operand must resolve
 // through the pointer table to a script that starts with real work, not a dummy.
-OMP_TEST("pallet/interception trigger jumps into a real script", "maps pallet pure",
+FIRERED_TEST("pallet/interception trigger jumps into a real script", "maps pallet pure",
          pallet_oak_trigger_body)
 {
     const u8 *trigger = PalletTown_EventScript_OakTriggerLeft;
@@ -65,7 +65,7 @@ OMP_TEST("pallet/interception trigger jumps into a real script", "maps pallet pu
 // stays all-false, GetMapBorderIdAt answers CONNECTION_INVALID in every
 // direction, and the player is walled inside Pallet Town (AGENTS.md fix #30).
 // Route 1 north and Route 21 south are what make the town a town.
-OMP_TEST("pallet/town has connections to route 1 and route 21", "maps pallet pure",
+FIRERED_TEST("pallet/town has connections to route 1 and route 21", "maps pallet pure",
          pallet_connections)
 {
     const struct MapConnections *conn = PalletTown.connections;
