@@ -9,21 +9,21 @@
 #include "registry.h"
 
 // Div/Sqrt/ArcTan2 are the GBA BIOS arithmetic SWIs the engine calls directly.
-OMP_TEST("bios/div", "bios pure", bios_div)
+FIRERED_TEST("bios/div", "bios pure", bios_div)
 {
     TEST_EQ(Div(100, 5), 20);
     TEST_EQ(Div(-42, 7), -6);
     TEST_EQ(Div(123, 0), 0);      // divide-by-zero is defined as 0, not a trap
 }
 
-OMP_TEST("bios/sqrt", "bios pure", bios_sqrt)
+FIRERED_TEST("bios/sqrt", "bios pure", bios_sqrt)
 {
     TEST_EQ(Sqrt(144), 12);
     TEST_EQ(Sqrt(0), 0);
     TEST_EQ(Sqrt(1000000), 1000);
 }
 
-OMP_TEST("bios/arctan2", "bios pure", bios_arctan2)
+FIRERED_TEST("bios/arctan2", "bios pure", bios_arctan2)
 {
     TEST_EQ(ArcTan2(1, 0), 0);
 }
@@ -31,7 +31,7 @@ OMP_TEST("bios/arctan2", "bios pure", bios_arctan2)
 // CpuSet/CpuFastSet are the fill/copy primitives the engine uses for VRAM and
 // palette work. Both take a "source is a fixed value" flag bit that must be
 // respected, since the fill paths depend on it.
-OMP_TEST("bios/cpuset copies halfwords", "bios pure", bios_cpuset_copy)
+FIRERED_TEST("bios/cpuset copies halfwords", "bios pure", bios_cpuset_copy)
 {
     u16 src[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
     u16 dst[8] = { 0 };
@@ -42,7 +42,7 @@ OMP_TEST("bios/cpuset copies halfwords", "bios pure", bios_cpuset_copy)
         TEST_EQ(dst[i], src[i]);
 }
 
-OMP_TEST("bios/cpuset fills from a fixed source", "bios pure", bios_cpuset_fill)
+FIRERED_TEST("bios/cpuset fills from a fixed source", "bios pure", bios_cpuset_fill)
 {
     u16 fill = 0xABCD;
     u16 dst[8] = { 0 };
@@ -53,7 +53,7 @@ OMP_TEST("bios/cpuset fills from a fixed source", "bios pure", bios_cpuset_fill)
         TEST_EQ(dst[i], 0xABCD);
 }
 
-OMP_TEST("bios/cpufastset fills 32-bit units", "bios pure", bios_cpufastset_fill)
+FIRERED_TEST("bios/cpufastset fills 32-bit units", "bios pure", bios_cpufastset_fill)
 {
     u32 fill = 0x12345678;
     u32 dst[16] = { 0 };
@@ -67,7 +67,7 @@ OMP_TEST("bios/cpufastset fills 32-bit units", "bios pure", bios_cpufastset_fill
 // LZ77 decompression. The stream encodes "HELLO HELLO " as 8 literals followed
 // by a back-reference of length 4 at offset 6 -- i.e. the copy overlaps the
 // window it is reading from, which is the case a naive implementation gets wrong.
-OMP_TEST("bios/lz77 decompresses with an overlapping back-reference", "bios pure", bios_lz77)
+FIRERED_TEST("bios/lz77 decompresses with an overlapping back-reference", "bios pure", bios_lz77)
 {
     static const u8 compressed[] = {
         0x10, 0x0C, 0x00, 0x00,                     // header: 12 bytes uncompressed
