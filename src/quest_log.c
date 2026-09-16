@@ -849,7 +849,18 @@ void QuestLog_AdvancePlayhead_(void)
 
 #define tTimer data[0]
 #define tState data[1]
-#define DATA_IDX_CALLBACK 14 // data[14] and data[15]
+/* data[2..5]: Task_AvoidDisplay uses slots 0 and 1, so 2 is free.
+ *
+ * This was DATA_IDX_CALLBACK = 14 ("data[14] and data[15]") with
+ * SetWordTaskArg/GetWordTaskArg — pret's GBA habit of splitting a 4-byte
+ * pointer across two 16-bit slots. Two independent bugs on the host:
+ * `SetWordTaskArg` truncates a 64-bit function pointer to 32 bits via
+ * `>> 16` (this is fix #26's class), and `struct Task.data` is `s16[16]`
+ * = 32 bytes, so `SetPointerTaskArg(taskId, 14, ...)` would write 8 bytes
+ * starting at offset 28 and run 4 bytes into the next task. Use
+ * SetPointerTaskArg/GetPointerTaskArg at a low index: the helpers memcpy a
+ * whole host pointer, and 8 bytes at slot 2 stays inside the array. */
+#define DATA_IDX_CALLBACK 2
 
 // This is used to avoid recording or displaying certain windows or images, like a shop menu.
 // During playback it returns TRUE (meaning the action should be avoided) and calls the
@@ -871,7 +882,7 @@ bool8 QL_AvoidDisplay(void (*callback)(void))
         taskId = CreateTask(Task_AvoidDisplay, 80);
         gTasks[taskId].tTimer = 0;
         gTasks[taskId].tState = 0;
-        SetWordTaskArg(taskId, DATA_IDX_CALLBACK, (uintptr_t)callback);
+        SetPointerTaskArg(taskId, DATA_IDX_CALLBACK, (void *)callback);
         return TRUE;
     }
     return FALSE;
@@ -899,7 +910,7 @@ static void Task_AvoidDisplay(u8 taskId)
             gQuestLogPlaybackState = QL_PLAYBACK_STATE_STOPPED;
             
             // Call the provided function (if any). In practice this is always QL_DestroyAbortedDisplay
-            routine = (void (*)(void)) GetWordTaskArg(taskId, DATA_IDX_CALLBACK);
+            routine = (void (*)(void)) GetPointerTaskArg(taskId, DATA_IDX_CALLBACK);
             if (routine != NULL)
                 routine();
 
