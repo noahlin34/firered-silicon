@@ -15,14 +15,14 @@
 
 // A register write must land in the host buffer and read back identically --
 // including the display control word, which every PPU path depends on.
-OMP_TEST("memory/io registers read back what was written", "memory pure", memory_registers)
+FIRERED_TEST("memory/io registers read back what was written", "memory pure", memory_registers)
 {
     REG_DISPCNT = DISPCNT_MODE_0 | DISPCNT_BG0_ON | DISPCNT_OBJ_ON;
     TEST_EQ(REG_DISPCNT, DISPCNT_MODE_0 | DISPCNT_BG0_ON | DISPCNT_OBJ_ON);
 }
 
 // Palette RAM is a host buffer, not a mapped address. RGB() packs 15-bit BGR555.
-OMP_TEST("memory/palette ram is writable host memory", "memory pure", memory_palette)
+FIRERED_TEST("memory/palette ram is writable host memory", "memory pure", memory_palette)
 {
     u16 *palette = (u16 *)BG_PLTT;
 
@@ -38,7 +38,7 @@ OMP_TEST("memory/palette ram is writable host memory", "memory pure", memory_pal
 // DMA must be synchronous under PORTABLE. On hardware these are register
 // transfers; here they are immediate copies, and the engine depends on the data
 // being present when the call returns (it does not wait for a completion flag).
-OMP_TEST("memory/dma copies immediately", "memory pure", memory_dma_copy)
+FIRERED_TEST("memory/dma copies immediately", "memory pure", memory_dma_copy)
 {
     u16 src[4] = { 0x1111, 0x2222, 0x3333, 0x4444 };
     u16 dst[4] = { 0 };
@@ -49,7 +49,7 @@ OMP_TEST("memory/dma copies immediately", "memory pure", memory_dma_copy)
         TEST_EQ(dst[i], src[i]);
 }
 
-OMP_TEST("memory/dma fills immediately", "memory pure", memory_dma_fill)
+FIRERED_TEST("memory/dma fills immediately", "memory pure", memory_dma_fill)
 {
     u16 dst[4] = { 0 };
     int i;
@@ -65,7 +65,7 @@ OMP_TEST("memory/dma fills immediately", "memory pure", memory_dma_fill)
 // macro routes through the portable implementation rather than the GBA register
 // write that would truncate. Verified with heap-allocated buffers so the
 // addresses are real host pointers.
-OMP_TEST("memory/dma does not truncate host pointers", "memory pure", memory_dma_pointers)
+FIRERED_TEST("memory/dma does not truncate host pointers", "memory pure", memory_dma_pointers)
 {
     u16 *src = (u16 *)malloc(sizeof(u16) * 8);
     u16 *dst = (u16 *)malloc(sizeof(u16) * 8);
