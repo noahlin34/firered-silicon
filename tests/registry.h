@@ -152,6 +152,9 @@ bool8 Test_InOverworld(void);
 int Test_PartyCount(void);
 u16 Test_PartySpecies(int index);
 u8 Test_PartyLevel(int index);
+u16 Test_PartyHP(int index);
+u16 Test_PartyMaxHP(int index);
+void Test_SetPartyHP(int index, u16 hp);   // damage a mon to give a heal work to do
 
 // --- script inspection (tests/script_util.c) --------------------------------
 // Native scripts are bytecode with pointer operands stored as indices into
