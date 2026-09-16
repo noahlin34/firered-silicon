@@ -303,3 +303,11 @@ const union AnimCmd *const gAnims_MonPic[] =
 #include "data/trainers.h"
 #include "data/text/species_names.h"
 #include "data/text/move_names.h"
+
+// The Pokedex entry table (category name, height, weight, dex text) is
+// referenced by src/pokedex.c and src/pokedex_screen.c. It lives here because
+// src/data.c is built through tools/preproc, so the `_()` category names are
+// charmap-encoded; a hand-written stub cannot represent this type.
+#include "pokedex.h"
+#include "data/pokemon/pokedex_text.h"
+#include "data/pokemon/pokedex_entries.h"
