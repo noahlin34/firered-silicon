@@ -382,7 +382,7 @@ TARGET := firered-native
 # ordering edge from the stamp, and `assets` stays a manual entry point.
 all: $(TARGET)
 
-.PHONY: all clean run assets battle-scripts tools generated-headers
+.PHONY: all clean run assets battle-scripts tools generated-headers tests test-list script-ops
 
 # Battle script bytecode + the shared native pointer table. Regenerate whenever
 # the pret script sources, their macros, or the C readers they are classified
@@ -392,8 +392,21 @@ BATTLE_SCRIPT_SOURCES := $(wildcard data/battle_scripts_*.s data/battle_anim_scr
                          src/battle_script_commands.c src/battle_anim.c src/battle_ai_script_commands.c \
                          tools/gen_battle_data.py
 
-battle-scripts: $(BATTLE_SCRIPT_SOURCES)
+# The generator takes ~10 s (it derives every script's operand widths from the C
+# readers), so it must not run when nothing it reads has changed. It used to be
+# `.PHONY`, which made EVERY `make` -- including a no-op one -- regenerate the
+# battle scripts and recompile everything downstream: measured 10.64 s for a
+# build with nothing to do, versus 0.31 s with the generator skipped. That is
+# the same trap fix #54 records for the split anim sheets. The phony name stays
+# as the documented regenerate entry point; the real work hangs off a stamp.
+BATTLE_SCRIPTS_STAMP := $(OBJ_DIR)/.battle-scripts.stamp
+
+battle-scripts: $(BATTLE_SCRIPTS_STAMP)
+
+$(BATTLE_SCRIPTS_STAMP): $(BATTLE_SCRIPT_SOURCES)
 	@python3 tools/gen_battle_data.py
+	@mkdir -p $(dir $@)
+	@touch $@
 
 # The ordering edge the objects need, and the fix for a make pathology worth
 # understanding before touching this file.
@@ -538,10 +551,55 @@ $(TARGET): $(OBJS)
 run: $(TARGET)
 	./$(TARGET)
 
+# --- Unit test binary -------------------------------------------------------
+# `firered-tests` links the SAME engine objects as the game and substitutes a
+# harness for the three SDL-facing translation units. Nothing in src/ is
+# test-specific and nothing in src/ includes the harness: the engine already
+# routes every frame through Platform_RenderAndPresent, and that symbol is the
+# seam (see tests/platform_host.c). Excluding sdl2.o also removes the display
+# clock, so the suite runs the engine flat out instead of at 59.7275 Hz.
+#
+# dev_panel.o is dropped too: it is a second SDL window with its own renderer,
+# used only for manual testing, and is deliberately not covered.
+TEST_SRCS := $(wildcard tests/*.c)
+TEST_OBJS := $(patsubst tests/%.c,$(OBJ_DIR)/tests/%.o,$(TEST_SRCS))
+TEST_EXCLUDED := $(OBJ_DIR)/platform/sdl2.o $(OBJ_DIR)/platform/dev_panel.o $(OBJ_DIR)/platform/main.o
+TEST_ENGINE_OBJS := $(filter-out $(TEST_EXCLUDED),$(OBJS))
+
+# _XOPEN_SOURCE must precede every system header, so it cannot be set from inside
+# the harness headers -- it is a compile flag. ucontext.h (frame.c) needs it.
+TEST_CFLAGS := $(CFLAGS) -D_XOPEN_SOURCE=700
+
+# Named script opcodes for tests, generated from the engine's own dispatch table
+# (src/data/script_cmd_table.h). Regenerated when that table changes -- the
+# generator is the only thing that knows the numbering, and a shifted opcode
+# silently invalidates every script assertion. Output is tracked in git, matching
+# the maps_data.h / battle_data.h convention.
+TEST_SCRIPT_OPS := tests/script_ops.h
+
+$(TEST_SCRIPT_OPS): src/data/script_cmd_table.h tools/gen_script_ops.py
+	@python3 tools/gen_script_ops.py
+
+script-ops: $(TEST_SCRIPT_OPS)
+
+TARGET_TESTS := firered-tests
+
+tests: $(TARGET_TESTS)
+
+$(OBJ_DIR)/tests/%.o: tests/%.c $(TEST_SCRIPT_OPS) | $(ASSET_STAMP)
+	@mkdir -p $(dir $@)
+	$(CC) $(TEST_CFLAGS) $(DEPFLAGS) -MT $@ -c -o $@ $<
+
+$(TARGET_TESTS): $(TEST_OBJS) $(TEST_ENGINE_OBJS)
+	$(CC) $(TEST_CFLAGS) $^ -o $@
+
+test-list: $(TARGET_TESTS)
+	@./$(TARGET_TESTS) --list
+
 clean:
-	rm -rf $(OBJ_DIR) $(TARGET)
+	rm -rf $(OBJ_DIR) $(TARGET) $(TARGET_TESTS)
 
 # Header dependencies, one .d per object, written by DEPFLAGS above. Last, so
 # every rule is already defined; -include (not include) because the files do not
 # exist on a clean tree.
--include $(OBJS:.o=.d)
+-include $(OBJS:.o=.d) $(TEST_OBJS:.o=.d)
