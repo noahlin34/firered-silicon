@@ -66,6 +66,28 @@ static bool NeedsEngine(const struct FireRedTest *test)
     return strstr(test->tags, "engine") != NULL;
 }
 
+// A `slow` test is excluded unless --slow is given. It exists for cases where a
+// whole flow is genuinely the contract (a full boot, a multi-scene sequence) and
+// would dominate the suite's runtime. Run it with --slow, or by naming it with
+// --filter (an explicit filter overrides the exclusion, so addressing one
+// directly always works).
+static bool IsSlow(const struct FireRedTest *test)
+{
+    const char *p = test->tags;
+
+    // Token match, not substring: "slowdown-is-fine" must not count as `slow`.
+    while ((p = strstr(p, "slow")) != NULL)
+    {
+        bool leftOk = (p == test->tags) || (p[-1] == ' ');
+        bool rightOk = (p[4] == '\0') || (p[4] == ' ');
+
+        if (leftOk && rightOk)
+            return true;
+        p += 4;
+    }
+    return false;
+}
+
 static const char *FixtureName(enum TestFixture fixture)
 {
     switch (fixture)
@@ -222,7 +244,8 @@ int main(int argc, char **argv)
 {
     static struct TestEntry entries[MAX_TESTS];
     static char *filters[MAX_FILTERS];
-    int entryCount, filterCount = 0, explain = 0, timeout = 30;
+    int entryCount, filterCount = 0, explain = 0, timeout = 30, includeSlow = 0;
+    int skippedSlow = 0;
     int i, run = 0, failed = 0, skipped = 0;
 
     setvbuf(stdout, NULL, _IONBF, 0);
@@ -237,7 +260,8 @@ int main(int argc, char **argv)
 
             printf("%d tests\n", n);
             for (j = 0; j < n; j++)
-                printf("  %-58s %s\n", entries[j].test->name, entries[j].test->tags);
+                printf("  %-58s %s%s\n", entries[j].test->name, entries[j].test->tags,
+                       IsSlow(entries[j].test) ? "  [slow]" : "");
             return 0;
         }
         else if (strcmp(argv[i], "--filter") == 0 && i + 1 < argc)
@@ -256,6 +280,10 @@ int main(int argc, char **argv)
             if (timeout < 1)
                 timeout = 1;
         }
+        else if (strcmp(argv[i], "--slow") == 0)
+        {
+            includeSlow = 1;
+        }
         else if (strcmp(argv[i], "--selftest") == 0)
         {
             return RunEngineSelfTest();
@@ -263,7 +291,7 @@ int main(int argc, char **argv)
         else if (strcmp(argv[i], "--help") == 0)
         {
             printf("usage: firered-tests [--list] [--filter <name|tag>]... "
-                   "[--explain] [--timeout <sec>] [--selftest]\n");
+                   "[--explain] [--slow] [--timeout <sec>] [--selftest]\n");
             return 0;
         }
         else
@@ -285,6 +313,14 @@ int main(int argc, char **argv)
             skipped++;
             continue;
         }
+        // `slow` is always excluded unless --slow is given. Making this
+        // independent of --filter keeps it predictable: filtering a broad tag
+        // (say "engine") must not silently pull in long-running tests.
+        if (IsSlow(entries[i].test) && !includeSlow)
+        {
+            skippedSlow++;
+            continue;
+        }
         run++;
         failed += RunOne(&entries[i], timeout);
     }
@@ -296,6 +332,8 @@ int main(int argc, char **argv)
         printf("%d/%d passed", run - failed, run);
     if (skipped > 0)
         printf(" (%d filtered out)", skipped);
+    if (skippedSlow > 0)
+        printf(" (%d slow skipped; --slow to include)", skippedSlow);
     printf("\n");
 
     return failed > 0 ? 1 : 0;
