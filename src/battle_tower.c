@@ -124,6 +124,13 @@ static const u16 sBattleTowerHeldItems[] = {
 #include "data/battle_tower/level_50_mons.h"
 #include "data/battle_tower/level_100_mons.h"
 
+// pret ships these four tables empty (the data was never decompiled), so the
+// `% NELEMS(...)` below is a remainder by zero. It is unreachable in this port:
+// the Battle Tower's entry specials are NULL in gSpecials (BattleTowerUtil 238,
+// SaveBattleTowerProgress 240, DetermineBattleTowerPrize 242), and
+// Debug_FillEReaderTrainerWithPlayerData is an unreferenced static. The warning
+// is suppressed at the two use sites rather than globally, so a real
+// division-by-zero in new code still fails the build.
 static const u8 sMaleTrainerClasses[] =
 {
 
@@ -1098,6 +1105,8 @@ static void SaveCurrentWinStreak(void)
     }
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdivision-by-zero"
 static void SetPlayerBattleTowerRecord(void)
 {
     s32 i;
@@ -1134,6 +1143,8 @@ static void SetPlayerBattleTowerRecord(void)
     SetBattleTowerRecordChecksum(&gSaveBlock2Ptr->battleTower.playerRecord);
     SaveCurrentWinStreak();
 }
+
+#pragma clang diagnostic pop
 
 void SaveBattleTowerProgress(void)
 {
@@ -1291,6 +1302,8 @@ void AwardBattleTowerRibbons(void)
 
 // This is a leftover debugging function that is used to populate the E-Reader
 // trainer with the player's current data.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdivision-by-zero"
 static void Debug_FillEReaderTrainerWithPlayerData(void)
 {
     struct BattleTowerEReaderTrainer *ereaderTrainer;
@@ -1349,6 +1362,8 @@ void CopyEReaderTrainerName5(u8 *trainerName)
 
     trainerName[i] = EOS;
 }
+
+#pragma clang diagnostic pop
 
 // Checks if the saved E-Reader trainer is valid.
 void ValidateEReaderTrainer(void)
