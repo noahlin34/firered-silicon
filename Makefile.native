@@ -245,6 +245,7 @@ ENGINE_SRCS := src/main.c \
                src/script_pokemon_util.c \
                src/field_weather_effects.c \
                src/field_fadetransition.c \
+               src/field_screen_effect.c \
                src/bike.c \
                src/wild_encounter.c \
                src/field_message_box.c \
@@ -252,7 +253,12 @@ ENGINE_SRCS := src/main.c \
                src/trainer_pokemon_sprites.c \
                src/new_game.c \
                src/save_location.c \
-               src/prof_pc.c
+               src/prof_pc.c \
+               src/heal_location.c \
+               src/coins.c \
+               src/field_weather_util.c \
+               src/map_name_popup.c \
+               src/mail.c
 
 PREPROC_SRCS := src/title_screen.c \
                 src/sprite.c \
@@ -345,13 +351,25 @@ PREPROC_SRCS := src/title_screen.c \
                 src/vs_seeker.c \
                 src/trainer_tower.c \
                 src/quest_log_events.c \
+                src/quest_log.c \
+                src/quest_log_objects.c \
+                src/quest_log_player.c \
+                src/field_poison.c \
+                src/itemfinder.c \
                 src/party_menu.c \
                 src/start_menu.c \
                 src/item_menu_icons.c \
                 src/option_menu.c \
                 src/save_menu_util.c \
                 src/map_preview_screen.c \
-                src/region_map.c
+                src/region_map.c \
+                src/tm_case.c \
+                src/berry_pouch.c \
+                src/pokedex_area_markers.c \
+                src/wild_pokemon_area.c \
+                src/field_specials.c \
+                src/diploma.c \
+                src/dynamic_placeholder_text_util.c
 
 OBJ_DIR := build/native
 OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
