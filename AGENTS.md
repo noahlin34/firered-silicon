@@ -491,7 +491,7 @@ Add a `.c` file under `tests/`; there is no list to edit — tests self-register
 #include "registry.h"
 #include "script_ops.h"          // named script opcodes (generated)
 
-OMP_TEST("daisy/gives the town map after the parcel", "engine fixture:lab npc:daisy",
+FIRERED_TEST("daisy/gives the town map after the parcel", "engine fixture:lab npc:daisy",
          daisy_town_map)
 {
     Test_RequireFixture(FIXTURE_OAKS_LAB);
