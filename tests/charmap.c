@@ -182,31 +182,80 @@ static void LoadCharmap(void)
     fclose(fp);
 }
 
-// Longest-match decode at `p`, writing the printable form into buf.
+// Decode one symbol at `p`, preferring the CHARACTER interpretation.
+//
+// charmap.txt mixes two namespaces that overlap. A multi-byte control constant
+// frequently begins with a byte that is also a standalone character:
+//
+//     'u'              = E9        SE_M_HEAT_WAVE   = E9 00
+//     '0'              = A1        SE_M_MIST        = A1 00
+//     '\u3000' (space) = 00        MUS_HEAL         = 00 01
+//
+// Dialogue contains "Yo" and "u" followed by a space, so a greedy longest-match
+// picks SE_M_HEAT_WAVE for a plain letter and the decoded string fills with
+// sound-effect names instead of text (this corrupted the first version of this
+// decoder). The ambiguity is real in the table, and the writer's intent is only
+// recoverable from context: text that a message box displays is characters, and
+// the constants are emitted by different script commands (playse/playbgm) whose
+// operands never reach a text printer.
+//
+// So: a single-byte character entry always wins. A multi-byte entry is only used
+// when its FIRST byte is not itself a character -- which is exactly the
+// placeholder family ({PLAYER} = FD 01, {STR_VAR_1} = FD 02, ...), where 0xFD is
+// not a standalone character and therefore cannot be confused.
 static int DecodeAt(const u8 *p, int remaining, char *buf, size_t bufSize)
 {
-    int best = -1;
-    int bestLen = 0;
     int i;
 
+    // 1. A standalone character at this position always wins.
     for (i = 0; i < sEntryCount; i++)
     {
         const struct CharmapEntry *e = &sEntries[i];
 
-        if (e->len > remaining || e->len <= bestLen)
-            continue;
-        if (memcmp(p, e->bytes, e->len) == 0)
+        if (e->len == 1 && remaining >= 1 && p[0] == e->bytes[0])
         {
-            best = i;
-            bestLen = e->len;
+            snprintf(buf, bufSize, "%s", e->text);
+            return 1;
         }
     }
 
-    if (best < 0)
-        return 0;
+    // 2. Otherwise the longest multi-byte entry whose first byte is unambiguous.
+    {
+        int best = -1;
+        int bestLen = 0;
 
-    snprintf(buf, bufSize, "%s", sEntries[best].text);
-    return bestLen;
+        for (i = 0; i < sEntryCount; i++)
+        {
+            const struct CharmapEntry *e = &sEntries[i];
+            int firstIsChar = 0;
+            int j;
+
+            if (e->len < 2 || e->len > remaining || e->len <= bestLen)
+                continue;
+
+            for (j = 0; j < sEntryCount; j++)
+            {
+                if (sEntries[j].len == 1 && sEntries[j].bytes[0] == e->bytes[0])
+                {
+                    firstIsChar = 1;
+                    break;
+                }
+            }
+            if (firstIsChar)
+                continue;
+            if (memcmp(p, e->bytes, e->len) == 0)
+            {
+                best = i;
+                bestLen = e->len;
+            }
+        }
+
+        if (best < 0)
+            return 0;
+
+        snprintf(buf, bufSize, "%s", sEntries[best].text);
+        return bestLen;
+    }
 }
 
 const char *Test_Decode(const u8 *encoded)
@@ -227,7 +276,11 @@ const char *Test_Decode(const u8 *encoded)
         return sOut;
     }
 
-    while (encoded[i] != 0xFF && encoded[i] != 0 && used < (int)sizeof(sOut) - 1)
+    // Only 0xFF (EOS) terminates. 0x00 is NOT a terminator: it is the space
+    // character (' ' = 00 in charmap.txt), so stopping there truncates every
+    // multi-word string at its first space -- the most common case in dialogue,
+    // and how this decoder originally reported "You" for a full sentence.
+    while (encoded[i] != 0xFF && used < (int)sizeof(sOut) - 1)
     {
         // The three layout escapes are stored in the table, but their printable
         // form is a marker rather than a control byte.
