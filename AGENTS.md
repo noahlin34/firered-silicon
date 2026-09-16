@@ -421,6 +421,31 @@ openfirered/
 
 ## 5. Build & Run Instructions
 
+### Headless launches — REQUIRED for every launch the assistant performs
+
+**Prefix every test, smoke, boot or dev-tool invocation with `SDL_VIDEODRIVER=dummy`, unless the user explicitly instructs otherwise** (e.g. "show me the window", "launch it visibly", "I want to watch"). This is a hard rule, not a preference. The project owner is using the machine while you work, and a real SDL video driver orders the game window front-centre on creation, steals keyboard focus, and bounces the Dock icon — repeatedly, for the whole run (a full `--boot-test 9300` is ~156 s of engine time).
+
+```bash
+SDL_VIDEODRIVER=dummy ./firered-native --skip-intro --boot-test 200
+```
+
+The dummy driver makes SDL skip window creation entirely, so nothing can appear on the owner's screen. **Nothing diagnostic is lost.** Verified against the checked-in binary:
+
+| Capability | Under `SDL_VIDEODRIVER=dummy` |
+|---|---|
+| Screenshots (`engine_boot_output.bmp`, `ppu_test_output.bmp`) | Real, not blank (240×160, 45 distinct colours on the bedroom capture); `sha256` reproducible across runs |
+| Frame pacing | Intact — 120 frames in 2.07 s wall vs the 2.009 s engine target |
+| `REG_KEYINPUT` probe injection and `--boot-test` auto-input | Unaffected — it bypasses SDL input by construction (see the headless-probe tip in §3) |
+| `TestOverworldInteractions()` / `Platform_VerifySaveBackedStubs()` | Unaffected |
+| `--dev-panel` + `--dev-panel-keys` | Still works: the panel creates its own renderer and falls back to software (1,317 destinations, panel BMP and `state:` line verified under the dummy driver) |
+| Exit codes and stdout reporting | Unaffected |
+
+Why it costs nothing: `Platform_SaveScreenshot()` (`src/platform/sdl2.c`) wraps `sFramebuffer` — the 240×160 BGR555 array `PPU_RenderFrame()` fills — in an `SDL_Surface` and calls `SDL_SaveBMP`, never touching the window. The window is used only by `Platform_PresentFrame()` (texture upload + `SDL_RenderPresent`), and `Platform_Init()` already falls back to `SDL_CreateRenderer(sWindow, -1, 0)` when accelerated rendering is unavailable. `WaitForFrameDeadline()` uses `SDL_GetPerformanceCounter()` (`mach_absolute_time`), which the dummy driver does not affect.
+
+Interactive play is the one case where a visible window is the point — **never launch it that way unless the user asked for it.**
+
+Every command example in this file and in §3's Debugging Tips is written **without** the prefix for legibility. That does not weaken the rule: add `SDL_VIDEODRIVER=dummy` to all of them when *you* run them.
+
 Prerequisites (installed via Homebrew):
 ```bash
 brew install sdl2 libpng pkgconf
