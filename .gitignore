@@ -68,6 +68,7 @@ build-cmake-*/
 CMakeLists.txt
 compile_commands.json
 firered-native
+firered-tests
 compile_flags.txt
 *.bmp
 *.png
