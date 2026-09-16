@@ -10,6 +10,12 @@
 #include "field_poison.h"
 #include "constants/battle.h"
 
+/* data/event_scripts.s defines this text label; the generated text bank
+ * (src/data/maps_data.h) supplies it because tools/gen_map_data.py emits every
+ * label a linked source declares `extern const u8 X[]`. src/field_poison.c is
+ * built from plain C, so its own `_()` strings are not compiled. */
+extern const u8 gText_PkmnFainted3[];
+
 static bool32 IsMonValidSpecies(struct Pokemon *pokemon)
 {
     u16 species = GetMonData(pokemon, MON_DATA_SPECIES_OR_EGG);
