@@ -23,7 +23,7 @@ extern u16 (*const gSpecials[])(void);
 
 // Task_WhiteOut picks one of these by whether the player's last heal spot was
 // their own house. Both were dummy scripts, so the whiteout never healed.
-OMP_TEST("whiteout/recovery scripts are real", "scripts whiteout pure", whiteout_scripts)
+FIRERED_TEST("whiteout/recovery scripts are real", "scripts whiteout pure", whiteout_scripts)
 {
     TEST_PTR_NOT_NULL(EventScript_AfterWhiteOutHeal);
     TEST_PTR_NOT_NULL(EventScript_AfterWhiteOutMomHeal);
@@ -41,7 +41,7 @@ OMP_TEST("whiteout/recovery scripts are real", "scripts whiteout pure", whiteout
 
 // The shared heal routine must really play its field effect: dofieldeffect then
 // waitfieldeffect, in that order.
-OMP_TEST("whiteout/heal routine plays its field effect", "scripts whiteout pure",
+FIRERED_TEST("whiteout/heal routine plays its field effect", "scripts whiteout pure",
          whiteout_heal_effect)
 {
     const u8 *s = EventScript_PkmnCenterNurse_TakeAndHealPkmn;
@@ -56,7 +56,7 @@ OMP_TEST("whiteout/heal routine plays its field effect", "scripts whiteout pure"
 // A poisoned mon fainting on a step runs its own whiteout path. Shape: lockall,
 // textcolor, special TryFieldPoisonWhiteOut (199), waitstate, then the VAR_RESULT
 // branch into the whiteout.
-OMP_TEST("whiteout/field poison branches on the whiteout special",
+FIRERED_TEST("whiteout/field poison branches on the whiteout special",
          "scripts whiteout pure", whiteout_field_poison)
 {
     const u8 *s = EventScript_FieldPoison;
@@ -78,7 +78,7 @@ OMP_TEST("whiteout/field poison branches on the whiteout special",
 
 // The pickup script grants the item; special 150 sets the flag. Without the flag
 // the same spot can be dug up forever.
-OMP_TEST("hidden-items/pickup script and its flag special are wired",
+FIRERED_TEST("hidden-items/pickup script and its flag special are wired",
          "scripts whiteout pure", hidden_item_script)
 {
     TEST_TRUE(Test_ScriptStartsWith(EventScript_HiddenItemScript, SCR_CMD_LOCKALL));
