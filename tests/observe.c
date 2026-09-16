@@ -96,3 +96,27 @@ static u8 PartyLevel(int index)
 }
 
 u8 Test_PartyLevel(int index) { return PartyLevel(index); }
+
+u16 Test_PartyHP(int index)
+{
+    if (index < 0 || index >= PARTY_SIZE)
+        return 0;
+    return GetMonData(&gPlayerParty[index], MON_DATA_HP);
+}
+
+u16 Test_PartyMaxHP(int index)
+{
+    if (index < 0 || index >= PARTY_SIZE)
+        return 0;
+    return GetMonData(&gPlayerParty[index], MON_DATA_MAX_HP);
+}
+
+// Damage a mon so a heal has something to repair. Tests use this to write the
+// precondition the way a real playthrough leaves it -- a battle won at the cost
+// of HP -- and then assert only the interaction under test.
+void Test_SetPartyHP(int index, u16 hp)
+{
+    if (index < 0 || index >= PARTY_SIZE)
+        return;
+    SetMonData(&gPlayerParty[index], MON_DATA_HP, &hp);
+}
