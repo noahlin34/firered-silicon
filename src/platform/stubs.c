@@ -8,6 +8,7 @@
 #include "help_system.h"
 #include "load_save.h"
 #include "bg.h"
+#include "gba/flash_internal.h"
 #include "malloc.h"
 #include "decompress.h"
 #include "text.h"
@@ -73,7 +74,20 @@ void rfu_REQ_stopMode(void) {}
 u16 rfu_waitREQComplete(void) { return 0; }
 u8 gWirelessCommType = 0;
 void Timer3Intr(void) {}
-void SetFlashTimerIntr(bool8 enable) { (void)enable; }
+/* src/agb_flash.c is deliberately NOT linked: the host build simulates flash
+ * with the FLASH_BASE_ buffer and `gFlashMemoryPresent = TRUE` (src/load_save.c,
+ * PORTABLE), so none of the real flash driver runs. Linking it only for this
+ * symbol pulled in 27 pointer-truncation warnings from unreachable code —
+ * ReadFlashId/SetReadFlash1 build Thumb-bit function pointers with
+ * `(s32)buf + 1`, which is meaningless on the host (the very hazard fix #1
+ * describes). This stub carries the declared type from gba/flash_internal.h
+ * (u16, taking an intrFunc out-parameter) so the caller's return value is real. */
+u16 SetFlashTimerIntr(u8 timerNum, void (**intrFunc)(void))
+{
+    (void)timerNum;
+    (void)intrFunc;
+    return 1; // non-zero = "no timer installed", matching the >= 4 guard
+}
 void MapMusicMain(void) {}
 struct PokemonCrySong gPokemonCrySongs[1] = {{0}};
 struct SoundInfo gSoundInfo = {0};
@@ -161,7 +175,6 @@ static const struct FontInfo gFontInfos[] =
     }
 };
 
-u8 gQuestLogPlaybackState = 0;
 bool8 gHelpSystemEnabled = FALSE;
 
 // Battle BG offsets referenced by scanline_effect.c
@@ -208,9 +221,6 @@ const char RomHeaderSoftwareVersion = 0;
 // Font & UI Stubs
 
 s32 GetGlyphWidth_Braille(u16 fontId, bool32 isJapanese) { (void)fontId; (void)isJapanese; return 0; }
-const u8 *DynamicPlaceholderTextUtil_GetPlaceholderPtr(u8 id) { (void)id; return NULL; }
 struct MusicPlayerInfo gMPlayInfo_BGM = {0};
-u8 gQuestLogState = 0;
 void CB2_InitMysteryGift(void) {}
 bool8 IsWirelessAdapterConnected(void) { return FALSE; }
-void TryStartQuestLogPlayback(u8 taskId) { (void)taskId; }

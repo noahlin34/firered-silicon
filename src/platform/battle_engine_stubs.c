@@ -206,8 +206,6 @@ void BackupHelpContext(void) {}
 void BeginEvolutionScene(struct Pokemon* mon, u16 speciesToEvolve, u8, u8 partyId) {}
 u8 BitmaskAllOtherLinkPlayers(void) { return 0; }
 void CheckShouldAdvanceLinkState(void) {}
-void CommitQuestLogWindow1(void) {}
-u8 ContextNpcGetTextColor(void) { return 0; }
 u8 CountPartyAliveNonEggMonsExcept(u8 slotToIgnore) { return 0; }
 u8 CountPartyMons(void) { return 0; }
 void CreateBoxMonIconAtPos(u8 boxPosition) {}
@@ -227,7 +225,6 @@ s16 GetFirstFreeBoxSpot(u8 boxId) { return 0; }
 u8 GetLastViewedMonIndex(void) { return 0; }
 u8 GetLinkPlayerCount_2(void) { return 0; }
 u8 GetMultiplayerId(void) { return 0; }
-u16 GetPCBoxToSendMon(void) { return 0; }
 bool32 InUnionRoom(void) { return 0; }
 bool8 IsActiveItemMoving(void) { return 0; }
 bool8 IsBGMPlaying(void) { return 0; }
@@ -236,7 +233,6 @@ bool8 IsBGMPlaying(void) { return 0; }
 bool8 IsCryFinished(void) { return TRUE; }
 bool8 IsCryPlaying(void) { return FALSE; }
 bool8 IsCryPlayingOrClearCrySongs(void) { return FALSE; }
-bool8 IsDestinationBoxFull(void) { return 0; }
 bool8 IsItemIconAnimActive(void) { return 0; }
 bool32 IsLinkRecvQueueAtOverworldMax(void) { return 0; }
 bool8 IsLinkRfuTaskFinished(void) { return 0; }
@@ -265,7 +261,6 @@ void SetControllerToSafari(void) {}
 void SetLinkStandbyCallback(void) {}
 void SetMovingMonPriority(u8 priority) {}
 void SetMovingMonSprite(u8 cursorArea, u8 cursorPos) {}
-void SetPCBoxToSendMon(u8) {}
 void SetPlacedMonSprite(u8 cursorArea, u8 cursorPos) {}
 void SetShiftMonSpritePtr(u8 boxId, u8 position) {}
 void SetWirelessCommType1(void) {}
@@ -392,11 +387,5 @@ void ClearPlayerLinkBattleRecords(void) {}
 void ResetTrainerFanClub(void) {}
 void UnionRoomChat_InitializeRegisteredTexts(void) {}
 void ResetPokemonJumpRecords(void) {}
-void ResetTMCaseCursorPos(void) {}
-void BerryPouch_CursorResetToTop(void) {}
-void ResetQuestLog(void) {}
 void NewGameInitPCItems(void) { AddPCItem(ITEM_POTION, 1); }
 void ApplyNewEncryptionKeyToBerryPowder(u32 key) { (void)key; }
-void QL_AddASLROffset(void *oldSaveBlockPtr) { (void)oldSaveBlockPtr; }
-void QuestLogSetFlagOrVar(bool8 isFlag, u16 idx, u16 value) { (void)isFlag; (void)idx; (void)value; }
-u16 GetStarterSpecies(void) { return SPECIES_BULBASAUR; }

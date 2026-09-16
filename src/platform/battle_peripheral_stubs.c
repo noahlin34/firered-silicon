@@ -174,20 +174,8 @@ void DoEasyChatScreen(u8 type, u16 *words, MainCallback callback)
     (void)callback;
 }
 
-u8 *DynamicPlaceholderTextUtil_ExpandPlaceholders(u8 *dest, const u8 *src)
-{
-    (void)dest;
-    (void)src;
-    return NULL;
-}
 
-void DynamicPlaceholderTextUtil_Reset(void) {}
 
-void DynamicPlaceholderTextUtil_SetPlaceholderPtr(u8 idx, const u8 *ptr)
-{
-    (void)idx;
-    (void)ptr;
-}
 
 /* Summary, Pokédex, item-use, and level-up animation scenes are unlinked. */
 void CreateItemIconSpriteAtMaxCloseness(u16 itemId)
@@ -299,20 +287,6 @@ bool32 IsSpeciesAllowedInPokemonJump(u16 species)
 }
 void Mailbox_ReturnToMailListAfterDeposit(void) {}
 
-void QL_FinishRecordingScene(void) {}
-bool8 QL_IsRoomToSaveAction(const void *cursor, size_t size)
-{
-    (void)cursor;
-    (void)size;
-    return FALSE;
-}
-bool8 QL_IsRoomToSaveEvent(const void *cursor, size_t size)
-{
-    (void)cursor;
-    (void)size;
-    return FALSE;
-}
-void QL_StartRecordingAction(u16 eventId) { (void)eventId; }
 bool32 ReadTrainerTowerAndValidate(void) { return FALSE; }
 void ReducePlayerPartyToThree(void) {}
 
@@ -331,7 +305,6 @@ bool8 SetUpFieldMove_SoftBoiled(void) { return FALSE; }
 bool8 SetUpFieldMove_Strength(void) { return FALSE; }
 bool8 SetUpFieldMove_SweetScent(void) { return FALSE; }
 bool8 SetUpFieldMove_Teleport(void) { return FALSE; }
-bool8 ShouldShowBoxWasFullMessage(void) { return FALSE; }
 
 void ShowPokemonSummaryScreen(struct Pokemon *party, u8 cursorPos, u8 lastIdx,
                               void (*callback)(void), u8 a4)
@@ -353,19 +326,11 @@ void ShowSelectMovePokemonSummaryScreen(struct Pokemon *party, u8 cursorPos,
     (void)a4;
 }
 
-void TV_PrintIntToStringVar(u8 varidx, s32 number)
-{
-    (void)varidx;
-    (void)number;
-}
 
 void Task_TryUseSoftboiledOnPartyMon(u8 taskId) { (void)taskId; }
 u8 TrySavingData(u8 saveType) { (void)saveType; return 0; }
 
 struct PlayerPCItemPageStruct gPlayerPcMenuManager = {0};
-u16 *gQuestLogDefeatedWildMonRecord = NULL;
-u16 *gQuestLogRecordingPointer = NULL;
-u16 gQuestLogCurActionIdx = 0;
 struct RfuGameCompatibilityData gRfuPartnerCompatibilityData = {0};
 u16 gUnionRoomOfferedSpecies = 0;
 u8 gUnionRoomRequestedMonType = 0;
