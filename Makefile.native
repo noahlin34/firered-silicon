@@ -584,14 +584,52 @@ script-ops: $(TEST_SCRIPT_OPS)
 
 TARGET_TESTS := firered-tests
 
-tests: $(TARGET_TESTS)
+# The test binary's prerequisites are computed IN THE RECIPE, not by make.
+#
+# make decides whether a target is out of date before it runs any recipe, so it
+# cannot observe "a test file was deleted" -- that is not a change to any
+# prerequisite it tracks. Two attempts to work around that with a stamp and with a
+# self-remaking include both failed intermittently, which is worse than failing
+# loudly: a deleted test sometimes stayed in the binary, and an added one
+# sometimes did not appear, because the relink raced make's own staleness check
+# (GNU Make 3.81 compares timestamps at one-second resolution).
+#
+# So this rule owns the decision: it prunes objects whose source is gone, and
+# relinks when the object set changed or any object is newer than the binary. The
+# recipe always runs; the work it does is skipped when nothing changed. Costing a
+# few milliseconds to check is the right trade for never reporting a test that is
+# not in the tree.
+TEST_OBJ_LIST := $(OBJ_DIR)/tests/.linked-objects
+
+.PHONY: FORCE
+FORCE:
+
+# The objects are built through this edge (they are not prerequisites of
+# $(TARGET_TESTS), whose recipe computes the link inputs itself).
+tests: $(TEST_OBJS) $(TARGET_TESTS)
 
 $(OBJ_DIR)/tests/%.o: tests/%.c $(TEST_SCRIPT_OPS) | $(ASSET_STAMP)
 	@mkdir -p $(dir $@)
 	$(CC) $(TEST_CFLAGS) $(DEPFLAGS) -MT $@ -c -o $@ $<
 
-$(TARGET_TESTS): $(TEST_OBJS) $(TEST_ENGINE_OBJS)
-	$(CC) $(TEST_CFLAGS) $^ -o $@
+$(TARGET_TESTS): $(TEST_ENGINE_OBJS) FORCE
+	@mkdir -p $(dir $(TEST_OBJ_LIST))
+	@for o in $(OBJ_DIR)/tests/*.o; do \
+	    [ -e "$$o" ] || continue; \
+	    case " $(TEST_OBJS) " in \
+	        *" $$o "*) ;; \
+	        *) echo "[tests] removing stale $$o"; rm -f "$$o" "$${o%.o}.d";; \
+	    esac; \
+	done
+	@printf '%s\n' $(TEST_OBJS) > $(TEST_OBJ_LIST).tmp
+	@newest=$$(ls -t $(TEST_OBJS) $(TEST_ENGINE_OBJS) 2>/dev/null | head -1); \
+	if [ ! -e $@ ] || [ -n "$$newest" ] && [ $@ -ot "$$newest" ] \
+	   || ! cmp -s $(TEST_OBJ_LIST).tmp $(TEST_OBJ_LIST); then \
+	    $(CC) $(TEST_CFLAGS) $(TEST_OBJS) $(TEST_ENGINE_OBJS) -o $@; \
+	    mv $(TEST_OBJ_LIST).tmp $(TEST_OBJ_LIST); \
+	else \
+	    rm -f $(TEST_OBJ_LIST).tmp; \
+	fi
 
 test-list: $(TARGET_TESTS)
 	@./$(TARGET_TESTS) --list
