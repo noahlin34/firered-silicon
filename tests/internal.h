@@ -39,7 +39,7 @@ extern bool gTestDone;
 extern int gFrameCount;
 
 void Test_YieldToEngine(int frames);   // test body -> engine
-void Harness_RunTest(struct OmpTest const *test, enum TestFixture fixture);
+void Harness_RunTest(struct FireRedTest const *test, enum TestFixture fixture);
 int Test_ElapsedFrames(void);
 
 // Installs the crash/abort reporting handler. Called in the child before the
