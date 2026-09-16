@@ -36,6 +36,11 @@ void Platform_DevBootNewGame(void);
 // Dev boot (--post-rival): same fresh save, but with the starter already
 // received and the first rival battle already won, standing in Oak's Lab.
 extern bool gPlatformSkipStory;
+
+/* Save-backed stub guard (src/platform/main.c). Called from AgbMain once the
+ * save blocks are live; asserts the observable consequences of stubs that were
+ * previously wrong-typed or hand-mirrored. See AGENTS.md fix #57-#59. */
+void Platform_VerifySaveBackedStubs(void);
 void Platform_DevBootApplyStoryProgress(void);
 
 // Developer panel (--dev-panel): a separate, resizable SDL2 window listing every
