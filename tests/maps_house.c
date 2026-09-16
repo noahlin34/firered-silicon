@@ -27,7 +27,7 @@ extern const u8 PalletTown_PlayersHouse_2F_EventScript_NES[];
 extern const u8 PalletTown_PlayersHouse_2F_EventScript_Sign[];
 
 // The ground floor's TV opens its own dialogue when pressed from the front.
-OMP_TEST("house/tv background event is a real script", "maps house pure", house_tv)
+FIRERED_TEST("house/tv background event is a real script", "maps house pure", house_tv)
 {
     const struct MapEvents *events = PalletTown_PlayersHouse_1F.events;
     const struct BgEvent *tv;
@@ -43,7 +43,7 @@ OMP_TEST("house/tv background event is a real script", "maps house pure", house_
 }
 
 // Upstairs: the NES and the posted notice are both interactive.
-OMP_TEST("house/nes and notice background events are real scripts", "maps house pure",
+FIRERED_TEST("house/nes and notice background events are real scripts", "maps house pure",
          house_upstairs)
 {
     const struct MapEvents *events = PalletTown_PlayersHouse_2F.events;
@@ -68,7 +68,7 @@ OMP_TEST("house/nes and notice background events are real scripts", "maps house 
 
 // The metatile flavor scripts are shared across every house in the game, so a
 // dummy here silently disables bookshelves, dressers and kitchens everywhere.
-OMP_TEST("house/metatile flavor scripts are compiled", "maps house pure", house_flavor)
+FIRERED_TEST("house/metatile flavor scripts are compiled", "maps house pure", house_flavor)
 {
     TEST_TRUE(Test_ScriptStartsWith(EventScript_Bookshelf, SCR_CMD_LOCKALL));
     TEST_TRUE(Test_ScriptStartsWith(EventScript_Cabinet, SCR_CMD_LOCKALL));
@@ -80,7 +80,7 @@ OMP_TEST("house/metatile flavor scripts are compiled", "maps house pure", house_
 // A message operand must be an index into the pointer table (fix #23). Resolving
 // to non-NULL is the cheap proof the operand is index-shaped rather than a
 // truncated address.
-OMP_TEST("house/message operands resolve through the pointer table", "maps house pure",
+FIRERED_TEST("house/message operands resolve through the pointer table", "maps house pure",
          house_message_operands)
 {
     const u8 *scripts[] = {
@@ -101,7 +101,7 @@ OMP_TEST("house/message operands resolve through the pointer table", "maps house
 // EventScript_CancelMessageBox to dismiss the box. When it was a dummy `end` the
 // signpost frame stayed drawn over the world for ~65 frames of walking
 // (AGENTS.md fix #33).
-OMP_TEST("house/walking away from a signpost dismisses its box", "maps house pure",
+FIRERED_TEST("house/walking away from a signpost dismisses its box", "maps house pure",
          house_cancel_message_box)
 {
     const u8 *s = EventScript_CancelMessageBox;
