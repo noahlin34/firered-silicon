@@ -20,7 +20,7 @@ extern const struct MapHeader CeladonCity_GameCorner;
 // GetHiddenItemAttr adds the base back. Storing the absolute id instead points
 // ~1000 flags away at an unrelated flag -- which is what a wrong implementation
 // does, and what this asserts against.
-OMP_TEST("hidden-items/packing round-trips through GetHiddenItemAttr", "hidden-items pure",
+FIRERED_TEST("hidden-items/packing round-trips through GetHiddenItemAttr", "hidden-items pure",
          hidden_item_packing)
 {
     const struct MapEvents *celadon = CeladonCity.events;
@@ -50,7 +50,7 @@ OMP_TEST("hidden-items/packing round-trips through GetHiddenItemAttr", "hidden-i
 // The Game Corner's buried coins deliberately store ITEM_NONE, which is how the
 // script selects its coin branch over the item branch. A 12-entry exception that
 // looks like a bug but is not.
-OMP_TEST("hidden-items/buried coins store ITEM_NONE on purpose", "hidden-items pure",
+FIRERED_TEST("hidden-items/buried coins store ITEM_NONE on purpose", "hidden-items pure",
          hidden_item_coins)
 {
     const struct MapEvents *corner = CeladonCity_GameCorner.events;
