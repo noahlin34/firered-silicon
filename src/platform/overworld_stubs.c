@@ -23,6 +23,23 @@
 #include "field_message_box.h"
 #include "battle_setup.h"
 #include "field_specials.h"
+#include "quest_log.h"
+#include "cable_club.h"
+#include "sound.h"
+#include "teachy_tv.h"
+#include "slot_machine.h"
+#include "mystery_event_script.h"
+#include "pokedex_screen.h"
+#include "trainer_see.h"
+#include "shop.h"
+#include "berry_pouch.h"
+#include "tm_case.h"
+#include "map_name_popup.h"
+#include "field_poison.h"
+#include "coins.h"
+#include "heal_location.h"
+#include "mail.h"
+#include "field_weather.h"
 #include "string_util.h"
 #include "palette.h"
 #include "party_menu.h"
@@ -71,9 +88,7 @@ const u8 EventScript_Cup[] = { 0x02 };
 const u8 EventScript_CurrentTooFast[] = { 0x02 };
 const u8 EventScript_DoFallWarp[] = { 0x02 };
 const u8 EventScript_EggHatch[] = { 0x02 };
-const u8 EventScript_FieldPoison[] = { 0x02 };
 const u8 EventScript_Food[] = { 0x02 };
-const u8 EventScript_HiddenItemScript[] = { 0x02 };
 const u8 EventScript_ImpressiveMachine[] = { 0x02 };
 const u8 EventScript_Indigo_HighestAuthority[] = { 0x02 };
 const u8 EventScript_Indigo_UltimateGoal[] = { 0x02 };
@@ -113,14 +128,11 @@ const u8 TrainerTower_EventScript_ShowTime[] = { 0x02 };
 /* gFieldEffectScriptPointers is now the real generated table in
  * src/data/field_effects/ptr_table.c (see tools/gen_field_effect_data.py);
  * the all-NULL stub that used to live here is deleted (fix #8). */
-const u8 gPokedexEntries[] = { 0 };
-u8 gMaxFlashLevel = 0;
 u32 gOverworldBackgroundLayerFlags = 0;
 struct Link gLink = {0};
 u16 gLinkPartnersHeldKeys[6] = {0};
 struct RfuManager gRfu = {0};
 const u8 mus_victory_gym_leader[] = {0};
-struct FieldInput gQuestLogFieldInput = {0};
 
 /* START menu entries whose scenes are not linked yet, plus the SAVE dialog's
  * flash-write path (src/save.c needs the GBA linker-script layout constants and
@@ -131,82 +143,72 @@ u16 gSaveAttemptStatus = SAVE_STATUS_ERROR;
 
 void CB2_OpenPokedexFromStartMenu(void) { printf("[Menu] POKéDEX scene is not ported\n"); }
 void CB2_ReturnToPokeStorage(void) { printf("[Menu] POKéMON storage scene is not ported\n"); }
-void SaveQuestLogData(void) {}
 void SetUsingUnionRoomStartMenu(void) {}
-void Pokedude_InitTMCase(void) {}
 void RecordItemTransaction(u16 itemId, u16 quantity, u8 logEventId) { (void)itemId; (void)quantity; (void)logEventId; }
 bool8 WriteSaveBlock2(void) { printf("[Menu] saving is not ported\n"); return FALSE; }
 bool8 WriteSaveBlock1Sector(void) { printf("[Menu] saving is not ported\n"); return FALSE; }
 void Task_LinkFullSave(u8 taskId) { (void)taskId; printf("[Menu] saving is not ported\n"); }
 
 /* Function stubs */
-void BerryPouch_SetExitCallback(void *cb) {}
-void BerryPouch_StartFadeToExitCallback(u8 taskId) {}
 bool8 CheckForTrainersWantingBattle(void) { return FALSE; }
 void ClearLinkCallback_2(void) {}
 /* src/field_specials.c: CountDigits. Declared s32 in include/field_specials.h
  * and used by linked src/scrcmd.c and src/overworld.c. */
-s32 CountDigits(s32 number)
+/* src/cable_club.c is not linked (the whole link/trade stack is out), so this
+ * returns the "no task" id the header's type promises. Signature from
+ * include/cable_club.h: u8, not void. */
+u8 CreateTask_ReestablishCableClubLink(void) { return 0; }
+/* Real body, not a stub: this is the Pokédex seen/caught bit logic. The
+ * always-0 version meant nothing was ever recorded as seen or caught, which
+ * made GetNationalPokedexCount() report an empty dex and the Repeat Ball's
+ * bonus dead. Mirrors src/pokedex_screen.c's DexScreen_GetSetPokedexFlag
+ * (which is not linked); the third parameter is the real header's
+ * `indexIsSpecies` flag, so nationalNum is already an index here. */
+s8 DexScreen_GetSetPokedexFlag(u16 nationalDexNo, u8 caseId, bool8 indexIsSpecies)
 {
-    if (number / 10 == 0)
-        return 1;
-    else if (number / 100 == 0)
-        return 2;
-    else if (number / 1000 == 0)
-        return 3;
-    else if (number / 10000 == 0)
-        return 4;
-    else if (number / 100000 == 0)
-        return 5;
-    else if (number / 1000000 == 0)
-        return 6;
-    else if (number / 10000000 == 0)
-        return 7;
-    else if (number / 100000000 == 0)
-        return 8;
-    else
-        return 1;
+    u8 index, bit, mask;
+    s8 retVal = 0;
+
+    if (indexIsSpecies)
+        nationalDexNo = SpeciesToNationalPokedexNum(nationalDexNo);
+    nationalDexNo--;
+    index = nationalDexNo / 8;
+    bit = nationalDexNo % 8;
+    mask = 1 << bit;
+
+    switch (caseId)
+    {
+    case FLAG_GET_SEEN:
+        if (gSaveBlock2Ptr->pokedex.seen[index] & mask)
+            retVal = 1;
+        break;
+    case FLAG_GET_CAUGHT:
+        if (gSaveBlock2Ptr->pokedex.owned[index] & mask)
+            retVal = 1;
+        break;
+    case FLAG_SET_SEEN:
+        gSaveBlock2Ptr->pokedex.seen[index] |= mask;
+        gSaveBlock1Ptr->seen1[index] |= mask;
+        gSaveBlock1Ptr->seen2[index] |= mask;
+        break;
+    case FLAG_SET_CAUGHT:
+        gSaveBlock2Ptr->pokedex.owned[index] |= mask;
+        break;
+    }
+    return retVal;
 }
-void CreateTask_ReestablishCableClubLink(void) {}
-s8 DexScreen_GetSetPokedexFlag(u16 nationalNum, u8 caseId) { return 0; }
-void DismissMapNamePopup(void) {}
-void DisplayItemMessageInBerryPouch(u8 taskId, u8 fontId, const u8 *str, void *cb) {}
-void DoCurrentWeather(void) {}
-void DoOutwardBarnDoorWipe(void) {}
-void DoPoisonFieldEffect(void) {}
-void FadeOutAndFadeInNewMapMusic(u16 song, u8 speed) {}
+void FadeOutAndFadeInNewMapMusic(u16 song, u8 speed, u8 unused) { (void)song; (void)speed; (void)unused; }
 void FadeOutAndPlayNewMapMusic(u16 song, u8 speed) {}
-void FieldCB_RushInjuredPokemonToCenter(void) {}
 u32 GetBerryPowder(void) { return 0; }
-u32 GetCoins(void) { return 0; }
 u16 GetCurrentMapMusic(void) { return 0; }
-u16 GetHealLocation(u8 index) { return 0; }
 /* src/field_specials.c: GetHiddenItemAttr. Called by linked
  * src/field_control_avatar.c when the player faces a hidden-item bg event, so
  * the old always-0 stub made every hidden item resolve to item 0 / flag 1000.
  * The bit layout lives in include/global.fieldmap.h. */
-u16 GetHiddenItemAttr(u32 hiddenItem, u8 attr)
-{
-    if (attr == HIDDEN_ITEM_ITEM)
-        return GET_HIDDEN_ITEM_ITEM(hiddenItem);
-    else if (attr == HIDDEN_ITEM_FLAG)
-        return GET_HIDDEN_ITEM_FLAG(hiddenItem) + FLAG_HIDDEN_ITEMS_START;
-    else if (attr == HIDDEN_ITEM_QUANTITY)
-        return GET_HIDDEN_ITEM_QUANTITY(hiddenItem);
-    else if (attr == HIDDEN_ITEM_UNDERFOOT)
-        return GET_HIDDEN_ITEM_UNDERFOOT(hiddenItem);
-    else
-        return 1;
-}
 u32 GetLinkRecvQueueLength(void) { return 0; }
-u8 GetQuestLogStartType(void) { return 0; }
-const u8 *GetSeeingLinkPlayerCardMsg(u8 id) { return NULL; }
-void IncrementBirthIslandRockStepCount(void) {}
-void IncrementResortGorgeousStepCounter(void) {}
-void InitBerryPouch(u8 type, void *cb) {}
+u32 GetSeeingLinkPlayerCardMsg(u8 id) { (void)id; return 0; }
 void InitSecondaryTilesetAnimation(void) {}
-void InitTMCase(u8 type, void *cb, bool8 a) {}
-void InitTeachyTvController(void) {}
+void InitTeachyTvController(u8 mode, void (*cb)(void)) { (void)mode; (void)cb; }
 void InitTilesetAnim_CeladonCity(void) {}
 void InitTilesetAnim_CeladonGym(void) {}
 void InitTilesetAnim_General(void) {}
@@ -218,69 +220,28 @@ bool8 IsEscalatorMoving(void) { return FALSE; }
 bool32 IsRfuRecvQueueEmpty(void) { return TRUE; }
 bool32 IsSendingKeysToLink(void) { return FALSE; }
 bool8 IsSpecialSEPlaying(void) { return FALSE; }
-void ItemUseOnFieldCB_Itemfinder(u8 taskId) {}
 void LinkRfu_FatalError(void) {}
-void MovementAction_RevealTrainer_RunTrainerSeeFuncList(struct ObjectEvent *obj, struct Sprite *sprite) {}
-void PlayCry_NormalNoDucking(u16 species, s8 pan, u8 volume, u8 priority) {}
+/* include/trainer_see.h declares one parameter. Trainer sight is not ported
+ * (src/trainer_see.c is unlinked), so this stays inert — but the signature must
+ * match, or the call in event_object_movement.c reads the wrong register. */
+void MovementAction_RevealTrainer_RunTrainerSeeFuncList(struct ObjectEvent *objectEvent)
+{
+    (void)objectEvent;
+}
+void PlayCry_NormalNoDucking(u16 species, s8 pan, s8 volume, u8 priority) { (void)species; (void)pan; (void)volume; (void)priority; }
 void PlayFanfareByFanfareNum(u8 num) {}
-void QL_AfterRecordFishActionSuccessful(void) {}
-void QL_CopySaveState(void) {}
-u8 QL_GetPlaybackState(void) { return 0; }
-void QL_HandleInput(void) {}
-void QL_InitSceneObjectsAndActions(void) {}
-void QL_RecordFieldInput(void *rec) {}
-void QL_ResetDefeatedWildMonRecord(void) {}
-void QL_ResetPartyAndPC(void) {}
-void QL_RestoreMapLayoutId(void) {}
-void QL_TryRunActions(void) {}
-void QL_TryStopSurfing(void) {}
-void QL_UpdateObject(struct Sprite *sprite) {}
-void QuestLogCallUpdatePlayerSprite(void) {}
-void *QuestLogGetFlagOrVarPtr(bool8 isFlag, u16 idx) { return NULL; }
-void QuestLogRecordNPCStep(u8 a, u8 b, u8 c, u8 d) {}
-void QuestLogRecordNPCStepWithDuration(u8 a, u8 b, u8 c, u8 d, u8 e) {}
-void QuestLogRecordPlayerAvatarGfxTransitionWithDuration(u8 a, u8 b) {}
-void QuestLogRecordPlayerStep(u8 a) {}
-void QuestLogRecordPlayerStepWithDuration(u8 a, u8 b) {}
-bool8 QuestLogScenePlaybackIsEnding(void) { return TRUE; }
-void QuestLogTryRecordPlayerAvatarGfxTransition(u8 a) {}
-void QuestLog_AdvancePlayhead_(void) {}
-void QuestLog_BackUpPalette(u16 a, u16 b) {}
-void QuestLog_CheckDepartingIndoorsMap(void) {}
-void QuestLog_CutRecording(void) {}
-void QuestLog_DrawPreviouslyOnQuestHeaderIfInPlaybackMode(void) {}
-void QuestLog_InitPalettesBackup(void) {}
-void QuestLog_OnEscalatorWarp(u8 a) {}
-void QuestLog_TryRecordDepartedLocation(void) {}
-void ReadMail(struct Mail *mail, void *cb, bool8 a) {}
-void ResetContextNpcTextColor(void) {}
-void ResetCyclingRoadChallengeData(void) {}
-void ResumePausedWeather(void) {}
 /* src/field_specials.c: RunMassageCooldownStepCounter. Daisy offers to groom a
  * mon only once VAR_MASSAGE_COOLDOWN_STEP_COUNTER reaches 500, and
  * DaisyMassageServices resets it. A no-op counter would gate her on a value
  * that never moves, so the real increment lives here (called from
  * ProcessPlayerFieldInput on every step). */
-void RunMassageCooldownStepCounter(void)
-{
-    u16 count = VarGet(VAR_MASSAGE_COOLDOWN_STEP_COUNTER);
-    if (count < 500)
-        VarSet(VAR_MASSAGE_COOLDOWN_STEP_COUNTER, count + 1);
-}
-void RunQuestLogCB(void) {}
 void SetBerryPowder(u32 *powder, u32 amount) {}
 void SetHelpContextForMap(void) {}
-void SetSavedWeatherFromCurrMapHeader(void) {}
-void SetWhiteoutRespawnWarpAndHealerNpc(struct WarpData *warp) {}
 bool8 ShouldEggHatch(void) { return FALSE; }
-void ShowMapNamePopup(bool8 a) {}
 void StartEscalator(bool8 a) {}
 void StartSendingKeysToLink(void) {}
 void StopEscalator(void) {}
 void StopMapMusic(void) {}
-void StopPokemonLeagueLightingEffectTask(void) {}
-void Task_BarnDoorWipe(u8 taskId) {}
-void Task_BerryPouch_DestroyDialogueWindowAndRefreshListMenu(u8 taskId) {}
 void TransferTilesetAnimsBuffer(void) {}
 void UpdateTilesetAnimations(void) {}
 void UseFameChecker(MainCallback savedCallback) { (void)savedCallback; }
@@ -288,44 +249,13 @@ void UseFameChecker(MainCallback savedCallback) { (void)savedCallback; }
  * src/overworld.c when resolving a whiteout, to decide whether the player's
  * last warp was a Pokémon Center (respawn there) or an ordinary map warp.
  * The old always-false stub made every whiteout respawn at the current map. */
-const u16 sPokeCenter1FMaps[] = {
-    MAP_VIRIDIAN_CITY_POKEMON_CENTER_1F,
-    MAP_PEWTER_CITY_POKEMON_CENTER_1F,
-    MAP_CERULEAN_CITY_POKEMON_CENTER_1F,
-    MAP_LAVENDER_TOWN_POKEMON_CENTER_1F,
-    MAP_VERMILION_CITY_POKEMON_CENTER_1F,
-    MAP_CELADON_CITY_POKEMON_CENTER_1F,
-    MAP_FUCHSIA_CITY_POKEMON_CENTER_1F,
-    MAP_CINNABAR_ISLAND_POKEMON_CENTER_1F,
-    MAP_INDIGO_PLATEAU_POKEMON_CENTER_1F,
-    MAP_SAFFRON_CITY_POKEMON_CENTER_1F,
-    MAP_ROUTE4_POKEMON_CENTER_1F,
-    MAP_ROUTE10_POKEMON_CENTER_1F,
-    MAP_ONE_ISLAND_POKEMON_CENTER_1F,
-    MAP_TWO_ISLAND_POKEMON_CENTER_1F,
-    MAP_THREE_ISLAND_POKEMON_CENTER_1F,
-    MAP_FOUR_ISLAND_POKEMON_CENTER_1F,
-    MAP_FIVE_ISLAND_POKEMON_CENTER_1F,
-    MAP_SEVEN_ISLAND_POKEMON_CENTER_1F,
-    MAP_SIX_ISLAND_POKEMON_CENTER_1F,
-    MAP_UNION_ROOM,
-    MAP_UNDEFINED
-};
 
-bool8 UsedPokemonCenterWarp(void)
-{
-    s32 i;
-    u16 mapno = (gLastUsedWarp.mapGroup << 8) + gLastUsedWarp.mapNum;
-
-    for (i = 0; sPokeCenter1FMaps[i] != MAP_UNDEFINED; i++)
-    {
-        if (sPokeCenter1FMaps[i] == mapno)
-            return TRUE;
-    }
-    return FALSE;
-}
-void WaitFanfare(bool8 a) {}
-void WriteFlashScanlineEffectBuffer(u8 a) {}
+/* include/sound.h returns bool8: callers use it as a gate
+ * (`if (WaitFanfare(FALSE))`), and a void body leaves that reading an
+ * undefined register. Always TRUE means "the fanfare is not blocking", which
+ * is the correct answer while M4A is unlinked — the opposite choice would
+ * park every fanfare-gated task (party-menu level-up pages, Poké Flute). */
+bool8 WaitFanfare(bool8 stop) { (void)stop; return TRUE; }
 
 /* Specials and Scrcmd Stubs */
 static u16 NativeSpecial_HealPlayerParty(void)
@@ -415,25 +345,25 @@ static u16 NativeSpecial_ChangePokemonNickname(void)
     return 0;
 }
 
-extern u8 gQuestLogState;
 // src/prof_pc.c has no header; the GBA build declares these through
 // data/specials.inc's def_special macro.
 u16 GetPokedexCount(void);
 void GetProfOaksRatingMessage(void);
 
-/* The quest log recorder is not linked. PokedexRating_EventScript_RateInPerson
+/* The quest log recorder is now linked (src/quest_log.c), so these two
+ * specials call the real functions. PokedexRating_EventScript_RateInPerson
  * opens with `goto_if_questlog EventScript_ReleaseEnd` and
- * `special QuestLog_CutRecording`, so the pair must exist and report "not
- * recording" (QL_STATE 0) to let the rating run. */
+ * `special QuestLog_CutRecording`, and the rating runs only while
+ * QL_GetPlaybackState() reports not-recording. */
 static u16 NativeSpecial_GetQuestLogState(void)
 {
-    gSpecialVar_Result = gQuestLogState;
+    gSpecialVar_Result = QL_GetPlaybackState();
     return 0;
 }
 
 static u16 NativeSpecial_QuestLog_CutRecording(void)
 {
-    gQuestLogState = 0;
+    QuestLog_CutRecording();
     return 0;
 }
 
@@ -565,6 +495,34 @@ static u16 NativeSpecial_BufferMonNickname(void)
     return 0;
 }
 
+/* field_specials.c: SetHiddenItemFlag. Sets the flag whose id the hidden-item
+ * pickup script left in VAR_0x8004, so a picked-up item cannot be collected
+ * again. Without this entry ScrCmd_special reports "special 150 is not ported"
+ * and the flag stays clear, making every hidden item infinitely re-pickable.
+ * The index (150) comes from data/specials.inc, verified with the generator's
+ * own collect_specials(), not from the order in this table. */
+void SetHiddenItemFlag(void);
+
+static u16 NativeSpecial_SetHiddenItemFlag(void)
+{
+    SetHiddenItemFlag();
+    return 0;
+}
+
+/* src/field_poison.c: TryFieldPoisonWhiteOut, index 199. EventScript_FieldPoison
+ * runs this and then tests VAR_RESULT: TRUE means a mon fainted from poison and
+ * the script continues into the whiteout, FALSE just releases the field. The
+ * real body creates the whiteout task and stops the script context (the task
+ * re-enables it), so the return value is left at 0 and the variable is what the
+ * task sets. */
+void TryFieldPoisonWhiteOut(void);
+
+static u16 NativeSpecial_TryFieldPoisonWhiteOut(void)
+{
+    TryFieldPoisonWhiteOut();
+    return 0;
+}
+
 /* src/party_menu_specials.c: ChoosePartyMon. Starts the party menu in
  * CHOOSE_SINGLE_MON mode and stops the field until the player picks a slot;
  * HandleChooseMonSelection writes the chosen index to VAR_0x8004 and
@@ -598,8 +556,10 @@ u16 (*const gSpecials[])(void) = {
     [0]   = NativeSpecial_HealPlayerParty,
     [56]  = NativeSpecial_PlayTrainerEncounterMusic,
     [124] = NativeSpecial_BufferMonNickname,
+    [150] = NativeSpecial_SetHiddenItemFlag,
     [158] = NativeSpecial_ChangePokemonNickname,
     [159] = NativeSpecial_ChoosePartyMon,
+    [199] = NativeSpecial_TryFieldPoisonWhiteOut,
     [212] = NativeSpecial_GetPokedexCount,
     [213] = NativeSpecial_GetProfOaksRatingMessage,
     [230] = NativeSpecial_GetLeadMonFriendship,
@@ -623,15 +583,9 @@ u16 (*const *gSpecialsEnd)(void) = gSpecials + ARRAY_COUNT(gSpecials);
 const u8 *const gStdScripts[] = { NULL };
 const u8 *const gStdScriptsEnd[] = { NULL };
 
-void AddCoins(u16 coins) { (void)coins; }
-void RemoveCoins(u16 coins) { (void)coins; }
-void ShowCoinsWindow(u16 x, u16 y) { (void)x; (void)y; }
-void HideCoinsWindow(void) {}
-void PrintCoinsString(u16 coins) { (void)coins; }
-void PlaySlotMachine(u8 a, void *cb) { (void)a; (void)cb; }
-void AnimateFlash(u8 a) { (void)a; }
-void CreateDecorationShop1Menu(void) {}
-void CreateDecorationShop2Menu(void) {}
+void PlaySlotMachine(u16 a, void (*cb)(void)) { (void)a; (void)cb; }
+void CreateDecorationShop1Menu(const u16 *a) { (void)a; }
+void CreateDecorationShop2Menu(const u16 *a) { (void)a; }
 void CreatePokemartMenu(const u16 *items) { (void)items; }
 void CreateScriptedWildMon(u16 species, u8 level, u16 item) { (void)species; (void)level; (void)item; }
 void FadeOutBGMTemporarily(u8 a) { (void)a; }
@@ -640,22 +594,7 @@ bool8 IsBGMPausedOrStopped(void) { return FALSE; }
  * mon (not empty, not an egg). Returning 0 unconditionally would report an
  * empty slot's friendship to Daisy's rating branch and to
  * ScrCmd_bufferleadmonspeciesname. */
-u8 GetLeadMonIndex(void)
-{
-    u8 partyCount = CalculatePlayerPartyCount();
-    u8 i;
-
-    for (i = 0; i < partyCount; i++)
-    {
-        u16 speciesOrEgg = GetMonData(&gPlayerParty[i], MON_DATA_SPECIES_OR_EGG, NULL);
-        if (speciesOrEgg != SPECIES_EGG && speciesOrEgg != SPECIES_NONE)
-            return i;
-    }
-    return 0;
-}
 void PlayCry_Script(u16 species, u8 a) { (void)species; (void)a; }
-bool8 QL_AvoidDisplay(void (*callback)(void)) { (void)callback; return FALSE; }
 u8 ScriptGiveEgg(u16 species) { (void)species; return 0; }
 void ScriptSetMonMoveSlot(u8 partyIdx, u16 move, u8 slot) { (void)partyIdx; (void)move; (void)slot; }
-void SetMysteryEventScriptStatus(u8 status) { (void)status; }
-void SetSavedWeather(u16 weather) { (void)weather; }
+void SetMysteryEventScriptStatus(u32 status) { (void)status; }
