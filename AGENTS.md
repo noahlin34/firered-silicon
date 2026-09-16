@@ -350,7 +350,7 @@ These bugs are subtle and WILL recur if new engine files are linked. Understand 
 - **Verification:** Metal and software renderers were exercised with 4 ms of simulated engine work per frame. For 300 frames, elapsed times were 5.022 s and 5.049 s respectively (target 5.023 s). Both recovered from a 500 ms stall without a catch-up burst. A real 9,300-frame engine boot completed in 155.92 s (frame-time target 155.71 s plus startup), with bedroom spawn confirmed in the capture. The standalone 120-frame PPU test also passed. Temporary timing probes were removed.
 
 ### Debugging Tips
-- **Boot tests now run at game speed:** allow roughly `N / 59.7275` seconds plus startup for `--boot-test N`; 9,300 frames take about 156 seconds. Use a timeout above that duration. `--test` renders 120 paced frames in about two seconds; its old extra `SDL_Delay(16)` was removed.
+- **Boot tests now run at game speed:** allow roughly `N / 59.7275` seconds plus startup for `--boot-test N`; 9,300 frames take about 156 seconds. Use a timeout above that duration. The assertions that used to run inside the game binary (`--test`, `TestBiosSyscalls`, `TestGbaMemory`, `TestOverworldInteractions`, `Platform_VerifySaveBackedStubs`) now live in `tests/` and run under `./firered-tests`; the `--test` mode is gone.
 - Boot test with N frames: `./firered-native --boot-test N` (saves `engine_boot_output.bmp` at frame N). The boot test auto-presses: START at frames 5–10 (skip intro fade), 30–35 (enter game from Title Screen), DOWN at 230–231 + A at 240–245 (select NEW GAME), then A at 320–325 / 360–365 / 400–405 / 520–525 / 560–565 (advance Controls Guide → Pikachu intro → Oak speech). Starting at frame 620 it also presses A for 6 frames every 90 frames. This periodic input advances Oak's dialogue, gender selection, player naming, rival naming (frames 6500–7200), farewell speech (frame 8600), hands off to `CB2_NewGame` by frame ~8900–9000, and spawns into the player's bedroom in Pallet Town (`CB2_Overworld`) by frame 9200.
 - Fast overworld iteration: `./firered-native --skip-intro --boot-test 200` reaches the bedroom (fresh save, `RED`/`GREEN`) in ~3.5 s instead of ~156 s for the 9,300-frame full boot. Byte-identical captures across runs (RNG is seeded from a host-zeroed timer).
 - Warp anywhere without walking: `./firered-native --skip-intro --dev-panel --dev-panel-keys "WAIT*60,TAB,O,A,K,S,WAIT*10,ENTER,WAIT*170"` lands in Oak's Lab (~4 s). The panel logs `[DevPanel] warp -> …` and `[DevPanel] now in …`, so a headless run proves the warp from stdout — no pixel inspection needed. `--dev-panel-keys` advances one token per frame, so build in an explicit `WAIT*N` after ENTER for the fade and map load to finish before the capture. To exercise the panel the way a user does, use the mouse/resize tokens (`CLICK:x:y`, `DBLCLICK:x:y`, `MOVE:x:y`, `WHEEL:n`, `RESIZE:w:h`) — a plain click selects, a double click warps. The capture is paired with a `state:` line (focus, rows, matches, selection, hover, filter, text fields) because a BMP cannot show whether a field is empty. Warps are refused (loudly, on the panel) while a battle is running or a non-overworld scene owns `callback1`.
@@ -358,7 +358,7 @@ These bugs are subtle and WILL recur if new engine files are linked. Understand 
 - Past-the-rival iteration: `./firered-native --post-rival --boot-test 200` reaches Oak's Lab with the starter and the first rival battle already done in ~3.5 s as well. It shares the `--skip-intro` save setup, so the two flags are ordered/interchangeable, but `--post-rival` suppresses the bedroom NES replay (UP at 60–65, A at 90–95) that `--boot-test` runs under `--skip-intro` — that interaction does not exist in the lab, and replaying it there would just be dropped input.
 - Missing-symbol workflow: `make -f Makefile.native` then extract `grep -oE '"_[A-Za-z0-9_]+"'` from linker output; find real definitions with `grep -rln "SymbolName" src/*.c`; add that file to ENGINE_SRCS (or PREPROC_SRCS if it has `INCBIN`/`_()`) and DELETE the stub version from `stubs.c`. Battle-engine symbols now come from the real sources; four stub files remain: `src/platform/battle_engine_stubs.c` keeps the non-battle scene substitutes and tripwires, `src/platform/battle_peripheral_stubs.c` holds the ~119 peripherals a wild battle never reaches (safari, Poké Dude tutorial, Teachy TV, Union Room, Easy Chat, field moves), and `src/platform/stubs.c` holds the M4A/link layer plus the save-file entry points.
 - **Auditing a stub's signature, before you trust it (fix #57).** A stub TU and the engine TU that calls it never share a header, so a wrong prototype compiles and links silently in both — the compiler cannot warn, and the linker takes whichever definition wins. The cheapest reliable check is to make the compiler arbitrate: add the corresponding `include/**.h` to each stub file and rebuild. Every disagreement becomes a hard `conflicting types` / `redefinition with a different type` error, which enumerates the whole backlog in one pass — including **wrong-typed data**, which no function-signature audit can find (`const u8 gPokedexEntries[] = { 0 }` against `const struct PokedexEntry[]` cost 48 bytes per entry, and `u8 gMaxFlashLevel = 0` against `const s32 = 4` silently disabled cave flash). When a source can be linked for real, prefer that to correcting a stub: `src/field_specials.c` alone retired 20 hand-written mirrors. Watch for two link-time traps while doing this — a source that needs `src/m4a.c` cannot link yet (its `asm("swi 0x2A")` is GBA-only), and `__stack_chk_guard` in `nm -u` output is libc, not a missing symbol.
-- `Platform_VerifySaveBackedStubs()` (`src/platform/main.c`, called from `AgbMain`) holds the assertions that need live save blocks — `gSaveBlock1Ptr`/`gSaveBlock2Ptr` are NULL until `SetSaveBlocksPointers`, so Pokédex and coin checks cannot run in the pre-engine smoke tests. Add save-backed stub checks there, not in `TestOverworldInteractions()`.
+- **Save-backed checks live in `tests/save_backed.c`** (tagged `engine fixture:bedroom`). `gSaveBlock1Ptr`/`gSaveBlock2Ptr` are NULL until `SetSaveBlocksPointers`, so Pokédex and coin checks need a booted engine — the runner's fixture supplies one and each test forks from it. Do not move these back into the game binary: they used to run from `AgbMain` on every launch.
 - **A green incremental build is not proof the tree compiles.** Header dependencies are now tracked (fix #22), but object files still do not depend on `CFLAGS` or on the source-list variables, so `make` can reuse objects that a changed Makefile should have rebuilt. Removing `string_util.c`'s preproc rule produced a clean-looking incremental build while the stale object was still in place; only `rm -rf build && make -f Makefile.native` exposed it. Verify build-system changes from scratch. A missing preproc source fails loudly (`_(x)`/`__(x)`/`INCBIN` are undefined outside the IDE/Cygwin guard in `global.h`), never silently.
 - Field-effect data regeneration: `python3 tools/gen_field_effect_data.py` rewrites `src/data/field_effects/{scripts_data.h,ptr_table.c}`. Deterministic, tracked in git, and NOT regenerated automatically — re-run it after editing `data/field_effect_scripts.s`, after adding a field-effect `.c` to `Makefile.native`, or after deleting a stub that shadowed a native. It prints the effects it left NULL and why (the native is not linked).
 - Battle data regeneration: `python3 tools/gen_battle_data.py` rewrites `src/data/battle/{battle_data,anim_data,ai_data}.h` and `ptr_table.c`. Output is deterministic (verified by hash), and the generated files ARE tracked in git, matching the `src/data/maps_data.h` convention. `Makefile.native` does not regenerate them automatically; re-run the tool after editing `data/battle_scripts_*.s` or the readers in `battle_script_commands.c`.
@@ -436,7 +436,7 @@ The dummy driver makes SDL skip window creation entirely, so nothing can appear 
 | Screenshots (`engine_boot_output.bmp`, `ppu_test_output.bmp`) | Real, not blank (240×160, 45 distinct colours on the bedroom capture); `sha256` reproducible across runs |
 | Frame pacing | Intact — 120 frames in 2.07 s wall vs the 2.009 s engine target |
 | `REG_KEYINPUT` probe injection and `--boot-test` auto-input | Unaffected — it bypasses SDL input by construction (see the headless-probe tip in §3) |
-| `TestOverworldInteractions()` / `Platform_VerifySaveBackedStubs()` | Unaffected |
+| `./firered-tests` (all suites, including the engine fixtures) | Unaffected — and it needs no SDL at all, so this variable is irrelevant to it |
 | `--dev-panel` + `--dev-panel-keys` | Still works: the panel creates its own renderer and falls back to software (1,317 destinations, panel BMP and `state:` line verified under the dummy driver) |
 | Exit codes and stdout reporting | Unaffected |
 
@@ -467,10 +467,58 @@ rm -f build/native/platform/sdl2.o && make -f Makefile.native FPS_OVERLAY=0
 
 Verified: with `FPS_OVERLAY=0` the compile line carries no `-DFPS_OVERLAY`, `nm build/native/platform/sdl2.o` reports zero `fps` symbols, and the running window shows an overlay-free bedroom; the default build shows `FPS 60`.
 
-### Run PPU standalone test (120 frames with test pattern & sprite):
+### Build and run the unit tests:
 ```bash
-./firered-native --test
+make -f Makefile.native tests     # builds ./firered-tests
+./firered-tests                   # run all
+./firered-tests --list            # names, tags and fixture cost
+./firered-tests --filter npc      # name or tag substring, repeatable
+./firered-tests --explain         # print observations, never fail (probe mode)
+./firered-tests --timeout 5       # per-test hang timeout, seconds
+./firered-tests --selftest        # boot the engine through the harness and stop
 ```
+
+`firered-tests` links the **same engine objects** as the game, minus three SDL-facing translation units (`src/platform/{sdl2,dev_panel,main}.c`) which the harness replaces. There is no SDL in the test binary at all: no window, no renderer, no `SDL_VIDEODRIVER=dummy` needed. Excluding `sdl2.o` also removes the display clock, so tests run the engine as fast as the CPU allows rather than pacing to 59.7275 Hz — a fixture boot takes ~0.4 s instead of ~3.5 s.
+
+Nothing in `src/` is test-specific and nothing in `src/` includes the harness. The seam is `Platform_RenderAndPresent`, which the engine already calls exactly once per frame; the harness's implementation is the frame tick that hands control back to the test body (`tests/frame.c`).
+
+Isolation is one process per test: the runner forks per test, the child boots its fixture and runs exactly one test. A crash (this port has had several — the door-animation SEGV, the trainer-card SEGV, the BAG list-menu segfault) is attributed to the one test that caused it and the run continues; a hang is caught by `alarm()`; engine state never leaks between tests.
+
+### Writing a test
+Add a `.c` file under `tests/`; there is no list to edit — tests self-register into a Mach-O section and the runner walks it.
+
+```c
+#include "registry.h"
+#include "script_ops.h"          // named script opcodes (generated)
+
+OMP_TEST("daisy/gives the town map after the parcel", "engine fixture:lab npc:daisy",
+         daisy_town_map)
+{
+    Test_RequireFixture(FIXTURE_OAKS_LAB);
+    Test_WarpTo(MAP_GROUP(MAP_PALLET_TOWN_RIVALS_HOUSE),
+                MAP_NUM(MAP_PALLET_TOWN_RIVALS_HOUSE), 2, 6);
+    Test_RunFramesToWarp();
+
+    Test_PressUntilIdle(A_BUTTON, 1200);
+
+    TEST_STR_EQ(Test_StringVar4(), "RED received a TOWN MAP from DAISY.");
+    TEST_TRUE(Test_HasItem(ITEM_TOWN_MAP, 1));
+    TEST_EQ(Test_Var(VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE), 2);
+}
+```
+
+Tags select the fixture and the cost: `fixture:bedroom` / `fixture:lab` make the runner boot an engine fixture before the body runs (`engine` marks a test that needs it), and a test with no fixture tag runs as a pure function in milliseconds. `slow` marks a test excluded from the default run.
+
+### What to assert
+Assert **observable behaviour**, not implementation. The API is deliberately the engine's own: `Test_Var`/`Test_Flag`/`Test_HasItem`/`Test_LastTalked`/`Test_FieldLocked`/`Test_MapGroup`/`Test_PlayerX` read live engine state through the real headers, and `Test_StringVar4()` decodes dialogue from `charmap.txt` so a failure prints `"RED received a TOWN MAP from DAISY."` rather than a hex diff. `Test_ScriptStartsWith(script, SCR_CMD_LOCK)` and `Test_ScriptPtrAt` say what a script *does*; asserting raw operand bytes breaks on legitimate generator changes and trains people to re-pin numbers instead of reading the failure.
+
+Rendering is available on demand for behaviour that exists only as pixels (`Test_RenderFrame()` then `Test_DistinctColors`/`Test_RegionDiffers` into the harness's own buffer), but engine state is almost always the better thing to assert. Prefer differential checks — capture with the effect, capture without, diff the region — over golden pixel hashes: fixes #51 and #52 each changed legitimate compositor output, and a golden hash would have failed for the right reason and been regenerated away.
+
+### A test doubles as a probe
+`--explain` prints what each assertion observed and never fails, so the same file serves as the reproduction while investigating a bug and as the regression test once it is fixed. This replaces the old "temporary probe in `src/platform/main.c`, deleted afterwards" workflow: write it once, keep it. Per the repo's own policy a bug fix SHOULD leave the reproduction behind as a regression test that fails pre-fix and passes post-fix.
+
+### Regenerating test inputs
+`tests/script_ops.h` (named opcodes) is generated: `python3 tools/gen_script_ops.py`, or `make -f Makefile.native script-ops`. It reads the engine's dispatch table (`src/data/script_cmd_table.h`), whose entry order *is* the opcode numbering, and the build regenerates it when that table changes. Like `src/data/maps_data.h` and `src/data/battle/*.h`, the output is tracked in git.
 
 ### Run Engine boot test (60 frames through AgbMain):
 ```bash
