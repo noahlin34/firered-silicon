@@ -190,6 +190,11 @@ void AgbMain()
     if (gPlatformSkipIntro)
         Platform_DevBootNewGame(); // --skip-intro: fresh save, straight into the bedroom
 #endif
+#ifdef PORTABLE
+    // The smoke tests run before the save exists; these need it
+    // (gSaveBlock1Ptr/gSaveBlock2Ptr are NULL until SetSaveBlocksPointers).
+    Platform_VerifySaveBackedStubs();
+#endif
 
     for (;;)
     {
