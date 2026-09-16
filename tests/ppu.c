@@ -107,7 +107,7 @@ static void SetupTestScene(void)
 // A Mode 0 text background composites its tilemap: the checkerboard means the
 // rendered frame must contain more than one colour, and the sprite region must
 // differ from what the background alone would draw there.
-OMP_TEST("ppu/mode 0 background composites", "ppu pure", ppu_mode0_background)
+FIRERED_TEST("ppu/mode 0 background composites", "ppu pure", ppu_mode0_background)
 {
     SetupTestScene();
     Test_RenderFrame();
@@ -118,7 +118,7 @@ OMP_TEST("ppu/mode 0 background composites", "ppu pure", ppu_mode0_background)
 
 // Scrolling must move what is drawn: the same scene at two scroll offsets cannot
 // produce identical frames.
-OMP_TEST("ppu/background scroll changes the rendered frame", "ppu pure", ppu_bg_scroll)
+FIRERED_TEST("ppu/background scroll changes the rendered frame", "ppu pure", ppu_bg_scroll)
 {
     u16 baseline[240 * 160];
     int differed;
@@ -138,7 +138,7 @@ OMP_TEST("ppu/background scroll changes the rendered frame", "ppu pure", ppu_bg_
 // An OAM sprite must be drawn where its OAM entry says. Moving the sprite's
 // coordinates must move the drawn pixels -- asserted differentially so the test
 // does not pin exact colours.
-OMP_TEST("ppu/sprite draws at its oam coordinates", "ppu pure", ppu_sprite_position)
+FIRERED_TEST("ppu/sprite draws at its oam coordinates", "ppu pure", ppu_sprite_position)
 {
     u16 withoutSprite[240 * 160];
     struct OamData *oam = (struct OamData *)OAM_;
@@ -175,7 +175,7 @@ OMP_TEST("ppu/sprite draws at its oam coordinates", "ppu pure", ppu_sprite_posit
 // register further through the I/O block -- clobbering WIN0H/WIN0V/BLDCNT/BLDY
 // and tearing the battle transitions (AGENTS.md fix #52). Consecutive
 // destinations make that walk observable.
-OMP_TEST("ppu/hblank dma writes one register every scanline", "ppu pure", ppu_hblank_dma)
+FIRERED_TEST("ppu/hblank dma writes one register every scanline", "ppu pure", ppu_hblank_dma)
 {
     static const u16 src[] = { 0x1111, 0x2222, 0x3333, 0x4444 };
     volatile u16 dest[4] = { 0, 0, 0, 0 };
