@@ -46,6 +46,7 @@ static const struct FireRedTest *sCurrentTest;
 static enum TestFixture sFixture;
 static bool sArmTest;          // hand control to the test once the fixture is live
 static bool sFixtureReady;
+static bool sEngineRunning;   // set only while Harness_RunTest drives AgbMain
 static int sWantFrame = INT_MAX;
 static int sFixtureStartFrame;
 
@@ -125,6 +126,18 @@ static void Test_Trampoline(void)
 // The test's yield point: hand the engine `frames` frames, then resume here.
 void Test_YieldToEngine(int frames)
 {
+    // A test that drives the engine but was not tagged `engine` never gets here:
+    // the runner would not have booted anything, and swapping to a context that
+    // is not running would either hang or corrupt the stack. This is a loud stop
+    // rather than a mystery timeout -- forgetting the tag is an easy mistake and
+    // the symptom would otherwise be inexplicable.
+    if (!sEngineRunning)
+    {
+        TEST_FAIL("this test drives the engine but lacks the `engine` tag "
+                  "(add it, e.g. \"engine fixture:bedroom\")");
+        return;
+    }
+
     if (frames < 1)
         frames = 1;
     sWantFrame = gFrameCount + frames;
@@ -175,6 +188,7 @@ void Harness_RunTest(const struct FireRedTest *test, enum TestFixture fixture)
     gTestDone = false;
     sFixtureReady = false;
     sArmTest = true;
+    sEngineRunning = true;
     sWantFrame = INT_MAX;
 
     // The fixture is the existing dev boot, reused rather than reinvented: it
