@@ -24,6 +24,39 @@ NATIVE_SCRIPT_ROOTS = {
     # START menu / BAG: registering an item to SELECT runs this message script
     # from src/item_menu.c. Without it the registration path jumps into a NULL.
     "EventScript_BagItemCanBeRegistered",
+    # Whiteout recovery: src/field_screen_effect.c's Task_WhiteOut picks one of
+    # these by whether the player's last heal spot was their own house, so the
+    # "scurried to the Center" scene is a real script rather than a missing one.
+    "EventScript_AfterWhiteOutHeal",
+    "EventScript_AfterWhiteOutMomHeal",
+    # Route 11 East Entrance 2F: the aide here hands over the ITEMFINDER (the
+    # Dowsing Machine) once 30 species are caught. Without this map's scripts the
+    # item is unobtainable in the port and the six "underfoot" hidden items are
+    # unreachable no matter that the dig-up path itself works.
+    "Route11_EastEntrance_2F_MapScripts",
+    "Route11_EastEntrance_2F_EventScript_Aide",
+    "Route11_EastEntrance_2F_EventScript_AlreadyGotItemfinder",
+    "Route11_EastEntrance_2F_EventScript_GetAideRequestInfo",
+    "Route11_EastEntrance_2F_EventScript_Turner",
+    "Route11_EastEntrance_2F_EventScript_LeftBinoculars",
+    "Route11_EastEntrance_2F_EventScript_LeftBinocularsSnorlaxGone",
+    "Route11_EastEntrance_2F_EventScript_RightBinoculars",
+    "Route11_EastEntrance_2F_EventScript_DeclineTrade",
+    "Route11_EastEntrance_2F_EventScript_NotRequestedMon",
+    "Route11_EastEntrance_2F_EventScript_AlreadyTraded",
+    # Itemfinder: ItemUseOnFieldCB_Itemfinder jumps into this when the player
+    # uses the Dowsing Machine. It is the only way the six "underfoot" hidden
+    # items can be collected (GetInteractedBackgroundEventScript returns NULL
+    # for them by design).
+    "EventScript_ItemfinderDigUpUnderfootItem",
+    # Field poison: UpdatePoisonStepCounter -> ScrCmd -> this script when a
+    # poisoned party mon faints from poison on a step. The dummy `end` stub left
+    # the resulting whiteout with nothing to run.
+    "EventScript_FieldPoison",
+    # Hidden items: FieldInput_HandleHiddenItem sets this up when the player
+    # faces a BG_EVENT_HIDDEN_ITEM bg event (item/flag/quantity came in through
+    # VAR_0x8004/5/6). The dummy `end` stub left the pickup inert.
+    "EventScript_HiddenItemScript",
     # Pallet Town exterior: A-press interactions (the two wandering NPCs and
     # every sign) and Oak's northern exit interception triggers.
     "PalletTown_EventScript_FatMan",
@@ -738,6 +771,14 @@ class ScriptRegistry:
                     output.append(0x35)
                 elif command == "textcolor" and len(args) == 1:
                     output += [0xc7, self.resolve(args[0])]
+                elif command == "dofieldeffect" and len(args) == 1:
+                    # ScrCmd_dofieldeffect (index 156): VarGet(effectId), then
+                    # FieldEffectStart. Index verified against
+                    # src/data/script_cmd_table.h, not guessed from pret's order.
+                    output += [0x9c] + little_endian(self.resolve(args[0]), 2)
+                elif command == "waitfieldeffect" and len(args) == 1:
+                    # ScrCmd_waitfieldeffect (index 158) + SetupNativeScript.
+                    output += [0x9e] + little_endian(self.resolve(args[0]), 2)
                 elif command == "copyvar" and len(args) == 2:
                     output += [0x19] + little_endian(self.resolve(args[0]), 2) + little_endian(self.resolve(args[1]), 2)
                 elif command == "waitstate" and not args:
@@ -809,11 +850,34 @@ class ScriptRegistry:
                 elif command == "checkitemspace" and len(args) in (1, 2):
                     quantity = self.resolve(args[1]) if len(args) == 2 else 1
                     output += [0x46] + little_endian(self.resolve(args[0]), 2) + little_endian(quantity, 2)
+                elif command == "checkcoins" and len(args) == 1:
+                    # ScrCmd_checkcoins (index 179): *GetVarPointer(arg) = GetCoins().
+                    output += [0xb3] + little_endian(self.resolve(args[0]), 2)
+                elif command == "checkmoney" and len(args) in (1, 2):
+                    # ScrCmd_checkmoney (index 146, 0x92) reads a WORD amount and
+                    # a BYTE "ignore", which is why it is not a halfword command
+                    # like the rest: gSpecialVar_Result = IsEnoughMoney(...).
+                    ignore = 1 if (len(args) == 2 and args[1] in ("TRUE", "1")) else 0
+                    output += [0x92] + little_endian(self.resolve(args[0]), 4) + [ignore]
+                elif command == "addcoins" and len(args) == 1:
+                    # ScrCmd_addcoins (index 180): VarGet(arg) coins added; the
+                    # script reads gSpecialVar_Result as "failed".
+                    output += [0xb4] + little_endian(self.resolve(args[0]), 2)
+                elif command == "removecoins" and len(args) == 1:
+                    output += [0xb5] + little_endian(self.resolve(args[0]), 2)
                 elif command == "bufferitemname" and len(args) == 2:
                     string_vars = {"STR_VAR_1": 0, "STR_VAR_2": 1, "STR_VAR_3": 2}
                     if args[0] not in string_vars:
                         raise UnsupportedScript(f"string var {args[0]} is not supported")
                     output += [0x80, string_vars[args[0]]] + little_endian(self.resolve(args[1]), 2)
+                elif command == "bufferstdstring" and len(args) == 2:
+                    # ScrCmd_bufferstdstring (index 132): one byte of string-var
+                    # index, then a VarGet'd index into gStdStringPtrs
+                    # (src/script_menu.c, linked). STR_VAR_1/2/3 = 0/1/2.
+                    string_vars = {"STR_VAR_1": 0, "STR_VAR_2": 1, "STR_VAR_3": 2}
+                    if args[0] not in string_vars:
+                        raise UnsupportedScript(f"string var {args[0]} is not supported")
+                    output += [0x84, string_vars[args[0]]] + little_endian(self.resolve(args[1]), 2)
                 elif command == "setmetatile" and len(args) == 4:
                     output += [0xa2] + little_endian(self.resolve(args[0]), 2) + little_endian(self.resolve(args[1]), 2)
                     output += little_endian(self.resolve(args[2]), 2) + little_endian(self.resolve(args[3]), 2)
@@ -874,6 +938,13 @@ class ScriptRegistry:
                 elif command == "additem" and len(args) in (1, 2):
                     quantity = self.resolve(args[1]) if len(args) == 2 else 1
                     output += [0x44] + little_endian(self.resolve(args[0]), 2) + little_endian(quantity, 2)
+                elif command == "waitse" and not args:
+                    # ScrCmd_waitse (index 48): SetupNativeScript(WaitForSoundEffectFinish).
+                    output.append(0x30)
+                elif command == "checkitemtype" and len(args) == 1:
+                    # ScrCmd_checkitemtype (index 72): VarGet(itemId) into
+                    # gSpecialVar_Result, via GetPocketByItemId.
+                    output += [0x48] + little_endian(self.resolve(args[0]), 2)
                 elif command == "removeitem" and len(args) in (1, 2):
                     quantity = self.resolve(args[1]) if len(args) == 2 else 1
                     output += [0x45] + little_endian(self.resolve(args[0]), 2) + little_endian(quantity, 2)
@@ -1346,8 +1417,24 @@ def main():
                     f.write(f"        .x = {bg.get('x', 0)},\n")
                     f.write(f"        .y = {bg.get('y', 0)},\n")
                     f.write(f"        .elevation = {bg.get('elevation', 0)},\n")
-                    f.write(f"        .kind = {bg.get('player_facing_dir', '0')},\n")
-                    f.write(f"        .bgUnion = {{ .script = {event_script(bg)} }},\n")
+                    if bg.get("type") == "hidden_item":
+                        # Mirrors pret's bg_hidden_item_event macro
+                        # (asm/macros/map.inc): kind is BG_EVENT_HIDDEN_ITEM and
+                        # bgUnion.hiddenItem packs item (16 bits), flag INDEX
+                        # (8 bits, relative to FLAG_HIDDEN_ITEMS_START, not the
+                        # absolute flag id), quantity (7 bits) and underfoot
+                        # (1 bit). ScrCmd/GetHiddenItemAttr read it back through
+                        # the GET_HIDDEN_ITEM_* shifts in global.fieldmap.h.
+                        flag_index = constants[bg["flag"]] - constants["FLAG_HIDDEN_ITEMS_START"]
+                        underfoot = 1 if bg.get("underfoot") else 0
+                        packed = (constants[bg["item"]]
+                                  | (flag_index << 16)
+                                  | ((bg.get("quantity", 1) | (underfoot << 7)) << 24))
+                        f.write("        .kind = BG_EVENT_HIDDEN_ITEM,\n")
+                        f.write(f"        .bgUnion = {{ .hiddenItem = {packed} }},\n")
+                    else:
+                        f.write(f"        .kind = {bg.get('player_facing_dir', '0')},\n")
+                        f.write(f"        .bgUnion = {{ .script = {event_script(bg)} }},\n")
                     f.write("    },\n")
                 f.write("};\n\n")
 
