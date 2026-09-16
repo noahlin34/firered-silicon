@@ -382,7 +382,7 @@ TARGET := firered-native
 # ordering edge from the stamp, and `assets` stays a manual entry point.
 all: $(TARGET)
 
-.PHONY: all clean run assets battle-scripts tools generated-headers tests test-list script-ops
+.PHONY: all clean run assets battle-scripts tools generated-headers tests clean-tests test-list script-ops
 
 # Battle script bytecode + the shared native pointer table. Regenerate whenever
 # the pret script sources, their macros, or the C readers they are classified
@@ -607,6 +607,22 @@ FORCE:
 # The objects are built through this edge (they are not prerequisites of
 # $(TARGET_TESTS), whose recipe computes the link inputs itself).
 tests: $(TEST_OBJS) $(TARGET_TESTS)
+
+# Rebuild the engine objects from scratch, then the tests.
+#
+# Needed because GNU Make 3.81 (the system make on macOS, and there is no newer
+# one unless Homebrew's gmake is installed) compares mtimes at ONE-SECOND
+# granularity. So an object rebuilt in the same second as its source was last
+# written is considered up to date even when the source is newer, which makes a
+# source edit invisible. That is not hypothetical: a `cp` restore of a source
+# file (mtime = the copy) onto an object built moments earlier reproduces it
+# exactly, and `touch`ing the file does NOT fix it when the touch lands in the
+# same second. Deleting the objects always does.
+#
+# Use this after mutating a source to prove a test fails and then restoring it.
+clean-tests: 
+	@for o in $(TEST_ENGINE_OBJS) $(TEST_OBJS); do rm -f "$$o" "$${o%.o}.d"; done
+	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) tests
 
 $(OBJ_DIR)/tests/%.o: tests/%.c $(TEST_SCRIPT_OPS) | $(ASSET_STAMP)
 	@mkdir -p $(dir $@)
