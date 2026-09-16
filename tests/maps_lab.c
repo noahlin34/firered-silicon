@@ -35,7 +35,7 @@ extern const u8 PalletTown_ProfessorOaksLab_ChooseStarterScene[];
 // Every reachable A-press target must point at its real script. A NULL or dummy
 // here is an interaction that silently does nothing -- the failure mode that made
 // the whole lab inert before.
-OMP_TEST("lab/object events point at their real scripts", "maps lab pure", lab_object_events)
+FIRERED_TEST("lab/object events point at their real scripts", "maps lab pure", lab_object_events)
 {
     const struct MapEvents *events = PalletTown_ProfessorOaksLab.events;
     const u8 *const expected[] = {
@@ -68,7 +68,7 @@ OMP_TEST("lab/object events point at their real scripts", "maps lab pure", lab_o
 // NPCs lock the field before talking (an A-press that does not lock lets the
 // player walk away mid-dialogue); the starter balls do too, since they open a
 // yes/no box.
-OMP_TEST("lab/npc and ball scripts lock the field first", "maps lab pure", lab_scripts_lock)
+FIRERED_TEST("lab/npc and ball scripts lock the field first", "maps lab pure", lab_scripts_lock)
 {
     const struct MapEvents *events = PalletTown_ProfessorOaksLab.events;
 
@@ -84,7 +84,7 @@ OMP_TEST("lab/npc and ball scripts lock the field first", "maps lab pure", lab_s
 }
 
 // The four background events (two computer terminals, two signs) all lock first.
-OMP_TEST("lab/background events point at their real scripts", "maps lab pure", lab_bg_events)
+FIRERED_TEST("lab/background events point at their real scripts", "maps lab pure", lab_bg_events)
 {
     const struct MapEvents *events = PalletTown_ProfessorOaksLab.events;
     const u8 *const expected[] = {
@@ -112,7 +112,7 @@ OMP_TEST("lab/background events point at their real scripts", "maps lab pure", l
 // generator emits the text label as a raw pointer the relocation is unaligned and
 // the link fails; if it emits the wrong index the box prints garbage. Resolving
 // to a non-NULL script here is the cheap check that the operand is index-shaped.
-OMP_TEST("lab/npc message operands resolve through the pointer table", "maps lab pure",
+FIRERED_TEST("lab/npc message operands resolve through the pointer table", "maps lab pure",
          lab_message_operand)
 {
     const u8 *aide = PalletTown_ProfessorOaksLab_EventScript_Aide1;
@@ -126,7 +126,7 @@ OMP_TEST("lab/npc message operands resolve through the pointer table", "maps lab
 // ON_WARP_INTO_MAP_TABLE positions the player, and ON_FRAME_TABLE runs
 // ChooseStarterScene once the scene var is 1. Without the header the lab loads
 // as a room where the starter scene never starts.
-OMP_TEST("lab/map-script header runs the starter scene", "maps lab pure", lab_map_scripts)
+FIRERED_TEST("lab/map-script header runs the starter scene", "maps lab pure", lab_map_scripts)
 {
     const u8 *scripts = PalletTown_ProfessorOaksLab.mapScripts;
     const u8 *onFrameTable;
