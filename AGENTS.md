@@ -365,9 +365,9 @@ These bugs are subtle and WILL recur if new engine files are linked. Understand 
 - Map data regeneration: `python3 tools/gen_map_data.py` rewrites `src/data/{maps_data.h,layouts_data.h}` (both tracked). Not regenerated automatically — re-run it after adding a script label to `NATIVE_SCRIPT_ROOTS`, after editing any `data/maps/*/scripts.inc`, or after teaching the compiler a new script command. A scene whose closure fails to compile is reported on stderr as `gen_map_data: <label> left stubbed: <reason>` and keeps its `sDummyScript` fallback, so a silent no-op interaction means "run the generator and read stderr", not "the generator was never run".
 - Driving a scripted battle: message boxes and many controller states wait on `JOY_NEW(A_BUTTON|B_BUTTON)`, which needs a fresh press *edge*. A held key never satisfies it - inject a press/release cadence (e.g. 4 frames on, 4 off) through `REG_KEYINPUT` in `WaitForVBlank`.
 - A `SIGSEGV`/`SIGBUS` backtrace handler is installed in `src/platform/main.c` (`CrashHandler`) — crashes print a symbolized stack trace.
-- **Headless probes: write `REG_KEYINPUT` after `Platform_UpdateInput()`, before `ReadKeys()`.** The loop is `ReadKeys()` … `WaitForVBlank()`, and `Platform_UpdateInput()` (called from `WaitForVBlank`) overwrites the register with the real SDL state every frame. A probe writing it from inside `WaitForVBlank` is one frame late and immediately clobbered — the log shows the intended key while `gMain.heldKeys` stays 0 and the player never moves. Confirm with `gMain.heldKeys`, not `REG_KEYINPUT`.
-- **The `--skip-intro` NES interaction leaves the field locked.** Frames 60–95 hold UP then A to replay the bedroom NES; that opens a dialogue script with `LockPlayerFieldControls()` and nothing dismisses it headless, so the rest of the run reports `locked=1`, `moving=0` and takes no steps. A movement probe on the dev save must warp before frame 60 or call `ScriptContext_Enable()` + `UnlockPlayerFieldControls()`. Warping or teleporting *onto* a wild-encounter tile also locks the field via `CheckStandardWildEncounter()`; start on a clear tile beside the grass and step in.
-- **Verifying a field-effect probe:** `FieldEffectActiveListContains(FLDEFF_X)` is the precise check for "the effect started", and it is short-lived (the tall-grass rustle self-stops after its animation). Compare OBJ VRAM against the source asset to prove the graphics loaded, and diff a capture with the effect against one without to prove it renders — the tall-grass rustle showed up as an exact 16px-wide pixel span.
+- **Input ordering (only relevant if you hand-roll input):** the loop is `ReadKeys()` … `WaitForVBlank()`, and `Platform_UpdateInput()` (called from `WaitForVBlank`) overwrites `REG_KEYINPUT` with the real SDL state every frame, so writing the register from inside `WaitForVBlank` by hand is one frame late and immediately clobbered. The harness already does this correctly (`tests/input.c`); use `Test_Press`/`Test_Hold` rather than writing `REG_KEYINPUT` yourself. If you ever do write it by hand, confirm with `gMain.heldKeys`, not `REG_KEYINPUT`.
+- **The `--skip-intro` NES interaction leaves the field locked (game binary only).** Frames 60–95 hold UP then A to replay the bedroom NES, which opens a dialogue script with `LockPlayerFieldControls()` and nothing dismisses it headless — so a *`--boot-test` run* reports `locked=1`, `moving=0` and takes no steps for the rest of the run. This does not affect `firered-tests`: `gEngineMaxFrames` is 0 there, so that scripted input is never injected and the fixture starts idle. When writing a test, note that warping *onto* a wild-encounter tile locks the field via `CheckStandardWildEncounter()` — start on a clear tile beside the grass and step in.
+- **Verifying a field effect:** `FieldEffectActiveListContains(FLDEFF_X)` is the precise check for "the effect started", and it is short-lived (the tall-grass rustle self-stops after its animation), so assert it in the frame window while it is alive. Compare OBJ VRAM against the source asset to prove the graphics loaded, and diff a capture with the effect against one without (`Test_RenderFrame()` + `Test_RegionDiffers`) to prove it renders — the tall-grass rustle showed up as an exact 16px-wide pixel span. `tests/field_effects.c` pins the script table; the pixel half belongs in a test too, not a probe.
 - `compile_flags.txt` at repo root configures clangd with `-DPORTABLE -DMODERN=1 -DFIRERED`; keep it in sync with `Makefile.native` CFLAGS.
 ---
 
@@ -435,7 +435,7 @@ The dummy driver makes SDL skip window creation entirely, so nothing can appear 
 |---|---|
 | Screenshots (`engine_boot_output.bmp`, `ppu_test_output.bmp`) | Real, not blank (240×160, 45 distinct colours on the bedroom capture); `sha256` reproducible across runs |
 | Frame pacing | Intact — 120 frames in 2.07 s wall vs the 2.009 s engine target |
-| `REG_KEYINPUT` probe injection and `--boot-test` auto-input | Unaffected — it bypasses SDL input by construction (see the headless-probe tip in §3) |
+| `REG_KEYINPUT` injection (`--boot-test` auto-input, and the harness's `Test_Press`) | Unaffected — it bypasses SDL input by construction |
 | `./firered-tests` (all suites, including the engine fixtures) | Unaffected — and it needs no SDL at all, so this variable is irrelevant to it |
 | `--dev-panel` + `--dev-panel-keys` | Still works: the panel creates its own renderer and falls back to software (1,317 destinations, panel BMP and `state:` line verified under the dummy driver) |
 | Exit codes and stdout reporting | Unaffected |
@@ -474,7 +474,8 @@ make -f Makefile.native tests     # builds ./firered-tests
 ./firered-tests --list            # names, tags and fixture cost
 ./firered-tests --filter npc      # name or tag substring, repeatable
 ./firered-tests --explain         # print observations, never fail (probe mode)
-./firered-tests --timeout 5       # per-test hang timeout, seconds
+./firered-tests --slow            # also run tests tagged `slow`
+./firered-tests --timeout 5       # per-test hang timeout, seconds (default 30)
 ./firered-tests --selftest        # boot the engine through the harness and stop
 ```
 
@@ -485,37 +486,139 @@ Nothing in `src/` is test-specific and nothing in `src/` includes the harness. T
 Isolation is one process per test: the runner forks per test, the child boots its fixture and runs exactly one test. A crash (this port has had several — the door-animation SEGV, the trainer-card SEGV, the BAG list-menu segfault) is attributed to the one test that caused it and the run continues; a hang is caught by `alarm()`; engine state never leaks between tests.
 
 ### Writing a test
-Add a `.c` file under `tests/`; there is no list to edit — tests self-register into a Mach-O section and the runner walks it.
+No list to edit: add a `.c` file under `tests/`, write a function with
+`FIRERED_TEST(...)` on it, and it registers itself. The build finds the file and
+the runner finds the test inside the binary (self-registration into a Mach-O
+section, `tests/registry.h`).
+
+The three arguments are the **name** (what `--filter` matches and what output
+shows; prefix it with the area, e.g. `daisy/...`), the **tags** (see below), and
+a **unique C function name**:
 
 ```c
 #include "registry.h"
-#include "script_ops.h"          // named script opcodes (generated)
 
-FIRERED_TEST("daisy/gives the town map after the parcel", "engine fixture:lab npc:daisy",
-         daisy_town_map)
+FIRERED_TEST("bios/div", "bios pure", bios_div)
 {
-    Test_RequireFixture(FIXTURE_OAKS_LAB);
-    Test_WarpTo(MAP_GROUP(MAP_PALLET_TOWN_RIVALS_HOUSE),
-                MAP_NUM(MAP_PALLET_TOWN_RIVALS_HOUSE), 2, 6);
-    Test_RunFramesToWarp();
-
-    Test_PressUntilIdle(A_BUTTON, 1200);
-
-    TEST_STR_EQ(Test_StringVar4(), "RED received a TOWN MAP from DAISY.");
-    TEST_TRUE(Test_HasItem(ITEM_TOWN_MAP, 1));
-    TEST_EQ(Test_Var(VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE), 2);
+    TEST_EQ(Div(100, 5), 20);
+    TEST_EQ(Div(123, 0), 0);   // divide-by-zero is defined as 0, not a trap
 }
 ```
 
-Tags select the fixture and the cost: `fixture:bedroom` / `fixture:lab` make the runner boot an engine fixture before the body runs (`engine` marks a test that needs it), and a test with no fixture tag runs as a pure function in milliseconds. `slow` marks a test excluded from the default run.
+**Tags decide whether the engine is booted before the body runs:**
+
+| Tag | Meaning |
+|---|---|
+| *(none)* | Pure test: no boot, reads static data or calls a function directly. Runs in microseconds. |
+| `engine` | Boot the game before this test. **Required** for anything that touches live engine state. |
+| `fixture:bedroom` | Boot into the player's bedroom on a fresh save (`--skip-intro`). |
+| `fixture:lab` | Boot into Oak's Lab with the starter received and the first rival battle won (`--post-rival`). |
+| `slow` | Excluded from the default run; include with `--slow`. For a test that must drive a whole flow. |
+
+A test that calls `Test_RunFrames`/`Test_WarpTo`/`Test_Press*` **must** carry
+`engine` (and a `fixture:`). Forgetting it fails loudly with that message rather
+than passing silently against an engine that was never started.
+
+An engine test reads as straight-line code, because the harness gives control
+back to the test body between frames:
+
+```c
+FIRERED_TEST("daisy/gives the town map after the parcel", "engine fixture:lab npc:daisy",
+             daisy_town_map)
+{
+    // The gift branch is gated on the parcel having been delivered, which the lab
+    // fixture does not arrange: write the precondition the way a real playthrough
+    // leaves it, then test only the interaction.
+    Test_SetVar(VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 1);
+
+    Test_WarpTo(MAP_GROUP(MAP_PALLET_TOWN_RIVALS_HOUSE),
+                MAP_NUM(MAP_PALLET_TOWN_RIVALS_HOUSE), 5, 5);
+    Test_RunFramesToWarp();
+
+    Test_Press(DPAD_UP);              // turn to face Daisy
+    Test_RunFrames(3);
+    Test_PressUntilIdle(A_BUTTON, 900);
+
+    TEST_TRUE(Test_HasItem(ITEM_TOWN_MAP, 1));
+    TEST_EQ(Test_Var(VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE), 2);
+    TEST_EQ(Test_Flag(FLAG_HIDE_TOWN_MAP), TRUE);
+}
+```
+
+**The vocabulary** (all declared in `tests/registry.h`):
+
+- *Drive the engine* — `Test_RunFrames(n)`, `Test_RunUntilIdle(max)`,
+  `Test_WarpTo(group, num, x, y)`, `Test_RunFramesToWarp()`.
+- *Input* — `Test_Press(button)` (one press/release cycle), `Test_PressRepeated`,
+  `Test_Hold(button, frames)`, `Test_ReleaseAll()`,
+  `Test_PressUntilIdle(button, max)` (the "advance dialogue / open this menu"
+  primitive: it presses first, then waits for the engine to go idle again).
+  Buttons are the engine's masks: `A_BUTTON`, `B_BUTTON`, `DPAD_UP`, …
+- *Observe* — `Test_Var`, `Test_Flag`, `Test_HasItem`, `Test_Money`,
+  `Test_LastTalked`, `Test_FieldLocked`, `Test_MapGroup`, `Test_MapNum`,
+  `Test_PlayerX/Y`, `Test_PlayerFacing`, `Test_InOverworld`, `Test_PartyCount`,
+  `Test_PartySpecies`, `Test_PartyLevel`, `Test_StringVar4()` (dialogue,
+  charmap-decoded).
+- *Scripts* — `Test_ScriptStartsWith(script, SCR_CMD_*)`,
+  `Test_ScriptFindOpcode`, `Test_ScriptPtrAt`, `Test_ScriptContains`,
+  `Test_ScriptDump`. Opcode names come from `tests/script_ops.h`.
+- *Pixels* — `Test_RenderFrame()` then `Test_DistinctColors`,
+  `Test_RegionIsUniform`, `Test_RegionDiffers`.
+- *Assert* — `TEST_EQ`, `TEST_NE`, `TEST_GE`, `TEST_TRUE`, `TEST_FALSE`,
+  `TEST_STR_EQ`, `TEST_MEM_EQ`, `TEST_PTR_EQ`, `TEST_PTR_NOT_NULL`, `TEST_FAIL`.
+  Every failure prints both operand values, e.g. `got 13 vs 6`, not just "failed".
+
+### Every behaviour change gets a test, and it stays as a regression test
+**This is the default workflow, and it replaces probing.** When you implement a
+feature or fix a bug, write a test for the behaviour in the same change. Do not
+write a throwaway probe in `src/platform/main.c` and delete it afterwards — that
+workflow left 14 documented "verified with a temporary probe (since removed)"
+entries in this file, each one a reproduction that had to be performed again by
+hand the next time the area changed.
+
+Concretely:
+
+1. Write the test **before** the fix where you can, and confirm it **fails** —
+   a test that passes both before and after proves nothing. `git stash` the fix
+   to check, or revert the generated data as the historical defect did.
+2. Fix the bug / finish the feature.
+3. Confirm the test now **passes**, and that the rest of the suite still does.
+4. **Keep it.** It is now the regression test for that behaviour.
+5. If the change was a portability fix of the kind in the numbered list above,
+   say in the fix's write-up which test pins it.
+
+`--explain` is what makes this practical: it prints what every assertion observed
+(`tests/engine.c:22: Test_MapGroup() == ... (4, 4)`) and never fails, so the same
+file serves as the reproduction while you are investigating and as the assertion
+once it is fixed. Run it, read the values, and only then decide what the expected
+value is — that is how the coordinate-space confusion behind `Test_PlayerX` and
+the charmap ambiguities were found, rather than guessed at.
+
+A test is only worth keeping if a plausible bug would make it fail. Delete a test
+that pins implementation detail (wiring, byte offsets in generated data, a
+default value, a source string) — such a test breaks on legitimate refactors and
+teaches people to re-pin numbers instead of reading the failure.
 
 ### What to assert
-Assert **observable behaviour**, not implementation. The API is deliberately the engine's own: `Test_Var`/`Test_Flag`/`Test_HasItem`/`Test_LastTalked`/`Test_FieldLocked`/`Test_MapGroup`/`Test_PlayerX` read live engine state through the real headers, and `Test_StringVar4()` decodes dialogue from `charmap.txt` so a failure prints `"RED received a TOWN MAP from DAISY."` rather than a hex diff. `Test_ScriptStartsWith(script, SCR_CMD_LOCK)` and `Test_ScriptPtrAt` say what a script *does*; asserting raw operand bytes breaks on legitimate generator changes and trains people to re-pin numbers instead of reading the failure.
+Assert **observable behaviour**, not implementation. The API is deliberately the
+engine's own: the helpers above read live engine state through the real headers,
+so a failure means the game is wrong, not that a helper drifted.
 
-Rendering is available on demand for behaviour that exists only as pixels (`Test_RenderFrame()` then `Test_DistinctColors`/`Test_RegionDiffers` into the harness's own buffer), but engine state is almost always the better thing to assert. Prefer differential checks — capture with the effect, capture without, diff the region — over golden pixel hashes: fixes #51 and #52 each changed legitimate compositor output, and a golden hash would have failed for the right reason and been regenerated away.
+Prefer the thing the player or the script observes: `Test_HasItem` after a gift,
+`Test_StringVar4()` after talking, `Test_Var` for a scene's progress,
+`Test_FieldLocked` for whether an interaction holds the field. For scripts, assert
+what the script *does* — `Test_ScriptStartsWith(script, SCR_CMD_LOCK)` — rather
+than that a particular byte sits at a particular offset; asserting raw operand
+bytes breaks on legitimate generator changes and trains people to re-pin numbers
+instead of reading the failure.
 
-### A test doubles as a probe
-`--explain` prints what each assertion observed and never fails, so the same file serves as the reproduction while investigating a bug and as the regression test once it is fixed. This replaces the old "temporary probe in `src/platform/main.c`, deleted afterwards" workflow: write it once, keep it. Per the repo's own policy a bug fix SHOULD leave the reproduction behind as a regression test that fails pre-fix and passes post-fix.
+Rendering is available on demand for behaviour that exists only as pixels
+(`Test_RenderFrame()` then `Test_DistinctColors`/`Test_RegionDiffers` into the
+harness's own buffer), but engine state is almost always the better thing to
+assert. Prefer differential checks — capture with the effect, capture without,
+diff the region — over golden pixel hashes: fixes #51 and #52 each changed
+legitimate compositor output, and a golden hash would have failed for the right
+reason and been regenerated away.
 
 ### Regenerating test inputs
 `tests/script_ops.h` (named opcodes) is generated: `python3 tools/gen_script_ops.py`, or `make -f Makefile.native script-ops`. It reads the engine's dispatch table (`src/data/script_cmd_table.h`), whose entry order *is* the opcode numbering, and the build regenerates it when that table changes. Like `src/data/maps_data.h` and `src/data/battle/*.h`, the output is tracked in git.
