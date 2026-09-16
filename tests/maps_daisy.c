@@ -26,7 +26,7 @@ extern u16 (*const gSpecials[])(void);
 
 // Daisy and the TOWN MAP object must run real scripts, and the map object must
 // be hidden by the flag the gift sets.
-OMP_TEST("daisy/room object events are real scripts", "maps daisy pure", daisy_objects)
+FIRERED_TEST("daisy/room object events are real scripts", "maps daisy pure", daisy_objects)
 {
     const struct MapEvents *events = PalletTown_RivalsHouse.events;
 
@@ -43,7 +43,7 @@ OMP_TEST("daisy/room object events are real scripts", "maps daisy pure", daisy_o
 }
 
 // The bookshelves and the picture are metatile-flavor interactions.
-OMP_TEST("daisy/background events are real scripts", "maps daisy pure", daisy_bg)
+FIRERED_TEST("daisy/background events are real scripts", "maps daisy pure", daisy_bg)
 {
     const struct MapEvents *events = PalletTown_RivalsHouse.events;
 
@@ -58,7 +58,7 @@ OMP_TEST("daisy/background events are real scripts", "maps daisy pure", daisy_bg
 // ON_TRANSITION moves Daisy to the table before the parcel errand. Without it she
 // stands at her map.json default and never walks over, so the gift branch is
 // never reachable by talking to her where she appears to be.
-OMP_TEST("daisy/on-transition is compiled and resolves", "maps daisy pure", daisy_transition)
+FIRERED_TEST("daisy/on-transition is compiled and resolves", "maps daisy pure", daisy_transition)
 {
     const u8 *scripts = PalletTown_RivalsHouse.mapScripts;
 
@@ -70,7 +70,7 @@ OMP_TEST("daisy/on-transition is compiled and resolves", "maps daisy pure", dais
 // The gift branch must contain the sequence that grants the TOWN MAP: the map
 // object is removed (removeobject), the scene var advances, and the item is
 // added. Asserted as presence of the operations, not their offsets.
-OMP_TEST("daisy/give-town-map branch removes the object and grants the item",
+FIRERED_TEST("daisy/give-town-map branch removes the object and grants the item",
          "maps daisy pure", daisy_give)
 {
     const u8 *s = PalletTown_RivalsHouse_EventScript_GiveTownMap;
@@ -86,7 +86,7 @@ OMP_TEST("daisy/give-town-map branch removes the object and grants the item",
 // The five specials her branch calls must be registered. An unregistered one
 // prints "special N is not ported" and leaves the script stuck mid-branch, so
 // the player never receives the item.
-OMP_TEST("daisy/her specials are registered", "maps daisy pure", daisy_specials)
+FIRERED_TEST("daisy/her specials are registered", "maps daisy pure", daisy_specials)
 {
     TEST_PTR_NOT_NULL((const void *)gSpecials[124]);   // BufferMonNickname
     TEST_PTR_NOT_NULL((const void *)gSpecials[159]);   // ChoosePartyMon
