@@ -26,7 +26,7 @@ extern u32 FldEff_TallGrass(void);
 #define FLDEFF_OP_LOADFADEDPAL_CALLNATIVE 7
 #define FLDEFF_OP_END                     4
 
-OMP_TEST("field-effects/tall grass script resolves palette and native",
+FIRERED_TEST("field-effects/tall grass script resolves palette and native",
          "field-effects pure", fldeff_tall_grass)
 {
     const u8 *script = gFieldEffectScriptPointers[FLDEFF_TALL_GRASS];
@@ -45,7 +45,7 @@ OMP_TEST("field-effects/tall grass script resolves palette and native",
 // The rest of the grass family shares that template/native path. If a re-run of
 // the generator stopped resolving one of these (a deleted stub, an unlinked
 // native), stepping into that tile would silently stop rustling.
-OMP_TEST("field-effects/grass family is ported", "field-effects pure", fldeff_grass_family)
+FIRERED_TEST("field-effects/grass family is ported", "field-effects pure", fldeff_grass_family)
 {
     TEST_PTR_NOT_NULL(gFieldEffectScriptPointers[FLDEFF_SHORT_GRASS]);
     TEST_PTR_NOT_NULL(gFieldEffectScriptPointers[FLDEFF_LONG_GRASS]);
@@ -56,7 +56,7 @@ OMP_TEST("field-effects/grass family is ported", "field-effects pure", fldeff_gr
 // An effect whose native is not linked must be NULL, not a bogus script: a
 // non-NULL entry with a NULL native would be jumped through and crash.
 // `src/fldeff_cut.c` is not linked, so the cut-on-grass effect is the known gap.
-OMP_TEST("field-effects/unported effects are inert rather than bogus",
+FIRERED_TEST("field-effects/unported effects are inert rather than bogus",
          "field-effects pure", fldeff_unported)
 {
     TEST_PTR_EQ(gFieldEffectScriptPointers[FLDEFF_USE_CUT_ON_GRASS], NULL);
