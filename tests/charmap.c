@@ -280,7 +280,13 @@ const char *Test_Decode(const u8 *encoded)
     // character (' ' = 00 in charmap.txt), so stopping there truncates every
     // multi-word string at its first space -- the most common case in dialogue,
     // and how this decoder originally reported "You" for a full sentence.
-    while (encoded[i] != 0xFF && used < (int)sizeof(sOut) - 1)
+    //
+    // A bounded scan, because an unwritten or unterminated buffer has no EOS at
+    // all: reading on would walk off the end, and a zero-filled buffer decodes as
+    // a wall of spaces that reads like a real (if bizarre) string. Naming that
+    // case is worth the branch -- it costs a round of diagnosis otherwise.
+    #define DECODE_SCAN_LIMIT 1024
+    while (encoded[i] != 0xFF && i < DECODE_SCAN_LIMIT && used < (int)sizeof(sOut) - 1)
     {
         // The three layout escapes are stored in the table, but their printable
         // form is a marker rather than a control byte.
@@ -316,6 +322,15 @@ const char *Test_Decode(const u8 *encoded)
             AppendSequence(sOut, sizeof(sOut), &used, (const u8 *)sSeq, (int)strlen(sSeq));
             i += consumed;
         }
+    }
+
+    if (encoded[i] != 0xFF)
+    {
+        // No EOS within the scan limit: the buffer was never written, or the
+        // string is unterminated. Report that rather than returning the
+        // space-filled prefix, which reads as a valid message.
+        snprintf(sOut, sizeof(sOut), "(no EOS in %d bytes: buffer unwritten?)", i);
+        return sOut;
     }
 
     sOut[used] = '\0';
