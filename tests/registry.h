@@ -4,7 +4,7 @@
 // Unit test registry for the native port.
 //
 // A test is a function in a .c file under tests/. It registers itself through
-// OMP_TEST, which places a descriptor into the Mach-O section __DATA,omp_tests.
+// FIRERED_TEST, which places a descriptor into the Mach-O section __DATA,firered_tests.
 // The runner walks that section's bounds, so adding a test is adding a file --
 // there is no list to edit, and nothing in src/ knows the tests exist.
 //
@@ -35,7 +35,7 @@
 
 typedef void (*TestFn)(void);
 
-struct OmpTest
+struct FireRedTest
 {
     const char *name;   // human-readable, unique; what --filter matches
     const char *tags;   // space-separated: "bios", "maps", "npc:daisy", "slow"
@@ -45,16 +45,16 @@ struct OmpTest
 // The suite is discovered by walking this section at runtime. `sizeof` must be
 // a multiple of the section's alignment or the bounds arithmetic desynchronises
 // (an early prototype without aligned(8) segfaulted here).
-#define OMP_TEST_SECTION "__DATA,omp_tests"
-#define OMP_TEST_ALIGN 8
+#define FIRERED_TEST_SECTION "__DATA,firered_tests"
+#define FIRERED_TEST_ALIGN 8
 
-_Static_assert(sizeof(struct OmpTest) % OMP_TEST_ALIGN == 0,
-               "struct OmpTest must stay a multiple of the section alignment");
+_Static_assert(sizeof(struct FireRedTest) % FIRERED_TEST_ALIGN == 0,
+               "struct FireRedTest must stay a multiple of the section alignment");
 
-#define OMP_TEST(testName, testTags, fnName)                                  \
+#define FIRERED_TEST(testName, testTags, fnName)                                  \
     static void fnName(void);                                                 \
-    __attribute__((section(OMP_TEST_SECTION), used, aligned(OMP_TEST_ALIGN)))  \
-    static const struct OmpTest omp_test_##fnName = { testName, testTags, fnName }; \
+    __attribute__((section(FIRERED_TEST_SECTION), used, aligned(FIRERED_TEST_ALIGN)))  \
+    static const struct FireRedTest firered_test_##fnName = { testName, testTags, fnName }; \
     static void fnName(void)
 
 // --- failures --------------------------------------------------------------
