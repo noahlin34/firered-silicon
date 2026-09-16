@@ -9,7 +9,22 @@
 #include "platform/platform.h"
 #include "global.fieldmap.h"
 #include "field_effect.h"
-#include "constants/field_effects.h"
+#include "constants/event_bg.h"
+#include "heal_location.h"
+#include "field_screen_effect.h"
+#include "field_poison.h"
+#include "coins.h"
+#include "pokedex.h"
+#include "pokedex_screen.h"
+#include "sound.h"
+#include "field_specials.h"
+#include "constants/heal_locations.h"
+#include "constants/pokedex.h"
+#include "constants/flags.h"
+#include "constants/items.h"
+#include "constants/maps.h"
+#include "constants/map_groups.h"
+#include "global.fieldmap.h"
 
 static void CrashHandler(int sig)
 {
@@ -27,6 +42,40 @@ static void CrashHandler(int sig)
 }
 
 extern void AgbMain(void);
+
+
+// Save-backed stub guard. These checks need live save blocks -- gSaveBlock1Ptr /
+// gSaveBlock2Ptr stay NULL until SetSaveBlocksPointers() runs, which happens in
+// the title screen / dev-boot path -- so they cannot run in the pre-engine smoke
+// tests. Called from AgbMain once the save is up. Each one pins the observable
+// consequence of a stub that was previously wrong-typed or hand-mirrored; a
+// void body or an always-0 body passes the compiler and fails here.
+void Platform_VerifySaveBackedStubs(void)
+{
+    printf("[SmokeTest] Testing save-backed stub guard...\n");
+    assert(gSaveBlock1Ptr != NULL);
+    assert(gSaveBlock2Ptr != NULL);
+
+    // Pokédex: gPokedexEntries used to be a 1-byte stub indexed as 0x24-byte
+    // structs, so every read walked off the array. Seen -> Caught must stick.
+    assert(GetSetPokedexFlag(NATIONAL_DEX_MEWTWO, FLAG_GET_CAUGHT) == 0);
+    GetSetPokedexFlag(NATIONAL_DEX_MEWTWO, FLAG_SET_SEEN);
+    assert(GetSetPokedexFlag(NATIONAL_DEX_MEWTWO, FLAG_GET_SEEN) == 1);
+    assert(GetSetPokedexFlag(NATIONAL_DEX_MEWTWO, FLAG_GET_CAUGHT) == 0);
+    GetSetPokedexFlag(NATIONAL_DEX_MEWTWO, FLAG_SET_CAUGHT);
+    assert(GetSetPokedexFlag(NATIONAL_DEX_MEWTWO, FLAG_GET_CAUGHT) == 1);
+
+    // Coins: AddCoins/RemoveCoins were void stubs, so the Game Corner's
+    // "you can't carry any more" branch and the Coin Case both read garbage.
+    // RemoveCoins must refuse when the balance is short.
+    assert(AddCoins(50) == TRUE);
+    assert(GetCoins() == 50);
+    assert(RemoveCoins(20) == TRUE);
+    assert(GetCoins() == 30);
+    assert(RemoveCoins(31) == FALSE);
+
+    printf("[SmokeTest] Save-backed stub guard verified!\n");
+}
 
 // Simple smoke test to verify GBA Hardware Abstraction Layer on Apple Silicon
 static void TestBiosSyscalls(void)
@@ -153,6 +202,16 @@ extern const u8 PalletTown_RivalsHouse_EventScript_GiveTownMap[];
 extern const u8 PalletTown_RivalsHouse_EventScript_Bookshelf[];
 extern const u8 PalletTown_RivalsHouse_EventScript_Picture[];
 extern u16 (*const gSpecials[])(void);
+// --- checks added by the save-backed stub guard work (AGENTS.md #57-#59) ---
+extern const struct MapHeader CeladonCity;
+extern const struct MapHeader CeladonCity_GameCorner;
+extern const u8 EventScript_AfterWhiteOutHeal[];
+extern const u8 EventScript_AfterWhiteOutMomHeal[];
+extern const u8 EventScript_PkmnCenterNurse_TakeAndHealPkmn[];
+extern const u8 EventScript_FieldPoison[];
+extern const u8 EventScript_HiddenItemScript[];
+extern const u8 EventScript_TryPickUpHiddenItem[];
+extern const u8 EventScript_PickedUpHiddenItem[];
 extern const struct MapHeader Route1;
 extern const u8 ViridianCity_Mart_OnLoad[];
 extern const u8 ViridianCity_Mart_EventScript_ParcelScene[];
@@ -602,6 +661,152 @@ static void TestOverworldInteractions(void)
     }
     printf("[SmokeTest] Rival's house (Daisy) verified!\n");
 
+    // 12. Wrong-typed stub guard: a stub whose DECLARED type is wrong is worse
+    //     than a missing symbol, because a void body silently returns whatever
+    //     is in the register and every caller branches on it. These four were
+    //     void stubs against bool8/s32 headers (AGENTS.md fix #58). The
+    //     coin half of this class needs gSaveBlock1Ptr, so it is asserted in
+    //     Platform_VerifySaveBackedStubs() instead.
+    {
+        assert(gMaxFlashLevel == 4);          // s32 4, not a u8 placeholder
+    }
+
+    // The remaining evidence for the wrong-typed/hand-mirrored stub class is
+    // static data, so it needs no save blocks. Order and content follow the
+    // original: heal locations, flash level, Pokédex entries, then the fanfare
+    // return value.
+    {
+        const struct HealLocation *pallet = GetHealLocation(HEAL_LOCATION_PALLET_TOWN);
+        const struct HealLocation *viridian = GetHealLocation(HEAL_LOCATION_VIRIDIAN_CITY);
+        assert(pallet != NULL);
+        assert(viridian != NULL);
+        assert(pallet != viridian);
+        assert(pallet->mapGroup == MAP_GROUP(MAP_PALLET_TOWN));
+        assert(pallet->mapNum == MAP_NUM(MAP_PALLET_TOWN));
+        assert(pallet->x == 6 && pallet->y == 8);
+        assert(viridian->mapGroup == MAP_GROUP(MAP_VIRIDIAN_CITY));
+
+        // ...and the table's ends must be NULL, or setrespawn / Fly / the
+        // whiteout path resolve to a neighbouring entry instead of failing.
+        assert(GetHealLocation(HEAL_LOCATION_NONE) == NULL);
+        assert(GetHealLocation(NUM_HEAL_LOCATIONS) == NULL);
+
+        // gPokedexEntries used to be a 1-byte stub indexed as 0x24-byte
+        // structs, so every read walked off the end of the array. These four
+        // fields would all be zero garbage in that case.
+        assert(gPokedexEntries[NATIONAL_DEX_BULBASAUR].weight > 0);
+        assert(gPokedexEntries[NATIONAL_DEX_BULBASAUR].height > 0);
+        assert(gPokedexEntries[NATIONAL_DEX_BULBASAUR].categoryName[0] != 0);
+        assert(gPokedexEntries[NATIONAL_DEX_CHARIZARD].weight != gPokedexEntries[NATIONAL_DEX_BULBASAUR].weight);
+
+        // WaitFanfare was a void stub, but its callers branch on the result
+        // (the party menu's level-up pages and the Poké Flute). It reads no
+        // save state, so it can be checked here.
+        assert(WaitFanfare(FALSE) == TRUE);
+    }
+    printf("[SmokeTest] Wrong-typed stub guard verified!\n");
+
+    // 13. Whiteout recovery: Task_WhiteOut picks one of these by whether the
+    //     player's last heal spot was their own house. Both were `{0x02}`
+    //     stubs, so a whiteout cleared the screen and never healed the party.
+    {
+
+        // Both open with lockall (0x69) and set the text colour, and the
+        // Center variant calls the shared heal routine.
+        assert(EventScript_AfterWhiteOutHeal[0] == 0x69);
+        assert(EventScript_AfterWhiteOutMomHeal[0] == 0x69);
+        assert(EventScript_PkmnCenterNurse_TakeAndHealPkmn[0] == 0x4f);
+
+        // The heal routine must really contain dofieldeffect (156) and
+        // waitfieldeffect (158) -- without them the screen just fades.
+        {
+            const u8 *s = EventScript_PkmnCenterNurse_TakeAndHealPkmn;
+            int sawDoFieldEffect = 0, sawWaitFieldEffect = 0, i;
+            for (i = 0; i < 64; i++)
+            {
+                if (s[i] == 0x9c) sawDoFieldEffect = 1;
+                if (s[i] == 0x9e) sawWaitFieldEffect = 1;
+            }
+            assert(sawDoFieldEffect);
+            assert(sawWaitFieldEffect);
+        }
+
+        // Field poison runs its own whiteout path when a poisoned mon faints on
+        // a step. It was a `{0x02}` stub too, so UpdatePoisonStepCounter set up
+        // a script that did nothing and the fainted mon was never handled.
+        // Shape: lockall, textcolor, special TryFieldPoisonWhiteOut (199),
+        // waitstate, then the VAR_RESULT branch into the whiteout.
+        assert(EventScript_FieldPoison[0] == 0x69); // lockall
+        assert(EventScript_FieldPoison[3] == 0x25); // special
+        assert(EventScript_FieldPoison[4] == 199);  // TryFieldPoisonWhiteOut
+        assert(EventScript_FieldPoison[6] == 0x27); // waitstate
+        assert(EventScript_FieldPoison[7] == 0x21); // goto_if_eq VAR_RESULT, TRUE
+        // ...and that special must be registered, or ScrCmd_special reports
+        // "special 199 is not ported" and VAR_RESULT is never set.
+        assert(gSpecials[199] != NULL);
+    }
+    printf("[SmokeTest] Whiteout recovery scripts verified!\n");
+
+    // 14. Hidden-item bg events. 183 of them were emitted as ordinary BG events
+    //     before this, so A-press did nothing. The packing must survive the
+    //     round trip through GetHiddenItemAttr (item/flag/quantity/underfoot).
+    {
+
+        // Celadon City's buried PP UP: the flag is a real one, quantity 1, and
+        // it is NOT underfoot (so A-press reaches it; the six underfoot ones
+        // are found with the Dowsing Machine instead).
+        const struct MapEvents *celadon = CeladonCity.events;
+        assert(celadon != NULL);
+        {
+            int sawHiddenItem = 0, i;
+            for (i = 0; i < celadon->bgEventCount; i++)
+            {
+                const struct BgEvent *bg = &celadon->bgEvents[i];
+                if (bg->kind != BG_EVENT_HIDDEN_ITEM)
+                    continue;
+                if (GetHiddenItemAttr(bg->bgUnion.hiddenItem, HIDDEN_ITEM_FLAG) != FLAG_HIDDEN_ITEM_CELADON_CITY_PP_UP)
+                    continue;
+                sawHiddenItem = 1;
+                assert(GetHiddenItemAttr(bg->bgUnion.hiddenItem, HIDDEN_ITEM_UNDERFOOT) == 0);
+                assert(GetHiddenItemAttr(bg->bgUnion.hiddenItem, HIDDEN_ITEM_QUANTITY) == 1);
+                assert(GetHiddenItemAttr(bg->bgUnion.hiddenItem, HIDDEN_ITEM_ITEM) == ITEM_PP_UP);
+            }
+            assert(sawHiddenItem);
+        }
+
+        // A 12-entry exception is real, not a bug: the Game Corner's buried
+        // coins store ITEM_NONE (0) and the script picks its coin branch on it.
+        {
+            const struct MapEvents *gameCorner = CeladonCity_GameCorner.events;
+            int coinSpots = 0, i;
+            assert(gameCorner != NULL);
+            for (i = 0; i < gameCorner->bgEventCount; i++)
+            {
+                const struct BgEvent *bg = &gameCorner->bgEvents[i];
+                if (bg->kind == BG_EVENT_HIDDEN_ITEM
+                    && GetHiddenItemAttr(bg->bgUnion.hiddenItem, HIDDEN_ITEM_ITEM) == ITEM_NONE)
+                    coinSpots++;
+            }
+            assert(coinSpots > 0);
+        }
+
+        // Script shape: lockall, textcolor, then the call that grants the item.
+        assert(EventScript_HiddenItemScript[0] == 0x69); // lockall
+        assert(EventScript_HiddenItemScript[1] == 0xc7); // textcolor
+        assert(EventScript_HiddenItemScript[3] == 0x30); // waitse
+        assert(EventScript_HiddenItemScript[4] == 0x21); // goto_if_eq VAR_0x8005, 0 (the coins branch)
+        assert(EventScript_TryPickUpHiddenItem[0] == 0x44); // additem
+        assert(EventScript_TryPickUpHiddenItem[5] == 0x19); // copyvar VAR_0x8007, VAR_RESULT
+        assert(EventScript_TryPickUpHiddenItem[10] == 0x80); // (buffername operand)
+        assert(EventScript_PickedUpHiddenItem[0] == 0x21);   // goto_if_eq VAR_0x8006, 1
+
+        // special SetHiddenItemFlag (150) must be registered, or the picked-up
+        // item can be collected again forever.
+        assert(gSpecials[150] != NULL);
+    }
+    printf("[SmokeTest] Hidden item bg events verified!\n");
+
+
     printf("[SmokeTest] All Overworld Object & Background Event Scripts verified!\n");
 }
 
@@ -715,6 +920,8 @@ int main(int argc, char **argv)
     TestGbaMemory();
 
     TestOverworldInteractions();
+    // Save-backed checks run from AgbMain (needs live save blocks), so the
+    // guard is invoked there rather than here.
     if (Platform_Init(argc, argv) != 0)
     {
         fprintf(stderr, "Failed to initialize platform window.\n");
