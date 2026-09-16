@@ -42,7 +42,7 @@ bool gTestDone;
 int gFrameCount;
 
 static char sTestStack[256 * 1024];
-static const struct OmpTest *sCurrentTest;
+static const struct FireRedTest *sCurrentTest;
 static enum TestFixture sFixture;
 static bool sArmTest;          // hand control to the test once the fixture is live
 static bool sFixtureReady;
@@ -168,7 +168,7 @@ void Harness_FrameTick(void)
 // Boot the engine and run one test. Never returns normally: either the test
 // finishes (engine unwound, exit code = failure count) or the process is killed
 // by a signal the runner reports.
-void Harness_RunTest(const struct OmpTest *test, enum TestFixture fixture)
+void Harness_RunTest(const struct FireRedTest *test, enum TestFixture fixture)
 {
     sCurrentTest = test;
     sFixture = fixture;
