@@ -80,22 +80,35 @@ void Test_ReleaseAll(void)
     sHeldRemaining = 0;
 }
 
+// Presses `button` repeatedly until the engine reports the field idle again.
+//
+// The first press must always happen: a test calls this to START an interaction
+// (walk up and talk, open a menu), and at that moment the engine is already idle,
+// so an "is it idle yet?" check before the first press would return immediately
+// and nothing would ever be pressed. So the loop presses first and only then
+// waits for the idle state to be reached -- which is also what makes it terminate
+// after the interaction closes.
 void Test_PressUntilIdle(u16 button, int maxFrames)
 {
     int waited = 0;
 
+    Schedule(button);
+
     while (waited < maxFrames)
     {
-        if (!ArePlayerFieldControlsLocked() && !ScriptContext_IsEnabled())
-            return;
-
-        // Only press when nothing is currently mid-cadence, so consecutive
-        // presses are separated by a release the engine can observe.
-        if (sScheduledCount == 0)
-            Schedule(button);
-
         Test_YieldToEngine(1);
         waited++;
+
+        // Idle again, with the press cadence drained: the interaction finished.
+        if (!ArePlayerFieldControlsLocked() && !ScriptContext_IsEnabled()
+            && sScheduledCount == 0)
+            return;
+
+        // Keep pressing, but only when nothing is mid-cadence, so consecutive
+        // presses are separated by a release the engine can observe (a held key
+        // produces no JOY_NEW edge and would stall a dialogue box).
+        if (sScheduledCount == 0)
+            Schedule(button);
     }
 }
 
