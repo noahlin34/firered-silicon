@@ -11,7 +11,7 @@
 #include "overworld.h"
 #include "script.h"
 
-OMP_TEST("engine/boots into the bedroom and accepts input", "engine fixture:bedroom",
+FIRERED_TEST("engine/boots into the bedroom and accepts input", "engine fixture:bedroom",
          engine_boots_bedroom)
 {
     Test_RequireFixture(FIXTURE_BEDROOM);
@@ -31,7 +31,7 @@ OMP_TEST("engine/boots into the bedroom and accepts input", "engine fixture:bedr
 // Movement proves input injection reaches the engine through the same path SDL
 // uses (REG_KEYINPUT -> ReadKeys -> gMain.heldKeys), and that the field is not
 // locked by the dev boot.
-OMP_TEST("engine/holding a direction moves the player one tile", "engine fixture:bedroom",
+FIRERED_TEST("engine/holding a direction moves the player one tile", "engine fixture:bedroom",
          engine_player_walks)
 {
     s16 startX, startY;
@@ -52,7 +52,7 @@ OMP_TEST("engine/holding a direction moves the player one tile", "engine fixture
 // A warp is the primitive every interaction test needs, and it exercises the
 // real fade/map-load/hand-off path (SetWarpDestination + DoWarp +
 // ResetInitialPlayerAvatarState, exactly what ScrCmd_warp applies).
-OMP_TEST("engine/warping to a map loads it and unlocks the field",
+FIRERED_TEST("engine/warping to a map loads it and unlocks the field",
          "engine fixture:bedroom", engine_warp)
 {
     Test_RequireFixture(FIXTURE_BEDROOM);
@@ -70,7 +70,7 @@ OMP_TEST("engine/warping to a map loads it and unlocks the field",
 // Rendering is available on demand, into the harness's own buffer, with no
 // window and no presentation. The assertion is structural on purpose: pinning
 // exact pixels would break on legitimate compositor changes.
-OMP_TEST("engine/renders a non-uniform frame without a window", "engine fixture:bedroom",
+FIRERED_TEST("engine/renders a non-uniform frame without a window", "engine fixture:bedroom",
          engine_renders)
 {
     Test_RequireFixture(FIXTURE_BEDROOM);
