@@ -11,6 +11,7 @@
 #include "gba/flash_internal.h"
 #include "malloc.h"
 #include "decompress.h"
+#include "sound.h"
 #include "text.h"
 #include "main.h"
 void m4aSoundInit(void) {}
@@ -28,6 +29,14 @@ void m4aMPlayFadeOutTemporarily(struct MusicPlayerInfo *mplayInfo, u16 speed) { 
 void m4aMPlayFadeIn(struct MusicPlayerInfo *mplayInfo, u16 speed) { (void)mplayInfo; (void)speed; }
 void m4aMPlayImmInit(struct MusicPlayerInfo *mplayInfo) { (void)mplayInfo; }
 void m4aMPlayStop(struct MusicPlayerInfo *mplayInfo) { (void)mplayInfo; }
+/* src/sound.c cannot be linked on its own (fix #58: its map-music state machine
+ * never advances without M4A), so the two BGM-volume helpers the Pokédex screen
+ * brackets its resources with are defined here with their declared types from
+ * include/sound.h. They only touch music, and music is stubbed outright: the
+ * real bodies set gDisableHelpSystemVolumeReduce (help_system_util.c, unlinked)
+ * and call m4aMPlayVolumeControl (a no-op). */
+void SetBGMVolume_SuppressHelpSystemReduction(u16 volume) { (void)volume; }
+void BGMVolumeMax_EnableHelpSystemReduction(void) {}
 
 // High-level Sound Stubs
 void InitMapMusic(void) {}
