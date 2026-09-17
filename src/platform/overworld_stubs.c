@@ -141,7 +141,9 @@ const u8 mus_victory_gym_leader[] = {0};
  * result check can read it. */
 u16 gSaveAttemptStatus = SAVE_STATUS_ERROR;
 
-void CB2_OpenPokedexFromStartMenu(void) { printf("[Menu] POKéDEX scene is not ported\n"); }
+/* CB2_OpenPokedexFromStartMenu is the real src/pokedex_screen.c, which is
+ * linked (PREPROC_SRCS — it INCBINs its tiles and carries _() strings), so the
+ * stub that used to print "[Menu] POKéDEX scene is not ported" is deleted. */
 void CB2_ReturnToPokeStorage(void) { printf("[Menu] POKéMON storage scene is not ported\n"); }
 void SetUsingUnionRoomStartMenu(void) {}
 void RecordItemTransaction(u16 itemId, u16 quantity, u8 logEventId) { (void)itemId; (void)quantity; (void)logEventId; }
@@ -158,45 +160,9 @@ void ClearLinkCallback_2(void) {}
  * returns the "no task" id the header's type promises. Signature from
  * include/cable_club.h: u8, not void. */
 u8 CreateTask_ReestablishCableClubLink(void) { return 0; }
-/* Real body, not a stub: this is the Pokédex seen/caught bit logic. The
- * always-0 version meant nothing was ever recorded as seen or caught, which
- * made GetNationalPokedexCount() report an empty dex and the Repeat Ball's
- * bonus dead. Mirrors src/pokedex_screen.c's DexScreen_GetSetPokedexFlag
- * (which is not linked); the third parameter is the real header's
- * `indexIsSpecies` flag, so nationalNum is already an index here. */
-s8 DexScreen_GetSetPokedexFlag(u16 nationalDexNo, u8 caseId, bool8 indexIsSpecies)
-{
-    u8 index, bit, mask;
-    s8 retVal = 0;
-
-    if (indexIsSpecies)
-        nationalDexNo = SpeciesToNationalPokedexNum(nationalDexNo);
-    nationalDexNo--;
-    index = nationalDexNo / 8;
-    bit = nationalDexNo % 8;
-    mask = 1 << bit;
-
-    switch (caseId)
-    {
-    case FLAG_GET_SEEN:
-        if (gSaveBlock2Ptr->pokedex.seen[index] & mask)
-            retVal = 1;
-        break;
-    case FLAG_GET_CAUGHT:
-        if (gSaveBlock2Ptr->pokedex.owned[index] & mask)
-            retVal = 1;
-        break;
-    case FLAG_SET_SEEN:
-        gSaveBlock2Ptr->pokedex.seen[index] |= mask;
-        gSaveBlock1Ptr->seen1[index] |= mask;
-        gSaveBlock1Ptr->seen2[index] |= mask;
-        break;
-    case FLAG_SET_CAUGHT:
-        gSaveBlock2Ptr->pokedex.owned[index] |= mask;
-        break;
-    }
-    return retVal;
-}
+/* DexScreen_GetSetPokedexFlag is the real body in src/pokedex_screen.c, which
+ * is linked; the mirror that used to live here (initially an always-0 stub, then
+ * a corrected copy) is deleted (fix #8). */
 void FadeOutAndFadeInNewMapMusic(u16 song, u8 speed, u8 unused) { (void)song; (void)speed; (void)unused; }
 void FadeOutAndPlayNewMapMusic(u16 song, u8 speed) {}
 u32 GetBerryPowder(void) { return 0; }
