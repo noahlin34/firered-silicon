@@ -1018,6 +1018,20 @@ void BtlController_EmitChosenMonReturnValue(u8 bufferId, u8 partyId, u8 *battleP
 {
     s32 i;
 
+    // A NULL order means "the party order did not change", which is what the
+    // cancel path and the AI switch emit. Upstream copies through the pointer
+    // unconditionally; on the GBA that reads address 0 (BIOS, always mapped) and
+    // the garbage is never consumed, because the only reader -- Cmd_switchhandleorder
+    // case 2 -- takes just byte [1] unless the battle is a MULTI, and the
+    // controllers that pass NULL never run a MULTI. On the host address 0 is
+    // unmapped, so cancelling the in-battle party menu faulted inside
+    // WaitForMonSelection (AGENTS.md fix #1's class: GBA code that dereferences a
+    // pointer it never expects to be meaningful).
+    //
+    // Falling back to the order currently in force keeps the bytes honest for any
+    // consumer while leaving them a no-op for the ones that ignore them.
+    if (battlePartyOrder == NULL)
+        battlePartyOrder = gBattlePartyCurrentOrder;
     sBattleBuffersTransferData[0] = CONTROLLER_CHOSENMONRETURNVALUE;
     sBattleBuffersTransferData[1] = partyId;
     for (i = 0; i < (int)ARRAY_COUNT(gBattlePartyCurrentOrder); i++)
