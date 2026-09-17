@@ -107,6 +107,7 @@ enum TestFixture
 {
     FIXTURE_BEDROOM,    // fresh save in PalletTown_PlayersHouse_2F (--skip-intro)
     FIXTURE_OAKS_LAB,   // starter received, first rival battle won (--post-rival)
+    FIXTURE_DEX,        // ...and Oak's parcel delivered, so the Pokédex is held
 };
 
 void Test_RequireFixture(enum TestFixture fixture);  // call first, in the body
