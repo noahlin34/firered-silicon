@@ -60,7 +60,8 @@ static void FixtureNeverReady(void)
     const struct WarpData *loc = (gSaveBlock1Ptr != NULL) ? &gSaveBlock1Ptr->location : NULL;
 
     printf("    FAIL fixture '%s' never became ready within %d frames\n",
-           sFixture == FIXTURE_OAKS_LAB ? "lab" : "bedroom", FIXTURE_READY_DEADLINE);
+           sFixture == FIXTURE_OAKS_LAB ? "lab" : sFixture == FIXTURE_DEX ? "dex" : "bedroom",
+           FIXTURE_READY_DEADLINE);
     printf("         callback1=%s callback2=%p location=%s",
            gMain.callback1 == CB1_Overworld ? "CB1_Overworld" : "(not overworld)",
            (void *)gMain.callback2,
@@ -106,6 +107,7 @@ static bool FixtureIsReady(void)
         return loc->mapGroup == MAP_GROUP(MAP_PALLET_TOWN_PLAYERS_HOUSE_2F)
             && loc->mapNum == MAP_NUM(MAP_PALLET_TOWN_PLAYERS_HOUSE_2F);
     case FIXTURE_OAKS_LAB:
+    case FIXTURE_DEX:
         return loc->mapGroup == MAP_GROUP(MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB)
             && loc->mapNum == MAP_NUM(MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB);
     }
@@ -197,7 +199,8 @@ void Harness_RunTest(const struct FireRedTest *test, enum TestFixture fixture)
     // when gPlatformSkipIntro is set, which is how the game's own flags work --
     // so the harness sets the same flags instead of adding a second boot path.
     gPlatformSkipIntro = true;
-    gPlatformSkipStory = (fixture == FIXTURE_OAKS_LAB);
+    gPlatformSkipStory = (fixture == FIXTURE_OAKS_LAB || fixture == FIXTURE_DEX);
+    gPlatformDexObtained = (fixture == FIXTURE_DEX);
 
     // The engine's own scripted input and screenshot/exit path are gated on
     // gEngineMaxFrames; leaving it at 0 means no synthetic input perturbs the
