@@ -207,15 +207,7 @@ u16 GetCurrentMapMusic(void) { return 0; }
  * The bit layout lives in include/global.fieldmap.h. */
 u32 GetLinkRecvQueueLength(void) { return 0; }
 u32 GetSeeingLinkPlayerCardMsg(u8 id) { (void)id; return 0; }
-void InitSecondaryTilesetAnimation(void) {}
 void InitTeachyTvController(u8 mode, void (*cb)(void)) { (void)mode; (void)cb; }
-void InitTilesetAnim_CeladonCity(void) {}
-void InitTilesetAnim_CeladonGym(void) {}
-void InitTilesetAnim_General(void) {}
-void InitTilesetAnim_MtEmber(void) {}
-void InitTilesetAnim_SilphCo(void) {}
-void InitTilesetAnim_VermilionGym(void) {}
-void InitTilesetAnimations(void) {}
 bool8 IsEscalatorMoving(void) { return FALSE; }
 bool32 IsRfuRecvQueueEmpty(void) { return TRUE; }
 bool32 IsSendingKeysToLink(void) { return FALSE; }
@@ -242,8 +234,6 @@ void StartEscalator(bool8 a) {}
 void StartSendingKeysToLink(void) {}
 void StopEscalator(void) {}
 void StopMapMusic(void) {}
-void TransferTilesetAnimsBuffer(void) {}
-void UpdateTilesetAnimations(void) {}
 void UseFameChecker(MainCallback savedCallback) { (void)savedCallback; }
 /* src/field_specials.c: UsedPokemonCenterWarp. Called by linked
  * src/overworld.c when resolving a whiteout, to decide whether the player's

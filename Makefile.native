@@ -289,6 +289,7 @@ PREPROC_SRCS := src/title_screen.c \
                 src/field_weather.c \
                 src/fldeff_flash.c \
                 src/tilesets.c \
+                src/tileset_anims.c \
                 src/field_effect.c \
                 src/field_effect_helpers.c \
                 src/data/field_effects/ptr_table.c \
