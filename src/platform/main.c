@@ -89,6 +89,13 @@ int main(int argc, char **argv)
             gPlatformSkipStory = true;
             printf("[Engine] Dev boot: fresh save, starter received and first rival battle won (Oak's Lab).\n");
         }
+        else if (strcmp(argv[i], "--post-parcel") == 0)
+        {
+            gPlatformSkipIntro = true;
+            gPlatformSkipStory = true;
+            gPlatformDexObtained = true;
+            printf("[Engine] Dev boot: save with the POKéDEX obtained (Oak's parcel delivered).\n");
+        }
         else if (strcmp(argv[i], "--dev-panel") == 0)
         {
             gPlatformDevPanelEnabled = true;
