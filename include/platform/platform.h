@@ -39,6 +39,14 @@ extern bool gPlatformSkipStory;
 
 void Platform_DevBootApplyStoryProgress(void);
 
+// Dev boot (--post-parcel): one scene further still -- Oak's parcel has been
+// delivered, so the player has the Pokédex, five Poké Balls and lab scene 6.
+// This is the state the START menu's POKéDEX entry needs (its sanity check
+// refuses to open an empty dex).
+extern bool gPlatformDexObtained;
+
+void Platform_DevBootApplyDexProgress(void);
+
 // Developer panel (--dev-panel): a separate, resizable SDL2 window listing every
 // map the engine can load, so a warp destination can be picked by name -- by
 // click or by keyboard. Toggle with F3.
