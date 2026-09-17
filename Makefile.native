@@ -366,6 +366,7 @@ PREPROC_SRCS := src/title_screen.c \
                 src/region_map.c \
                 src/tm_case.c \
                 src/berry_pouch.c \
+                src/pokedex_screen.c \
                 src/pokedex_area_markers.c \
                 src/wild_pokemon_area.c \
                 src/field_specials.c \
