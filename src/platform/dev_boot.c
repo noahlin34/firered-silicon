@@ -19,11 +19,13 @@
 #include "battle_setup.h"
 #include "event_data.h"
 #include "event_scripts.h"
+#include "item.h"
 #include "load_save.h"
 #include "malloc.h"
 #include "new_game.h"
 #include "overworld.h"
 #include "save.h"
+#include "save_location.h"
 #include "script_pokemon_util.h"
 #include "string_util.h"
 #include "constants/flags.h"
@@ -36,6 +38,7 @@
 
 bool gPlatformSkipIntro = false;
 bool gPlatformSkipStory = false;
+bool gPlatformDexObtained = false;
 
 static void CB2_DevBootPostRival(void);
 
@@ -87,6 +90,36 @@ void Platform_DevBootApplyStoryProgress(void)
     VarSet(VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 4); // EndRivalBattle
 }
 
+// Reproduces the save state at the end of PalletTown_ProfessorOaksLab's
+// EventScript_ReceiveDexScene (delivering Oak's Parcel), which is how the player
+// obtains the Pokédex in a real playthrough. Written on top of
+// Platform_DevBootApplyStoryProgress, and annotated by the script statement each
+// line mirrors; keep it in sync if that scene changes.
+//
+// The START menu only offers POKéDEX while FLAG_SYS_POKEDEX_GET is set
+// (SetUpStartMenu_NormalField), and StartMenuPokedexSanityCheck additionally
+// refuses to open it while the dex has counted nothing -- so this state is the
+// precondition for exercising the screen at all.
+void Platform_DevBootApplyDexProgress(void)
+{
+    FlagSet(FLAG_SYS_POKEDEX_GET);              // setflag FLAG_SYS_POKEDEX_GET
+    SetUnlockedPokedexFlags();                  // special SetUnlockedPokedexFlags
+    VarSet(VAR_MAP_SCENE_POKEMON_CENTER_TEALA, 1);
+
+    // giveitem_msg ... ITEM_POKE_BALL, 5
+    AddBagItem(ITEM_POKE_BALL, 5);
+
+    // The dex units on Oak's desk: removeobject LOCALID_POKEDEX_1 / _2
+    FlagSet(FLAG_HIDE_POKEDEX);
+
+    // Scene vars the receiving scene writes at its end.
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6);
+    VarSet(VAR_MAP_SCENE_VIRIDIAN_CITY_MART, 2);
+    VarSet(VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 1);
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 1);
+    VarSet(VAR_MAP_SCENE_ROUTE22, 1);
+}
+
 // CB2_NewGame performs the whole fresh-save map load (bedroom) in one call, so
 // the story state is written between it and the warp into the lab. The bedroom
 // frame is never rendered: CB2_LoadMap clears the screen and the lab fades in.
@@ -95,6 +128,8 @@ static void CB2_DevBootPostRival(void)
     CB2_NewGame();
 
     Platform_DevBootApplyStoryProgress();
+    if (gPlatformDexObtained)
+        Platform_DevBootApplyDexProgress();
 
     // Same hand-off as ScrCmd_warp: the warp is applied, then CB2_LoadMap runs
     // the destination map load and hands off to CB2_Overworld.
