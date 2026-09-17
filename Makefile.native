@@ -604,8 +604,21 @@ TEST_OBJ_LIST := $(OBJ_DIR)/tests/.linked-objects
 .PHONY: FORCE
 FORCE:
 
-# The objects are built through this edge (they are not prerequisites of
-# $(TARGET_TESTS), whose recipe computes the link inputs itself).
+# The objects are built through this edge. They are ORDER-ONLY prerequisites of
+# $(TARGET_TESTS), which matters under `-j`:
+#
+#   tests: $(TEST_OBJS) $(TARGET_TESTS)
+#
+# makes those two branches independent, so make schedules both at once. Since
+# $(TARGET_TESTS) carries FORCE, its recipe runs immediately and links against
+# $(TEST_OBJS) while they are still being compiled -- reproduced deterministically
+# by `rm -rf build/native/tests && make tests -j8`, which dies with
+# `clang: error: no such file or directory: 'build/native/tests/mom.o'`.
+#
+# Order-only rather than plain: it guarantees the objects exist before the link
+# recipe runs without adding timestamp-based staleness on top of the recipe's own
+# check (which is what FORCE already forces). The recipe still computes its link
+# inputs itself, so a deleted test source is still noticed there and not by make.
 tests: $(TEST_OBJS) $(TARGET_TESTS)
 
 # Rebuild the engine objects from scratch, then the tests.
@@ -628,7 +641,7 @@ $(OBJ_DIR)/tests/%.o: tests/%.c $(TEST_SCRIPT_OPS) | $(ASSET_STAMP)
 	@mkdir -p $(dir $@)
 	$(CC) $(TEST_CFLAGS) $(DEPFLAGS) -MT $@ -c -o $@ $<
 
-$(TARGET_TESTS): $(TEST_ENGINE_OBJS) FORCE
+$(TARGET_TESTS): $(TEST_ENGINE_OBJS) FORCE | $(TEST_OBJS)
 	@mkdir -p $(dir $(TEST_OBJ_LIST))
 	@for o in $(OBJ_DIR)/tests/*.o; do \
 	    [ -e "$$o" ] || continue; \
@@ -641,7 +654,7 @@ $(TARGET_TESTS): $(TEST_ENGINE_OBJS) FORCE
 	@newest=$$(ls -t $(TEST_OBJS) $(TEST_ENGINE_OBJS) 2>/dev/null | head -1); \
 	if [ ! -e $@ ] || [ -n "$$newest" ] && [ $@ -ot "$$newest" ] \
 	   || ! cmp -s $(TEST_OBJ_LIST).tmp $(TEST_OBJ_LIST); then \
-	    $(CC) $(TEST_CFLAGS) $(TEST_OBJS) $(TEST_ENGINE_OBJS) -o $@; \
+	    $(CC) $(TEST_CFLAGS) $(TEST_OBJS) $(TEST_ENGINE_OBJS) -o $@ || exit 1; \
 	    mv $(TEST_OBJ_LIST).tmp $(TEST_OBJ_LIST); \
 	else \
 	    rm -f $(TEST_OBJ_LIST).tmp; \
