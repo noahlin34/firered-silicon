@@ -194,11 +194,8 @@ void CreateLevelUpVerticalSpritesTask(u16 x, u16 y, u16 tileTag, u16 paletteTag,
     (void)subpriority;
 }
 
-u8 DexScreen_RegisterMonToPokedex(u16 species)
-{
-    (void)species;
-    return 0;
-}
+/* DexScreen_RegisterMonToPokedex is the real src/pokedex_screen.c body (linked);
+ * the always-0 stub that used to live here is deleted (fix #8). */
 
 void DrawHelpMessageWindowTilesById(u8 windowId)
 {
