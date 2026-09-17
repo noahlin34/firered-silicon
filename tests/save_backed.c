@@ -14,6 +14,7 @@
 #include "constants/pokedex.h"
 #include "load_save.h"
 #include "pokedex.h"
+#include "pokemon.h"
 
 // gPokedexEntries used to be a 1-byte stub indexed as 0x24-byte structs, so every
 // read walked off the end of the array. Seen/caught must stick.
@@ -50,11 +51,22 @@ FIRERED_TEST("save/coins add, remove and refuse to overdraw", "engine fixture:be
 // both GETS and SETS; a stub that always returned 0 meant the dex never recorded
 // anything, Oak's rating was pinned to its lowest tier and the Repeat Ball's
 // caught-bonus was dead.
+//
+// Seen must be recorded alongside caught: the real DexScreen_GetSetPokedexFlag
+// treats a caught bit as valid only when it agrees with seen and both of
+// SaveBlock1's seen mirrors (its anticheat check). This test used to set only the
+// caught bit, which the hand-mirrored stub in overworld_stubs.c counted anyway --
+// so it pinned the mirror, not the engine -- and it started failing the moment the
+// real src/pokedex_screen.c was linked, exactly as it should have.
 FIRERED_TEST("save/pokedex counts reflect caught mons", "engine fixture:bedroom",
          save_pokedex_count)
 {
     u16 before = GetNationalPokedexCount(FLAG_GET_CAUGHT);
 
-    GetSetPokedexFlag(NATIONAL_DEX_ARTICUNO, FLAG_SET_CAUGHT);
+    HandleSetPokedexFlag(NATIONAL_DEX_ARTICUNO, FLAG_SET_SEEN, 0);
+    HandleSetPokedexFlag(NATIONAL_DEX_ARTICUNO, FLAG_SET_CAUGHT, 0);
+
+    TEST_EQ(GetSetPokedexFlag(NATIONAL_DEX_ARTICUNO, FLAG_GET_SEEN), 1);
+    TEST_EQ(GetSetPokedexFlag(NATIONAL_DEX_ARTICUNO, FLAG_GET_CAUGHT), 1);
     TEST_EQ(GetNationalPokedexCount(FLAG_GET_CAUGHT), before + 1);
 }
