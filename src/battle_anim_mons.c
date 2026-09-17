@@ -28,6 +28,17 @@ static void AnimWeatherBallUp_Step(struct Sprite *sprite);
 static EWRAM_DATA union AffineAnimCmd *sAnimTaskAffineAnim = NULL;
 static EWRAM_DATA u32 sUnused = 0;
 
+#ifdef PORTABLE
+// The affine command table a task is animating, held out-of-band because
+// PrepareAffineAnimInTaskData stores it with StorePointerInVars, which packs an
+// address into two 16-bit task slots: a 64-bit host pointer loses its top half
+// and RunAffineAnimFromTaskData dereferences the truncated address. On the GBA
+// two 16-bit slots hold the 32-bit address exactly, which is why pret can do
+// this. Keyed by taskId so no task's data slots are reserved (the same
+// treatment as SetTaskFuncWithFollowupFunc, fix #50).
+static const union AffineAnimCmd *sTaskAffineAnim[NUM_TASKS];
+#endif
+
 static const struct UCoords8 sBattlerCoords[][MAX_BATTLERS_COUNT] =
 {
     { // Single battle
@@ -385,6 +396,23 @@ void StoreSpriteCallbackInData6(struct Sprite *sprite, SpriteCallback callback)
 #else
     sprite->data[6] = (u32)(callback) & 0xFFFF;
     sprite->data[7] = (u32)(callback) >> 16;
+#endif
+}
+
+// The read half of StoreSpriteCallbackInData6, for callers that store a plain
+// data pointer there rather than a callback (the shake animation stores the
+// address of the register it wiggles). Reconstructing it as
+// `data[6] | (data[7] << 16)` would keep only the low 32 bits of the host
+// address, so the dereference then faulted -- the GBA read the whole 32-bit
+// address from those two halfwords and never noticed.
+void *LoadPointerFromData6(struct Sprite *sprite)
+{
+#ifdef PORTABLE
+    uintptr_t value;
+    memcpy(&value, &sprite->data[6], sizeof(value));
+    return (void *)value;
+#else
+    return (void *)((u16)sprite->data[6] | (sprite->data[7] << 16));
 #endif
 }
 
@@ -1696,13 +1724,24 @@ void PrepareAffineAnimInTaskData(struct Task *task, u8 spriteId, const union Aff
     task->data[10] = 0x100;
     task->data[11] = 0x100;
     task->data[12] = 0;
+#ifdef PORTABLE
+    // A host pointer does not fit the two 16-bit slots StorePointerInVars uses
+    // (see sTaskAffineAnim). The task id comes from the task's own address,
+    // which is how every caller reaches this function.
+    sTaskAffineAnim[task - gTasks] = affineAnimCmds;
+#else
     StorePointerInVars(&task->data[13], &task->data[14], affineAnimCmds);
+#endif
     PrepareBattlerSpriteForRotScale(spriteId, ST_OAM_OBJ_NORMAL);
 }
 
 bool8 RunAffineAnimFromTaskData(struct Task *task)
 {
+#ifdef PORTABLE
+    sAnimTaskAffineAnim = (union AffineAnimCmd *)sTaskAffineAnim[task - gTasks] + (task->data[7] << 3);
+#else
     sAnimTaskAffineAnim = LoadPointerFromVars(task->data[13], task->data[14]) + (task->data[7] << 3);
+#endif
     switch (sAnimTaskAffineAnim->type)
     {
     default:
