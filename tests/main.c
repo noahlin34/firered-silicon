@@ -54,6 +54,8 @@ struct TestEntry
 // a pure-function test: it never touches the engine and needs no boot.
 static enum TestFixture FixtureForTest(const struct FireRedTest *test)
 {
+    if (strstr(test->tags, "fixture:dex") != NULL)
+        return FIXTURE_DEX;
     if (strstr(test->tags, "fixture:lab") != NULL)
         return FIXTURE_OAKS_LAB;
     if (strstr(test->tags, "fixture:bedroom") != NULL)
@@ -94,6 +96,7 @@ static const char *FixtureName(enum TestFixture fixture)
     {
     case FIXTURE_BEDROOM:  return "bedroom";
     case FIXTURE_OAKS_LAB: return "lab";
+    case FIXTURE_DEX:      return "dex";
     }
     return "?";
 }
