@@ -304,10 +304,7 @@ const union AnimCmd *const gAnims_MonPic[] =
 #include "data/text/species_names.h"
 #include "data/text/move_names.h"
 
-// The Pokedex entry table (category name, height, weight, dex text) is
-// referenced by src/pokedex.c and src/pokedex_screen.c. It lives here because
-// src/data.c is built through tools/preproc, so the `_()` category names are
-// charmap-encoded; a hand-written stub cannot represent this type.
-#include "pokedex.h"
-#include "data/pokemon/pokedex_text.h"
-#include "data/pokemon/pokedex_entries.h"
+// gPokedexEntries and its dex-text strings live in src/pokedex_screen.c, which
+// defines them via data/pokemon/pokedex_{text,entries}.h. They used to be
+// compiled here because that source was unlinked; keeping both copies is a
+// duplicate-symbol error now that the real screen is linked (fix #8).
