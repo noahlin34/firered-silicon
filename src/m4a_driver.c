@@ -967,19 +967,72 @@ void MPlayMain(struct MusicPlayerInfo *mplayInfo)
  * The mixer
  * ------------------------------------------------------------------------ */
 
-/* Decoded-DPCM scratch. The assembler keeps this in bss and keys it by block
- * index (SoundChannel.xpi), so a run of samples inside one block decodes once.
- * 64 samples per block, as the format below describes. */
-static s8 sDpcmBuffer[64];
+/* Decoded-DPCM scratch. The assembler keeps this in bss (64 bytes of
+ * sDecodingBuffer) and keys it by block index (SoundChannel.xpi), so a run of
+ * samples inside one block decodes once.
+ *
+ * Sized with padding rather than exactly 64: this buffer sits in bss next to
+ * unrelated globals, and the write loop below walks index 0..63. When it wrote
+ * 65 samples, the extra store landed on sMapMusicState and restarted the
+ * battle music on every cry (fix #81). Extra room turns any future off-by-one
+ * into a no-op instead of memory corruption; the read is masked to 0x3F, so
+ * nothing can observe the padding. */
+static s8 sDpcmBuffer[64 + 8];
+
+/* Expands one 33-byte DPCM block into exactly 64 samples.
+ *
+ * Byte 0 is the raw starting sample; byte 1 holds a single delta in its LOW
+ * nibble; bytes 2..32 each hold two deltas, HIGH nibble first. Every delta
+ * indexes gDeltaEncodingTable and accumulates onto the running value. This is
+ * `wav2agb -c`, which is how every cry in the game is stored.
+ *
+ * The order is the assembler's (`SoundMainRAM_Unk2` in src/m4a_1.s) and it is
+ * load-bearing twice over -- both were wrong here, and together they are why
+ * the battle music restarted the moment a Pokémon cried (fix #81):
+ *
+ *   * The pairs start at byte 2, because byte 1 contributes only one delta.
+ *     Starting them at byte 1 with 32 iterations produces a 65th sample and
+ *     stores it one byte past the end of a 64-byte buffer; the port's
+ *     sDpcmBuffer sat immediately before sMapMusicState, so every cry wrote a
+ *     random delta onto the map-music state machine's case selector and
+ *     MapMusicMain's `case 1` restarted the current song.
+ *   * Reading pairs low-nibble-first instead decorrelates the delta stream
+ *     into noise: 0.017 correlation against the source PCM where this order
+ *     gives 1.000.
+ *
+ * `out` must hold 64 samples. Verified byte-exact against `wav2agb`'s
+ * uncompressed conversion of the same WAV. Exposed (rather than static) so
+ * tests can pin the format directly: the corruption it caused lives in a
+ * neighbouring global, which no assertion about the mixed audio can see. */
+void DpcmDecodeBlock(const u8 *block, s8 *out)
+{
+    const u8 *src = block;
+    s32 value = (s8)*src++;
+    s32 i = 1;
+
+    out[0] = value;
+
+    value += gDeltaEncodingTable[*src & 0xF];
+    out[i++] = value;
+    src++;
+
+    while (i < 64)
+    {
+        u8 byte = *src++;
+
+        value += gDeltaEncodingTable[byte >> 4];
+        out[i++] = value;
+        value += gDeltaEncodingTable[byte & 0xF];
+        out[i++] = value;
+    }
+}
 
 /* Decodes the sample at `offset` of a DPCM-compressed wave.
  * SoundMainRAM_Unk2.
  *
- * A compressed wave is a sequence of 33-byte blocks that each hold 64 samples:
- * one raw sample followed by 32 bytes of 4-bit deltas (low nibble first), each
- * indexing gDeltaEncodingTable and accumulating onto the previous value. This
- * is `wav2agb -c`, which is how every cry in the game is stored.
- */
+ * sDpcmBuffer is declared with padding so an off-by-one in the expansion
+ * cannot reach the next global (fix #81); the read is masked to 0x3F, so no
+ * caller can observe the padding. */
 static s8 DecodeDpcm(struct SoundChannel *chan, s32 offset)
 {
     const struct WaveData *wav = chan->wav;
@@ -987,21 +1040,8 @@ static s8 DecodeDpcm(struct SoundChannel *chan, s32 offset)
 
     if (block != chan->xpi)
     {
-        const u8 *src = (const u8 *)wav->data + block * 33;
-        s32 value = (s8)*src++;
-        s32 i;
-
         chan->xpi = block;
-        sDpcmBuffer[0] = value;
-        for (i = 1; i < 64; i += 2)
-        {
-            u8 byte = *src++;
-
-            value += gDeltaEncodingTable[byte & 0xF];
-            sDpcmBuffer[i] = value;
-            value += gDeltaEncodingTable[byte >> 4];
-            sDpcmBuffer[i + 1] = value;
-        }
+        DpcmDecodeBlock((const u8 *)wav->data + block * 33, sDpcmBuffer);
     }
 
     return sDpcmBuffer[offset & 0x3F];
