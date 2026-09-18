@@ -79,9 +79,15 @@ struct ToneData
 #endif
 };
 
-/* Delta table for DPCM-compressed waves (wav2agb -c); see DecodeDpcm in
- * src/m4a_driver.c. Defined in src/m4a_tables.c. */
+/* Delta table for DPCM-compressed waves (wav2agb -c). Defined in
+ * src/m4a_tables.c; the block expansion that consumes it is
+ * DpcmDecodeBlock in src/m4a_driver.c. */
 extern const s8 gDeltaEncodingTable[];
+
+/* Expands one 33-byte DPCM block into exactly 64 samples. The cry tables all
+ * carry TONEDATA_TYPE_CMP waves, so this is the only path that turns a cry
+ * into audible samples. `out` must hold 64 samples. */
+void DpcmDecodeBlock(const u8 *block, s8 *out);
 
 #define SOUND_CHANNEL_SF_START       0x80
 #define SOUND_CHANNEL_SF_STOP        0x40
