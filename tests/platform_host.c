@@ -5,6 +5,7 @@
 // engine references 7 of them, and this file provides all 7 so the substitution
 // cannot fail to link:
 //
+//   Platform_SubmitAudioFrame         src/main.c   (audio out; see below)
 //   Platform_UpdateInput              src/main.c + src/platform/bios.c
 //   Platform_RenderAndPresent         src/main.c   <- the frame tick
 //   Platform_SaveScreenshot           src/main.c
@@ -68,6 +69,12 @@ void Platform_DevPanelSaveScreenshot(const char *filename) { (void)filename; }
 // site is a no-op here; tests/save_backed.c covers the same ground with the
 // reporting and isolation the harness provides.
 void Platform_VerifySaveBackedStubs(void) {}
+
+// The test binary has no audio device and no SDL at all. Dropping the mixed
+// buffer here is correct rather than merely convenient: a test that wants to
+// observe the driver reads gSoundInfo.pcmBuffer directly, which is exactly what
+// the real platform layer hands to SDL.
+void Platform_SubmitAudioFrame(const struct SoundInfo *soundInfo) { (void)soundInfo; }
 
 // --- crash reporting --------------------------------------------------------
 // A crashing test is reported with the faulting address and a symbolized frame,
