@@ -227,12 +227,8 @@ u8 GetLinkPlayerCount_2(void) { return 0; }
 u8 GetMultiplayerId(void) { return 0; }
 bool32 InUnionRoom(void) { return 0; }
 bool8 IsActiveItemMoving(void) { return 0; }
-bool8 IsBGMPlaying(void) { return 0; }
 /* Audio engine (m4a_1.s) is not ported; cries never start, so "finished"
  * must report TRUE or Task_OakSpeech_IsInhabitedFarAndWide spins forever. */
-bool8 IsCryFinished(void) { return TRUE; }
-bool8 IsCryPlaying(void) { return FALSE; }
-bool8 IsCryPlayingOrClearCrySongs(void) { return FALSE; }
 bool8 IsItemIconAnimActive(void) { return 0; }
 bool32 IsLinkRecvQueueAtOverworldMax(void) { return 0; }
 bool8 IsLinkRfuTaskFinished(void) { return 0; }
@@ -243,15 +239,9 @@ u8 MultiMove_GetOriginPosition(void) { return 0; }
 bool8 MultiMove_TryMoveGroup(u8 dir) { return 0; }
 /* Real implementation from field_effect.c (not linked): fades one palette
  * entry toward white; used by the naming-screen cursor flash. */
-void PlayCry_ByMode(u16 species, s8 pan, u8 mode) {}
-void PlayCry_ReleaseDouble(u16 species, s8 pan, u8 mode) {}
-void PlayNewMapMusic(u16 songNum) {}
-void PlaySE1WithPanning(u16 songNum, s8 pan) {}
-void PlaySE2WithPanning(u16 songNum, s8 pan) {}
 void PrintTextOnHelpMessageWindow(const u8 * text, u8 mode) {}
 void ResetBlockReceivedFlag(u8) {}
 void ResetBlockReceivedFlags(void) {}
-void ResetMapMusic(void) {}
 void RestoreHelpContext(void) {}
 bool8 SendBlock(u8, const void *, u16) { return 0; }
 void SetCloseLinkCallback(void) {}
@@ -265,14 +255,12 @@ void SetPlacedMonSprite(u8 cursorArea, u8 cursorPos) {}
 void SetShiftMonSpritePtr(u8 boxId, u8 position) {}
 void SetWirelessCommType1(void) {}
 bool8 ShiftMons(void) { return 0; }
-void StopCryAndClearCrySongs(void) {}
 void Task_WaitForLinkPlayerConnection(u8 taskId) {}
 void TryHideItemIconAtPos(u8 cursorArea, u8 cursorPos) {}
 bool8 TryHideReleaseMonSprite(void) { return 0; }
 void TryLoadItemIconAtPos(u8 cursorArea, u8 cursorPos) {}
 void TrySetQuestLogBattleEvent(void) {}
 void TrySetQuestLogLinkBattleEvent(void) {}
-void m4aMPlayVolumeControl(struct MusicPlayerInfo *mplayInfo, u16 trackBits, u16 volume) {}
 
 
 /* ---- round-2 stubs ---- */
