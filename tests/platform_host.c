@@ -30,6 +30,7 @@
 #include "internal.h"
 
 #include "gba/io_reg.h"
+#include "gba/m4a_internal.h"
 #include "platform/platform.h"
 
 // --- SDL-facing symbols, reimplemented without SDL --------------------------
@@ -70,11 +71,36 @@ void Platform_DevPanelSaveScreenshot(const char *filename) { (void)filename; }
 // reporting and isolation the harness provides.
 void Platform_VerifySaveBackedStubs(void) {}
 
-// The test binary has no audio device and no SDL at all. Dropping the mixed
-// buffer here is correct rather than merely convenient: a test that wants to
-// observe the driver reads gSoundInfo.pcmBuffer directly, which is exactly what
-// the real platform layer hands to SDL.
-void Platform_SubmitAudioFrame(const struct SoundInfo *soundInfo) { (void)soundInfo; }
+// The test binary has no audio device and no SDL at all, so the mixed buffer is
+// not played. It IS recorded, because whether the engine hands its mix to the
+// platform is observable behaviour that has been wrong: the driver mixed
+// correctly into gSoundInfo.pcmBuffer and nothing ever called this function, so
+// the game booted, the song sequenced, and the device stayed silent. A test that
+// reads gSoundInfo.pcmBuffer cannot catch that -- it passes either way.
+// tests/sound.c asserts through these counters via Harness_AudioSubmitCount.
+int gHarnessAudioSubmits = 0;
+long gHarnessAudioMagnitude = 0;
+
+void Platform_SubmitAudioFrame(const struct SoundInfo *soundInfo)
+{
+    int i;
+    long sum = 0;
+
+    if (!soundInfo)
+        return;
+
+    gHarnessAudioSubmits++;
+    for (i = 0; i < soundInfo->pcmSamplesPerVBlank; i++)
+    {
+        sum += soundInfo->pcmBuffer[i] < 0 ? -soundInfo->pcmBuffer[i]
+                                           : soundInfo->pcmBuffer[i];
+        sum += soundInfo->pcmBuffer[PCM_DMA_BUF_SIZE + i] < 0
+             ? -soundInfo->pcmBuffer[PCM_DMA_BUF_SIZE + i]
+             : soundInfo->pcmBuffer[PCM_DMA_BUF_SIZE + i];
+    }
+    if (sum > gHarnessAudioMagnitude)
+        gHarnessAudioMagnitude = sum;
+}
 
 // --- crash reporting --------------------------------------------------------
 // A crashing test is reported with the faulting address and a symbolized frame,
