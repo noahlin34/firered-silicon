@@ -1,12 +1,12 @@
 // The m4a sound driver (src/m4a_driver.c, the portable transcription of
 // src/m4a_1.s) and the audio data it plays from.
 //
-// The harness replaces the per-frame seam, so VBlankIntr -- which is what calls
-// m4aSoundMain in the game -- never runs here. These tests therefore drive the
-// sound tick themselves by calling m4aSoundMain(), which is exactly the call
-// src/main.c's VBlankIntr makes once per vblank. That keeps the assertions on
-// the driver's own contract (one vblank of mixing) rather than on the harness
-// happening to pump audio.
+// The harness drives the real src/main.c frame loop (it substitutes only
+// src/platform/*.c), so VBlankIntr runs once per frame. These tests still call
+// m4aSoundMain themselves where they want to advance the driver on their own
+// terms -- that keeps the assertions about the mixer independent of exactly how
+// many frames the harness has run -- while sound/audio_handoff asserts the real
+// per-frame call site instead.
 //
 // Before this work the whole driver was stubs: src/platform/stubs.c defined
 // m4aSoundMain/m4aSoundVSync/m4aSongNumStart and the high-level sound layer as
@@ -172,6 +172,72 @@ FIRERED_TEST("sound/a channel is given the track's velocity and key",
     }
 
     TEST_NE(found, 0); // at least one channel carried the note
+}
+
+FIRERED_TEST("sound/the engine hands its mix to the platform every vblank",
+             "engine fixture:bedroom sound", sound_audio_handoff)
+{
+    // The driver mixing correctly is not the same as the game making sound: the
+    // mixed buffer has to reach the platform. It did not -- Platform_SubmitAudioFrame
+    // was declared, defined and test-stubbed, and nothing ever called it, so the
+    // game booted, the song sequenced, the device opened, and silence came out.
+    // A test that reads gSoundInfo.pcmBuffer directly passes either way, which is
+    // why the earlier tests could not catch it. This one asserts the handoff
+    // through the harness's recording of the real call site -- src/main.c's
+    // VBlankIntr, which WaitForVBlank drives once per frame.
+    PlayBGM(MUS_PALLET);
+
+    Test_RunFrames(300);
+
+    TEST_NE(gHarnessAudioSubmits, 0);   // the handoff happened at all
+    TEST_NE(gHarnessAudioMagnitude, 0); // ...carrying non-silent audio
+
+    // One submit per frame: the call sits in VBlankIntr, so it must not be
+    // skipped or doubled on any path through it. The fixture has already settled
+    // by the time the body runs, so every frame here submits.
+    TEST_GE(gHarnessAudioSubmits, 299);
+}
+
+FIRERED_TEST("sound/each vblank clears both PCM halves before mixing",
+             "sound pure", sound_mix_clears_both_halves)
+{
+    // MixChannel ACCUMULATES into pcmBuffer, so an uncleared half keeps the
+    // previous vblank's samples and every note piles on top of them: that channel
+    // saturates instead of playing. The assembler's clear loop walks r5 (the
+    // right half) and r6 (r5 + PCM_DMA_BUF_SIZE) in lockstep, but the port memset
+    // only the first half.
+    //
+    // The clear happens in two places -- the reverb block (which writes both
+    // halves) and the reverb-off block -- so this test forces reverb off and no
+    // live channels, then poisons both halves: every byte must come back cleared.
+    // A single memset leaves the left half pinned at the poison value.
+    s32 i;
+
+    gSoundInfo.pcmSamplesPerVBlank = 224;
+    gSoundInfo.maxChans = 0;
+    gSoundInfo.reverb = 0;
+
+    for (i = 0; i < gSoundInfo.pcmSamplesPerVBlank; i++)
+    {
+        gSoundInfo.pcmBuffer[i] = 0x55;
+        gSoundInfo.pcmBuffer[PCM_DMA_BUF_SIZE + i] = 0x55;
+    }
+
+    SoundMix();
+
+    for (i = 0; i < gSoundInfo.pcmSamplesPerVBlank; i++)
+    {
+        if (gSoundInfo.pcmBuffer[i] == 0x55)
+        {
+            TEST_FAIL("byte %d of the RIGHT PCM half survived the clear", (int)i);
+            return;
+        }
+        if (gSoundInfo.pcmBuffer[PCM_DMA_BUF_SIZE + i] == 0x55)
+        {
+            TEST_FAIL("byte %d of the LEFT PCM half survived the clear", (int)i);
+            return;
+        }
+    }
 }
 
 FIRERED_TEST("sound/song bytecode pointer operands resolve to code",
