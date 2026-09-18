@@ -25,6 +25,14 @@ void Platform_RunHBlankDma(void);
 struct SoundInfo;
 void Platform_SubmitAudioFrame(const struct SoundInfo *soundInfo);
 
+/* Synthesises the GBA's four PSG (CGB) channels from the NRxx registers the
+ * engine's CgbSound wrote, summing them into SoundInfo.pcmBuffer alongside the
+ * DirectSound mix. On hardware those registers are the oscillators; here they
+ * are memory, so without this every CGB voice in the music is silent.
+ * src/platform/psg.c is the implementation and explains the register model. */
+struct SoundInfo;
+void Platform_PsgMix(struct SoundInfo *soundInfo);
+
 // GBA Hardware Memory Buffers
 extern uint8_t REG_BASE[0x400];
 extern uint8_t PLTT_[0x400];
