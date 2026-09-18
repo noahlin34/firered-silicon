@@ -349,6 +349,24 @@ FIRERED_TEST("sound/voice data is the real voicegroup",
     // (the `cry` macro uses a 12-byte ToneData like every other voice).
     TEST_EQ(gCryTable[0].type, 0x20);
     TEST_PTR_NOT_NULL((void *)gCryTable[0].wav);
+
+    // ...and those blobs must actually BE DPCM, because the mixer trusts the
+    // 0x20 above: `FetchSample` sees TONEDATA_TYPE_CMP and calls DecodeDpcm,
+    // which reads 33-byte blocks of one raw sample plus 32 delta bytes. A raw
+    // PCM blob fed through that decoder is noise, not a cry.
+    //
+    // This is the assertion that was missing when the Makefile had the voice
+    // rule ordered first: both `sound/direct_sound_samples/%.bin` and
+    // `.../cries/%.bin` match a cry path, GNU Make takes the first, so every
+    // cry shipped uncompressed while this table still said 0x20, and the cries
+    // played as noise. Asserted through the blob, not the Makefile: the type
+    // byte in WaveData is the encoder's own record of what it wrote.
+    {
+        const struct WaveData *cry = gCryTable[0].wav;
+
+        // wav2agb -c writes type 1; the uncompressed path writes 0.
+        TEST_EQ(cry->type, 1);
+    }
 }
 
 
