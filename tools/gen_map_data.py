@@ -1134,6 +1134,138 @@ def main():
     out_layouts_file = root / "src/data/layouts_data.h"
     out_maps_file = root / "src/data/maps_data.h"
 
+    layout_id_to_name = {}
+    for layout in layouts_json["layouts"]:
+        if layout and layout.get("id"):
+            layout_id_to_name[layout["id"]] = layout["name"]
+    all_map_names = []
+    for grp in groups_json["group_order"]:
+        for map_name in groups_json[grp]:
+            all_map_names.append(map_name)
+
+    constants = load_defines(root)
+    constants.update(collect_local_ids(root))
+    resolve_equates(root, constants)
+    collect_specials(root, constants)
+    script_sources, movement_sources, text_sources = collect_sources(root)
+    movement_actions = load_movement_actions(root)
+    external_scripts = load_external_scripts(root)
+
+    # Compile every requested scene on its own, so one unsupported command does
+    # not stop the others being diagnosed, and COLLECT the failures instead of
+    # printing them: a stubbed root is a silent downgrade (the label falls back
+    # to sDummyScript), so main() refuses to emit rather than write a header with
+    # the scene quietly removed. See the check before the emission below.
+    compiled_roots = set()
+    stubs = []
+    for script_name in sorted(NATIVE_SCRIPT_ROOTS):
+        if script_name.endswith("_MapScripts"):
+            continue  # compiled by MapScriptRegistry below
+        probe = ScriptRegistry(
+            script_sources,
+            constants,
+            TextRegistry(text_sources),
+            MovementRegistry(movement_sources, constants, movement_actions),
+            external_scripts,
+        )
+        try:
+            probe.ensure(script_name)
+        except UnsupportedScript as error:
+            stubs.append(f"{script_name}: {error}")
+            continue
+        compiled_roots.add(script_name)
+
+    # Map script header tables (map_script / map_script_2) for maps whose
+    # events were compiled natively. Parsed from each map's scripts.inc after
+    map_script_tables = {}
+    for script_name in sorted(NATIVE_SCRIPT_ROOTS):
+        if not script_name.endswith("_MapScripts"):
+            continue
+        map_name = script_name[:-len("_MapScripts")]
+        map_scripts_path = root / f"data/maps/{map_name}/scripts.inc"
+        if not map_scripts_path.exists():
+            stubs.append(f"{script_name}: no scripts.inc")
+            continue
+        entries = []
+        ok = True
+        in_table = False
+        for raw in map_scripts_path.read_text().splitlines():
+            line = strip_comment(raw).strip()
+            if not in_table:
+                if line.startswith(script_name + "::"):
+                    in_table = True
+                continue
+            if re.match(r"^[A-Za-z_][A-Za-z0-9_]*::", line) or not line:
+                break  # next label: table ended
+            if line.startswith("."):
+                if line == ".byte 0":
+                    break  # explicit terminator
+                continue  # .equ and friends
+            command, args = split_command(line)
+            try:
+                if command == "map_script" and len(args) == 2:
+                    tag = resolve_map_script_constant(constants, args[0])
+                    entries.append((tag, args[1]))
+                elif command == "map_script_2" and len(args) == 3:
+                    var = resolve_map_script_constant(constants, args[0])
+                    compare = resolve_map_script_constant(constants, args[1])
+                    entries.append(("table", var, compare, args[2]))
+                else:
+                    raise UnsupportedScript(f"unsupported map script line: {line}")
+            except UnsupportedScript as error:
+                stubs.append(f"{script_name}: {error}")
+                ok = False
+                break
+        if ok:
+            map_script_tables[map_name] = entries
+
+    text_registry = TextRegistry(text_sources)
+    for label in sorted(collect_engine_text_references(root, text_sources)):
+        text_registry.reference_global(label)
+    movement_registry = MovementRegistry(movement_sources, constants, movement_actions)
+    script_registry = ScriptRegistry(
+        script_sources,
+        constants,
+        text_registry,
+        movement_registry,
+        external_scripts,
+    )
+
+    for script_name in sorted(compiled_roots):
+        script_registry.ensure(script_name)
+    map_script_registry = MapScriptRegistry(script_registry)
+    for map_name, entries in map_script_tables.items():
+        try:
+            for entry in entries:
+                label = entry[3] if entry[0] == "table" else entry[1]
+                script_registry.ensure(label)
+            map_script_registry.compile(map_name, entries)
+        except UnsupportedScript as error:
+            stubs.append(f"{map_name}_MapScripts: {error}")
+
+    # Refuse to emit a degraded header. Every entry here is a generator defect or
+    # a missing input -- most often a generated constants header
+    # (include/constants/map_groups.h and friends are gitignored, so a fresh
+    # clone has none and every MAP_* operand becomes unresolvable). Writing
+    # maps_data.h in that state replaces real scripts with sDummyScript and the
+    # build still succeeds: the interactions simply do nothing, and only a linked
+    # .c that names the label reports it, as an undefined symbol in the test
+    # binary. Fail here, before maps_data.h is touched.
+    if stubs:
+        print(
+            f"gen_map_data: {len(stubs)} script root(s) left stubbed; refusing to "
+            f"write incomplete map data:",
+            file=sys.stderr,
+        )
+        for stub in stubs:
+            print(f"  {stub}", file=sys.stderr)
+        print(
+            "gen_map_data: hint: run `make generated-headers` first -- a missing "
+            "include/constants/*.h makes every constant unresolvable.",
+            file=sys.stderr,
+        )
+        return 1
+
     # -------------------------------------------------------------
     # Generate layouts_data.h
     # -------------------------------------------------------------
@@ -1187,112 +1319,6 @@ def main():
         f.write("};\n\n")
 
     print(f"Wrote {out_layouts_file}")
-
-    layout_id_to_name = {}
-    for layout in layouts_json["layouts"]:
-        if layout and layout.get("id"):
-            layout_id_to_name[layout["id"]] = layout["name"]
-    all_map_names = []
-    for grp in groups_json["group_order"]:
-        for map_name in groups_json[grp]:
-            all_map_names.append(map_name)
-
-    constants = load_defines(root)
-    constants.update(collect_local_ids(root))
-    resolve_equates(root, constants)
-    collect_specials(root, constants)
-    script_sources, movement_sources, text_sources = collect_sources(root)
-    movement_actions = load_movement_actions(root)
-    external_scripts = load_external_scripts(root)
-
-    # Compile every requested scene on its own: one unsupported command must not
-    # take down the other scenes, and a scene that fails to compile keeps its
-    # dummy-script fallback instead of being wired into the map data.
-    compiled_roots = set()
-    for script_name in sorted(NATIVE_SCRIPT_ROOTS):
-        if script_name.endswith("_MapScripts"):
-            continue  # compiled by MapScriptRegistry below
-        probe = ScriptRegistry(
-            script_sources,
-            constants,
-            TextRegistry(text_sources),
-            MovementRegistry(movement_sources, constants, movement_actions),
-            external_scripts,
-        )
-        try:
-            probe.ensure(script_name)
-        except UnsupportedScript as error:
-            print(f"gen_map_data: {script_name} left stubbed: {error}", file=sys.stderr)
-            continue
-        compiled_roots.add(script_name)
-
-    # Map script header tables (map_script / map_script_2) for maps whose
-    # events were compiled natively. Parsed from each map's scripts.inc after
-    map_script_tables = {}
-    for script_name in sorted(NATIVE_SCRIPT_ROOTS):
-        if not script_name.endswith("_MapScripts"):
-            continue
-        map_name = script_name[:-len("_MapScripts")]
-        map_scripts_path = root / f"data/maps/{map_name}/scripts.inc"
-        if not map_scripts_path.exists():
-            print(f"gen_map_data: {script_name} left stubbed: no scripts.inc", file=sys.stderr)
-            continue
-        entries = []
-        ok = True
-        in_table = False
-        for raw in map_scripts_path.read_text().splitlines():
-            line = strip_comment(raw).strip()
-            if not in_table:
-                if line.startswith(script_name + "::"):
-                    in_table = True
-                continue
-            if re.match(r"^[A-Za-z_][A-Za-z0-9_]*::", line) or not line:
-                break  # next label: table ended
-            if line.startswith("."):
-                if line == ".byte 0":
-                    break  # explicit terminator
-                continue  # .equ and friends
-            command, args = split_command(line)
-            try:
-                if command == "map_script" and len(args) == 2:
-                    tag = resolve_map_script_constant(constants, args[0])
-                    entries.append((tag, args[1]))
-                elif command == "map_script_2" and len(args) == 3:
-                    var = resolve_map_script_constant(constants, args[0])
-                    compare = resolve_map_script_constant(constants, args[1])
-                    entries.append(("table", var, compare, args[2]))
-                else:
-                    raise UnsupportedScript(f"unsupported map script line: {line}")
-            except UnsupportedScript as error:
-                print(f"gen_map_data: {script_name} left stubbed: {error}", file=sys.stderr)
-                ok = False
-                break
-        if ok:
-            map_script_tables[map_name] = entries
-
-    text_registry = TextRegistry(text_sources)
-    for label in sorted(collect_engine_text_references(root, text_sources)):
-        text_registry.reference_global(label)
-    movement_registry = MovementRegistry(movement_sources, constants, movement_actions)
-    script_registry = ScriptRegistry(
-        script_sources,
-        constants,
-        text_registry,
-        movement_registry,
-        external_scripts,
-    )
-
-    for script_name in sorted(compiled_roots):
-        script_registry.ensure(script_name)
-    map_script_registry = MapScriptRegistry(script_registry)
-    for map_name, entries in map_script_tables.items():
-        try:
-            for entry in entries:
-                label = entry[3] if entry[0] == "table" else entry[1]
-                script_registry.ensure(label)
-            map_script_registry.compile(map_name, entries)
-        except UnsupportedScript as error:
-            print(f"gen_map_data: {map_name}_MapScripts left stubbed: {error}", file=sys.stderr)
 
     map_data = {}
     for map_name in all_map_names:
@@ -1544,4 +1570,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
