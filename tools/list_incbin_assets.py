@@ -35,6 +35,14 @@ RULE_FILES = ("Makefile.native", "graphics_file_rules.mk", "tileset_rules.mk",
               "spritesheet_rules.mk", "tools/battle_assets.mk",
               "tools/anim_sprite_assets.mk", "tools/battle_extra_assets.mk")
 
+# Audio blobs are converted by wav2agb rules in Makefile.native instead of
+# gbagfx ones, and they deliberately do NOT appear above: a `.bin` produced from
+# a `.wav` has no gbagfx rule, so the generic resolver would report all 477 of
+# them as unbuildable noise. They are real targets of the Makefile, so they are
+# resolved from the source `.wav` that sits beside them.
+AUDIO_BLOB_SUFFIX = ".bin"
+AUDIO_SOURCE_SUFFIX = ".wav"
+
 # An explicit target line: "path:" at the start of a line (not a variable,
 # not a pattern rule, not a recipe line).
 TARGET_RE = re.compile(r'^([^\s:#=\t][^:#=\n]*?)\s*:(?!=)')
@@ -142,6 +150,13 @@ def make_resolver(sources, explicit):
         cache[target] = False  # break cycles before recursing
         ok = False
         if target in explicit:
+            ok = True
+        elif (target.endswith(AUDIO_BLOB_SUFFIX)
+              and os.path.exists(target[:-len(AUDIO_BLOB_SUFFIX)]
+                                 + AUDIO_SOURCE_SUFFIX)):
+            # A sound sample: Makefile.native has the wav2agb rule (and its
+            # compressed variant for cries), so the source .wav existing is the
+            # proof it can be built.
             ok = True
         else:
             for suffix in CONVERSION_SUFFIXES:
