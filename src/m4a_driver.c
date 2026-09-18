@@ -371,10 +371,31 @@ void ply_note(u32 note_cmd, struct MusicPlayerInfo *mplayInfo, struct MusicPlaye
     chan->priority = priority;
     chan->key = track->key;
     chan->rhythmPan = rhythmPan;
+    /* The assembler again uses wide stores over adjacent scalar fields:
+     *
+     *     ldr r0, [r6, o_ToneData_attack]      @ ToneData { attack, decay, sustain, release }
+     *     str r0, [r4, o_SoundChannel_attack]  @ SoundChannel { attack, decay, sustain, release }
+     *     ldrh r0, [r5, o_MusicPlayerTrack_pseudoEchoVolume]
+     *     strh r0, [r4, o_SoundChannel_pseudoEchoVolume]  @ + pseudoEchoLength
+     *
+     * So all four envelope bytes arrive at once, and the echo volume AND length
+     * arrive together. Copying only `attack` leaves decay/sustain/release at 0,
+     * and the envelope state machine's decay stage then computes
+     * `volume = (volume * decay) >> 8` = 0, finds it at or below the sustain of
+     * 0, and switches the channel off -- so every note dies the vblank after
+     * its attack finishes, whatever the voice's real envelope says. That is the
+     * dropout: notes only sound while attack is still ramping, which at attack
+     * 51 of 255 is about five vblanks. The same omission zeroes
+     * pseudoEchoVolume/Length, so the release tail has nowhere to decay into
+     * and stops dead instead of fading. */
     chan->type = tone->type;
     chan->wav = tone->wav;
     chan->attack = tone->attack;
+    chan->decay = tone->decay;
+    chan->sustain = tone->sustain;
+    chan->release = tone->release;
     chan->pseudoEchoVolume = track->pseudoEchoVolume;
+    chan->pseudoEchoLength = track->pseudoEchoLength;
 
     ChnVolSetAsm(chan, track);
 
