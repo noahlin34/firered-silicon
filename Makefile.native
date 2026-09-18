@@ -37,8 +37,48 @@ DEPFLAGS := -MMD -MP
 # them gbagfx emits plain row-major tiles, the engine's overworld_frame() macro
 # addresses the wrong tiles, and the first frames come out blank (invisible NPCs).
 GFX := tools/gbagfx/gbagfx
-
 OBJ_EVENT_PICS := $(patsubst %.png,%.4bpp,$(wildcard graphics/object_events/pics/*/*.png))
+
+# ---------------------------------------------------------------------------
+# Audio assets.
+#
+# pret's audio_rules.mk cannot be included as-is: it assembles songs with the
+# GBA cross-assembler and drives them through the ROM's object list. The data
+# itself is still pret's, so the two converters are the only tools needed:
+#
+#   * wav2agb turns each .wav into the raw `struct WaveData` blob the mixer
+#     reads. Cries are DPCM-compressed (`-c`), voices are not, which is exactly
+#     what audio_rules.mk's two rules do; the compressed output is padded to a
+#     4-byte boundary because the mixer reads samples as signed bytes but the
+#     blob is cast to a struct with 4-byte members.
+#   * mid2agb turns each .mid into song bytecode, which
+#     tools/gen_sound_data.py then compiles into native C (the generated file
+#     is tracked, so mid2agb is only needed to regenerate it).
+#
+# The .aif/.wav -> .bin outputs are gitignored (they are build products, like
+# the graphics), so they are generated on demand here.
+# ---------------------------------------------------------------------------
+WAV2AGB := tools/wav2agb/wav2agb
+MID2AGB := tools/mid2agb/mid2agb
+
+SOUND_SAMPLE_WAVS := $(wildcard sound/direct_sound_samples/*.wav)
+SOUND_CRY_WAVS := $(wildcard sound/direct_sound_samples/cries/*.wav)
+SOUND_SAMPLE_BINS := $(SOUND_SAMPLE_WAVS:.wav=.bin)
+SOUND_CRY_BINS := $(SOUND_CRY_WAVS:.wav=.bin)
+SOUND_ASSETS := $(SOUND_SAMPLE_BINS) $(SOUND_CRY_BINS)
+
+# Voices: uncompressed, straight conversion.
+sound/direct_sound_samples/%.bin: sound/direct_sound_samples/%.wav
+	@mkdir -p $(dir $@)
+	@$(WAV2AGB) -b $< $@
+
+# Cries: DPCM-compressed, then padded to a 4-byte multiple so the blob's
+# WaveData header and sample data stay aligned when cast.
+sound/direct_sound_samples/cries/%.bin: sound/direct_sound_samples/cries/%.wav
+	@mkdir -p $(dir $@)
+	@$(WAV2AGB) -b -c -l 1 --no-pad $< $@
+	@sz=$$(wc -c < $@); pad=$$(( (4 - sz % 4) % 4 )); \
+	 if [ $$pad -ne 0 ]; then dd if=/dev/zero bs=1 count=$$pad >> $@ 2>/dev/null; fi
 
 # pret's per-asset rules carry the conversion flags that matter (-num_tiles,
 # -mwidth/-mheight, and the two-palette `cat` for textbox.gbapal). Without them
@@ -71,10 +111,10 @@ include tools/battle_extra_assets.mk
 MAPJSON  := tools/mapjson/mapjson
 JSONPROC := tools/jsonproc/jsonproc
 
-# gbagfx, preproc, mapjson and jsonproc are build products, not sources: all
-# are gitignored, so a fresh clone has none and every asset rule dies with
-# "No such file or directory". Build them on demand.
-$(GFX) $(PREPROC) $(MAPJSON) $(JSONPROC):
+# gbagfx, preproc, mapjson, jsonproc and wav2agb are build products, not
+# sources: all are gitignored, so a fresh clone has none and every asset rule
+# dies with "No such file or directory". Build them on demand.
+$(GFX) $(PREPROC) $(MAPJSON) $(JSONPROC) $(WAV2AGB) $(MID2AGB):
 	@$(MAKE) -C $(dir $@)
 
 MAP_JSONS := $(wildcard data/maps/*/map.json)
@@ -171,7 +211,7 @@ INCBIN_ASSETS := $(shell python3 tools/list_incbin_assets.py)
 # paths that cannot be enumerated. This target remains as a manual entry point.
 .PHONY: tools
 tools:
-	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) $(GFX) $(PREPROC) $(MAPJSON) $(JSONPROC)
+	@$(MAKE) -f $(firstword $(MAKEFILE_LIST)) $(GFX) $(PREPROC) $(MAPJSON) $(JSONPROC) $(WAV2AGB) $(MID2AGB)
 
 # Every concrete asset target named by the rule files, read back out of them so
 # the list cannot drift. The tools themselves are excluded: depending on gbagfx
@@ -213,6 +253,10 @@ ENGINE_SRCS := src/main.c \
                src/pokeball.c \
                src/math_util.c \
                src/trig.c \
+               src/m4a.c \
+               src/m4a_tables.c \
+               src/m4a_driver.c \
+               src/sound.c \
                src/decompress.c \
                src/blend_palette.c \
                src/blit.c \
@@ -270,6 +314,7 @@ PREPROC_SRCS := src/title_screen.c \
                 src/main_menu.c \
                 src/graphics.c \
                 src/data.c \
+                src/data/sound/sound_data.c \
                 src/new_menu_helpers.c \
                 src/oak_speech.c \
                 src/naming_screen.c \
@@ -427,7 +472,7 @@ $(BATTLE_SCRIPTS_STAMP): $(BATTLE_SCRIPT_SOURCES)
 # MAKEFLAGS, so a parallel sub-make reproduces the same spin internally.
 ASSET_STAMP := $(OBJ_DIR)/.assets.stamp
 
-$(ASSET_STAMP): $(GEN_HEADERS) | $(GFX) $(PREPROC)
+$(ASSET_STAMP): $(GEN_HEADERS) | $(GFX) $(PREPROC) $(WAV2AGB)
 	@$(MAKE) -s -j1 -f $(firstword $(MAKEFILE_LIST)) derived-assets
 	@$(MAKE) -s -j1 -f $(firstword $(MAKEFILE_LIST)) assets
 	@mkdir -p $(dir $@)
@@ -436,7 +481,7 @@ $(ASSET_STAMP): $(GEN_HEADERS) | $(GFX) $(PREPROC)
 # The rule-driven half of the asset set: every INCBIN the sources reach that the
 # aggregates do not already list. Only ever built through the stamp above.
 .PHONY: derived-assets
-derived-assets: $(INCBIN_ASSETS)
+derived-assets: $(INCBIN_ASSETS) $(SOUND_ASSETS)
 	@:
 
 # `make assets` generates the rest. This is the documented "generate the assets
