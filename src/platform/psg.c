@@ -199,6 +199,14 @@ static const u8 sDutyHighSteps[4] = { 1, 2, 4, 6 };
  * on top of the melodic line instead of under it, which is what "the melody is
  * too quiet" sounds like. At 4 it is 58.9%. Envelope 1 still reaches +/-2, so
  * quiet passages keep their shape, and the centring stays exact per duty cycle.
+ *
+ * The ratio is measured; the target is not. The hardware does *not* provide one:
+ * m4aSoundInit programs SOUNDCNT_H = SOUND_ALL_MIX_FULL (CGB 100%, both FIFOs
+ * 100%) and CgbSound sets NR50 to 0x77, so the engine sums all three sources at
+ * full weight and the balance comes from the song data's own voice volumes.
+ * 4 is therefore an empirical starting point, and the value that actually sounds
+ * right is an ear decision, not a derivation -- adjust it against a recording
+ * rather than against this comment.
  */
 #define PSG_DAC_SCALE 4
 
