@@ -435,6 +435,8 @@ PREPROC_SRCS := src/title_screen.c \
                 src/wild_pokemon_area.c \
                 src/field_specials.c \
                 src/diploma.c \
+                src/pokemon_summary_screen.c \
+                src/mon_markings.c \
                 src/dynamic_placeholder_text_util.c
 
 OBJ_DIR := build/native
