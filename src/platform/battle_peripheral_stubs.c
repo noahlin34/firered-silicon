@@ -288,9 +288,6 @@ bool32 ReadTrainerTowerAndValidate(void) { return FALSE; }
 void ReducePlayerPartyToThree(void) {}
 
 /* Audio is entirely stubbed in the native platform layer. */
-struct MusicPlayerInfo gMPlayInfo_SE1 = {0};
-struct MusicPlayerInfo gMPlayInfo_SE2 = {0};
-void SE12PanpotControl(s8 pan) { (void)pan; }
 
 void SetTeachyTvControllerModeToResume(void) {}
 
