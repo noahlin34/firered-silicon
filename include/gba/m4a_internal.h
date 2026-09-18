@@ -456,6 +456,9 @@ u32 MidiKeyToFreq(struct WaveData *wav, u8 key, u8 fineAdjust);
 
 u32 umul3232H32(u32 multiplier, u32 multiplicand);
 void SoundMain(void);
+/* src/m4a_driver.c's name for the mixer the ROM build keeps in IWRAM as
+ * SoundMainRAM. Non-static so the mixing contract is testable directly. */
+void SoundMix(void);
 #ifdef PORTABLE
 /* The GBA routine clears the 64 bytes at r0 regardless of its C prototype (it
  * is called through the jump table, where the pointer arrives in r0). The host
