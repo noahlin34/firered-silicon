@@ -229,6 +229,7 @@ $(ANIM_SPRITE_4BPP) $(ANIM_SPRITE_TARGETS): | $(GFX)
 PLATFORM_SRCS := src/platform/system.c \
                  src/platform/bios.c \
                  src/platform/ppu.c \
+                 src/platform/psg.c \
                  src/platform/sdl2.c \
                  src/platform/stubs.c \
                  src/platform/new_game_intro_text.c \
