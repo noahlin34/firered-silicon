@@ -33,6 +33,17 @@ void Platform_SubmitAudioFrame(const struct SoundInfo *soundInfo);
 struct SoundInfo;
 void Platform_PsgMix(struct SoundInfo *soundInfo);
 
+/* Resamples one vblank of the engine's 8-bit PCM (a right half and a left half
+ * of `count` samples each) up to the audio device's rate, interpolating linearly
+ * so the output does not carry the step-train images a nearest-neighbour hold
+ * produces. `*pos` carries the sub-sample position between vblanks, which is what
+ * keeps the result continuous across the vblank seam. `out` receives interleaved
+ * stereo int16 frames; returns how many were written.
+ * src/platform/audio_resample.c is the implementation and derives the numbers. */
+int Platform_ResampleVblank(const int8_t *pcmRight, const int8_t *pcmLeft,
+                            int count, int engineRate, int deviceRate, int *pos,
+                            int16_t *out, int maxFrames);
+
 // GBA Hardware Memory Buffers
 extern uint8_t REG_BASE[0x400];
 extern uint8_t PLTT_[0x400];
