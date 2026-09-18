@@ -18,8 +18,8 @@ Two kinds of 4-byte operand exist, and they are read by different paths:
   reaching that reader is a hard error rather than something to guess at.
 
 Whether a `callnative` target is emitted at all is decided by scanning the
-*linked* sources: the generator reads ENGINE_SRCS/PREPROC_SRCS from
-Makefile.native and only symbolises a native that one of those files defines.
+*linked* sources: the generator reads ENGINE_SRCS/PREPROC_SRCS from the
+Makefile and only symbolises a native that one of those files defines.
 Everything else is emitted as a NULL script (the effect simply does not start),
 which is the same behaviour the all-NULL stub table had. A hand-maintained list
 of "ported" natives would go stale and turn a missing symbol into a link error
@@ -33,7 +33,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPT_SOURCE = os.path.join(ROOT, "data", "field_effect_scripts.s")
 MACRO_SOURCE = os.path.join(ROOT, "asm", "macros", "field_effect_script.inc")
-MAKEFILE = os.path.join(ROOT, "Makefile.native")
+MAKEFILE = os.path.join(ROOT, "Makefile")
 CONSTANTS = os.path.join(ROOT, "include", "constants", "field_effects.h")
 OUT_HEADER = os.path.join(ROOT, "src", "data", "field_effects", "scripts_data.h")
 OUT_TABLE = os.path.join(ROOT, "src", "data", "field_effects", "ptr_table.c")
@@ -87,7 +87,7 @@ def parse_constants(path):
 
 
 def linked_sources():
-    """Source files actually compiled into the binary, from Makefile.native.
+    """Source files actually compiled into the binary, from the Makefile.
 
     Only these (transitively) can supply a `callnative` target; resolving a
     symbol that is never linked would fail at link time, so an unlinked native

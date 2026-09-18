@@ -2,7 +2,7 @@
 
 *.s text eol=lf
 *.txt text eol=lf
-Makefile.native text eol=lf
+Makefile text eol=lf
 *.mk text eol=lf
 *.c text eol=lf
 *.h text eol=lf

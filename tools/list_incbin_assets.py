@@ -29,13 +29,13 @@ import subprocess
 import sys
 
 SCAN_ROOTS = ("src",)
-# Rule files that define asset targets (transitively what Makefile.native
+# Rule files that define asset targets (transitively what the Makefile
 # includes for assets).
-RULE_FILES = ("Makefile.native", "graphics_file_rules.mk", "tileset_rules.mk",
+RULE_FILES = ("Makefile", "graphics_file_rules.mk", "tileset_rules.mk",
               "spritesheet_rules.mk", "tools/battle_assets.mk",
               "tools/anim_sprite_assets.mk", "tools/battle_extra_assets.mk")
 
-# Audio blobs are converted by wav2agb rules in Makefile.native instead of
+# Audio blobs are converted by wav2agb rules in the Makefile instead of
 # gbagfx ones, and they deliberately do NOT appear above: a `.bin` produced from
 # a `.wav` has no gbagfx rule, so the generic resolver would report all 477 of
 # them as unbuildable noise. They are real targets of the Makefile, so they are
@@ -154,7 +154,7 @@ def make_resolver(sources, explicit):
         elif (target.endswith(AUDIO_BLOB_SUFFIX)
               and os.path.exists(target[:-len(AUDIO_BLOB_SUFFIX)]
                                  + AUDIO_SOURCE_SUFFIX)):
-            # A sound sample: Makefile.native has the wav2agb rule (and its
+            # A sound sample: the Makefile has the wav2agb rule (and its
             # compressed variant for cries), so the source .wav existing is the
             # proof it can be built.
             ok = True
@@ -178,10 +178,9 @@ def make_resolver(sources, explicit):
 
 def main():
     if "--list-targets" in sys.argv:
-        # The concrete targets named by the asset rule files. Makefile.native
+        # The concrete targets named by the asset rule files. The Makefile
         # uses these to attach the tool build to every asset recipe; pret's
         # static pattern rules target real paths, so nothing else does it. The
-        # tools themselves are excluded: depending on gbagfx from the rule that
         # builds gbagfx is a cycle, which make drops with a warning and then
         # schedules the asset recipes before the tool exists.
         tool_paths = {"tools/gbagfx/gbagfx", "tools/preproc/preproc",

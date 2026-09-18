@@ -6,7 +6,7 @@ PREPROC := tools/preproc/preproc
 .DEFAULT_GOAL := all
 
 # Top-left FPS overlay in the SDL2 window (src/platform/sdl2.c). Release builds:
-#   rm -f build/native/platform/sdl2.o && make -f Makefile.native FPS_OVERLAY=0
+#   rm -f build/native/platform/sdl2.o && make FPS_OVERLAY=0
 # Objects do not depend on CFLAGS, so the stale sdl2.o must be removed first.
 FPS_OVERLAY ?= 1
 
@@ -104,7 +104,7 @@ include tools/battle_extra_assets.mk
 
 # --- Generated constants headers -------------------------------------------
 # pret's Makefile generates these from JSON and gitignores them (they are build
-# products). `Makefile.native` never did, so a fresh clone was missing the
+# products). This Makefile never did, so a fresh clone was missing the
 # headers the engine includes -- map_groups.h alone is reachable from every
 # file that names a map. Generate them the same way pret does, from the same
 # tools and the same inputs, so the output matches the checked-in pret build.
@@ -180,7 +180,7 @@ $(ANIM_SPRITE_4BPP) $(ANIM_SPRITE_TARGETS): | $(GFX)
 
 # Sprites with no entry in spritesheet_rules.mk (mostly single-frame misc/pokemon
 # icons) really are row-major; pret relies on this plain rule for them.
-# `Makefile.native` originally had only the .4bpp-from-PNG half of pret's
+# This Makefile originally had only the .4bpp-from-PNG half of pret's
 # implicit conversion set, so a clean tree failed on the .pal -> .gbapal, PNG ->
 # .gbapal and uncompressed -> .lz steps for assets outside the rule files.
 %.4bpp: %.png | $(GFX)
