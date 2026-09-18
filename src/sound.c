@@ -37,8 +37,10 @@ extern struct MusicPlayerInfo gMPlayInfo_BGM;
 extern struct MusicPlayerInfo gMPlayInfo_SE1;
 extern struct MusicPlayerInfo gMPlayInfo_SE2;
 extern struct MusicPlayerInfo gMPlayInfo_SE3;
-extern struct ToneData gCryTable[];
-extern struct ToneData gCryTable_Reverse[];
+/* Declared in include/m4a.h; spelled out here to match the generated
+ * definitions, which are const because the tables are read-only data. */
+extern const struct ToneData gCryTable[];
+extern const struct ToneData gCryTable_Reverse[];
 
 extern u16 SpeciesToCryId(u16);
 
