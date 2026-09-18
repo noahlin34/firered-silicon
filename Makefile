@@ -448,7 +448,7 @@ TARGET := firered-native
 # ordering edge from the stamp, and `assets` stays a manual entry point.
 all: $(TARGET)
 
-.PHONY: all clean distclean run assets battle-scripts tools generated-headers tests clean-tests test-list script-ops
+.PHONY: all clean distclean run assets battle-scripts tools generated-headers tests clean-tests test-list script-ops generated-data
 
 # Battle script bytecode + the shared native pointer table. Regenerate whenever
 # the pret script sources, their macros, or the C readers they are classified
@@ -471,6 +471,85 @@ battle-scripts: $(BATTLE_SCRIPTS_STAMP)
 
 $(BATTLE_SCRIPTS_STAMP): $(BATTLE_SCRIPT_SOURCES)
 	@python3 tools/gen_battle_data.py
+	@mkdir -p $(dir $@)
+	@touch $@
+
+# ---------------------------------------------------------------------------
+# The three generators with no rule of their own: map/script data, field-effect
+# scripts, sound data.
+#
+# Their outputs are TRACKED IN GIT and the committed file IS the build input, so
+# without a rule a forgotten regeneration is invisible -- the build stays green
+# against stale data, the binary boots, and the only symptom is an interaction
+# that silently does nothing. (Measured: generate maps_data.h before the
+# gitignored include/constants/*.h exist and 316 lines -- both Pallet Town Oak
+# trigger scripts -- are replaced by sDummyScript; `make` and `--boot-test` both
+# still exit 0, and only `make tests` reports the undefined symbols.)
+#
+# So each hangs off a stamp keyed to the files the generator READS, derived from
+# an audit of its own file opens rather than hand-listed -- a hand-written list
+# goes stale the first time a pret script or MIDI is added, and the failure mode
+# is exactly the silent staleness this is here to prevent. The generator's own
+# outputs are deliberately excluded: it writes them, and naming them would be a
+# cycle.
+#
+# This is the whole guard. There is no CI here, so the build is the only place a
+# "did you regenerate?" check can live.
+# Every output produced by these generators and the battle/script-ops ones.
+# Excluded from every input list below: a generator that lists its own output is
+# a self-dependency, and one that lists another's cascades (touching a sound file
+# would rerun the map and field-effect generators). Measured: without this, a
+# warm no-op `make` re-ran all three generators and took 41 s against a 0.29 s
+# baseline.
+GEN_OUTPUTS := src/data/maps_data.h src/data/layouts_data.h \
+               src/data/field_effects/scripts_data.h src/data/field_effects/ptr_table.c \
+               src/data/sound/song_data.h src/data/sound/sound_data.c src/data/sound/voice_data.h \
+               src/data/battle/battle_data.h src/data/battle/anim_data.h \
+               src/data/battle/ai_data.h src/data/battle/ptr_table.c \
+               tests/script_ops.h
+
+MAP_DATA_SOURCES := $(filter-out $(GEN_OUTPUTS),$(wildcard \
+                     include/*.h include/*/*.h data/maps/*/map.json \
+                     data/maps/*/scripts.inc data/scripts/*.inc data/text/*.inc \
+                     data/*/*/text.inc data/event_scripts.s data/specials.inc \
+                     data/layouts/layouts.json data/maps/map_groups.json \
+                     asm/macros/*.inc src/*.c src/*/*.c src/*/*/*.c \
+                     tools/gen_map_data.py Makefile))
+
+FIELD_EFFECT_DATA_SOURCES := $(filter-out $(GEN_OUTPUTS),$(wildcard \
+                     include/*.h include/*/*.h \
+                     data/field_effect_scripts.s asm/macros/*.inc \
+                     src/*.c src/*/*.c src/*/*/*.c src/data/*.h src/data/*/*.h \
+                     src/data/*/*/*.h src/data/*/*/*/*.h \
+                     tools/gen_field_effect_data.py Makefile))
+
+SOUND_DATA_SOURCES := $(filter-out $(GEN_OUTPUTS),$(wildcard \
+                     sound/*.s sound/*.inc sound/songs/midi/*.mid \
+                     sound/songs/midi/*.cfg \
+                     tools/gen_sound_data.py))
+
+MAP_DATA_STAMP := $(OBJ_DIR)/.map-data.stamp
+FIELD_EFFECT_DATA_STAMP := $(OBJ_DIR)/.field-effect-data.stamp
+SOUND_DATA_STAMP := $(OBJ_DIR)/.sound-data.stamp
+
+# One phony entry point that runs all three, matching `battle-scripts`.
+generated-data: $(MAP_DATA_STAMP) $(FIELD_EFFECT_DATA_STAMP) $(SOUND_DATA_STAMP)
+
+# `gen_map_data.py` refuses to write a degraded header, so a missing
+# $(GEN_HEADERS) fails the build here instead of shipping sDummyScript.
+$(MAP_DATA_STAMP): $(MAP_DATA_SOURCES) | $(GEN_HEADERS)
+	@python3 tools/gen_map_data.py
+	@mkdir -p $(dir $@)
+	@touch $@
+
+$(FIELD_EFFECT_DATA_STAMP): $(FIELD_EFFECT_DATA_SOURCES) | $(GEN_HEADERS)
+	@python3 tools/gen_field_effect_data.py
+	@mkdir -p $(dir $@)
+	@touch $@
+
+# Needs tools/mid2agb, which the `tools` target builds.
+$(SOUND_DATA_STAMP): $(SOUND_DATA_SOURCES) | $(MID2AGB)
+	@python3 tools/gen_sound_data.py
 	@mkdir -p $(dir $@)
 	@touch $@
 
@@ -609,7 +688,7 @@ $(foreach src,$(PREPROC_SRCS),$(eval $(call PREPROC_RULE,$(patsubst src/%.c,%,$(
 # has not created yet. The dependency is the stamp, not the phony `assets`
 # target — see the comment on ASSET_STAMP. Order-only, so it changes no rebuild
 # semantics.
-$(OBJS): | $(ASSET_STAMP)
+$(OBJS): | $(ASSET_STAMP) $(BATTLE_SCRIPTS_STAMP) $(MAP_DATA_STAMP) $(FIELD_EFFECT_DATA_STAMP) $(SOUND_DATA_STAMP)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
