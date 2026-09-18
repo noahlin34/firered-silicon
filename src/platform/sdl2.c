@@ -5,6 +5,7 @@
 #include <SDL.h>
 
 #include "global.h"
+#include "gba/m4a_internal.h"
 #include "platform/platform.h"
 #include "platform/ppu.h"
 static SDL_Window *sWindow = NULL;
@@ -16,6 +17,177 @@ static double sFrameTicks;
 static double sTicksPerMillisecond;
 
 static double sNextFrameDeadline;
+
+/* ---------------------------------------------------------------------------
+ * Audio output.
+ *
+ * The m4a driver mixes one vblank of audio into SoundInfo.pcmBuffer as two
+ * mono halves -- FIFO A (right) at the start, FIFO B (left) at
+ * pcmBuffer + PCM_DMA_BUF_SIZE -- which on the GBA the two DMA channels feed to
+ * the hardware FIFOs. There is no hardware here, so the platform drains that
+ * buffer into an SDL audio stream.
+ *
+ * Buffering is a queue of frames rather than a callback that pulls from the
+ * engine: the engine runs on its own 59.7275 Hz clock and the audio device on
+ * the host's rate, so the two drift and something has to absorb it. The engine
+ * appends (Platform_SubmitAudioFrame, called once per vblank from the sound
+ * tick) and the SDL callback consumes; if the queue ever runs dry the callback
+ * emits silence rather than stretching the last frame.
+ * --------------------------------------------------------------------------- */
+static SDL_AudioDeviceID sAudioDevice = 0;
+static bool sAudioEnabled = false;
+static int sAudioDeviceRate = 0;
+
+/* ~0.25 s of stereo frames at the device rate: enough to cover scheduling
+ * jitter, small enough that a stall is not audible for long. */
+#define AUDIO_QUEUE_FRAMES 11025
+#define AUDIO_QUEUE_SIZE   (AUDIO_QUEUE_FRAMES * 2)
+
+static int16_t sAudioQueue[AUDIO_QUEUE_SIZE];
+static volatile int sAudioHead = 0;  /* next write index (frames)   */
+static volatile int sAudioTail = 0;  /* next read index (frames)    */
+static volatile int sAudioCount = 0; /* frames queued               */
+static SDL_mutex *sAudioLock = NULL;
+
+/* The engine's output is 8-bit signed at the device rate, repeated or dropped
+ * to match rates: a simple nearest-neighbour resample. The GBA's own output is
+ * a 13.379 kHz-ish stream being upsampled to whatever the host runs at, so the
+ * extra fidelity of linear interpolation here would be measuring the driver
+ * rather than the hardware. */
+static void AudioCallback(void *userdata, Uint8 *stream, int len)
+{
+    int16_t *out = (int16_t *)stream;
+    int frames = len / (int)(2 * sizeof(int16_t));
+    int i;
+
+    (void)userdata;
+
+    if (!sAudioLock)
+    {
+        memset(stream, 0, len);
+        return;
+    }
+
+    SDL_LockMutex(sAudioLock);
+    for (i = 0; i < frames; i++)
+    {
+        if (sAudioCount > 0)
+        {
+            int idx = sAudioTail * 2;
+
+            out[i * 2 + 0] = sAudioQueue[idx + 0];
+            out[i * 2 + 1] = sAudioQueue[idx + 1];
+            sAudioTail = (sAudioTail + 1) % AUDIO_QUEUE_FRAMES;
+            sAudioCount--;
+        }
+        else
+        {
+            out[i * 2 + 0] = 0;
+            out[i * 2 + 1] = 0;
+        }
+    }
+    SDL_UnlockMutex(sAudioLock);
+}
+
+/* One vblank of engine audio, submitted from VBlankIntr.
+ *
+ * `pcmBuffer` holds `pcmSamplesPerVBlank` bytes per side and the engine's PCM
+ * rate is `pcmFreq` (about 13.4 kHz); the device plays at sAudioDeviceRate. The
+ * engine sample for output frame n covers host frames
+ * [n*rate/pcmFreq, (n+1)*rate/pcmFreq), so each engine sample is written the
+ * whole number of times that interval spans, with the fractional remainder
+ * carried in sAudioPhase. Nearest-neighbour is deliberate: the driver's own
+ * output is already a low-rate stream and interpolating here would invent
+ * detail the hardware never had.
+ */
+static int sAudioPhase = 0;
+
+void Platform_SubmitAudioFrame(const struct SoundInfo *soundInfo)
+{
+    int samples;
+    int rate;
+    int i;
+
+    if (!sAudioEnabled || !sAudioLock || !soundInfo)
+        return;
+
+    samples = soundInfo->pcmSamplesPerVBlank;
+    rate = soundInfo->pcmFreq;
+    if (samples <= 0 || rate <= 0 || sAudioDeviceRate <= 0)
+        return;
+
+    SDL_LockMutex(sAudioLock);
+    for (i = 0; i < samples; i++)
+    {
+        /* The engine writes FIFO A (right) at the start of pcmBuffer and
+         * FIFO B (left) at + PCM_DMA_BUF_SIZE; m4aSoundInit programs
+         * SOUND_A_RIGHT_OUTPUT and SOUND_B_LEFT_OUTPUT accordingly. */
+        int16_t right = (int16_t)((int)soundInfo->pcmBuffer[i] << 8);
+        int16_t left = (int16_t)((int)soundInfo->pcmBuffer[PCM_DMA_BUF_SIZE + i] << 8);
+
+        sAudioPhase += sAudioDeviceRate;
+        while (sAudioPhase >= rate)
+        {
+            int idx;
+
+            sAudioPhase -= rate;
+            if (sAudioCount >= AUDIO_QUEUE_FRAMES)
+                break;
+            idx = sAudioHead * 2;
+            sAudioQueue[idx + 0] = right;
+            sAudioQueue[idx + 1] = left;
+            sAudioHead = (sAudioHead + 1) % AUDIO_QUEUE_FRAMES;
+            sAudioCount++;
+        }
+    }
+    SDL_UnlockMutex(sAudioLock);
+}
+
+/* Opens the audio device. Failure is not fatal: the game is still playable
+ * silently, and a headless `SDL_VIDEODRIVER=dummy` run has no audio device at
+ * all, which must not stop the boot test. */
+static void Platform_InitAudio(void)
+{
+    SDL_AudioSpec want;
+    SDL_AudioSpec have;
+
+    if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
+    {
+        printf("[Audio] SDL audio unavailable (%s); running silently\n", SDL_GetError());
+        return;
+    }
+
+    SDL_zero(want);
+    want.freq = 48000;
+    want.format = AUDIO_S16SYS;
+    want.channels = 2;
+    want.samples = 1024;
+    want.callback = AudioCallback;
+    want.userdata = NULL;
+
+    sAudioDevice = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
+    if (sAudioDevice == 0)
+    {
+        printf("[Audio] failed to open audio device (%s); running silently\n", SDL_GetError());
+        return;
+    }
+
+    sAudioDeviceRate = have.freq;
+    sAudioLock = SDL_CreateMutex();
+    if (!sAudioLock)
+    {
+        SDL_CloseAudioDevice(sAudioDevice);
+        sAudioDevice = 0;
+        return;
+    }
+
+    memset(sAudioQueue, 0, sizeof(sAudioQueue));
+    sAudioHead = sAudioTail = sAudioCount = 0;
+    sAudioEnabled = true;
+    SDL_PauseAudioDevice(sAudioDevice, 0);
+
+    printf("[Audio] opened %d Hz stereo audio device\n", have.freq);
+}
 
 static void WaitForFrameDeadline(void)
 {
@@ -239,6 +411,8 @@ int Platform_Init(int argc, char **argv)
         return -1;
     }
 
+    Platform_InitAudio();
+
     const int scale = 3;
     const int windowWidth = GBA_SCREEN_WIDTH * scale;
     const int windowHeight = GBA_SCREEN_HEIGHT * scale;
@@ -397,6 +571,19 @@ void Platform_SaveScreenshot(const char *filename)
 }
 void Platform_Cleanup(void)
 {
+    if (sAudioEnabled)
+    {
+        SDL_PauseAudioDevice(sAudioDevice, 1);
+        SDL_CloseAudioDevice(sAudioDevice);
+        sAudioDevice = 0;
+        sAudioEnabled = false;
+    }
+    if (sAudioLock)
+    {
+        SDL_DestroyMutex(sAudioLock);
+        sAudioLock = NULL;
+    }
+
     Platform_DevPanelShutdown();
 
     if (sTexture)
