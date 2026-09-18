@@ -18,6 +18,16 @@ BSS_CODE ALIGNED(4) char SoundMainRAM_Buffer[0x800] = {0};
 
 COMMON_DATA struct SoundInfo gSoundInfo = {0};
 COMMON_DATA struct PokemonCrySong gPokemonCrySongs[MAX_POKEMON_CRIES] = {0};
+
+#ifdef PORTABLE
+/* Loop targets for the runtime-built cry songs. The interpreter's pointer
+ * operand is 4 bytes and cannot hold a host address, so a generated song stores
+ * an index into gNativeSongPtrs; a cry song's target is the address of its own
+ * `cont` field, which only exists at runtime, so it stores
+ * NATIVE_SONG_RUNTIME_BASE + a slot in this table instead. See ply_goto in
+ * src/m4a_driver.c and SetPokemonCryTone below, the only writer. */
+u8 *gNativeSongRuntimePtrs[MAX_POKEMON_CRIES] = {0};
+#endif
 COMMON_DATA struct MusicPlayerInfo gPokemonCryMusicPlayers[MAX_POKEMON_CRIES] = {0};
 COMMON_DATA MPlayFunc gMPlayJumpTable[36] = {0};
 COMMON_DATA struct CgbChannel gCgbChans[4] = {0};
@@ -80,7 +90,13 @@ void m4aSoundInit(void)
 {
     s32 i;
 
+#ifndef PORTABLE
+    /* The ROM build copies the mixer into IWRAM and runs it from there (the
+     * `SoundMainRAM` symbol is that copy's address, hence `& ~1` for the Thumb
+     * bit). There is nothing to relocate on the host: src/m4a_driver.c holds
+     * the mixer as ordinary code and SoundMain calls it directly. */
     CpuCopy32((void *)((s32)SoundMainRAM & ~1), SoundMainRAM_Buffer, sizeof(SoundMainRAM_Buffer));
+#endif
 
     SoundInit(&gSoundInfo);
     MPlayExtender(gCgbChans);
@@ -336,28 +352,19 @@ void MPlayExtender(struct CgbChannel *cgbChans)
 
 void MusicPlayerJumpTableCopy(void)
 {
+    /* The ROM build copies the jump-table template out of the BIOS with this
+     * SWI. On the host gMPlayJumpTableTemplate is ordinary rodata and
+     * src/m4a_driver.c has its own copy, so this is inert; the guard exists
+     * because `swi` is an ARM-only instruction that clang will not assemble
+     * for arm64 (fix #58). */
+#ifndef PORTABLE
     asm("swi 0x2A");
+#endif
 }
 
-void ClearChain(void *x)
-{
-#if __STDC_VERSION__ < 202311L
-    void (*func)(void *) = *(&gMPlayJumpTable[34]);
-#else
-    void (*func)(...) = *(&gMPlayJumpTable[34]);
-#endif
-    func(x);
-}
-
-void Clear64byte(void *x)
-{
-#if __STDC_VERSION__ < 202311L
-    void (*func)(void *) = *(&gMPlayJumpTable[35]);
-#else
-    void (*func)(...) = *(&gMPlayJumpTable[35]);
-#endif
-    func(x);
-}
+/* ClearChain and Clear64byte live in src/m4a_driver.c, which owns the portable
+ * transcription of src/m4a_1.s including the jump-table indices they dispatch
+ * through. One definition keeps those indices in a single place. */
 
 void SoundInit(struct SoundInfo *soundInfo)
 {
@@ -429,6 +436,13 @@ void SampleFreqSet(u32 freq)
 
     m4aSoundVSyncOn();
 
+#ifndef PORTABLE
+    /* The GBA starts timer 0 in step with the LCD so the PCM FIFO DMA fires at
+     * the sample rate. That handshake is the two spins below (wait for VCOUNT to
+     * leave line 159, then to re-enter it), and nothing on the host ever
+     * advances REG_VCOUNT -- so they would spin forever and SoundInit hangs
+     * before the first frame is drawn. The timer registers are inert under
+     * PORTABLE; the platform clocks audio off its own device instead. */
     while (*(vu8 *)REG_ADDR_VCOUNT == 159)
         ;
 
@@ -436,6 +450,7 @@ void SampleFreqSet(u32 freq)
         ;
 
     REG_TM0CNT_H = TIMER_ENABLE | TIMER_1CLK;
+#endif
 }
 
 void m4aSoundMode(u32 mode)
@@ -1698,7 +1713,13 @@ start_song:
     gPokemonCrySongs[i].tone = tone;
     gPokemonCrySongs[i].part[0] = &gPokemonCrySongs[i].part0;
     gPokemonCrySongs[i].part[1] = &gPokemonCrySongs[i].part1;
+#ifdef PORTABLE
+    /* Publish this song's loop target and point the operand at its slot. */
+    gNativeSongRuntimePtrs[i] = gPokemonCrySongs[i].cont;
+    gPokemonCrySongs[i].gotoTargetIndex = 0x80000000u + i;
+#else
     gPokemonCrySongs[i].gotoTarget = (u32)&gPokemonCrySongs[i].cont;
+#endif
 
     mplayInfo->ident = ID_NUMBER;
 
@@ -1743,7 +1764,23 @@ void SetPokemonCryProgress(u32 val)
 
 bool32 IsPokemonCryPlaying(struct MusicPlayerInfo *mplayInfo)
 {
-    struct MusicPlayerTrack *track = mplayInfo->tracks;
+    struct MusicPlayerTrack *track;
+
+#ifdef PORTABLE
+    /* Two of pret's callers run without a cry having started:
+     * RestoreBGMVolumeAfterPokemonCry creates the ducking task unconditionally,
+     * so Task_DuckBGMForPokemonCry can ask whether a cry is playing while
+     * gMPlay_PokemonCry is still NULL (PlayCry_ReleaseDouble and
+     * PlayCry_NormalNoDucking reach PlayCryInternal, which is the only writer).
+     * On the GBA dereferencing NULL read the BIOS at address 0 and returned
+     * garbage that the `&&` then discarded, so the bug was invisible; on the
+     * host address 0 is unmapped and the game crashes in the battle's task
+     * loop (the same class as fix #64). "No player" plainly means "no cry". */
+    if (mplayInfo == NULL)
+        return FALSE;
+#endif
+
+    track = mplayInfo->tracks;
 
     if (track->chan && track->chan->track == track)
         return TRUE;
