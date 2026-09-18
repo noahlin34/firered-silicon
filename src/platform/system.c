@@ -1,8 +1,19 @@
 #include "global.h"
 #include "platform/platform.h"
 #include "load_save.h"
-// Simulated GBA hardware memory spaces
-uint8_t REG_BASE[0x400] __attribute__((aligned(4))) = {0};
+// Simulated GBA hardware memory spaces.
+//
+// REG_KEYINPUT is ACTIVE LOW: a set bit means "not pressed", so a zeroed
+// register reads as every button held. The engine's soft-reset check in
+// src/main.c tests A + B + START + SELECT, and it runs on the first ReadKeys()
+// -- before Platform_UpdateInput has written the real SDL state from the frame
+// loop -- so a zeroed register would trigger a spurious soft reset at boot. On
+// the GBA the register powers up with every button released, which is what the
+// designated initializer below reproduces (0x130 is the register's offset and
+// 0x03FF its "nothing pressed" value).
+uint8_t REG_BASE[0x400] __attribute__((aligned(4))) = {
+    [0x130] = 0xFF, [0x131] = 0x03,
+};
 uint8_t PLTT_[0x400] __attribute__((aligned(4))) = {0};
 uint8_t VRAM_[0x18000] __attribute__((aligned(4))) = {0};
 uint8_t OAM_[0x400] __attribute__((aligned(4))) = {0};
