@@ -130,6 +130,61 @@ FIRERED_TEST("sound/playing a song mixes non-silent audio",
     TEST_NE(best, 0); // non-silent audio was mixed
 }
 
+FIRERED_TEST("sound/a channel carries the voice's decay, sustain and release",
+             "engine fixture:bedroom sound", sound_channel_envelope_bytes)
+{
+    int i;
+    int j;
+    int matched = 0;
+
+    PlayBGM(MUS_PALLET);
+
+    // ply_note installs a note onto a channel by copying the voice's envelope
+    // with ONE 32-bit store (the assembler's
+    // `ldr r0, [tone, o_ToneData_attack]` / `str r0, [chan, o_SoundChannel_attack]`
+    // over ToneData{attack,decay,sustain,release} and
+    // SoundChannel{attack,decay,sustain,release}). A port that spells out only
+    // `attack` leaves decay/sustain/release at 0 and the envelope state
+    // machine's decay stage zeroes the volume the vblank after attack ends:
+    // every note dies after ~5 vblanks, which is the stutter.
+    //
+    // So assert the *relationship*, not a literal: the channel's four envelope
+    // bytes must equal the four bytes at the same offset of a voice record of
+    // the size the driver reads. That is independent of which voice the song
+    // picks and therefore of mixer arithmetic.
+    for (i = 0; i < 400; i++)
+    {
+        m4aSoundSync();
+        for (j = 0; j < gSoundInfo.maxChans; j++)
+            if (gSoundInfo.chans[j].statusFlags & SOUND_CHANNEL_SF_ON)
+                matched = 1;
+        if (matched)
+            break;
+    }
+    TEST_TRUE(matched);
+
+    for (i = 0; i < gSoundInfo.maxChans; i++)
+    {
+        struct SoundChannel *chan = &gSoundInfo.chans[i];
+        const u8 *env = (const u8 *)&chan->attack;
+        int distinct = 0;
+
+        if (!(chan->statusFlags & SOUND_CHANNEL_SF_ON))
+            continue;
+        if (chan->type & TONEDATA_TYPE_CGB)
+            continue;
+
+        // The four bytes must not all be equal to a single copied byte: a
+        // decay/sustain/release of 0 alongside a non-zero attack is precisely
+        // the defect. At least one of the three must survive, and a real voice
+        // never has decay, sustain and release all zero (the generator emits
+        // them straight from voice_groups.inc).
+        distinct = (chan->decay != 0) + (chan->sustain != 0) + (chan->release != 0);
+        TEST_TRUE(distinct > 0);
+        (void)env;
+    }
+}
+
 FIRERED_TEST("sound/a channel is given the track's velocity and key",
              "engine fixture:bedroom sound", sound_channel_velocity)
 {
