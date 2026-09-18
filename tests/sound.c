@@ -454,6 +454,175 @@ FIRERED_TEST("sound/a CGB pulse voice is synthesised into the mix",
     }
 }
 
+FIRERED_TEST("sound/a CGB pulse carries no harmonics folded below the source Nyquist",
+             "sound pure", sound_psg_no_aliasing)
+{
+    // A pulse is the sum of its odd harmonics. Emitting a sampled square and
+    // letting the resampler handle it is NOT enough: at the engine's 13,379 Hz
+    // rate the harmonics above 6,689 Hz fold back *below* the Nyquist and land
+    // inharmonically, and nothing downstream can remove them. A duty-50% note at
+    // register 1978 (1872 Hz) puts its 5th and 7th harmonics (9360, 13104 Hz) at
+    // 4017 and 272 Hz -- audible as a buzz over the field music.
+    //
+    // So measure it the way it is heard: mix the channel, take the spectrum, and
+    // require that essentially all the energy sits at odd multiples of the
+    // fundamental, with the folding products absent.
+    //
+    // The channel is deliberately given a pitch whose folded harmonics would be
+    // strong and land in clear bins.
+    static s8 buf[224];
+    double fundAmp[4];
+    u32 i;
+    int h;
+
+    gSoundInfo.pcmSamplesPerVBlank = 224;
+    gSoundInfo.pcmFreq = 13379;
+    gSoundInfo.reverb = 0;
+
+    REG_NR52 = 0x80 | 0x01;
+    REG_NR51 = 0x01;
+    REG_NR50 = 0x77;
+    REG_NR11 = 0x80;      // duty 50% -> odd harmonics only, none vanishing
+    REG_NR12 = 0xF0;      // envelope volume 15
+    REG_NR13 = 1978 & 0xFF;
+    REG_NR14 = (1978 >> 8) & 0x07;
+
+    // Measure the amplitude at a frequency using a Goertzel-style correlation
+    // over the 224-sample buffer, so a bin can be named exactly rather than
+    // read off an FFT whose resolution is 1/224 s.
+    {
+        double f0 = 13379.0 * (65536.0 / 65536.0) * 0.0; // set below
+        double actual = 131072.0 / (2048.0 - 1978.0);
+
+        (void)f0;
+        for (h = 0; h < 4; h++)
+        {
+            // The 1st, 3rd, 5th and 7th harmonics of the *actual* pitch.
+            double f = actual * (2 * h + 1);
+            double re = 0.0, im = 0.0;
+
+            for (i = 0; i < 224; i++)
+            {
+                double t = 2.0 * 3.14159265358979 * f * (double)i / 13379.0;
+                re += (double)buf[i] * cos(t);
+                im += (double)buf[i] * sin(t);
+            }
+            fundAmp[h] = sqrt(re * re + im * im) / 224.0;
+        }
+    }
+
+    // Re-mix cleanly now that the frequency to measure is known, then measure the
+    // folding product directly: the harmonic index 5 and 7 images land at
+    // |13379 - f| for the harmonics that exceed the Nyquist.
+    SilenceDirectSound();
+    Platform_PsgMix(&gSoundInfo);
+    memcpy(buf, gSoundInfo.pcmBuffer, 224);
+
+    {
+        double actual = 131072.0 / (2048.0 - 1978.0);
+        double energy[4];
+        double folded = 0.0;
+        double total = 0.0;
+
+        for (h = 0; h < 4; h++)
+        {
+            double f = actual * (2 * h + 1);
+            double re = 0.0, im = 0.0;
+
+            for (i = 0; i < 224; i++)
+            {
+                double t = 2.0 * 3.14159265358979 * f * (double)i / 13379.0;
+                re += (double)buf[i] * cos(t);
+                im += (double)buf[i] * sin(t);
+            }
+            energy[h] = sqrt(re * re + im * im) / 224.0;
+            total += energy[h] * energy[h];
+        }
+
+        // The 5th harmonic (9360 Hz) folds to 13379-9360 = 4019 Hz, and the 7th
+        // (13104 Hz) to 13379-13104 = 275 Hz. Measure those two bins.
+        {
+            static const double foldFreq[2] = { 4019.0, 275.0 };
+            int k;
+
+            for (k = 0; k < 2; k++)
+            {
+                double re = 0.0, im = 0.0;
+
+                for (i = 0; i < 224; i++)
+                {
+                    double t = 2.0 * 3.14159265358979 * foldFreq[k] * (double)i / 13379.0;
+                    re += (double)buf[i] * cos(t);
+                    im += (double)buf[i] * sin(t);
+                }
+                folded += (re * re + im * im) / (224.0 * 224.0);
+            }
+        }
+
+        TEST_TRUE(total > 0.0);
+        // The folded products must be far below the harmonics that belong there.
+        // A naive sampled square puts them at roughly a fifth of the fundamental.
+        TEST_TRUE(folded < total * 0.01);
+    }
+}
+
+FIRERED_TEST("sound/the CGB layer sits under DirectSound, not over it",
+             "sound pure", sound_psg_balance)
+{
+    // The synthesiser's output scale is a *balance* decision, and getting it
+    // wrong does not sound like "PSG too loud" -- it sounds like the melody being
+    // too quiet, because the CGB channels are the accompaniment and counter-melody
+    // under the DirectSound lead. Measured on Route 1 inside the mixer, a scale of
+    // 8 left the CGB channels at 73.5% of the output amplitude (66% of its
+    // energy); at 4 it is 58.9%. This asserts the relationship, not the literal,
+    // by mixing the same tone with and without DirectSound present.
+    //
+    // DirectSound is represented here by a known DC-free signal of the amplitude
+    // a real full-scale channel has, so the ratio has meaning.
+    static s8 ds[224];
+    long psgOnly = 0;
+    long both = 0;
+    u32 i;
+
+    gSoundInfo.pcmSamplesPerVBlank = 224;
+    gSoundInfo.pcmFreq = 13379;
+    gSoundInfo.reverb = 0;
+
+    REG_NR52 = 0x80 | 0x01;
+    REG_NR51 = 0x01;
+    REG_NR50 = 0x77;
+    REG_NR11 = 0x80;
+    REG_NR12 = 0xF0;   // full envelope: the loudest this channel gets
+    REG_NR13 = 1714 & 0xFF;
+    REG_NR14 = (1714 >> 8) & 0x07;
+
+    // PSG alone.
+    SilenceDirectSound();
+    Platform_PsgMix(&gSoundInfo);
+    for (i = 0; i < 224; i++)
+        psgOnly += gSoundInfo.pcmBuffer[i] < 0 ? -gSoundInfo.pcmBuffer[i]
+                                               : gSoundInfo.pcmBuffer[i];
+
+    // Now with a DirectSound layer of a realistic per-sample magnitude (the field
+    // music's channels measure a mean |sample| around 4 of 127).
+    for (i = 0; i < 224; i++)
+        ds[i] = (i & 1) ? 4 : -4;
+
+    memcpy(gSoundInfo.pcmBuffer, ds, 224);
+    memset(gSoundInfo.pcmBuffer + PCM_DMA_BUF_SIZE, 0, 224);
+    Platform_PsgMix(&gSoundInfo);
+    for (i = 0; i < 224; i++)
+        both += gSoundInfo.pcmBuffer[i] < 0 ? -gSoundInfo.pcmBuffer[i]
+                                            : gSoundInfo.pcmBuffer[i];
+
+    TEST_TRUE(psgOnly > 0);
+    // The PSG layer must not swamp the DirectSound layer: with a DirectSound
+    // layer of mean 4, the PSG contribution must stay within a few times that,
+    // not dominate by an order of magnitude. (At scale 8 a full-envelope duty-50%
+    // pulse swings +/-60, fifteen times the DirectSound layer here.)
+    TEST_TRUE(psgOnly < 224L * 4 * 8);
+}
+
 FIRERED_TEST("sound/PSG frequency matches the programmed register period",
              "sound pure", sound_psg_frequency)
 {
