@@ -521,6 +521,10 @@ These bugs are subtle and WILL recur if new engine files are linked. Understand 
 
     `tests/sound.c`'s `the CGB layer sits under DirectSound, not over it` asserts the relationship: a full-envelope pulse mixed against a DirectSound layer of the field music's measured magnitude (mean |sample| 4 of 127) must not dominate it. It fails at scale 8 and passes at 4.
 
+78. **A Makefile parser that harvests "targets" by regex also harvests phony names, and as a prerequisite a phony name is a self-dependency.** `tools/list_incbin_assets.py --list-targets` reads the rule files for concrete asset paths, and its `TARGET_RE` matches any `name:` line — including `.PHONY`-declared ones. The Makefile feeds that set into `RULE_FILE_TARGETS`, which is a prerequisite of every asset rule *and* of `$(ASSET_STAMP)`, so `clean:` in the set made `clean` depend on `tools/gbagfx/gbagfx`: **`make clean` built gbagfx before cleaning it**, and the same held for `all`, `tests`, `FORCE`, `run`, `assets` and even the `\` line-continuation token that leaked in as a "target". Measured before the fix: `make --debug=b clean` printed `Must remake target 'tools/gbagfx/gbagfx'`, and `$(RULE_FILE_TARGETS)` was 355 entries of which 17 were phony names and 2 were the tool binaries the comment already claimed to exclude (`tools/{mid2agb,wav2agb}`). After: 335 entries, none phony, none a tool binary — and `make clean` no longer builds anything.
+
+    The generalisable rule: when a build reads its own Makefile to discover targets, subtract the declared phony names — `TARGET_RE` cannot tell a product from a verb, and a verb in a prerequisite list is a cycle. The bug was latent until `clean` became a target that does real work; it existed for the whole life of `Makefile.native` because `clean` was three `rm`s that nobody ran under `--debug`.
+
 ### Native Frame Timing
 - **The game clock is not the display clock.** The original native loop relied on `SDL_RENDERER_PRESENTVSYNC` without an independent timer; that allowed high-refresh presentation to accelerate frame-based gameplay, while the fallback renderer did not explicitly request VSync. This timing gap was found after movement appeared too fast. The pre-fix runtime frame rate was not measured.
 - **Target the hardware frame period:** 280,896 CPU cycles per frame at 16,777,216 Hz, or approximately 59.7275 Hz (16.7427 ms per tick). Do not change movement speeds, animation counters, or emulate CPU clock speed to compensate for host performance.
@@ -661,6 +665,17 @@ make
 A fresh `git clone` builds with no extra setup. The build generates everything it consumes: the C tools (`tools/gbagfx`, `tools/preproc`, `tools/mapjson`, `tools/jsonproc`) are built on demand — a `tools` target runs a sub-make for them before any asset recipe, because pret's rule files use pattern rules that leave no place to attach them as a prerequisite — and the constants headers pret derives from JSON (`include/constants/map_groups.h`, `layouts.h`, `map_event_ids.h`, `region_map_sections.h`, `heal_locations.h` and the `src/data/*` ones) are regenerated from the same tools and inputs pret uses. `assets` is a prerequisite of every object (order-only), since each object `INCBIN`s generated graphics during preprocessing.
 
 The asset list is derived, not hand-maintained: `tools/list_incbin_assets.py` scans `src/` for `INCBIN` targets, drops the ones git tracks, and resolves the rest against the build's own rules — including assets assembled from other assets, like the `graphics/unused/obi1.4bpp` `cat` chain. Targets it cannot resolve are reported on stderr as `[assets] no build rule for ...; skipping`. `python3 tools/list_incbin_assets.py --list-targets` prints the concrete targets the rule files name.
+
+### Clean builds:
+```bash
+make clean        # objects, both binaries, boot captures, every generated asset
+make distclean    # ...plus the C converter tools, which `make tools` rebuilds
+```
+`clean` removes everything the build produces — `build/native`, `firered-native`, `firered-tests`, the three `*_output.bmp` captures, all ~7,400 generated assets (`.lz`/`.4bpp`/`.8bpp`/`.1bpp`/`.gbapal`/`.rl`/`*.hwlatfont`/`*.fwlatfont`/`*.fwjpnfont`, the `sound/**/*.bin` samples, and the six `data/{layouts,maps}/*.inc` the JSON step writes), taking the tree from ~15 MiB back to just its sources. `distclean` additionally runs each tool's own `clean`, dropping the six converter binaries.
+
+Safe on a tree with uncommitted work, which is the point of it: the asset sweep only names extensions git never tracks here (**verified: 0 tracked files match any of the nine**), and the `.bin`/`.inc` sweeps are confined to trees where every tracked file of that kind is a source — `sound/` has no tracked `.bin`, and `data/maps/*.inc` (715 tracked map *sources*) is not in the sweep, only the four generated `connections/events/groups/headers.inc`. `compile_flags.txt` and `firered-asan` are hand-written and gitignored, so no rule here names them. `$(GEN_HEADERS)` is deliberately kept: clangd resolves those includes through the same tree, and deleting them would red-line every editor session until the next build.
+
+Both are verified round-trip: `make clean && make -j8` and `make distclean && make -j8` each rebuild to a byte-identical `engine_boot_output.bmp` (`sha256 8a776484…`) with `85/85` tests passing, and a fresh `git clone` builds, cleans and rebuilds the same way. A no-op rebuild after either stays at 0.3 s, so the battle-scripts stamp still skips its 10 s regeneration.
 
 ### Release build — no development FPS overlay:
 ```bash
