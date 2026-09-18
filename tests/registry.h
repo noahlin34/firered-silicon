@@ -171,6 +171,14 @@ bool8 Test_ScriptStartsWith(const u8 *script, u8 opcode);
 int Test_ScriptFindOpcode(const u8 *script, u8 opcode);
 const char *Test_ScriptDump(const u8 *script, int maxBytes);
 
+// --- audio handoff (tests/platform_host.c) ---------------------------------
+// Platform_SubmitAudioFrame is the engine's handoff of one vblank's mix to the
+// platform. The harness has no audio device, so it records these instead: a test
+// that reads gSoundInfo.pcmBuffer proves the driver mixed, but not that the mix
+// ever reached the platform, and the game was silent for exactly that reason.
+extern int gHarnessAudioSubmits;    // vblanks the engine handed audio to the platform
+extern long gHarnessAudioMagnitude; // largest non-silent magnitude in a handoff
+
 // --- structural pixel checks (tests/util.c) ---------------------------------
 // The PPU is a pure function of engine memory and takes the framebuffer as a
 // parameter, so tests render into their own buffer. Prefer engine state; use
