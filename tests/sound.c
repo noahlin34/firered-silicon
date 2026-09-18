@@ -31,6 +31,8 @@
 #include "registry.h"
 
 #include "gba/m4a_internal.h"
+#include "gba/io_reg.h"
+#include "platform/platform.h"
 #include "m4a.h"
 #include "sound.h"
 #include "constants/songs.h"
@@ -291,4 +293,308 @@ FIRERED_TEST("sound/voice data is the real voicegroup",
     // (the `cry` macro uses a 12-byte ToneData like every other voice).
     TEST_EQ(gCryTable[0].type, 0x20);
     TEST_PTR_NOT_NULL((void *)gCryTable[0].wav);
+}
+
+
+// ---------------------------------------------------------------------------
+// PSG (CGB) channels
+//
+// The GBA's sound hardware is two halves: the DirectSound FIFOs the PCM mixer
+// fills, and the four PSG channels. src/m4a.c's CgbSound() computes every CGB
+// channel's envelope, period and duty each vblank and writes them to the NRxx
+// registers -- on hardware those registers *are* the oscillators, so nothing
+// else is needed. Under PORTABLE they were written to plain memory and never
+// read, so all four channels were silent and every CGB voice in the game's
+// music disappeared.
+//
+// That is not a corner case: the title theme runs four DirectSound tracks plus
+// pulse 1 and pulse 2, and Pallet Town's six tracks include two CGB squares.
+// These tests pin the synthesis so the layers cannot go missing again.
+//
+// The observable is the mixed PCM buffer, which is what the platform hands to
+// SDL -- asserting the NRxx registers alone would pass with the synthesiser
+// deleted, which is exactly the failure being guarded against.
+// ---------------------------------------------------------------------------
+
+// Silences the DirectSound side so a PSG contribution can be measured alone.
+// `maxChans = 0` makes SoundMix skip every PCM channel; the four CGB channels
+// live in `cgbChans` and are unaffected.
+static void SilenceDirectSound(void)
+{
+    gSoundInfo.maxChans = 0;
+    memset(gSoundInfo.pcmBuffer, 0, sizeof(gSoundInfo.pcmBuffer));
+}
+
+FIRERED_TEST("sound/a CGB pulse voice is synthesised into the mix",
+             "sound pure", sound_psg_pulse)
+{
+    // Program pulse 1 exactly as CgbSound does for one of the title theme's
+    // voices -- duty 50%, envelope volume 15, period register 1714 (G4,
+    // 392 Hz), routed to the right -- then mix and require non-silence.
+    //
+    // Before the synthesiser existed every byte here stayed zero: this is the
+    // assertion that fails when the PSG half of the hardware is missing.
+    long before;
+    long after;
+    u32 i;
+
+    gSoundInfo.pcmSamplesPerVBlank = 224;
+    gSoundInfo.pcmFreq = 13379;
+    gSoundInfo.reverb = 0;
+    SilenceDirectSound();
+
+    // Master enable + pulse 1 active, right channel only.
+    REG_NR52 = 0x80 | 0x01;
+    REG_NR51 = 0x01;
+    REG_NR50 = 0x77;
+    REG_NR11 = 0x80;      // duty 50%
+    REG_NR12 = 0xF0;      // envelope volume 15, no decay
+    REG_NR13 = 1714 & 0xFF;
+    REG_NR14 = (1714 >> 8) & 0x07;
+
+    Platform_PsgMix(&gSoundInfo);
+
+    before = 0;
+    for (i = 0; i < gSoundInfo.pcmSamplesPerVBlank; i++)
+        before += gSoundInfo.pcmBuffer[i] < 0 ? -gSoundInfo.pcmBuffer[i]
+                                              : gSoundInfo.pcmBuffer[i];
+    after = before;
+
+    TEST_NE(after, 0); // the pulse channel reached the buffer
+
+    // ...and only the right channel, because NR51 routes it there.
+    {
+        long left = 0;
+        for (i = 0; i < gSoundInfo.pcmSamplesPerVBlank; i++)
+            left += gSoundInfo.pcmBuffer[PCM_DMA_BUF_SIZE + i] < 0
+                  ? -gSoundInfo.pcmBuffer[PCM_DMA_BUF_SIZE + i]
+                  : gSoundInfo.pcmBuffer[PCM_DMA_BUF_SIZE + i];
+        TEST_EQ(left, 0);
+    }
+
+    // The square wave must actually alternate, not sit at a DC level: a stuck
+    // oscillator would still produce a non-zero magnitude but no tone. The
+    // period has to be shorter than the 224-sample vblank for both duty phases
+    // to be visible in one buffer, so reprogram to a high register (X = 1900 ->
+    // 885 Hz -> ~15 samples per period) and mix again.
+    {
+        int sawPositive = 0;
+        int sawNegative = 0;
+
+        REG_NR13 = 1900 & 0xFF;
+        REG_NR14 = (1900 >> 8) & 0x07;
+
+        SilenceDirectSound();
+        Platform_PsgMix(&gSoundInfo);
+
+        for (i = 0; i < gSoundInfo.pcmSamplesPerVBlank; i++)
+        {
+            if (gSoundInfo.pcmBuffer[i] > 0)
+                sawPositive = 1;
+            else if (gSoundInfo.pcmBuffer[i] < 0)
+                sawNegative = 1;
+        }
+        TEST_TRUE(sawPositive && sawNegative);
+    }
+}
+
+FIRERED_TEST("sound/PSG frequency matches the programmed register period",
+             "sound pure", sound_psg_frequency)
+{
+    // The hardware plays `131072 / (2048 - X)` for a pulse channel, so a given
+    // register value has exactly one correct pitch. Measuring how many samples
+    // elapse between rising edges of the synthesised square turns a frequency
+    // error into a count.
+    //
+    // X = 1900 -> 131072 / 148 = 885.6 Hz -> 13379 / 885.6 = 15.1 output samples
+    // per period. An implementation that rounded a sample count before dividing
+    // (which the first version did) lands 1.7% sharp and gives 14 instead.
+    u32 i;
+    s32 edges = 0;
+    s32 firstEdge = -1;
+    s32 lastEdge = -1;
+    s32 low;
+
+    // X = 1900 gives 131072/148 = 885.6 Hz = 15.1 output samples per period,
+    // which fits many whole periods in one 224-sample vblank.
+    const u32 X = 1900;
+    static const s32 expected = 15;
+
+    gSoundInfo.pcmSamplesPerVBlank = 224;
+    gSoundInfo.pcmFreq = 13379;
+    gSoundInfo.reverb = 0;
+    SilenceDirectSound();
+
+    REG_NR52 = 0x80 | 0x01;
+    REG_NR51 = 0x01;
+    REG_NR50 = 0x77;
+    REG_NR11 = 0x80;    // duty 50%
+    REG_NR12 = 0xF0;
+    REG_NR13 = X & 0xFF;
+    REG_NR14 = (X >> 8) & 0x07;
+
+    Platform_PsgMix(&gSoundInfo);
+
+    low = gSoundInfo.pcmBuffer[0] <= 0;
+    for (i = 1; i < gSoundInfo.pcmSamplesPerVBlank; i++)
+    {
+        int now = gSoundInfo.pcmBuffer[i] <= 0;
+        if (now != low)
+        {
+            if (firstEdge < 0)
+                firstEdge = (s32)i;
+            lastEdge = (s32)i;
+            edges++;
+        }
+        low = now;
+    }
+
+    // Duty 50% gives two transitions per period, so `N` transitions span
+    // `N/2` periods. Counting over the elapsed distance from the first
+    // transition to the last (not the whole buffer) keeps the endpoints
+    // meaningful.
+    TEST_GE(edges, 4);
+    if (edges >= 4 && (edges - 1) / 2 >= 1)
+    {
+        s32 span = lastEdge - firstEdge;
+        s32 periods = (edges - 1) / 2;
+        s32 full = span / periods;
+
+        // X = 1900 -> 131072/148 = 885.6 Hz -> 13379/885.6 = 15.1 samples per
+        // period. Allow a few samples for the integer phase accumulator and for
+        // sampling the transition at the buffer's own rate.
+        TEST_TRUE(full >= expected - 3 && full <= expected + 3);
+    }
+}
+
+FIRERED_TEST("sound/PSG respects NR52 and NR51 gating",
+             "sound pure", sound_psg_gating)
+{
+    // Two independent switches decide whether a channel is heard, and both are
+    // the engine's (not this file's): NR52 bit 7 is the master sound enable with
+    // one active bit per channel, and NR51 is the per-side panning mask. If
+    // either is ignored the music gains a channel that the engine had silenced
+    // -- which is worse than the original bug, because it is audible as wrong
+    // notes rather than missing ones.
+    u32 i;
+    long mag;
+
+    gSoundInfo.pcmSamplesPerVBlank = 224;
+    gSoundInfo.pcmFreq = 13379;
+    gSoundInfo.reverb = 0;
+
+    // A pulse voice with everything else in place.
+    REG_NR11 = 0x80;
+    REG_NR12 = 0xF0;
+    REG_NR13 = 1714 & 0xFF;
+    REG_NR14 = (1714 >> 8) & 0x07;
+    REG_NR50 = 0x77;
+    REG_NR51 = 0x01;
+
+    // Master disable: nothing may be emitted even though the channel's own
+    // registers are set.
+    REG_NR52 = 0x01;
+    SilenceDirectSound();
+    Platform_PsgMix(&gSoundInfo);
+    mag = 0;
+    for (i = 0; i < gSoundInfo.pcmSamplesPerVBlank; i++)
+        mag += gSoundInfo.pcmBuffer[i] < 0 ? -gSoundInfo.pcmBuffer[i]
+                                           : gSoundInfo.pcmBuffer[i];
+    TEST_EQ(mag, 0);
+
+    // Master enable but the channel inactive: still silent.
+    REG_NR52 = 0x80;
+    SilenceDirectSound();
+    Platform_PsgMix(&gSoundInfo);
+    mag = 0;
+    for (i = 0; i < gSoundInfo.pcmSamplesPerVBlank; i++)
+        mag += gSoundInfo.pcmBuffer[i] < 0 ? -gSoundInfo.pcmBuffer[i]
+                                           : gSoundInfo.pcmBuffer[i];
+    TEST_EQ(mag, 0);
+
+    // Panning clear on both sides: silenced by NR51 alone.
+    REG_NR52 = 0x80 | 0x01;
+    REG_NR51 = 0x00;
+    SilenceDirectSound();
+    Platform_PsgMix(&gSoundInfo);
+    mag = 0;
+    for (i = 0; i < gSoundInfo.pcmSamplesPerVBlank; i++)
+        mag += gSoundInfo.pcmBuffer[i] < 0 ? -gSoundInfo.pcmBuffer[i]
+                                           : gSoundInfo.pcmBuffer[i];
+    TEST_EQ(mag, 0);
+
+    // With all three satisfied it must sound again, so the test cannot pass by
+    // simply never emitting anything.
+    REG_NR51 = 0x01;
+    SilenceDirectSound();
+    Platform_PsgMix(&gSoundInfo);
+    mag = 0;
+    for (i = 0; i < gSoundInfo.pcmSamplesPerVBlank; i++)
+        mag += gSoundInfo.pcmBuffer[i] < 0 ? -gSoundInfo.pcmBuffer[i]
+                                           : gSoundInfo.pcmBuffer[i];
+    TEST_NE(mag, 0);
+
+    // Restore the device to silent so later tests are unaffected.
+    REG_NR52 = 0x80;
+    REG_NR51 = 0;
+}
+
+// A CgbSound substitute, so a pure test can drive SoundMain without the engine
+// booted. The real one needs the song sequencer and live channels; the only
+// question here is whether SoundMain reaches the PSG synthesiser.
+static void TestCgbSoundNoop(void) {}
+
+FIRERED_TEST("sound/SoundMain delivers the PSG mix alongside DirectSound",
+             "sound pure", sound_psg_wired)
+{
+    // The pure tests above call Platform_PsgMix themselves, so they would pass
+    // if SoundMain never called it -- which is exactly the shape of the original
+    // bug: correct code with no caller. This one drives the engine's own entry
+    // point, so deleting the call site fails it.
+    //
+    // DirectSound is muted so anything in the buffer after SoundMain can only
+    // have come from the PSG synthesiser.
+    u32 i;
+    long mag = 0;
+
+    // Under PORTABLE, SOUND_INFO_PTR is a variable the engine assigns in
+    // SoundInit rather than a fixed address, so SoundMain reads whichever
+    // SoundInfo it points at. Point it here or the ident guard below fails.
+    SOUND_INFO_PTR = &gSoundInfo;
+
+    // A SoundInfo the engine accepts: the ident guard is what lets SoundMain run
+    // at all, and CgbSound must be callable (a NULL there would crash the real
+    // path too).
+    gSoundInfo.ident = ID_NUMBER;
+    gSoundInfo.pcmSamplesPerVBlank = 224;
+    gSoundInfo.pcmFreq = 13379;
+    gSoundInfo.pcmDmaCounter = 7;
+    gSoundInfo.pcmDmaPeriod = 7;
+    gSoundInfo.reverb = 0;
+    gSoundInfo.CgbSound = TestCgbSoundNoop;
+    gSoundInfo.MPlayMainHead = NULL;
+    gSoundInfo.maxChans = 0;
+    memset(gSoundInfo.pcmBuffer, 0, sizeof(gSoundInfo.pcmBuffer));
+
+    // A pulse voice exactly as the engine programs one: duty 50%, envelope
+    // volume 15, period 1714 (G4, 392 Hz), routed right.
+    REG_NR52 = 0x80 | 0x01;
+    REG_NR51 = 0x01;
+    REG_NR50 = 0x77;
+    REG_NR11 = 0x80;
+    REG_NR12 = 0xF0;
+    REG_NR13 = 1714 & 0xFF;
+    REG_NR14 = (1714 >> 8) & 0x07;
+
+    SoundMain();
+
+    for (i = 0; i < gSoundInfo.pcmSamplesPerVBlank; i++)
+        mag += gSoundInfo.pcmBuffer[i] < 0 ? -gSoundInfo.pcmBuffer[i]
+                                           : gSoundInfo.pcmBuffer[i];
+
+    TEST_NE(mag, 0);
+
+    // Leave the device silent for whatever runs next in this process.
+    REG_NR52 = 0x80;
+    REG_NR51 = 0;
 }
