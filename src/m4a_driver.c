@@ -1292,7 +1292,21 @@ void SoundMix(void)
     }
     else
     {
+        /* BOTH halves, `samplesPerVblank` bytes each. The assembler's clear
+         * loop walks r5 (pcmBuffer + the write cursor) and r6 (r5 +
+         * PCM_DMA_BUF_SIZE) in lockstep with `stm r5!`/`stm r6!` pairs, so each
+         * half is cleared to the same length. MixChannel below ACCUMULATES into
+         * the buffer, so an uncleared half keeps the previous vblank's samples
+         * and each note piles on top of them -- the channel saturates rather
+         * than plays. Clearing only the first half is exactly that bug.
+         *
+         * This branch is the reverb-off path: with reverb set, the block above
+         * already writes both halves (and mixes the previous frame in). Field
+         * music sets reverb (m4aSoundMode from the song header), so this one is
+         * reached before a reverb-setting song starts, and by any song whose
+         * header clears it. */
         memset(soundInfo->pcmBuffer, 0, samplesPerVblank);
+        memset(soundInfo->pcmBuffer + PCM_DMA_BUF_SIZE, 0, samplesPerVblank);
     }
 
     /* Advance each active channel's envelope, then mix it. */
