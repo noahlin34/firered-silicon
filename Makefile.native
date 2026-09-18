@@ -230,6 +230,7 @@ PLATFORM_SRCS := src/platform/system.c \
                  src/platform/bios.c \
                  src/platform/ppu.c \
                  src/platform/psg.c \
+                 src/platform/audio_resample.c \
                  src/platform/sdl2.c \
                  src/platform/stubs.c \
                  src/platform/new_game_intro_text.c \
