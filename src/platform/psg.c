@@ -92,6 +92,8 @@
  * fails the alternation check in tests/sound.c.
  */
 
+#include <string.h>
+#include "global.h"
 #include "gba/io_reg.h"
 #include "gba/m4a_internal.h"
 #include "platform/platform.h"
@@ -300,8 +302,8 @@ static u32 PsgChannelVolume(struct SoundInfo *soundInfo, u32 ch)
  * `rightPan`/`leftPan` come from NR51 (one bit per channel per side); `masterR`
  * and `masterL` are the 0-7 NR50 volumes.
  */
-static void PsgMixChannel(struct SoundInfo *soundInfo, u32 ch, s8 *mixR,
-                          s8 *mixL, s32 count, u32 rate,
+static void PsgMixChannel(struct SoundInfo *soundInfo, u32 ch, s32 *sumR,
+                          s32 *sumL, s32 count, u32 rate,
                           int rightPan, int leftPan,
                           u32 masterR, u32 masterL)
 {
@@ -416,10 +418,13 @@ static void PsgMixChannel(struct SoundInfo *soundInfo, u32 ch, s8 *mixR,
 
         /* NR50 master volume is 0-7 and its loudest setting is 7, so +1 makes 7
          * unity rather than attenuating by 1/8. */
+        /* ACCUMULATE, do not clamp here: four channels are summed and the clamp
+         * has to happen once, after all of them have contributed. See the closing
+         * loop in Platform_PsgMix. */
         if (rightPan)
-            mixR[i] = PsgAddSaturate(mixR[i], (value * (s32)(masterR + 1)) / 8);
+            sumR[i] += (value * (s32)(masterR + 1)) / 8;
         if (leftPan)
-            mixL[i] = PsgAddSaturate(mixL[i], (value * (s32)(masterL + 1)) / 8);
+            sumL[i] += (value * (s32)(masterL + 1)) / 8;
     }
 }
 
@@ -434,6 +439,12 @@ static void PsgMixChannel(struct SoundInfo *soundInfo, u32 ch, s8 *mixR,
  * struct would duplicate the engine's FIX-voice adjustment (the `& 0x7fc` in
  * CgbSound) and could drift from it.
  */
+/* One vblank's summed PSG contribution, before it meets the DirectSound mix.
+ * s32 because four channels at full envelope and master volume reach about
+ * +/-240, which does not fit the byte they are eventually clamped into. */
+static s32 sPsgSumR[PCM_DMA_BUF_SIZE];
+static s32 sPsgSumL[PCM_DMA_BUF_SIZE];
+
 void Platform_PsgMix(struct SoundInfo *soundInfo)
 {
     s32 count = soundInfo->pcmSamplesPerVBlank;
@@ -446,14 +457,22 @@ void Platform_PsgMix(struct SoundInfo *soundInfo)
     s8 *mixR = soundInfo->pcmBuffer;
     s8 *mixL = soundInfo->pcmBuffer + PCM_DMA_BUF_SIZE;
     u32 ch;
+    int summed = FALSE;
+    s32 i;
 
     if (count <= 0 || rate == 0)
         return;
+
+    if (count > (s32)ARRAY_COUNT(sPsgSumR))
+        count = (s32)ARRAY_COUNT(sPsgSumR);
 
     /* NR52 bit 7 is the master sound enable; with it clear every channel is off
      * regardless of its own registers. */
     if (!(nr52 & 0x80))
         return;
+
+    memset(sPsgSumR, 0, (size_t)count * sizeof(sPsgSumR[0]));
+    memset(sPsgSumL, 0, (size_t)count * sizeof(sPsgSumL[0]));
 
     for (ch = 0; ch < PSG_CHANNEL_COUNT; ch++)
     {
@@ -504,7 +523,47 @@ void Platform_PsgMix(struct SoundInfo *soundInfo)
         if (!dacOn)
             continue;
 
-        PsgMixChannel(soundInfo, ch, mixR, mixL, count, rate, rightPan,
+        PsgMixChannel(soundInfo, ch, sPsgSumR, sPsgSumL, count, rate, rightPan,
                       leftPan, masterR, masterL);
+        summed = TRUE;
+    }
+
+    /* Clamp the four channels' total once, then add it to the DirectSound mix.
+     *
+     * Clamping each channel separately -- which is what this did first -- makes
+     * the sum of four already-clamped values, and on a loud vblank that total is
+     * still far outside the byte, so the output is a squared-off plateau instead
+     * of the single clip the hardware produces. The DAC sums the four channel
+     * currents and the FIFO current in the analogue domain and clips the total,
+     * so the clamp belongs here, after everything has been added up.
+     *
+     * DirectSound is already in the buffer (SoundMix runs first) and shares that
+     * one DAC with the CGB channels, so the clamped PSG total is summed onto it
+     * and clamped again -- saturating both times, never wrapping, because a wrap
+     * is a sign flip and gross harmonic distortion. */
+    if (summed)
+    {
+        for (i = 0; i < count; i++)
+        {
+            s32 v = sPsgSumR[i];
+
+            if (v > 127)
+                v = 127;
+            else if (v < -128)
+                v = -128;
+
+            mixR[i] = PsgAddSaturate(mixR[i], v);
+        }
+        for (i = 0; i < count; i++)
+        {
+            s32 v = sPsgSumL[i];
+
+            if (v > 127)
+                v = 127;
+            else if (v < -128)
+                v = -128;
+
+            mixL[i] = PsgAddSaturate(mixL[i], v);
+        }
     }
 }
