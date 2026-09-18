@@ -67,18 +67,29 @@ SOUND_SAMPLE_BINS := $(SOUND_SAMPLE_WAVS:.wav=.bin)
 SOUND_CRY_BINS := $(SOUND_CRY_WAVS:.wav=.bin)
 SOUND_ASSETS := $(SOUND_SAMPLE_BINS) $(SOUND_CRY_BINS)
 
-# Voices: uncompressed, straight conversion.
-sound/direct_sound_samples/%.bin: sound/direct_sound_samples/%.wav
-	@mkdir -p $(dir $@)
-	@$(WAV2AGB) -b $< $@
-
 # Cries: DPCM-compressed, then padded to a 4-byte multiple so the blob's
 # WaveData header and sample data stay aligned when cast.
+#
+# This rule MUST come before the voice rule below. Both patterns match a cry
+# path -- `sound/direct_sound_samples/%.bin` matches `.../cries/abra.bin` with
+# `%` bound to `cries/abra` -- and GNU Make takes the FIRST matching pattern
+# rule, not the most specific one. With the voice rule first, every cry was
+# built uncompressed (11,596-byte abra.bin instead of 5,986) while gCryTable
+# still declares type 0x20 (TONEDATA_TYPE_CMP, see gen_sound_data.py), so the
+# mixer ran DecodeDpcm over raw PCM and every cry played as noise. pret orders
+# the pair the same way in audio_rules.mk; measured correlation of the engine's
+# decoded output against the source waveform: correct DPCM 0.85, mislabeled raw
+# PCM -0.13.
 sound/direct_sound_samples/cries/%.bin: sound/direct_sound_samples/cries/%.wav
 	@mkdir -p $(dir $@)
 	@$(WAV2AGB) -b -c -l 1 --no-pad $< $@
 	@sz=$$(wc -c < $@); pad=$$(( (4 - sz % 4) % 4 )); \
 	 if [ $$pad -ne 0 ]; then dd if=/dev/zero bs=1 count=$$pad >> $@ 2>/dev/null; fi
+
+# Voices: uncompressed, straight conversion.
+sound/direct_sound_samples/%.bin: sound/direct_sound_samples/%.wav
+	@mkdir -p $(dir $@)
+	@$(WAV2AGB) -b $< $@
 
 # pret's per-asset rules carry the conversion flags that matter (-num_tiles,
 # -mwidth/-mheight, and the two-palette `cat` for textbox.gbapal). Without them
