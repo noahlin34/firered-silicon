@@ -114,6 +114,27 @@ def explicit_targets():
     return targets
 
 
+def phony_targets():
+    """Names declared `.PHONY` across the rule files.
+
+    `.PHONY: clean` is not a concrete build product, but `clean:` parses as an
+    explicit target, so it lands in the same set as the asset paths. The
+    Makefile turns this set into prerequisites of every asset rule, so a phony
+    name in it becomes a self-dependency: `clean` ended up depending on
+    `tools/gbagfx/gbagfx`, and `make clean` built gbagfx before cleaning it.
+    The same held for `all`, `tests`, `FORCE` and the `\\` line continuation.
+    """
+    names = set()
+    for path in RULE_FILES:
+        if not os.path.exists(path):
+            continue
+        for line in open(path, encoding="utf-8", errors="ignore"):
+            match = re.match(r'^\s*\.PHONY\s*:\s*(.*?)\s*$', line)
+            if match:
+                names.update(match.group(1).split())
+    return names
+
+
 def incbin_targets():
     """Every path named by an INCBIN in the compiled sources and headers.
 
@@ -181,16 +202,21 @@ def main():
         # The concrete targets named by the asset rule files. The Makefile
         # uses these to attach the tool build to every asset recipe; pret's
         # static pattern rules target real paths, so nothing else does it. The
+        # tools themselves are excluded: depending on gbagfx from the rule that
         # builds gbagfx is a cycle, which make drops with a warning and then
-        # schedules the asset recipes before the tool exists.
+        # schedules the asset recipes before the tool exists. Phony names are
+        # excluded for the same reason -- as prerequisites they become
+        # self-dependencies, which made `make clean` build gbagfx first.
         tool_paths = {"tools/gbagfx/gbagfx", "tools/preproc/preproc",
-                      "tools/mapjson/mapjson", "tools/jsonproc/jsonproc"}
-        targets = sorted(t for t in explicit_targets() if t not in tool_paths)
+                      "tools/mapjson/mapjson", "tools/jsonproc/jsonproc",
+                      "tools/mid2agb/mid2agb", "tools/wav2agb/wav2agb"}
+        skip = tool_paths | phony_targets() | {"\\"}
+        targets = sorted(t for t in explicit_targets() if t not in skip)
         sys.stdout.write(" ".join(targets))
         return
 
     sources = tracked_files()
-    explicit = explicit_targets()
+    explicit = explicit_targets() - phony_targets() - {"\\"}
     resolve = make_resolver(sources, explicit)
 
     needed = sorted(t for t in incbin_targets() if t not in sources)
