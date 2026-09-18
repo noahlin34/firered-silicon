@@ -429,6 +429,17 @@ static void VBlankIntr(void)
 #if !defined(NDEBUG) || REVISION >= 0xA
     sVcountAfterSound = REG_VCOUNT;
 #endif
+#ifdef PORTABLE
+    /* Hand this vblank's mix to the host audio device. It must be *this* buffer
+     * and not the previous one's, so the handoff sits immediately after
+     * m4aSoundMain() -- SoundMix has just written pcmSamplesPerVBlank samples
+     * at the base of each half. On the GBA the two FIFO DMAs drain the same
+     * bytes; there is no DMA here, so the platform layer takes them instead
+     * (Platform_SubmitAudioFrame). Without this call the driver mixes correctly
+     * and nothing ever hears it: the game boots, the song sequences, and the
+     * device stays silent. */
+    Platform_SubmitAudioFrame(&gSoundInfo);
+#endif
 
     TryReceiveLinkBattleData();
     Random();
