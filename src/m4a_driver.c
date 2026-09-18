@@ -28,6 +28,7 @@
 #include "global.h"
 #include "gba/m4a_internal.h"
 #include "m4a.h"
+#include "platform/platform.h"
 
 /* Defined in src/m4a_tables.c. */
 extern const u8 gClockTable[];
@@ -1356,6 +1357,14 @@ void SoundMain(void)
     }
 
     SoundMix();
+
+    /* The CGB (PSG) channels are computed into the NRxx registers by CgbSound
+     * above; on hardware those registers drive the pulse/wave/noise generators
+     * straight into the same DAC the two FIFOs feed. There is no such hardware
+     * here, so synthesise them into the buffer the DirectSound mixer just
+     * filled -- without this every CGB voice in the game's music is silent
+     * (src/platform/psg.c explains why that is not a corner case). */
+    Platform_PsgMix(soundInfo);
 }
 
 /* m4aSoundVSync: the per-vblank PCM handoff. On the GBA this restarts the two
