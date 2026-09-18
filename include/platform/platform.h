@@ -18,6 +18,13 @@ void PortableDmaSet(unsigned int dmaNum, const void *src, void *dest, uint32_t c
 void PortableDmaStop(unsigned int dmaNum);
 void Platform_RunHBlankDma(void);
 
+// One vblank of mixed audio, handed from the sound driver to the host's audio
+// device. The driver fills SoundInfo.pcmBuffer (two mono halves: FIFO A/right at
+// the start, FIFO B/left at + PCM_DMA_BUF_SIZE); on the GBA two DMA channels
+// feed those to the hardware FIFOs, and here the platform drains them instead.
+struct SoundInfo;
+void Platform_SubmitAudioFrame(const struct SoundInfo *soundInfo);
+
 // GBA Hardware Memory Buffers
 extern uint8_t REG_BASE[0x400];
 extern uint8_t PLTT_[0x400];
