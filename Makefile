@@ -203,6 +203,12 @@ $(ANIM_SPRITE_4BPP) $(ANIM_SPRITE_TARGETS): | $(GFX)
 # object compilation wait for `assets`.
 INCBIN_ASSETS := $(shell python3 tools/list_incbin_assets.py)
 
+# The converter tools this build actually uses, in the order `tools` builds them.
+# `clean`/`distclean` walk these for their own clean rules; the ROM-only tools
+# (bin2c, gbafix, ramscrgen, rsfont, scaninc) are not listed because nothing here
+# builds or runs them.
+TOOL_DIRS := tools/gbagfx tools/preproc tools/mapjson tools/jsonproc tools/wav2agb tools/mid2agb
+
 # Build the conversion tools before any asset recipe can run.
 #
 # gbagfx, preproc, mapjson and jsonproc are gitignored build products, so a
@@ -431,7 +437,7 @@ TARGET := firered-native
 # ordering edge from the stamp, and `assets` stays a manual entry point.
 all: $(TARGET)
 
-.PHONY: all clean run assets battle-scripts tools generated-headers tests clean-tests test-list script-ops
+.PHONY: all clean distclean run assets battle-scripts tools generated-headers tests clean-tests test-list script-ops
 
 # Battle script bytecode + the shared native pointer table. Regenerate whenever
 # the pret script sources, their macros, or the C readers they are classified
@@ -712,8 +718,47 @@ $(TARGET_TESTS): $(TEST_ENGINE_OBJS) FORCE | $(TEST_OBJS)
 test-list: $(TARGET_TESTS)
 	@./$(TARGET_TESTS) --list
 
+# --- Cleaning ----------------------------------------------------------------
+#
+# `clean` removes everything this Makefile produces, so the next `make` runs
+# from scratch; `distclean` additionally drops the C tool binaries. Both are
+# safe on a tree with uncommitted work: the derived-asset sweep only names
+# extensions that git NEVER tracks in this repository (verified: 0 tracked
+# files match .lz/.4bpp/.8bpp/.1bpp/.gbapal/.rl/.hwlatfont/.fwlatfont/
+# .fwjpnfont), and the .bin/.inc sweeps are confined to trees where every
+# tracked file of that kind is a source, not a product.
+#
+# Deliberately NOT removed: `compile_flags.txt` and `firered-asan` are
+# hand-written, gitignored files (the clangd config and an ASan build), so no
+# `rm` here may name them; and `$(GEN_HEADERS)` must survive because clangd
+# resolves those includes through the same tree, and removing them would make
+# every editor session red until the next build regenerates them.
+
+RM_ASSET_EXTS := 1bpp 4bpp 8bpp gbapal lz rl hwlatfont fwlatfont fwjpnfont
+
+# find(1) per extension rather than one -name each: `-o` binds looser than the
+# implicit -print, so a single find command would need parentheses around the
+# whole predicate list to behave.
+define RM_DERIVED_ASSETS
+	@for ext in $(RM_ASSET_EXTS); do \
+	    find . -path ./build -prune -o -name "*.$$ext" -type f -print0 \
+	        | xargs -0 rm -f; \
+	done
+	@rm -f $(SOUND_ASSETS)
+	@rm -f data/layouts/layouts.inc data/layouts/layouts_table.inc \
+	       data/maps/connections.inc data/maps/events.inc \
+	       data/maps/groups.inc data/maps/headers.inc
+endef
+
+# Objects, the two binaries and every generated asset: a full rebuild.
 clean:
-	rm -rf $(OBJ_DIR) $(TARGET) $(TARGET_TESTS)
+	@rm -rf $(OBJ_DIR) $(TARGET) $(TARGET_TESTS)
+	@rm -f engine_boot_output.bmp ppu_test_output.bmp dev_panel_output.bmp
+	$(RM_DERIVED_ASSETS)
+
+# `clean` plus the C converter tools, which `make tools` rebuilds on demand.
+distclean: clean
+	@for d in $(TOOL_DIRS); do $(MAKE) -s -C $$d clean || exit 1; done
 
 # Header dependencies, one .d per object, written by DEPFLAGS above. Last, so
 # every rule is already defined; -include (not include) because the files do not
