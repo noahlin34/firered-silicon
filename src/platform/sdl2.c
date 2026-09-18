@@ -308,7 +308,7 @@ static void HandleKeyEvent(SDL_Keycode key, bool pressed)
 #ifdef FPS_OVERLAY
 // ---- Top-left FPS overlay ----------------------------------------------------
 // Development aid: release builds compile it out with FPS_OVERLAY=0 (see
-// Makefile.native). Sampled at presentation time so it reports frames the player
+// the Makefile). Sampled at presentation time so it reports frames the player
 // actually sees, independent of the engine's internal frame pacing.
 static double sTicksPerSecond;
 static double sFpsWindowStart;
