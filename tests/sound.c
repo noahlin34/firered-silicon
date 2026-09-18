@@ -1017,3 +1017,126 @@ FIRERED_TEST("sound/resampling keeps the device's rate across vblanks",
     TEST_TRUE(total >= 401820);
     TEST_TRUE(total <= 401828);
 }
+
+// --- DPCM cry decoding ------------------------------------------------------
+//
+// Every cry in the game is stored DPCM-compressed (`wav2agb -c`), and
+// `DpcmDecodeBlock` is the only thing that turns one into samples. Two defects
+// lived in it and were audible as a single symptom: the battle music restarted
+// from the top the moment the send-out cry played (fix #81).
+//
+//   * The block holds exactly 64 samples. The port wrote 65 -- the low/high
+//     pair loop ran from byte 1 for 32 iterations, so a 65th store landed one
+//     byte past `sDpcmBuffer`, which bss places immediately before
+//     `sMapMusicState`. Each cry wrote a random delta value onto the map-music
+//     state machine's case selector, and `MapMusicMain`'s `case 1` re-started
+//     the current song.
+//   * The nibble order is the assembler's: byte 1 contributes one LOW-nibble
+//     delta and every byte after it contributes its HIGH nibble first. The
+//     natural low-then-high order decodes to noise.
+//
+// The format is asserted directly rather than through the mixed audio: the
+// corruption lands in a neighbouring global, and the wrong-nibble-order audio is
+// just as loud and just as plausibly "a cry", so neither is visible in the mix.
+
+// One DPCM block whose deltas are +1 (high nibble) and +2 (low nibble), so the
+// expansion is strictly increasing: every one of the 64 samples is distinct, and
+// a decoder reading the nibbles the other way disagrees at every step past the
+// first. Both properties are what makes the assertions below meaningful rather
+// than merely "some numbers came out".
+static void BuildDpcmBlock(u8 block[33])
+{
+    int src;
+
+    block[0] = 0;  // raw starting sample
+    block[1] = 0x01;  // one delta, in the low nibble
+    for (src = 2; src < 33; src++)
+        block[src] = 0x12;  // high nibble +1, low nibble +2
+}
+
+// The expansion the format requires, written out independently of the decoder.
+static void ExpectedDpcmSamples(s8 expected[64])
+{
+    static const s8 deltas[16] = { 0, 1, 4, 9, 16, 25, 36, 49,
+                                   -64, -49, -36, -25, -16, -9, -4, -1 };
+    int value = 0;
+    int i = 1;
+    int src;
+
+    expected[0] = 0;
+    value += deltas[1];          // byte 1, low nibble
+    expected[i++] = value;
+    for (src = 2; src < 33; src++)
+    {
+        value += deltas[1];      // high nibble first
+        expected[i++] = value;
+        value += deltas[2];      // then the low nibble
+        expected[i++] = value;
+    }
+}
+
+FIRERED_TEST("sound/a DPCM block expands to exactly 64 samples, assembler order",
+             "sound pure", sound_dpcm_block_format)
+{
+    // "Exactly 64" is the assertion that matters: a 65th sample is a write one
+    // byte past the scratch buffer, and that buffer's neighbour in bss is the
+    // map-music state machine -- the whole reason the battle music restarted on
+    // every cry. The output array is padded and pre-filled with a sentinel, so a
+    // decoder that writes sample 64 is caught writing into the padding rather
+    // than merely corrupting whatever followed.
+    u8 block[33];
+    s8 expected[64];
+    s8 out[64 + 8];
+    int i;
+
+    BuildDpcmBlock(block);
+    ExpectedDpcmSamples(expected);
+
+    for (i = 0; i < 64 + 8; i++)
+        out[i] = 0x7F;
+
+    DpcmDecodeBlock(block, out);
+
+    TEST_MEM_EQ(out, expected, sizeof(expected));
+
+    for (i = 64; i < 64 + 8; i++)
+    {
+        if (out[i] != 0x7F)
+        {
+            TEST_FAIL("the expansion wrote past sample 63 (sample %d = %d): a "
+                      "65th store is what corrupted the map-music state", i, out[i]);
+            return;
+        }
+    }
+}
+
+FIRERED_TEST("sound/a DPCM block uses the assembler's nibble order",
+             "sound pure", sound_dpcm_nibble_order)
+{
+    // The order is what separates a cry from noise, and the wrong order decodes
+    // to a full-length array of plausible-looking samples -- so neither length
+    // nor "something was produced" can catch it. Only the VALUES can, so the
+    // first few are pinned by hand from the delta table.
+    //
+    // Written out rather than derived, because deriving them means reimplementing
+    // the decoder in the test: nibble index 1 is +1 and index 2 is +4, so the
+    // assembler's order produces 0, 1, 2, 6, 7, 11, ... -- byte 1 contributing a
+    // single +1, then each byte a +1 followed by a +4.
+    //
+    // Reading the pairs low-nibble-first gives 0, 1, 5, 6, 10, 11, ... instead:
+    // every element from the third on is wrong.
+    static const s8 expectedHead[8] = { 0, 1, 2, 6, 7, 11, 12, 16 };
+    u8 block[33];
+    s8 expected[64];
+    s8 out[64];
+
+    BuildDpcmBlock(block);
+    ExpectedDpcmSamples(expected);
+    DpcmDecodeBlock(block, out);
+
+    // The whole block, against a table built from the format description.
+    TEST_MEM_EQ(out, expected, sizeof(expected));
+
+    // And the same claim in a form a reader can check by eye.
+    TEST_MEM_EQ(out, expectedHead, sizeof(expectedHead));
+}
