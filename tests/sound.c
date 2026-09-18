@@ -28,6 +28,7 @@
 // someone to listen. `fixture:bedroom` is enough: the driver is initialised by
 // AgbMain, and the test starts its own song.
 
+#include <math.h>
 #include "registry.h"
 
 #include "gba/m4a_internal.h"
@@ -597,4 +598,180 @@ FIRERED_TEST("sound/SoundMain delivers the PSG mix alongside DirectSound",
     // Leave the device silent for whatever runs next in this process.
     REG_NR52 = 0x80;
     REG_NR51 = 0;
+}
+
+// ---------------------------------------------------------------------------
+// Resampling the engine's rate up to the device's
+//
+// These exercise src/platform/audio_resample.c, which is where the engine's
+// 13.379 kHz meets the host device's rate. It is a separate file precisely so it
+// can be tested here: the test binary has no SDL, and sdl2.o is excluded from it.
+// ---------------------------------------------------------------------------
+
+// A sine at `hz` sampled at `rate` into 8-bit signed samples.
+static void MakeSine(s8 *out, int count, double hz, int rate, double amp)
+{
+    int i;
+
+    for (i = 0; i < count; i++)
+    {
+        double v = amp * sin(2.0 * M_PI * hz * (double)i / (double)rate);
+
+        if (v > 127.0)
+            v = 127.0;
+        if (v < -128.0)
+            v = -128.0;
+        out[i] = (s8)v;
+    }
+}
+
+// How rough the output is: the energy of its second difference over the energy
+// of its first difference. A nearest-neighbour hold produces runs of identical
+// frames separated by steps, which is a large second difference against a small
+// first one; interpolation advances by a fraction each frame, so the ratio stays
+// small. Dependency-free stand-in for measuring the imaging bands directly.
+static double Roughness(const int16_t *frames, int count)
+{
+    double total = 0.0;
+    double high = 0.0;
+    int i;
+
+    // `frames` is interleaved stereo, so step by two: reading consecutive
+    // entries would alternate between the left and right channels and measure
+    // that alternation (a Nyquist-rate signal) instead of either channel's
+    // smoothness.
+    for (i = 2; i < count * 2; i += 2)
+    {
+        double d1 = (double)frames[i] - (double)frames[i - 2];
+        double prev = (i >= 4) ? (double)frames[i - 4] : d1;
+        double d2 = (double)frames[i] - 2.0 * (double)frames[i - 2] + prev;
+
+        total += d1 * d1;
+        high += d2 * d2;
+    }
+
+    return total > 0.0 ? high / total : 0.0;
+}
+
+FIRERED_TEST("sound/resampling interpolates instead of repeating samples",
+             "sound pure", sound_resample_interpolates)
+{
+    // A ramp is the cleanest case: a hold repeats each value, so it emits runs
+    // of identical frames with an abrupt step between runs, while interpolation
+    // advances a fraction every frame. Count the repeats -- a hold repeats each
+    // engine sample about 3.6 times at 48 kHz from 13.379 kHz, so nearly all of
+    // them, while interpolation repeats almost none.
+    static s8 right[224];
+    static s8 left[224];
+    static int16_t out[2048 * 2];
+    int pos = 0;
+    int written;
+    int repeats = 0;
+    int i;
+
+    for (i = 0; i < 224; i++)
+    {
+        right[i] = (s8)(i - 112);
+        left[i] = (s8)(i - 112);
+    }
+
+    written = Platform_ResampleVblank(right, left, 224, 13379, 48000, &pos,
+                                      out, 2048);
+
+    // 224 * 48000 / 13379 is ~804 output frames.
+    TEST_GE(written, 800);
+    TEST_TRUE(written <= 810);
+
+    for (i = 1; i < written; i++)
+    {
+        if (out[i * 2] == out[(i - 1) * 2])
+            repeats++;
+    }
+
+    // One repeat is the most that can happen: the vblank's last sample is held
+    // across its interval because the next vblank has not arrived yet.
+    TEST_TRUE(repeats <= 3);
+}
+
+FIRERED_TEST("sound/resampling suppresses the images a sample hold would add",
+             "sound pure", sound_resample_no_images)
+{
+    static s8 right[224];
+    static s8 left[224];
+    static int16_t held[2048 * 2];
+    static int16_t interp[2048 * 2];
+    int pos;
+    int i;
+    int nHeld = 0;
+    int nInterp;
+    double heldRatio;
+    double interpRatio;
+
+    MakeSine(right, 224, 1500.0, 13379, 100.0);
+    for (i = 0; i < 224; i++)
+        left[i] = right[i];
+
+    // The hold this replaced: emit each engine sample for the whole number of
+    // device frames its interval spans.
+    {
+        int phase = 0;
+
+        for (i = 0; i < 224; i++)
+        {
+            phase += 48000;
+            while (phase >= 13379)
+            {
+                phase -= 13379;
+                held[nHeld * 2 + 0] = (int16_t)(right[i] << 8);
+                held[nHeld * 2 + 1] = (int16_t)(right[i] << 8);
+                nHeld++;
+            }
+        }
+    }
+
+    pos = 0;
+    nInterp = Platform_ResampleVblank(right, left, 224, 13379, 48000, &pos,
+                                      interp, 2048);
+
+    heldRatio = Roughness(held, nHeld);
+    interpRatio = Roughness(interp, nInterp);
+
+    // Interpolation must be substantially smoother than the hold. Measured
+    // spectrally on a real run's buffer the improvement is ~19x; this proxy is a
+    // different measure, so require a clear margin rather than a set figure.
+    TEST_TRUE(interpRatio < heldRatio * 0.5);
+}
+
+FIRERED_TEST("sound/resampling keeps the device's rate across vblanks",
+             "sound pure", sound_resample_rate)
+{
+    // The output frame count over many vblanks is the observable that pins the
+    // sub-sample position being carried BETWEEN vblanks rather than restarted
+    // inside each one. Each vblank spans 224 * 48000 = 10752000 units of
+    // 1/deviceRate, which is 803.6475 output frames -- not a whole number, so a
+    // resampler that throws the 0.6475 away every vblank emits 804 frames every
+    // time and runs fast. Over 500 vblanks that is 176 frames of drift, ~0.04%,
+    // which accumulates into a slow pitch rise against the DirectSound mix.
+    //
+    // A value-jump check cannot see this: the error is in timing, not amplitude,
+    // so the waveform stays perfectly smooth while playing at the wrong rate.
+    static s8 right[224];
+    static s8 left[224];
+    static int16_t out[2048 * 2];
+    int pos = 0;
+    int total = 0;
+    int vblank;
+    int i;
+
+    MakeSine(right, 224, 441.0, 13379, 100.0);
+    for (i = 0; i < 224; i++)
+        left[i] = right[i];
+
+    for (vblank = 0; vblank < 500; vblank++)
+        total += Platform_ResampleVblank(right, left, 224, 13379, 48000, &pos,
+                                         out, 2048);
+
+    // 500 * 224 * 48000 / 13379 = 401823.75.
+    TEST_TRUE(total >= 401820);
+    TEST_TRUE(total <= 401828);
 }
