@@ -222,6 +222,10 @@ void RegisterRamReset(u32 resetFlags)
         REG_BG2PD = 0x100;
         REG_BG3PA = 0x100;
         REG_BG3PD = 0x100;
+        /* REG_KEYINPUT is active low, so zeroing it reads as every button
+         * held -- the same spurious soft-reset trap src/platform/system.c
+         * documents. Reset it to "released" like the hardware powers up. */
+        REG_KEYINPUT = 0x03FF;
     }
 }
 
