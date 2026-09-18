@@ -14,44 +14,7 @@
 #include "sound.h"
 #include "text.h"
 #include "main.h"
-void m4aSoundInit(void) {}
-void m4aSoundMain(void) {}
-void m4aSoundVSync(void) {}
-void m4aSoundVSyncOff(void) {}
-void m4aSoundVSyncOn(void) {}
-void m4aSongNumStart(u16 n) { (void)n; }
-void m4aSongNumStartOrChange(u16 n) { (void)n; }
-void m4aSongNumStop(u16 n) { (void)n; }
-void m4aMPlayAllStop(void) {}
-void m4aMPlayContinue(struct MusicPlayerInfo *mplayInfo) { (void)mplayInfo; }
-void m4aMPlayFadeOut(struct MusicPlayerInfo *mplayInfo, u16 speed) { (void)mplayInfo; (void)speed; }
-void m4aMPlayFadeOutTemporarily(struct MusicPlayerInfo *mplayInfo, u16 speed) { (void)mplayInfo; (void)speed; }
-void m4aMPlayFadeIn(struct MusicPlayerInfo *mplayInfo, u16 speed) { (void)mplayInfo; (void)speed; }
-void m4aMPlayImmInit(struct MusicPlayerInfo *mplayInfo) { (void)mplayInfo; }
-void m4aMPlayStop(struct MusicPlayerInfo *mplayInfo) { (void)mplayInfo; }
-/* src/sound.c cannot be linked on its own (fix #58: its map-music state machine
- * never advances without M4A), so the two BGM-volume helpers the Pokédex screen
- * brackets its resources with are defined here with their declared types from
- * include/sound.h. They only touch music, and music is stubbed outright: the
- * real bodies set gDisableHelpSystemVolumeReduce (help_system_util.c, unlinked)
- * and call m4aMPlayVolumeControl (a no-op). */
-void SetBGMVolume_SuppressHelpSystemReduction(u16 volume) { (void)volume; }
-void BGMVolumeMax_EnableHelpSystemReduction(void) {}
 
-// High-level Sound Stubs
-void InitMapMusic(void) {}
-void PlayBGM(u16 songNum) { (void)songNum; }
-void StopBGM(void) {}
-void FadeOutBGM(u8 speed) { (void)speed; }
-void FadeInBGM(u8 speed) { (void)speed; }
-void PlaySE(u16 songNum) { (void)songNum; }
-void PlaySE12WithPanning(u16 songNum, s8 pan) { (void)songNum; (void)pan; }
-void PlayFanfare(u16 songNum) { (void)songNum; }
-void FadeOutFanfare(u8 speed) { (void)speed; }
-bool8 IsFanfareTaskInactive(void) { return TRUE; }
-bool8 IsSEPlaying(void) { return FALSE; }
-bool8 IsBGMStopped(void) { return TRUE; }
-void SoundEngine_Init(void) {}
 
 // RFU & Link Hardware Stubs
 void InitRFU(void) {}
@@ -97,9 +60,6 @@ u16 SetFlashTimerIntr(u8 timerNum, void (**intrFunc)(void))
     (void)intrFunc;
     return 1; // non-zero = "no timer installed", matching the >= 4 guard
 }
-void MapMusicMain(void) {}
-struct PokemonCrySong gPokemonCrySongs[1] = {{0}};
-struct SoundInfo gSoundInfo = {0};
 static const struct FontInfo gFontInfos[] = 
 {
     [FONT_SMALL] = {
@@ -185,6 +145,9 @@ static const struct FontInfo gFontInfos[] =
 };
 
 bool8 gHelpSystemEnabled = FALSE;
+/* src/sound.c (now linked) reads this; its owner src/help_system_util.c is not
+ * linked. Match the declaration in src/sound.c exactly. */
+u8 gDisableHelpSystemVolumeReduce = 0;
 
 // Battle BG offsets referenced by scanline_effect.c
 
@@ -200,21 +163,13 @@ static void *sTempTileDataBuffers[32] = {NULL};
 static u8 sTempTileDataBufferCursor = 0;
 
 
-
-
-
-
 // Title Screen Transitions & State Stubs
 void CB2_InitBerryFixProgram(void) {}
 void CB2_InitCopyrightScreenAfterTitleScreen(void) {}
 void CB2_SaveClearScreen_Init(void) {}
-void PlayCry_Normal(u16 species, s8 pan) { (void)species; (void)pan; }
-void FadeOutMapMusic(u8 speed) { (void)speed; }
-bool8 IsNotWaitingForBGMStop(void) { return TRUE; }
 u8 LoadGameSave(u8 saveType) { (void)saveType; return 0; }
 void Save_ResetSaveCounters(void) {}
 u16 gSaveFileStatus = 0; // SAVE_STATUS_EMPTY
-void SetPokemonCryStereo(u32 mode) { (void)mode; }
 void HelpSystem_Disable(void) {}
 void HelpSystem_Enable(void) {}
 void SetHelpContext(u8 helpContext) { (void)helpContext; }
@@ -230,6 +185,5 @@ const char RomHeaderSoftwareVersion = 0;
 // Font & UI Stubs
 
 s32 GetGlyphWidth_Braille(u16 fontId, bool32 isJapanese) { (void)fontId; (void)isJapanese; return 0; }
-struct MusicPlayerInfo gMPlayInfo_BGM = {0};
 void CB2_InitMysteryGift(void) {}
 bool8 IsWirelessAdapterConnected(void) { return FALSE; }
