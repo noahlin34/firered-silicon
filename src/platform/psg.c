@@ -131,9 +131,56 @@ enum
     REG_WAVE_RAM_OFS = 0x90
 };
 
-/* Duty patterns for NRx1 bits 7-6 and the number of high steps in each. The
- * hardware advances one of eight steps per period tick. */
-static const u8 sDutyTable[4] = { 0x01, 0x03, 0x0F, 0xFC };
+/* Band-limited pulse tables, one per duty setting, 64 points per period.
+ *
+ * A pulse is the sum of its odd harmonics: t -> 2/(n*pi) * sin(n*pi*d) * cos(n*t),
+ * where d is the duty fraction. Synthesising that sum with only the first few
+ * terms and sampling it is exactly a naive square wave sampled at the engine's
+ * 13,379 Hz rate -- the higher harmonics do not disappear, they fold back
+ * *below* the source Nyquist and land inharmonically. Measured on a duty-50%
+ * note at 1872 Hz, the 5th and 7th harmonics (9360 and 13104 Hz) folded back
+ * to 4017 and 272 Hz, and those in-band tones are the buzz heard over Route 1:
+ * no post-processing can remove them, they are in the 13.4 kHz signal.
+ * 
+ * So the tables carry only the harmonics that fit: the sum stops at n = 13, and
+ * 13 * 2048 / 60.2 = 442 Hz is the highest fundamental the period register can
+ * reach, whose 13th harmonic is 5.75 kHz -- under the 6,689 Hz Nyquist at every
+ * pitch the hardware can ask for.
+ * 
+ * table[i] = 8 * f(2*pi*i/64), so (table[i] * volume) reproduces the naive
+ * square's *fundamental* amplitude but without the folded harmonics, keeping
+ * the channel at the level it sounds at today.
+ */
+static const s8 sPulseTable[4][64] =
+{
+    { /* duty 1/8: fundamental 1.95 x envelope volume */
+           4,    4,    4,    4,    3,    3,    3,    3,    3,    2,    2,    2,    1,    1,    1,    0,
+           0,    0,   -1,   -1,   -1,   -2,   -2,   -2,   -3,   -3,   -3,   -3,   -3,   -4,   -4,   -4,
+          -4,   -4,   -4,   -4,   -3,   -3,   -3,   -3,   -3,   -2,   -2,   -2,   -1,   -1,   -1,    0,
+           0,    0,    1,    1,    1,    2,    2,    2,    3,    3,    3,    3,    3,    4,    4,    4,
+    },
+    { /* duty 2/8: fundamental 3.60 x envelope volume */
+           4,    4,    4,    4,    4,    4,    3,    3,    3,    3,    2,    2,    2,    1,    1,    0,
+           0,    0,   -1,   -1,   -2,   -2,   -2,   -3,   -3,   -3,   -3,   -4,   -4,   -4,   -4,   -4,
+          -4,   -4,   -4,   -4,   -4,   -4,   -3,   -3,   -3,   -3,   -2,   -2,   -2,   -1,   -1,    0,
+           0,    0,    1,    1,    2,    2,    2,    3,    3,    3,    3,    4,    4,    4,    4,    4,
+    },
+    { /* duty 4/8: fundamental 5.09 x envelope volume */
+           4,    4,    4,    4,    4,    4,    3,    3,    3,    3,    2,    2,    2,    1,    1,    0,
+           0,    0,   -1,   -1,   -2,   -2,   -2,   -3,   -3,   -3,   -3,   -4,   -4,   -4,   -4,   -4,
+          -4,   -4,   -4,   -4,   -4,   -4,   -3,   -3,   -3,   -3,   -2,   -2,   -2,   -1,   -1,    0,
+           0,    0,    1,    1,    2,    2,    2,    3,    3,    3,    3,    4,    4,    4,    4,    4,
+    },
+    { /* duty 6/8: fundamental 3.60 x envelope volume */
+           4,    4,    4,    4,    4,    4,    3,    3,    3,    3,    2,    2,    2,    1,    1,    0,
+           0,    0,   -1,   -1,   -2,   -2,   -2,   -3,   -3,   -3,   -3,   -4,   -4,   -4,   -4,   -4,
+          -4,   -4,   -4,   -4,   -4,   -4,   -3,   -3,   -3,   -3,   -2,   -2,   -2,   -1,   -1,    0,
+           0,    0,    1,    1,    2,    2,    2,    3,    3,    3,    3,    4,    4,    4,    4,    4,
+    },
+};
+
+/* How many duty steps of the 8 in a period are high, per duty setting. Used only
+ * to pick the table row, since the table already carries the waveform. */
 static const u8 sDutyHighSteps[4] = { 1, 2, 4, 6 };
 
 /* Maps the channels' 4-bit envelope scale onto the PCM byte the DirectSound
@@ -145,13 +192,15 @@ static const u8 sDutyHighSteps[4] = { 1, 2, 4, 6 };
  * (measured on the title theme and the bedroom), so that arithmetic alone makes
  * the synthesiser inaudible while still computing the right waveform.
  *
- * Scaling by 8 puts a channel at full envelope (15) at +/-60 of the 8-bit range,
- * which is the same order as one DirectSound channel there (a channel with right
- * volume ~100 contributes up to +/-100), and keeps envelope 1 at +/-4 so quiet
- * passages keep their shape. The centring is exact per duty cycle, so the mean
- * stays zero.
+ * The scale is set by the *balance against DirectSound*, not by what makes one
+ * channel audible. Measured on Route 1 by averaging |PSG| and |DirectSound| per
+ * sample inside the mixer, a scale of 8 made the CGB channels 73.5% of the output
+ * amplitude -- 66% of its energy -- so the accompaniment and counter-melody sat
+ * on top of the melodic line instead of under it, which is what "the melody is
+ * too quiet" sounds like. At 4 it is 58.9%. Envelope 1 still reaches +/-2, so
+ * quiet passages keep their shape, and the centring stays exact per duty cycle.
  */
-#define PSG_DAC_SCALE 8
+#define PSG_DAC_SCALE 4
 
 struct PsgChannelState
 {
@@ -322,13 +371,11 @@ static void PsgMixChannel(struct SoundInfo *soundInfo, u32 ch, s32 *sumR,
     case PSG_PULSE1:
     case PSG_PULSE2:
     {
-        u32 nrx1 = (ch == PSG_PULSE1) ? REG_NR11_OFS : REG_NR21_OFS;
-        u32 high = sDutyHighSteps[(PsgReg(nrx1) >> 6) & 3];
-
-        /* Shift the pair so its mean over the duty cycle is zero: with `high` of
-         * 8 steps high, the high level is +v*(8-high)/8 and the low -v*high/8. */
-        highLevel = ((s32)volume * (s32)(8 - high) * PSG_DAC_SCALE) / 8;
-        lowLevel = -((s32)volume * (s32)high * PSG_DAC_SCALE) / 8;
+        /* The waveform comes from the band-limited table (see above), so the
+         * only per-vblank work is the envelope scaling. The table's 8x scaling
+         * and PSG_DAC_SCALE compose: value = table[i] * volume * PSG_DAC_SCALE. */
+        highLevel = (s32)volume * PSG_DAC_SCALE;
+        lowLevel = 0;
         break;
     }
     case PSG_WAVE:
@@ -365,13 +412,13 @@ static void PsgMixChannel(struct SoundInfo *soundInfo, u32 ch, s32 *sumR,
         case PSG_PULSE2:
         {
             u32 nrx1 = (ch == PSG_PULSE1) ? REG_NR11_OFS : REG_NR21_OFS;
-            u32 pattern = sDutyTable[(PsgReg(nrx1) >> 6) & 3];
-            /* 8 duty steps per period: a full period is 65536 in 16.16, so the
-             * step index is phase / 8192. */
-            u32 step8 = (st->phase >> 13) & 7;
+            const s8 *tbl = sPulseTable[(PsgReg(nrx1) >> 6) & 3];
+            /* 64 points per period, so a full period (65536 in 16.16) advances
+             * the index by 1024 per point. */
+            u32 idx = (st->phase >> 10) & 63;
 
             st->phase += st->step;
-            value = ((pattern >> step8) & 1) ? highLevel : lowLevel;
+            value = ((s32)tbl[idx] * highLevel) >> 3;   /* undo the table's 8x */
             break;
         }
         case PSG_WAVE:
