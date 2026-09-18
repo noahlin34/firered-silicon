@@ -5,7 +5,7 @@ The ROM build got its audio data from the GBA assembler: `data/sound_data.s`
 pulled in `sound/voice_groups.inc` and friends and assembled them into GBA
 structs, and `audio_rules.mk` ran `mid2agb` over each `sound/songs/midi/*.mid`
 to produce the song bytecode. Both files were ROM-only and are gone (see
-AGENTS.md §8); `Makefile.native` carries the equivalent `wav2agb` rules, and
+AGENTS.md §8); the Makefile carries the equivalent `wav2agb` rules, and
 neither the assembler nor the `.4byte` layout can work for the host:
 
   * the assembler emits 32-bit `.4byte` operands, which truncate on 64-bit
@@ -27,7 +27,7 @@ Generated (tracked in git, like `src/data/maps_data.h`):
   src/data/sound/sound_data.c    gSongTable, gMPlayTable, track buffers,
                                  gCryTable / gCryTable_Reverse
 
-The sample `.bin` files are NOT written here: `Makefile.native`'s `wav2agb`
+The sample `.bin` files are NOT written here: the Makefile's `wav2agb`
 rules build them, and this generator only emits the INCBINs that reference
 them -- the same split the graphics assets use.
 
@@ -43,7 +43,7 @@ Two layout facts drive the emission, and both are traps:
     one. The port reads `ToneData.keySplitTable` instead (a PORTABLE-only
     field; see include/gba/m4a_internal.h).
 
-This script must not invoke make (it can be run from inside `Makefile.native`).
+This script must not invoke make (it can be run from inside the Makefile).
 """
 
 import os
