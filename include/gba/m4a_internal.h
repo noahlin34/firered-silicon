@@ -48,6 +48,8 @@ struct WaveData
 
 #define TONEDATA_TYPE_CGB    0x07
 #define TONEDATA_TYPE_FIX    0x08
+#define TONEDATA_TYPE_REV    0x10 // sample plays backwards
+#define TONEDATA_TYPE_CMP    0x20 // DPCM-compressed wave (see DecodeDpcm)
 #define TONEDATA_TYPE_SPL    0x40 // key split
 #define TONEDATA_TYPE_RHY    0x80 // rhythm
 
@@ -65,10 +67,25 @@ struct ToneData
     u8 decay;
     u8 sustain;
     u8 release;
+#ifdef PORTABLE
+    /* `voice_keysplit`/`voice_keysplit_all` store a keysplit table pointer in
+     * what the GBA layout calls attack/decay/sustain/release: four consecutive
+     * bytes, exactly enough for a GBA address and half of a host one. ply_note
+     * reads that slot as a pointer, so on the host the pointer gets its own
+     * field and the four ADSR bytes keep their scalar meaning. See
+     * tools/gen_sound_data.py, which emits this field instead of the aliased
+     * bytes. */
+    u8 *keySplitTable;
+#endif
 };
+
+/* Delta table for DPCM-compressed waves (wav2agb -c); see DecodeDpcm in
+ * src/m4a_driver.c. Defined in src/m4a_tables.c. */
+extern const s8 gDeltaEncodingTable[];
 
 #define SOUND_CHANNEL_SF_START       0x80
 #define SOUND_CHANNEL_SF_STOP        0x40
+#define SOUND_CHANNEL_SF_SPECIAL     0x20
 #define SOUND_CHANNEL_SF_LOOP        0x10
 #define SOUND_CHANNEL_SF_IEC         0x04
 #define SOUND_CHANNEL_SF_ENV         0x03
@@ -77,6 +94,10 @@ struct ToneData
 #define SOUND_CHANNEL_SF_ENV_SUSTAIN 0x01
 #define SOUND_CHANNEL_SF_ENV_RELEASE 0x00
 #define SOUND_CHANNEL_SF_ON (SOUND_CHANNEL_SF_START | SOUND_CHANNEL_SF_STOP | SOUND_CHANNEL_SF_IEC | SOUND_CHANNEL_SF_ENV)
+
+/* WaveData.flags: the two high bits mark a looped sample. The mixer tests them
+ * together, matching the assembler's SOUND_CHANNEL_SF_LOOP derivation. */
+#define WAVE_DATA_FLAG_LOOP 0xC0
 
 #define CGB_CHANNEL_MO_PIT  0x02
 #define CGB_CHANNEL_MO_VOL  0x01
@@ -242,7 +263,15 @@ struct PokemonCrySong
     u8 part0; // 0x11
     u8 tuneValue; // 0x12
     u8 gotoCmd; // 0x13
+#ifdef PORTABLE
+    /* The GBA build stores the loop target as a u32 address inside the
+     * bytecode; on the host a 4-byte operand cannot hold an address, so the
+     * interpreter resolves it through gNativeSongRuntimePtrs instead and the
+     * pointer is kept whole. See ply_goto in src/m4a_driver.c. */
+    u32 gotoTargetIndex; // 0x14 - index into gNativeSongRuntimePtrs
+#else
     u32 gotoTarget; // 0x14
+#endif
     u8 part1; // 0x18
     u8 tuneValue2; // 0x19
     u8 cont[2]; // 0x1A
@@ -401,17 +430,41 @@ extern const u8 gNoiseTable[];
 
 extern const struct PokemonCrySong gPokemonCrySongTemplate;
 
-extern const struct ToneData voicegroup000;
+/* A voicegroup is an array of 128 ToneData entries (one per MIDI key). The ROM
+ * build declared it as a single ToneData because the assembler only ever took
+ * its address; the generated array in src/data/sound/voice_data.h needs the
+ * real type. */
+extern const struct ToneData voicegroup000[];
 
+#ifdef PORTABLE
+/* The ROM build takes these from the linker script, where `gNumMusicPlayers`
+ * is a bare symbol whose ADDRESS is the count (ld_script*.ld: `gNumMusicPlayers
+ * = 4;`). Casting a host pointer to a small integer is meaningless -- 64-bit
+ * bss lands far above 4 -- so under PORTABLE the counts are ordinary constants.
+ * The values are the linker script's. */
+#define NUM_MUSIC_PLAYERS 4
+#define MAX_LINES 0
+#else
 extern char gNumMusicPlayers[];
 extern char gMaxLines[];
-
 #define NUM_MUSIC_PLAYERS ((u16)gNumMusicPlayers)
 #define MAX_LINES ((u32)gMaxLines)
+#endif
+
+/* src/m4a.c owns this (the pitch derivation ply_note and the mixer share). */
+u32 MidiKeyToFreq(struct WaveData *wav, u8 key, u8 fineAdjust);
 
 u32 umul3232H32(u32 multiplier, u32 multiplicand);
 void SoundMain(void);
+#ifdef PORTABLE
+/* The GBA routine clears the 64 bytes at r0 regardless of its C prototype (it
+ * is called through the jump table, where the pointer arrives in r0). The host
+ * port needs that pointer as a real parameter, so the prototype differs here
+ * and src/m4a_driver.c defines it accordingly. */
+void SoundMainBTM(void *x);
+#else
 void SoundMainBTM(void);
+#endif
 void TrackStop(struct MusicPlayerInfo *mplayInfo, struct MusicPlayerTrack *track);
 void MPlayMain(struct MusicPlayerInfo *);
 void RealClearChain(void *x);
