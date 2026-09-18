@@ -163,10 +163,7 @@ u8 CreateTask_ReestablishCableClubLink(void) { return 0; }
 /* DexScreen_GetSetPokedexFlag is the real body in src/pokedex_screen.c, which
  * is linked; the mirror that used to live here (initially an always-0 stub, then
  * a corrected copy) is deleted (fix #8). */
-void FadeOutAndFadeInNewMapMusic(u16 song, u8 speed, u8 unused) { (void)song; (void)speed; (void)unused; }
-void FadeOutAndPlayNewMapMusic(u16 song, u8 speed) {}
 u32 GetBerryPowder(void) { return 0; }
-u16 GetCurrentMapMusic(void) { return 0; }
 /* src/field_specials.c: GetHiddenItemAttr. Called by linked
  * src/field_control_avatar.c when the player faces a hidden-item bg event, so
  * the old always-0 stub made every hidden item resolve to item 0 / flag 1000.
@@ -177,7 +174,6 @@ void InitTeachyTvController(u8 mode, void (*cb)(void)) { (void)mode; (void)cb; }
 bool8 IsEscalatorMoving(void) { return FALSE; }
 bool32 IsRfuRecvQueueEmpty(void) { return TRUE; }
 bool32 IsSendingKeysToLink(void) { return FALSE; }
-bool8 IsSpecialSEPlaying(void) { return FALSE; }
 void LinkRfu_FatalError(void) {}
 /* include/trainer_see.h declares one parameter. Trainer sight is not ported
  * (src/trainer_see.c is unlinked), so this stays inert — but the signature must
@@ -186,8 +182,6 @@ void MovementAction_RevealTrainer_RunTrainerSeeFuncList(struct ObjectEvent *obje
 {
     (void)objectEvent;
 }
-void PlayCry_NormalNoDucking(u16 species, s8 pan, s8 volume, u8 priority) { (void)species; (void)pan; (void)volume; (void)priority; }
-void PlayFanfareByFanfareNum(u8 num) {}
 /* src/field_specials.c: RunMassageCooldownStepCounter. Daisy offers to groom a
  * mon only once VAR_MASSAGE_COOLDOWN_STEP_COUNTER reaches 500, and
  * DaisyMassageServices resets it. A no-op counter would gate her on a value
@@ -199,20 +193,7 @@ bool8 ShouldEggHatch(void) { return FALSE; }
 void StartEscalator(bool8 a) {}
 void StartSendingKeysToLink(void) {}
 void StopEscalator(void) {}
-void StopMapMusic(void) {}
 void UseFameChecker(MainCallback savedCallback) { (void)savedCallback; }
-/* src/field_specials.c: UsedPokemonCenterWarp. Called by linked
- * src/overworld.c when resolving a whiteout, to decide whether the player's
- * last warp was a Pokémon Center (respawn there) or an ordinary map warp.
- * The old always-false stub made every whiteout respawn at the current map. */
-
-/* include/sound.h returns bool8: callers use it as a gate
- * (`if (WaitFanfare(FALSE))`), and a void body leaves that reading an
- * undefined register. Always TRUE means "the fanfare is not blocking", which
- * is the correct answer while M4A is unlinked — the opposite choice would
- * park every fanfare-gated task (party-menu level-up pages, Poké Flute). */
-bool8 WaitFanfare(bool8 stop) { (void)stop; return TRUE; }
-
 /* Specials and Scrcmd Stubs */
 static u16 NativeSpecial_HealPlayerParty(void)
 {
@@ -544,13 +525,10 @@ void CreateDecorationShop1Menu(const u16 *a) { (void)a; }
 void CreateDecorationShop2Menu(const u16 *a) { (void)a; }
 void CreatePokemartMenu(const u16 *items) { (void)items; }
 void CreateScriptedWildMon(u16 species, u8 level, u16 item) { (void)species; (void)level; (void)item; }
-void FadeOutBGMTemporarily(u8 a) { (void)a; }
-bool8 IsBGMPausedOrStopped(void) { return FALSE; }
 /* src/field_specials.c: GetLeadMonIndex. The first party slot holding a real
  * mon (not empty, not an egg). Returning 0 unconditionally would report an
  * empty slot's friendship to Daisy's rating branch and to
  * ScrCmd_bufferleadmonspeciesname. */
-void PlayCry_Script(u16 species, u8 a) { (void)species; (void)a; }
 u8 ScriptGiveEgg(u16 species) { (void)species; return 0; }
 void ScriptSetMonMoveSlot(u8 partyIdx, u16 move, u8 slot) { (void)partyIdx; (void)move; (void)slot; }
 void SetMysteryEventScriptStatus(u32 status) { (void)status; }
