@@ -7,10 +7,10 @@
 // ucontext.h only declares its types when _XOPEN_SOURCE is defined *before the
 // first system header*, which an include order inside this file cannot guarantee
 // (frame.c pulls in <limits.h> and <setjmp.h> first). The build therefore passes
-// it: see TEST_CFLAGS in Makefile.native. Failing here rather than silently
+// it: see TEST_CFLAGS in the Makefile. Failing here rather than silently
 // compiling a header nobody can use.
 #ifndef _XOPEN_SOURCE
-#error "tests require -D_XOPEN_SOURCE=700 (TEST_CFLAGS in Makefile.native)"
+#error "tests require -D_XOPEN_SOURCE=700 (TEST_CFLAGS in the Makefile)"
 #endif
 
 #include <setjmp.h>
