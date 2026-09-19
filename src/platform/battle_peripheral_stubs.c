@@ -78,35 +78,6 @@ const u8 VSSeeker_Text_BatteryNotChargedNeedXSteps[] = { 0xFF };
 const u8 VSSeeker_Text_NoTrainersWithinRange[] = { 0xFF };
 const u8 VSSeeker_Text_TrainersNotReady[] = { 0xFF };
 
-static const u8 sEmptyNatureName[] = { 0xFF };
-const u8 *const gNatureNamePointers[NUM_NATURES] = {
-    [NATURE_HARDY] = sEmptyNatureName,
-    [NATURE_LONELY] = sEmptyNatureName,
-    [NATURE_BRAVE] = sEmptyNatureName,
-    [NATURE_ADAMANT] = sEmptyNatureName,
-    [NATURE_NAUGHTY] = sEmptyNatureName,
-    [NATURE_BOLD] = sEmptyNatureName,
-    [NATURE_DOCILE] = sEmptyNatureName,
-    [NATURE_RELAXED] = sEmptyNatureName,
-    [NATURE_IMPISH] = sEmptyNatureName,
-    [NATURE_LAX] = sEmptyNatureName,
-    [NATURE_TIMID] = sEmptyNatureName,
-    [NATURE_HASTY] = sEmptyNatureName,
-    [NATURE_SERIOUS] = sEmptyNatureName,
-    [NATURE_JOLLY] = sEmptyNatureName,
-    [NATURE_NAIVE] = sEmptyNatureName,
-    [NATURE_MODEST] = sEmptyNatureName,
-    [NATURE_MILD] = sEmptyNatureName,
-    [NATURE_QUIET] = sEmptyNatureName,
-    [NATURE_BASHFUL] = sEmptyNatureName,
-    [NATURE_RASH] = sEmptyNatureName,
-    [NATURE_CALM] = sEmptyNatureName,
-    [NATURE_GENTLE] = sEmptyNatureName,
-    [NATURE_SASSY] = sEmptyNatureName,
-    [NATURE_CAREFUL] = sEmptyNatureName,
-    [NATURE_QUIRKY] = sEmptyNatureName,
-};
-
 /* Trainer Tower is a separate e-Reader/link peripheral; keep every lookup safe. */
 static const struct TrainerTowerFloor sEmptyTrainerTowerFloor = {0};
 const struct EReaderTrainerTowerSetSubstruct gTrainerTowerLocalHeader = {
@@ -259,7 +230,12 @@ void PSA_UseTM_SetUpZoomOutAnim(void) {}
 
 /* Union Room, trade, link, and field-move helpers are deliberately inert. */
 struct RfuGameData *GetHostRfuGameData(void) { return NULL; }
-u8 GetMoveSlotToReplace(void) { return 0; }
+
+/* The trade menu is an unlinked link peripheral. src/pokemon_summary_screen.c
+ * only ever COMPARES savedCallback against this address (to draw the partner's
+ * summary during a trade), and nothing hands it over while trade.c is unlinked,
+ * so an inert body of the declared type is honest here. */
+void CB2_ReturnToTradeMenuFromSummary(void) {}
 
 s32 GetUnionRoomTradeMessageId(struct RfuGameCompatibilityData rfuPlayer,
                                struct RfuGameCompatibilityData rfuPartner,
@@ -300,25 +276,11 @@ bool8 SetUpFieldMove_Strength(void) { return FALSE; }
 bool8 SetUpFieldMove_SweetScent(void) { return FALSE; }
 bool8 SetUpFieldMove_Teleport(void) { return FALSE; }
 
-void ShowPokemonSummaryScreen(struct Pokemon *party, u8 cursorPos, u8 lastIdx,
-                              void (*callback)(void), u8 a4)
-{
-    (void)party;
-    (void)cursorPos;
-    (void)lastIdx;
-    (void)callback;
-    (void)a4;
-}
-
-void ShowSelectMovePokemonSummaryScreen(struct Pokemon *party, u8 cursorPos,
-                                        u8 lastIdx, MainCallback callback, u16 a4)
-{
-    (void)party;
-    (void)cursorPos;
-    (void)lastIdx;
-    (void)callback;
-    (void)a4;
-}
+/* ShowPokemonSummaryScreen/ShowSelectMovePokemonSummaryScreen used to be inert
+ * stubs here: opening POKéMON in the START menu, choosing a mon and picking
+ * SUMMARY set the party menu's exitCallback to CB2_ShowPokemonSummaryScreen,
+ * which called the stub and installed nothing, so the screen faded to black and
+ * stayed there. src/pokemon_summary_screen.c is linked now (PREPROC_SRCS). */
 
 
 void Task_TryUseSoftboiledOnPartyMon(u8 taskId) { (void)taskId; }
