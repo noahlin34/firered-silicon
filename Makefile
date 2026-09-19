@@ -437,6 +437,8 @@ PREPROC_SRCS := src/title_screen.c \
                 src/diploma.c \
                 src/pokemon_summary_screen.c \
                 src/mon_markings.c \
+                src/shop.c \
+                src/buy_menu_helpers.c \
                 src/dynamic_placeholder_text_util.c
 
 OBJ_DIR := build/native
