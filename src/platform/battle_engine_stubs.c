@@ -222,7 +222,6 @@ void EvolutionScene(struct Pokemon* mon, u16 speciesToEvolve, u8, u8 partyId) {}
 u16 FontFunc_Braille(struct TextPrinter *textPrinter) { return 0; }
 u8 GetBlockReceivedStatus(void) { return 0; }
 s16 GetFirstFreeBoxSpot(u8 boxId) { return 0; }
-u8 GetLastViewedMonIndex(void) { return 0; }
 u8 GetLinkPlayerCount_2(void) { return 0; }
 u8 GetMultiplayerId(void) { return 0; }
 bool32 InUnionRoom(void) { return 0; }
