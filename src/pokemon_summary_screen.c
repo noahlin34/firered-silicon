@@ -2987,6 +2987,13 @@ static void Task_DestroyResourcesOnExit(u8 taskId)
     DestroyTask(taskId);
     SetMainCallback2(sMonSummaryScreen->savedCallback);
 
+    // Clear the VBlank callback before the state it reads. VBlankIntr() runs
+    // directly from the frame loop on this port (it is not a deferred
+    // interrupt), so the frame that frees sMonSummaryScreen still runs
+    // VBlankCB_PokemonSummaryScreen, which dereferences it.
+    SetVBlankCallback(NULL);
+    SetHBlankCallback(NULL);
+
     sLastViewedMonIndex = GetLastViewedMonIndex();
 
     FREE_AND_SET_NULL_IF_SET(sMonSummaryScreen);
@@ -4879,7 +4886,13 @@ static void PokeSum_CreateMonMarkingsSprite(void)
 {
     u32 markings = GetMonData(&sMonSummaryScreen->currentMon, MON_DATA_MARKINGS);
 
-    DestroySpriteAndFreeResources(sMonSummaryScreen->markingSprite);
+    // markingSprite starts NULL (the screen state is AllocZeroed) and
+    // CreateMonMarkingAllCombosSprite can return NULL, so every use is guarded:
+    // on the GBA a NULL sprite dereference read the BIOS and did nothing, while
+    // on the host it faults. Fixes the crash on the first summary page.
+    if (sMonSummaryScreen->markingSprite != NULL)
+        DestroySpriteAndFreeResources(sMonSummaryScreen->markingSprite);
+
     sMonSummaryScreen->markingSprite = CreateMonMarkingAllCombosSprite(TAG_PSS_UNK_8C, TAG_PSS_UNK_8C, sMonMarkingSpritePalette);
 
     if (sMonSummaryScreen->markingSprite != NULL)
@@ -4894,12 +4907,19 @@ static void PokeSum_CreateMonMarkingsSprite(void)
 
 static void PokeSum_DestroyMonMarkingsSprite(void)
 {
-    DestroySpriteAndFreeResources(sMonSummaryScreen->markingSprite);
+    if (sMonSummaryScreen->markingSprite != NULL)
+    {
+        DestroySpriteAndFreeResources(sMonSummaryScreen->markingSprite);
+        sMonSummaryScreen->markingSprite = NULL;
+    }
 }
 
 static void PokeSum_ShowOrHideMonMarkingsSprite(u8 invisible)
 {
     u32 markings = GetMonData(&sMonSummaryScreen->currentMon, MON_DATA_MARKINGS);
+
+    if (sMonSummaryScreen->markingSprite == NULL)
+        return;
 
     if (markings == 0)
         sMonSummaryScreen->markingSprite->invisible = TRUE;
@@ -4910,6 +4930,9 @@ static void PokeSum_ShowOrHideMonMarkingsSprite(u8 invisible)
 static void PokeSum_UpdateMonMarkingsAnim(void)
 {
     u32 markings = GetMonData(&sMonSummaryScreen->currentMon, MON_DATA_MARKINGS);
+
+    if (sMonSummaryScreen->markingSprite == NULL)
+        return;
 
     StartSpriteAnim(sMonSummaryScreen->markingSprite, markings);
     PokeSum_ShowOrHideMonMarkingsSprite(FALSE);
