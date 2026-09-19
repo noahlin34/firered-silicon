@@ -146,7 +146,8 @@ u16 gSaveAttemptStatus = SAVE_STATUS_ERROR;
  * stub that used to print "[Menu] POKéDEX scene is not ported" is deleted. */
 void CB2_ReturnToPokeStorage(void) { printf("[Menu] POKéMON storage scene is not ported\n"); }
 void SetUsingUnionRoomStartMenu(void) {}
-void RecordItemTransaction(u16 itemId, u16 quantity, u8 logEventId) { (void)itemId; (void)quantity; (void)logEventId; }
+/* RecordItemTransaction is the real src/shop.c (linked); the stub that made
+ * every purchase a no-op for the quest log is deleted (fix #8). */
 bool8 WriteSaveBlock2(void) { printf("[Menu] saving is not ported\n"); return FALSE; }
 bool8 WriteSaveBlock1Sector(void) { printf("[Menu] saving is not ported\n"); return FALSE; }
 void Task_LinkFullSave(u8 taskId) { (void)taskId; printf("[Menu] saving is not ported\n"); }
@@ -521,9 +522,10 @@ const u8 *const gStdScripts[] = { NULL };
 const u8 *const gStdScriptsEnd[] = { NULL };
 
 void PlaySlotMachine(u16 a, void (*cb)(void)) { (void)a; (void)cb; }
-void CreateDecorationShop1Menu(const u16 *a) { (void)a; }
-void CreateDecorationShop2Menu(const u16 *a) { (void)a; }
-void CreatePokemartMenu(const u16 *items) { (void)items; }
+/* CreatePokemartMenu / CreateDecorationShop1Menu / CreateDecorationShop2Menu
+ * and RecordItemTransaction are the real src/shop.c (linked via PREPROC_SRCS —
+ * it carries _() strings and the shop_menu INCBINs live in src/graphics.c), so
+ * the four stubs that used to no-op the Mart clerk are deleted. */
 void CreateScriptedWildMon(u16 species, u8 level, u16 item) { (void)species; (void)level; (void)item; }
 /* src/field_specials.c: GetLeadMonIndex. The first party slot holding a real
  * mon (not empty, not an egg). Returning 0 unconditionally would report an
