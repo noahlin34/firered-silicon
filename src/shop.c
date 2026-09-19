@@ -273,14 +273,19 @@ static void Task_ShopMenu(u8 taskId)
 
 static void Task_HandleShopMenuBuy(u8 taskId)
 {
-    SetWordTaskArg(taskId, 0xE, (u32)CB2_InitBuyMenu);
+    // SetWordTaskArg keeps exactly 32 bits, which is a whole GBA address but
+    // half a host one: the callback survived as a truncated address and
+    // Task_GoToBuyOrSellMenu installed it as gMain.callback2 (fix #26's
+    // class). The task uses no other data slots, so the pointer is stored
+    // whole at index 8 with the host-width helpers instead.
+    SetPointerTaskArg(taskId, 8, (void *)CB2_InitBuyMenu);
     FadeScreen(FADE_TO_BLACK, 0);
     gTasks[taskId].func = Task_GoToBuyOrSellMenu;
 }
 
 static void Task_HandleShopMenuSell(u8 taskId)
 {
-    SetWordTaskArg(taskId, 0xE, (u32)CB2_GoToSellMenu);
+    SetPointerTaskArg(taskId, 8, (void *)CB2_GoToSellMenu);
     FadeScreen(FADE_TO_BLACK, 0);
     gTasks[taskId].func = Task_GoToBuyOrSellMenu;
 }
@@ -311,7 +316,7 @@ static void Task_GoToBuyOrSellMenu(u8 taskId)
     if (gPaletteFade.active)
         return;
 
-    SetMainCallback2((void *)GetWordTaskArg(taskId, 0xE));
+    SetMainCallback2((MainCallback)GetPointerTaskArg(taskId, 8));
     FreeAllWindowBuffers();
     DestroyTask(taskId);
 }
