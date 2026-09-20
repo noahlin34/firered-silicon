@@ -17,6 +17,7 @@
 #include "constants/moves.h"
 #include "pokemon.h"
 #include "pokemon_special_anim.h"
+#include "sprite.h"
 #include "pokemon_special_anim_internal.h"
 #include "task.h"
 
@@ -89,4 +90,74 @@ FIRERED_TEST("item_anim/cant-evolve scene keeps its state pointer whole",
     TEST_TRUE(AnimTaskIsRunning());
     TEST_EQ(PSA_GetItemId(), ITEM_FIRE_STONE);
     TEST_EQ(PSA_GetMonSpecies(), Test_PartySpecies(0));
+}
+
+// Linking the scene is what makes the animation VISIBLE, and that is a claim
+// about pixels -- the pointer tests above cannot see it. Before this, 27 stubs
+// in src/platform/battle_peripheral_stubs.c (PSA_SetUpItemUseOnMonAnim,
+// PSA_SetUpZoomAnim, PSA_CreateMonSpriteAtCloseness, CreateItemSpriteAtMaxCloseness,
+// the level-up window painters and the rest) meant the scene advanced its state
+// machine while drawing nothing at all.
+//
+// Asserted differentially: capture the field, start the animation, capture
+// again, and require the region the mon zooms into to have changed. A golden
+// frame would break on any legitimate palette or layout edit; a difference
+// against the same save's own field cannot.
+FIRERED_TEST("item_anim/the use-item scene actually draws",
+             "engine fixture:lab item_anim", item_anim_draws)
+{
+    // A COPY, not the live pointer: Test_RenderFrame rewrites the harness's one
+    // framebuffer in place, so holding Test_Framebuffer() aliases the frames the
+    // loop below renders and every diff would be zero.
+    static u16 before[240 * 160];
+    int i;
+    int liveSprites = 0;
+
+    Test_RequireFixture(FIXTURE_OAKS_LAB);
+
+    // The field as it is, with no animation running.
+    Test_RenderFrame();
+    memcpy(before, Test_Framebuffer(), sizeof(before));
+
+    // The mon's own zoomed-in region. Sampled while the animation runs below.
+    StartUseItemAnim_Normal(0, ITEM_POTION, TestAnimFinishedCallback);
+    TEST_TRUE(AnimTaskIsRunning());
+
+    // Run the scene far enough to reach its zoom and its sprite burst, and hold
+    // the widest frame it produces.
+    int bestDiff = 0;
+    int bestColors = 0;
+    for (i = 0; i < 8; i++)
+    {
+        int diff, colors, j, n = 0;
+
+        Test_RunFrames(15);
+        Test_RenderFrame();
+
+        for (j = 0; j < MAX_SPRITES; j++)
+            if (gSprites[j].inUse)
+                n++;
+        if (n > liveSprites)
+            liveSprites = n;
+
+        // Where the mon sprite zooms in. Compared against the pre-animation
+        // field, so this is "the scene painted something here", not "the field
+        // has scenery".
+        diff = Test_RegionDiffers(40, 16, 120, 96, before);
+        colors = Test_DistinctColors(40, 16, 120, 96);
+        if (diff > bestDiff)
+            bestDiff = diff;
+        if (colors > bestColors)
+            bestColors = colors;
+    }
+
+    // The scene draws the mon (and its background) into that region: a stub
+    // implementation leaves the field exactly as it was.
+    TEST_GE(bestDiff, 1000);
+    TEST_GE(bestColors, 8);
+
+    // And it drives real sprites, which is what the sprite helpers the scene now
+    // provides are for. The item-use scene's outward spiral burst alone creates
+    // dozens in one frame.
+    TEST_GE(liveSprites, 10);
 }
