@@ -5,17 +5,41 @@
  ├─────────────────────────────────┼─────────────────────┤
  │ src/*.c total                   │ 285                 │
  ├─────────────────────────────────┼─────────────────────┤
- │ linked (ENGINE_SRCS 64 /        │ 176                 │
- │ PREPROC_SRCS 115 /              │                     │
+ │ linked (ENGINE_SRCS 64 /        │ 178                 │
+ │ PREPROC_SRCS 117 /              │                     │
  │ PLATFORM_SRCS 14)               │                     │
  ├─────────────────────────────────┼─────────────────────┤
- │ unlinked                        │ 109                 │
+ │ unlinked                        │ 107                 │
  ├─────────────────────────────────┼─────────────────────┤
- │ stub TUs (overworld_stubs,      │ 446 defined         │
- │ battle_engine_stubs,            │ symbols; 429 are    │
- │ battle_peripheral_stubs, stubs) │ the only definition │
- │                                 │ (load-bearing)      │
+ │ stub TUs (overworld_stubs,      │ 442 defined         │
+ │ battle_engine_stubs,            │ symbols; 298 are    │
+ │ battle_peripheral_stubs, stubs) │ the sole definition │
+ │                                 │ (load-bearing); the │
+ │                                 │ other 144 collide   │
+ │                                 │ with another        │
+ │                                 │ definition and lose │
+ │                                 │ (127 to a generated │
+ │                                 │ table, 17 to a      │
+ │                                 │ linked source)      │
  └─────────────────────────────────┴─────────────────────┘
+
+ Landed since this inventory was written:
+
+ - Poké Mart shop. src/shop.c + src/buy_menu_helpers.c are
+   linked via PREPROC_SRCS (both carry _() strings; the
+   shop_menu INCBINs live in the already-linked src/graphics.c,
+   and graphics/shop_menu/* converts through the generic
+   %.4bpp/%.gbapal/%.lz chain, so no new asset rules). The 4
+   stub definitions (CreatePokemartMenu,
+   CreateDecorationShop1Menu, CreateDecorationShop2Menu,
+   RecordItemTransaction) are deleted and the three "[Script]
+   pokemart is not ported" guards are gone from src/scrcmd.c,
+   so the Mart clerk sells. One 64-bit defect surfaced (fix
+   #83): the buy menu carried its MainCallback through
+   SetWordTaskArg, which keeps 32 bits — now
+   SetPointerTaskArg/GetPointerTaskArg at data[8]. Covered by
+   tests/shop.c (7 tests; the engine ones boot the
+   fixture:dex save). See AGENTS.md item 8c.
 
  Tier A — linkable now, unblocks a player-visible feature
 
@@ -26,24 +50,6 @@
 
  ┌──────────────┬──────────────┬───────────┬─────────────┐
  │ Feature      │ files        │ new ext   │ collides    │
- ├──────────────┼──────────────┼───────────┼─────────────┤
- │ Shop — Mart  │ shop.c,      │ 0         │ 4           │
- │ clerk        │ buy_menu_hel │           │ (CreatePoke │
- │ actually     │ pers.c       │           │ martMenu,   │
- │ sells        │              │           │ CreateDecor │
- │              │              │           │ ationShop1/ │
- │              │              │           │ 2Menu,      │
- │              │              │           │ RecordItemT │
- │              │              │           │ ransaction) │
- │              │              │           │ — then drop │
- │              │              │           │ the three   │
- │              │              │           │ [Script]    │
- │              │              │           │ pokemart is │
- │              │              │           │ not ported  │
- │              │              │           │ guards in   │
- │              │              │           │ scrcmd.c:19 │
- │              │              │           │ 92,2006,202 │
- │              │              │           │ 1           │
  ├──────────────┼──────────────┼───────────┼─────────────┤
  │ Trainer      │ trainer_see. │ 0         │ 2           │
  │ sight — NPC  │ c            │           │ (CheckForTr │
@@ -153,7 +159,7 @@
  - PC storage system + Union Room + trade + link
    (pokemon_storage_system_*.c 6 files,
    link.c/link_rfu_*/librfu_*/cable_club.c, union_room*.c,
-   trade*.c, ereader_*). ~40 of the 109 files share one
+   trade*.c, ereader_*). ~40 of the 107 files share one
    cause: no GBA link hardware / RFU. link.c alone
    collides with 32 stubs.
  - Intro cinematic (intro.c): needs multiboot.c, which is
@@ -184,7 +190,7 @@
     are real (2118 sDummyScript, 218 NULL). Only 6 maps
     have real headers. Each new area is a
     NATIVE_SCRIPT_ROOTS + command-support task.
- 3. gSpecials registry. 27 of 444 specials registered. 5
+ 3. gSpecials registry. 25 of 444 specials registered. 5
     specials called by already-compiled scripts are
     unregistered — and one is a live soft-lock:
    - Whiteout. EventScript_FieldPoison →
@@ -214,30 +220,31 @@
     dodges this by inlining msgbox expansions; any script
     using std/goto_std needs the table emitted from
     data/event_scripts.s:77.
- 6. 17 dead stub definitions in battle_engine_stubs.c are
-    C-common and lose to the real generated definitions
-    (BattleScript_*, gBattleAnimArgs,
-    gBattlePartyCurrentOrder, …) — harmless but weight;
-    delete when convenient.
+ 6. 144 stub definitions in battle_engine_stubs.c are
+    C-common and lose to another definition — 127 to the
+    generated src/data/battle/ptr_table.c (BattleScript_*,
+    gBattleAnimArgs, gBattlePartyCurrentOrder, …) and 17 to a
+    linked hand-written source (battle_anim, battle_message,
+    battle_setup, battle_bg, party_menu, battle_anim_mons,
+    safari_zone, battle_controller_pokedude). Harmless but
+    weight; delete when convenient.
 
  Suggested order
 
- 1. shop.c + buy_menu_helpers.c (0 new externals, 4 stub
-    deletions, kills the loud pokemart is not ported gap).
- 2. bg_regs.c + delete its stub (one-line fix for a real
+ 1. bg_regs.c + delete its stub (one-line fix for a real
     overworld blend defect).
- 3. Register specials 200/332/373 (+ SetCb2WhiteOut
+ 2. Register specials 200/332/373 (+ SetCb2WhiteOut
     wrapper) — closes the poison-whiteout soft-lock; needs
     no new file.
- 4. trainer_see.c + fldeff_* field moves (0 new externals
+ 3. trainer_see.c + fldeff_* field moves (0 new externals
     each; makes 432 trainer events and all 13 NULL field
     effects real).
- 5. pokemon_special_anim_scene.c (27 stubs out, item/TM
+ 4. pokemon_special_anim_scene.c (27 stubs out, item/TM
     animations visible).
- 6. Generator:
+ 5. Generator:
     trainerbattle_single/_rematch/_no_intro/_double +
     finditem/multichoice → then ordinary trainer battles
     and Route/area scripts.
- 7. save.c host sector layout + backend (touches the
+ 6. save.c host sector layout + backend (touches the
     STATIC_ASSERT, so it's a design task, not a link
     task).
