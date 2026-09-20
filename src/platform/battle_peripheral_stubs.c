@@ -148,85 +148,23 @@ void DoEasyChatScreen(u8 type, u16 *words, MainCallback callback)
 
 
 
-/* Summary, Pokédex, item-use, and level-up animation scenes are unlinked. */
-void CreateItemIconSpriteAtMaxCloseness(u16 itemId)
-{
-    (void)itemId;
-}
-
-void CreateLevelUpVerticalSpritesTask(u16 x, u16 y, u16 tileTag, u16 paletteTag,
-                                      u16 priority, u16 subpriority)
-{
-    (void)x;
-    (void)y;
-    (void)tileTag;
-    (void)paletteTag;
-    (void)priority;
-    (void)subpriority;
-}
+/* The item-use and level-up animation scene (src/pokemon_special_anim_scene.c)
+ * is linked, so the 27 stubs that used to live here — the PSA_* helpers,
+ * InitPokemonSpecialAnimScene, CreateItemIconSpriteAtMaxCloseness,
+ * CreateLevelUpVerticalSpritesTask, DrawLevelUpWindowPg1/2,
+ * LevelUpVerticalSpritesTaskIsRunning and
+ * PokemonSpecialAnimSceneInitIsNotFinished — are deleted (fix #8). Leaving them
+ * would be a duplicate symbol, and worse: they made the scene advance without
+ * drawing. */
 
 /* DexScreen_RegisterMonToPokedex is the real src/pokedex_screen.c body (linked);
  * the always-0 stub that used to live here is deleted (fix #8). */
-
+/* Still unlinked: src/help_message.c. */
 void DrawHelpMessageWindowTilesById(u8 windowId)
 {
     (void)windowId;
 }
 
-void DrawLevelUpWindowPg1(u16 windowId, u16 *statsBefore, u16 *statsAfter,
-                         u8 bgClr, u8 fgClr, u8 shadowClr)
-{
-    (void)windowId;
-    (void)statsBefore;
-    (void)statsAfter;
-    (void)bgClr;
-    (void)fgClr;
-    (void)shadowClr;
-}
-
-void DrawLevelUpWindowPg2(u16 windowId, u16 *currStats,
-                         u8 bgClr, u8 fgClr, u8 shadowClr)
-{
-    (void)windowId;
-    (void)currStats;
-    (void)bgClr;
-    (void)fgClr;
-    (void)shadowClr;
-}
-
-void InitPokemonSpecialAnimScene(struct PokemonSpecialAnimScene *buffer, u16 animType)
-{
-    (void)buffer;
-    (void)animType;
-}
-
-bool8 LevelUpVerticalSpritesTaskIsRunning(void) { return FALSE; }
-bool8 PokemonSpecialAnimSceneInitIsNotFinished(void) { return FALSE; }
-void PSA_AfterPoof_ClearMessageWindow(void) {}
-void PSA_CreateMonSpriteAtCloseness(u8 closeness) { (void)closeness; }
-void PSA_DarkenMonSprite(void) {}
-void PSA_FreeWindowBuffers(void) {}
-void PSA_HideMessageWindow(void) {}
-bool8 PSA_IsItemUseOnMonAnimActive(void) { return FALSE; }
-bool8 PSA_IsMessagePrintTaskActive(void) { return FALSE; }
-bool8 PSA_IsZoomTaskActive(void) { return FALSE; }
-bool8 PSA_LevelUpVerticalSpritesTaskIsRunning(void) { return FALSE; }
-void PSA_PrintMessage(u8 messageId) { (void)messageId; }
-bool8 PSA_RunPoofAnim(void) { return FALSE; }
-void PSA_SetUpItemUseOnMonAnim(u16 itemId, u8 closeness, bool32 a2)
-{
-    (void)itemId;
-    (void)closeness;
-    (void)a2;
-}
-void PSA_SetUpZoomAnim(u8 closeness) { (void)closeness; }
-void PSA_ShowMessageWindow(void) {}
-void PSA_UseItem_CleanUpForCancel(void) {}
-void PSA_UseTM_CleanUpForCancel(void) {}
-bool8 PSA_UseTM_RunMachineSetWobble(void) { return FALSE; }
-bool8 PSA_UseTM_RunZoomOutAnim(void) { return FALSE; }
-void PSA_UseTM_SetUpMachineSetWobble(void) {}
-void PSA_UseTM_SetUpZoomOutAnim(void) {}
 
 /* Union Room, trade, link, and field-move helpers are deliberately inert. */
 struct RfuGameData *GetHostRfuGameData(void) { return NULL; }
