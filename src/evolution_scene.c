@@ -50,12 +50,18 @@ COMMON_DATA void (*gCB2_AfterEvolution)(void) = NULL;
 
 // this file's functions
 static void Task_EvolutionScene(u8 taskId);
+#ifndef PORTABLE
 static void Task_TradeEvolutionScene(u8 taskId);
+#endif
 static void CB2_EvolutionSceneUpdate(void);
+#ifndef PORTABLE
 static void CB2_TradeEvolutionSceneUpdate(void);
+#endif
 static void EvoDummyFunc(void);
 static void VBlankCB_EvolutionScene(void);
+#ifndef PORTABLE
 static void VBlankCB_TradeEvolutionScene(void);
+#endif
 static void StartBgAnimation(bool8 isLink);
 static void StopBgAnimation(void);
 static void Task_AnimateBg(u8 taskId);
@@ -381,6 +387,15 @@ static void CB2_EvolutionSceneLoadGraphics(void)
     ShowBg(3);
 }
 
+/* The trade-evolution scene is only reachable from src/trade_scene.c, which is
+ * the link-cable peripheral and is not linked (no link hardware on the host).
+ * It is excluded rather than stubbed because every symbol it needs
+ * (LoadTradeAnimGfx, LinkTradeDrawWindow, InitTradeSequenceBgGpuRegs,
+ * DrawTextOnTradeWindow, gTradeEvolutionSceneYesNoWindowTemplate) belongs to
+ * that unlinked file: a stub of a WindowTemplate would be fix #57's
+ * wrong-typed-data trap, and the guard is what tells whoever links trade_scene.c
+ * that this half comes back with it. */
+#ifndef PORTABLE
 static void CB2_TradeEvolutionSceneLoadGraphics(void)
 {
     struct Pokemon* mon = &gPlayerParty[gTasks[sEvoStructPtr->evoTaskId].tPartyId];
@@ -528,6 +543,7 @@ void TradeEvolutionScene(struct Pokemon* mon, u16 postEvoSpecies, u8 preEvoSprit
     SetVBlankCallback(VBlankCB_TradeEvolutionScene);
     SetMainCallback2(CB2_TradeEvolutionSceneUpdate);
 }
+#endif
 
 static void CB2_EvolutionSceneUpdate(void)
 {
@@ -538,6 +554,7 @@ static void CB2_EvolutionSceneUpdate(void)
     RunTasks();
 }
 
+#ifndef PORTABLE
 static void CB2_TradeEvolutionSceneUpdate(void)
 {
     AnimateSprites();
@@ -546,6 +563,7 @@ static void CB2_TradeEvolutionSceneUpdate(void)
     UpdatePaletteFade();
     RunTasks();
 }
+#endif
 
 static void CreateShedinja(u16 preEvoSpecies, struct Pokemon* mon)
 {
@@ -1048,6 +1066,7 @@ static void Task_EvolutionScene(u8 taskId)
     }
 }
 
+#ifndef PORTABLE
 // States for the main switch in Task_TradeEvolutionScene
 enum {
     T_EVOSTATE_INTRO_MSG,
@@ -1445,6 +1464,7 @@ static void Task_TradeEvolutionScene(u8 taskId)
         break;
     }
 }
+#endif
 
 #undef tState
 #undef tPreEvoSpecies
@@ -1479,6 +1499,7 @@ static void VBlankCB_EvolutionScene(void)
     ScanlineEffect_InitHBlankDmaTransfer();
 }
 
+#ifndef PORTABLE
 static void VBlankCB_TradeEvolutionScene(void)
 {
     SetGpuReg(REG_OFFSET_BG0HOFS, gBattle_BG0_X);
@@ -1495,6 +1516,7 @@ static void VBlankCB_TradeEvolutionScene(void)
     TransferPlttBuffer();
     ScanlineEffect_InitHBlankDmaTransfer();
 }
+#endif
 
 #define tCycleTimer   data[0]
 #define tPalStage     data[1]
