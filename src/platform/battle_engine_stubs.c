@@ -203,7 +203,6 @@ u16 gTrainerBattleOpponent_A;
 /* ---- functions ---- */
 void AnimateBoxScrollArrows(bool8 species) { (void)species; }
 void BackupHelpContext(void) {}
-void BeginEvolutionScene(struct Pokemon* mon, u16 speciesToEvolve, u8, u8 partyId) {}
 u8 BitmaskAllOtherLinkPlayers(void) { return 0; }
 void CheckShouldAdvanceLinkState(void) {}
 u8 CountPartyAliveNonEggMonsExcept(u8 slotToIgnore) { return 0; }
@@ -218,7 +217,6 @@ void DestroyPartyMonIcon(u8 partyId) {}
 void DestroyReleaseMonIcon(void) {}
 void DestroyTask_RfuIdle(void) {}
 void DoReleaseMonAnim(u8 mode, u8 position) {}
-void EvolutionScene(struct Pokemon* mon, u16 speciesToEvolve, u8, u8 partyId) {}
 u16 FontFunc_Braille(struct TextPrinter *textPrinter) { return 0; }
 u8 GetBlockReceivedStatus(void) { return 0; }
 s16 GetFirstFreeBoxSpot(u8 boxId) { return 0; }
@@ -266,11 +264,8 @@ void TrySetQuestLogLinkBattleEvent(void) {}
 const u8 gBattleText_GetPumped[];
 const u8 gBattleText_MistShroud[];
 const u8 gBattleText_Rose[];
-/* Real type, not a `const u8[]`: battle_main.c and party_menu.c assign the
- * post-battle main callback into this variable, so a read-only byte array both
- * mismatches the declaration in include/evolution_scene.h and faults on write
- * the first time a battle finishes. */
-void (*gCB2_AfterEvolution)(void) = NULL;
+/* gCB2_AfterEvolution (fix #46) is now the real variable in
+ * src/evolution_scene.c, which the link provides. */
 const struct MonCoords gCastformFrontSpriteCoords[];
 const u8 *const gStatNamesTable[];
 #define ABILITY_ON_OPPOSING_FIELD(battlerId, abilityId)(AbilityBattleEffects(ABILITYEFFECT_CHECK_OTHER_SIDE, battlerId, abilityId, 0, 0)) { return 0; }
