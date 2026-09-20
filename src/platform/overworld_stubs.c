@@ -128,7 +128,6 @@ const u8 TrainerTower_EventScript_ShowTime[] = { 0x02 };
 /* gFieldEffectScriptPointers is now the real generated table in
  * src/data/field_effects/ptr_table.c (see tools/gen_field_effect_data.py);
  * the all-NULL stub that used to live here is deleted (fix #8). */
-u32 gOverworldBackgroundLayerFlags = 0;
 struct Link gLink = {0};
 u16 gLinkPartnersHeldKeys[6] = {0};
 struct RfuManager gRfu = {0};
@@ -461,6 +460,48 @@ static u16 NativeSpecial_TryFieldPoisonWhiteOut(void)
     return 0;
 }
 
+/* The whiteout chain's other three specials. EventScript_FieldWhiteOutFade is
+ * `special Script_FadeOutMapMusic` / `waitstate` / `fadescreen` /
+ * `special SetCB2WhiteOut` / `waitstate` / `end`, and ScrCmd_waitstate is
+ * ScriptContext_Stop() with nothing to restart it (src/scrcmd.c:155). Special
+ * 332's real body is what creates Task_EnableScriptAfterMusicFade, the task
+ * that calls ScriptContext_Enable() once the BGM fade completes, so leaving it
+ * NULL printed "[Script] special 332 is not ported" and locked the field
+ * permanently -- reached by simply fainting from poison on a step.
+ *
+ * All three implementations are already linked: Script_FadeOutMapMusic is
+ * src/field_screen_effect.c:214, OverworldWhiteOutGetMoneyLoss is
+ * src/overworld.c:271 (declared in overworld.h) and CB2_WhiteOut is
+ * src/overworld.c:1545. SetCB2WhiteOut only lives in the unlinked
+ * src/post_battle_event_funcs.c, and its whole body is the SetMainCallback2
+ * below, so it is mirrored here. The fade does terminate: FadeOutBody
+ * (src/m4a.c:716) sets MUSICPLAYER_STATUS_PAUSE at fade end, which makes
+ * IsBGMStopped() TRUE, so MapMusicMain -- called every frame from AgbMain --
+ * advances sMapMusicState 5 -> 0 and the unlock task fires. (Verified rather
+ * than assumed: without that the task would spin forever and the lock would
+ * persist.) */
+void Script_FadeOutMapMusic(void);
+void OverworldWhiteOutGetMoneyLoss(void);
+void CB2_WhiteOut(void);
+
+static u16 NativeSpecial_Script_FadeOutMapMusic(void)
+{
+    Script_FadeOutMapMusic();
+    return 0;
+}
+
+static u16 NativeSpecial_OverworldWhiteOutGetMoneyLoss(void)
+{
+    OverworldWhiteOutGetMoneyLoss();
+    return 0;
+}
+
+static u16 NativeSpecial_SetCB2WhiteOut(void)
+{
+    SetMainCallback2(CB2_WhiteOut);
+    return 0;
+}
+
 /* src/party_menu_specials.c: ChoosePartyMon. Starts the party menu in
  * CHOOSE_SINGLE_MON mode and stops the field until the player picks a slot;
  * HandleChooseMonSelection writes the chosen index to VAR_0x8004 and
@@ -498,16 +539,19 @@ u16 (*const gSpecials[])(void) = {
     [158] = NativeSpecial_ChangePokemonNickname,
     [159] = NativeSpecial_ChoosePartyMon,
     [199] = NativeSpecial_TryFieldPoisonWhiteOut,
+    [200] = NativeSpecial_SetCB2WhiteOut,
     [212] = NativeSpecial_GetPokedexCount,
     [213] = NativeSpecial_GetProfOaksRatingMessage,
     [230] = NativeSpecial_GetLeadMonFriendship,
     [327] = NativeSpecial_GetPartyMonSpecies,
+    [332] = NativeSpecial_Script_FadeOutMapMusic,
     [346] = NativeSpecial_DoPicboxCancel,
     [367] = NativeSpecial_EnableNationalPokedex,
     [368] = NativeSpecial_SetWalkingIntoSignVars,
     [369] = NativeSpecial_DisableMsgBoxWalkaway,
     [371] = NativeSpecial_SetFlavorTextFlagFromSpecialVars,
     [372] = NativeSpecial_UpdatePickStateFromSpecialVar8005,
+    [373] = NativeSpecial_OverworldWhiteOutGetMoneyLoss,
     [381] = NativeSpecial_Script_SetHelpContext,
     [382] = NativeSpecial_BackupHelpContext,
     [383] = NativeSpecial_RestoreHelpContext,
