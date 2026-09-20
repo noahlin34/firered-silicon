@@ -321,7 +321,8 @@ ENGINE_SRCS := src/main.c \
                src/coins.c \
                src/field_weather_util.c \
                src/map_name_popup.c \
-               src/mail.c
+               src/mail.c \
+               src/bg_regs.c
 
 PREPROC_SRCS := src/title_screen.c \
                 src/sprite.c \
@@ -406,6 +407,7 @@ PREPROC_SRCS := src/title_screen.c \
                 src/battle_gfx_sfx_util.c \
                 src/reshow_battle_screen.c \
                 src/pokemon_special_anim.c \
+                src/pokemon_special_anim_scene.c \
                 src/learn_move.c \
                 src/berry.c \
                 src/battle_ai_switch_items.c \
@@ -439,7 +441,9 @@ PREPROC_SRCS := src/title_screen.c \
                 src/mon_markings.c \
                 src/shop.c \
                 src/buy_menu_helpers.c \
-                src/dynamic_placeholder_text_util.c
+                src/dynamic_placeholder_text_util.c \
+                src/evolution_scene.c \
+                src/evolution_graphics.c
 
 OBJ_DIR := build/native
 OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
