@@ -183,6 +183,38 @@ NATIVE_SCRIPT_ROOTS = {
     "ViridianCity_EventScript_Youngster",
     "ViridianCity_EventScript_Woman",
     "ViridianCity_EventScript_WomanRoadBlocked",
+    # Field moves. Linking src/fldeff_{cut,rocksmash,strength,sweetscent}.c makes
+    # four script labels reachable from C, and each is the tail of its move:
+    # FldEff_UseCutOnTree sets up EventScript_FldEffCut (the tree falls),
+    # FldEff_UseRockSmash sets up EventScript_FldEffRockSmash (the rock breaks),
+    # FldEff_UseStrength sets up EventScript_FldEffStrength, and FldEff_SweetScent
+    # sets up EventScript_FailSweetScent ("Looks like there's nothing here…").
+    # Without them the field effect runs and nothing follows, so the tree never
+    # disappears.
+    #
+    # EventScript_CutTree / EventScript_RockSmash / EventScript_StrengthBoulder are
+    # the object-event scripts the matching gfx objects carry in
+    # data/maps/**/map.json ("This tree looks like it can be CUT down!"), and each
+    # pulls in its own closure: the Yes/No box, the mon/move name buffers, and the
+    # shared Movement_CutTreeDown / Movement_BreakRock sequences.
+    "EventScript_CutTree",
+    "EventScript_CutTreeDown",
+    "EventScript_FldEffCut",
+    "EventScript_CantCutTree",
+    "EventScript_DontCutTree",
+    "EventScript_RockSmash",
+    "EventScript_FldEffRockSmash",
+    "EventScript_UseRockSmash",
+    "EventScript_RockSmashNoEncounter",
+    "EventScript_CantSmashRock",
+    "EventScript_DontSmashRock",
+    "EventScript_StrengthBoulder",
+    "EventScript_FldEffStrength",
+    "EventScript_UseStrength",
+    "EventScript_CantMoveBoulder",
+    "EventScript_AlreadyUsedStrength",
+    "EventScript_DontUseStrength",
+    "EventScript_FailSweetScent",
 }
 
 
@@ -400,6 +432,19 @@ def little_endian(value, size):
     if value < 0 or value >= (1 << (size * 8)):
         raise UnsupportedScript(f"value {value} does not fit in {size} bytes")
     return [(value >> (8 * i)) & 0xff for i in range(size)]
+
+# The buffer* script commands take a string var as a BYTE (an index into
+# sScriptStringVars), not a charmap value: asm/macros/event.inc's `stringvar`
+# macro converts STR_VAR_1/2/3 to 0/1/2 and rejects anything else. Shared so
+# every buffering command maps them identically.
+STRING_VARS = {"STR_VAR_1": 0, "STR_VAR_2": 1, "STR_VAR_3": 2}
+
+
+def string_var_index(name):
+    if name not in STRING_VARS:
+        raise UnsupportedScript(f"string var {name} is not supported")
+    return STRING_VARS[name]
+
 
 
 def split_command(line):
@@ -779,6 +824,29 @@ class ScriptRegistry:
                 elif command == "waitfieldeffect" and len(args) == 1:
                     # ScrCmd_waitfieldeffect (index 158) + SetupNativeScript.
                     output += [0x9e] + little_endian(self.resolve(args[0]), 2)
+                elif command == "checkpartymove" and len(args) == 1:
+                    # ScrCmd_checkpartymove (index 124): a raw halfword move id,
+                    # then a party scan writing gSpecialVar_Result (PARTY_SIZE
+                    # when no mon knows the move) and gSpecialVar_0x8004.
+                    output += [0x7c] + little_endian(self.resolve(args[0]), 2)
+                elif command == "bufferpartymonnick" and len(args) == 2:
+                    # ScrCmd_bufferpartymonnick (index 127): a byte string-var
+                    # index then VarGet(partyIndex). STR_VAR_# is not a charmap
+                    # value but the index into sScriptStringVars, exactly as the
+                    # other buffer* commands map it.
+                    output += [0x7f, string_var_index(args[0])]
+                    output += little_endian(self.resolve(args[1]), 2)
+                elif command == "buffermovename" and len(args) == 2:
+                    # ScrCmd_buffermovename (index 130): byte string var, then
+                    # VarGet(moveId). The field-move scripts use it to print
+                    # "MON used CUT!".
+                    output += [0x82, string_var_index(args[0])]
+                    output += little_endian(self.resolve(args[1]), 2)
+                elif command == "setfieldeffectargument" and len(args) == 2:
+                    # ScrCmd_setfieldeffectargument (index 157): byte argument
+                    # index, then VarGet(value) into gFieldEffectArguments.
+                    output += [0x9d, self.resolve(args[0])]
+                    output += little_endian(self.resolve(args[1]), 2)
                 elif command == "copyvar" and len(args) == 2:
                     output += [0x19] + little_endian(self.resolve(args[0]), 2) + little_endian(self.resolve(args[1]), 2)
                 elif command == "waitstate" and not args:
@@ -1086,13 +1154,16 @@ def collect_sources(root):
         text_sources.update(parse_labels(path, text=True))
     for path in sorted((root / "data/text").glob("**/*.inc")):
         text_sources.update(parse_labels(path, text=True))
-    # Event scripts define shared text inline (e.g. Text_GiveNicknameToThisMon)
-    # alongside their scripts; without these the message operands cannot resolve.
-    # Only labels that actually carry .string data are merged, and an existing
+    # Script files in data/scripts define their text inline (e.g.
+    # data/scripts/field_moves.inc's Text_CutTreeDown) as well as sharing some
+    # through data/event_scripts.s. Both are merged, and an existing
     # data/text/*.inc definition wins.
-    for label, fragments in parse_labels(root / "data/event_scripts.s", text=True).items():
-        if fragments:
-            text_sources.setdefault(label, fragments)
+    inline_text_files = sorted((root / "data/scripts").glob("**/*.inc"))
+    inline_text_files.append(root / "data/event_scripts.s")
+    for path in inline_text_files:
+        for label, fragments in parse_labels(path, text=True).items():
+            if fragments:
+                text_sources.setdefault(label, fragments)
     return script_sources, movement_sources, text_sources
 
 
