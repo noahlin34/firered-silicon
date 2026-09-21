@@ -5,14 +5,14 @@ Headline
 ├─────────────────────────────────┼─────────────────────┤
 │ src/*.c total                   │ 285                 │
 ├─────────────────────────────────┼─────────────────────┤
-│ linked (ENGINE_SRCS 65 /        │ 181                 │
-│ PREPROC_SRCS 119 /              │                     │
+│ linked (ENGINE_SRCS 65 /        │ 207                 │
+│ PREPROC_SRCS 128 /              │                     │
 │ PLATFORM_SRCS 14)               │                     │
 ├─────────────────────────────────┼─────────────────────┤
-│ unlinked                        │ 104                 │
+│ unlinked                        │ 95                  │
 ├─────────────────────────────────┼─────────────────────┤
-│ stub TUs (overworld_stubs,      │ 438 defined         │
-│ battle_engine_stubs,            │ 294 are             │
+│ stub TUs (overworld_stubs,      │ 427 defined         │
+│ battle_engine_stubs,            │ 283 are             │
 │ battle_peripheral_stubs, stubs) │ the sole definition │
 │                                 │ (load-bearing); the │
 │                                 │ other 144 collide   │
@@ -81,6 +81,96 @@ Headline
   overworld_stubs.c:131 is deleted, so the overworld's BLDCNT
   target-2 mask is the real const u16[4] rather than a 4-byte
   zero.
+- Field moves + trainer sight. The seven
+  src/fldeff_{cut,dig,rocksmash,strength,teleport,sweetscent,
+  softboiled}.c sources and src/trainer_see.c are linked via
+  PREPROC_SRCS (the fldeff files carry _() strings, and
+  trainer_see.c INCBINs graphics/misc/emoticons.4bpp). Before
+  this, battle_peripheral_stubs.c served all eight
+  SetUpFieldMove_* with `return FALSE` and overworld_stubs.c
+  served CheckForTrainersWantingBattle with FALSE plus an
+  empty MovementAction_RevealTrainer_RunTrainerSeeFuncList —
+  so the party menu offered a field move and then reported
+  "can't use that here", and no NPC trainer could spot the
+  player. Eleven stub definitions deleted (SetUpFieldMove_Flash kept: flash
+  is not a FLDEFF_USE_* effect and its real body is behind
+  #ifndef PORTABLE in the already-linked src/fldeff_flash.c).
+  All 13 previously-NULL field effects are now real, 0 NULL.
+  Two 64-bit defects surfaced on linking, both live on first
+  use rather than at link time: include/fldeff.h's
+  FLDEFF_SET/CALL_FUNC_IN_DATA packed a function pointer into
+  data[8..9] (32 bits; now SetPointerTaskArg/GetPointerTaskArg
+  at index 8), and src/trainer_see.c packed an ObjectEvent *
+  into tTrainerObjHi/tTrainerObjLo — gObjectEvents is at
+  0x1_008da5d8, so the load faulted in RunTasks (now a
+  task-keyed side table, leaving data[7] at its pret offset
+  because the reveal task genuinely uses it). Generator:
+  checkpartymove, bufferpartymonnick, buffermovename and
+  setfieldeffectargument added (opcodes derived from
+  src/data/script_cmd_table.h, not pret's source order);
+  18 field-move script roots added; inline text from
+  data/scripts/**/*.inc is now a text source, which is where
+  Text_CutTreeDown lives; STR_VAR_1/2/3 map to 0/1/2 through
+  one string_var_index helper. Special 171
+  (RockSmashWildEncounter) registered — the real body is in
+  the already-linked src/wild_encounter.c, and
+  EventScript_UseRockSmash branches on its VAR_RESULT.
+  RockSmashWildEncounter had no declaration anywhere; it was
+  added to include/wild_encounter.h rather than hand-written at
+  the call site (fix #57). Covered by tests/field_moves.c
+  (6 tests) and tests/trainer_sight.c (3 tests). Both files
+  fail on the historical defect, verified by reverting the
+  link: SetUpFieldMove_Cut() returns FALSE, all 8 move effects
+  read NULL, and both end-to-end CUT tests fail with assertions
+  (not crashes — the callback is null-guarded), and the
+  truncating trainer pointer SIGSEGVs inside RunTasks.
+
+  CUT is now covered end to end, through the real party-menu
+  path: START -> POKéMON -> the mon -> CUT -> the tree object
+  leaves the map, and separately CUT's grass half rewrites the
+  map's metatiles. The route is CB2_PartyMenuFromStartMenu ->
+  PARTY_MENU_TYPE_FIELD -> SetPartyMonFieldSelectionActions,
+  which builds [SUMMARY, <field moves in sFieldMoves order>,
+  SWITCH, ITEM, CANCEL]; FIELD_MOVE_CUT is 1 and is only
+  appended when the mon knows the move, so it is one DPAD_DOWN
+  below the SUMMARY row. Three things worth keeping:
+    - The menu path has NO Yes/No box. EventScript_FldEffCut
+      (what FldEff_UseCutOnTree sets up) is lockall,
+      dofieldeffect, waitstate, goto EventScript_CutTreeDown.
+      Only EventScript_CutTree — the label the tree object
+      carries for an A-press — asks "Would you like to CUT
+      it?", because that path must run
+      checkpartymove/bufferpartymonnick first. Pressing A for a
+      box that does not exist was the first version's bug.
+    - The grass assertion is a WHOLE-GRID diff, not a sample of
+      the 3x3 the sweep covers. FldEff_CutGrass's origin is the
+      player's DESTINATION (PlayerGetDestCoords) and this port
+      has more than one coordinate space in play — after a
+      double warp the avatar's object-event coords read (24,25)
+      while gSaveBlock1Ptr->pos read (17,18), so a window
+      derived in the test sampled tiles the sweep never
+      touched. Counting differing tiles over the 24x40 map
+      needs no coordinate reasoning. Warping twice also left
+      that disagreement behind; the test now warps once.
+    - A test that calls a callback the engine may not have
+      installed must null-guard it, or the historical defect is
+      reported as a SIGSEGV instead of a failed assertion.
+
+  TEST COVERAGE GAP — trainer sight. No test can observe a
+  trainer spotting the player, and the reason is reachability,
+  not effort: 432 object events carry a trainer_type other than
+  TRAINER_TYPE_NONE across 95 maps, and 0 of them are in the six
+  maps whose mapScripts compile (PalletTown_ProfessorOaksLab,
+  PalletTown_RivalsHouse, Route1, Route11_EastEntrance_2F,
+  ViridianCity, ViridianCity_Mart). There is no NPC trainer in
+  the build to point CheckForTrainersWantingBattle() at, so
+  tests/trainer_sight.c can only assert that the function is
+  linked, returns FALSE with nothing in sight, and that the
+  reveal path survives dereferencing a whole pointer. Closing
+  this needs an out-of-battle trainer object event in a compiled
+  map, which needs trainerbattle_single in the generator
+  (suggested item 5) — not a test-writing task.
+
 
  Tier A — linkable now, unblocks a player-visible feature
 
@@ -89,58 +179,44 @@ Headline
  = stub definitions that must be deleted (fix #8), new ext
  = symbols nothing defines yet.
 
- Counts re-measured after the evolution/bg_regs links landed:
- the four stub TUs now define 438 symbols, 294 of them
- sole-definition/load-bearing. The four deleted stubs
- (BeginEvolutionScene, EvolutionScene, gCB2_AfterEvolution,
- gOverworldBackgroundLayerFlags) were all sole definitions, so
- both numbers fell by 4; the 144 collisions are unchanged and
- all sit in battle_engine_stubs.c.
+ Counts re-measured after the field-move/trainer-sight links
+ landed: the four stub TUs now define 427 symbols, 283 of
+ them sole-definition/load-bearing. The 11 definitions deleted
+ with that link were all sole definitions, so both numbers fell
+ by 11; the 144 collisions are unchanged and all sit in
+ battle_engine_stubs.c.
 
  ┌──────────────┬──────────────┬───────────┬─────────────┐
  │ Feature      │ files        │ new ext   │ collides    │
  ├──────────────┼──────────────┼───────────┼─────────────┤
- │ Trainer      │ trainer_see. │ 0         │ 2           │
- │ sight — NPC  │ c            │           │ (CheckForTr │
- │ trainers     │              │           │ ainersWanti │
- │ spot and     │              │           │ ngBattle,   │
- │ engage you   │              │           │ MovementAct │
- │              │              │           │ ion_RevealT │
- │              │              │           │ rainer_RunT │
- │              │              │           │ rainerSeeFu │
- │              │              │           │ ncList),    │
- │              │              │           │ both in     │
- │              │              │           │ overworld_  │
- │              │              │           │ stubs.c.    │
- │              │              │           │ NOT worth   │
- │              │              │           │ doing first:│
+ │ Trainer      │ trainer_see. │ 0         │ 2 stubs     │
+ │ sight — NPC  │ c            │           │ deleted —   │
+ │ trainers     │              │           │ DONE (see   │
+ │ spot and     │              │           │ the Landed  │
+ │ engage you   │              │           │ list). Still│
+ │              │              │           │ invisible:  │
  │              │              │           │ 432 sight-  │
  │              │              │           │ capable     │
  │              │              │           │ object      │
  │              │              │           │ events      │
  │              │              │           │ game-wide,  │
- │              │              │           │ but 0 of    │
- │              │              │           │ them are in │
- │              │              │           │ the 6 maps  │
- │              │              │           │ whose       │
+ │              │              │           │ 0 of them   │
+ │              │              │           │ in the 6    │
+ │              │              │           │ maps whose  │
  │              │              │           │ scripts     │
  │              │              │           │ compile, so │
- │              │              │           │ nothing     │
- │              │              │           │ changes     │
- │              │              │           │ today.      │
+ │              │              │           │ no NPC can  │
+ │              │              │           │ spot you    │
+ │              │              │           │ yet.        │
  ├──────────────┼──────────────┼───────────┼─────────────┤
- │ Field moves  │ fldeff_{cut, │ 4 script  │ 7           │
- │ (Cut/Dig/Roc │ dig,rocksmas │ labels +  │ SetUpFiel   │
- │ kSmash/Stren │ h,strength,t │ 7         │ dMove_*     │
- │ gth/Teleport │ eleport,swee │ SetUpFiel │ stubs to    │
- │ /SweetScent/ │ tscent,softb │ dMove_*   │ delete;     │
- │ Softboiled)  │ oiled}.c     │ stubs and │ Flash is    │
- │              │              │ 8 of 13   │ already     │
- │              │              │ NULL      │ shadowed    │
- │              │              │ field     │ by the      │
- │              │              │ effects   │ linked      │
- │              │              │ become    │ fldeff_     │
- │              │              │ live      │ flash.c     │
+ │ Field moves  │ fldeff_{cut, │ —         │ 7 SetUpFiel │
+ │ (Cut/Dig/Roc │ dig,rocksmas │           │ dMove_*     │
+ │ kSmash/Stren │ h,strength,t │           │ stubs       │
+ │ gth/Teleport │ eleport,swee │           │ deleted     │
+ │ /SweetScent/ │ tscent,softb │           │ —           │
+ │ Softboiled)  │ oiled}.c     │           │ DONE (see   │
+ │              │              │           │ the Landed  │
+ │              │              │           │ list)       │
  ├──────────────┼──────────────┼───────────┼─────────────┤
  │ Item/TM      │ pokemon_spec │ 0         │ 27 PSA_*    │
  │ animation    │ ial_anim_sce │           │ stubs       │
@@ -305,10 +381,17 @@ Headline
  2. ~~Register specials 200/332/373~~ **Done** — closes the
     poison-whiteout soft-lock; three gSpecials entries, no new
     file (fix #84). Pinned by tests/whiteout.c.
- 3. trainer_see.c + fldeff_* field moves (0 new externals
-    each). trainer_see makes 432 trainer events real, but 0 of
-    them are in the compiled maps — see the Tier A note — and
-    the fldeff_* files close 8 of the 13 NULL effects.
+3. ~~trainer_see.c + fldeff_* field moves~~ **Done** — all
+   eight sources linked, 11 stubs deleted, 13 NULL effects
+   resolved to 0. trainer_see makes 432 trainer events real,
+   but 0 of them are in the compiled maps — see the Tier A
+   note — so the change is currently observable through the
+   field moves and the five emote effects, not through an NPC
+   spotting you. Two pointer-width defects fixed on the way
+   (include/fldeff.h's callback macro, src/trainer_see.c's
+   packed ObjectEvent *); pinned by tests/field_moves.c and
+   tests/trainer_sight.c, both of which fail on the pre-link
+   tree.
  4. ~~pokemon_special_anim_scene.c~~ **Done** — 27 stubs out,
     item/TM animations visible. Its sprite pointers were stored
     with SetWordTaskArg at tOff_MonSprite 6 / tOff_ItemSprite
