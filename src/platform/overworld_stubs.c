@@ -27,6 +27,7 @@
 #include "cable_club.h"
 #include "sound.h"
 #include "teachy_tv.h"
+#include "wild_encounter.h"
 #include "slot_machine.h"
 #include "mystery_event_script.h"
 #include "pokedex_screen.h"
@@ -152,7 +153,6 @@ bool8 WriteSaveBlock1Sector(void) { printf("[Menu] saving is not ported\n"); ret
 void Task_LinkFullSave(u8 taskId) { (void)taskId; printf("[Menu] saving is not ported\n"); }
 
 /* Function stubs */
-bool8 CheckForTrainersWantingBattle(void) { return FALSE; }
 void ClearLinkCallback_2(void) {}
 /* src/field_specials.c: CountDigits. Declared s32 in include/field_specials.h
  * and used by linked src/scrcmd.c and src/overworld.c. */
@@ -175,13 +175,6 @@ bool8 IsEscalatorMoving(void) { return FALSE; }
 bool32 IsRfuRecvQueueEmpty(void) { return TRUE; }
 bool32 IsSendingKeysToLink(void) { return FALSE; }
 void LinkRfu_FatalError(void) {}
-/* include/trainer_see.h declares one parameter. Trainer sight is not ported
- * (src/trainer_see.c is unlinked), so this stays inert — but the signature must
- * match, or the call in event_object_movement.c reads the wrong register. */
-void MovementAction_RevealTrainer_RunTrainerSeeFuncList(struct ObjectEvent *objectEvent)
-{
-    (void)objectEvent;
-}
 /* src/field_specials.c: RunMassageCooldownStepCounter. Daisy offers to groom a
  * mon only once VAR_MASSAGE_COOLDOWN_STEP_COUNTER reaches 500, and
  * DaisyMassageServices resets it. A no-op counter would gate her on a value
@@ -501,6 +494,16 @@ static u16 NativeSpecial_SetCB2WhiteOut(void)
     SetMainCallback2(CB2_WhiteOut);
     return 0;
 }
+/* src/wild_encounter.c: RockSmashWildEncounter. EventScript_UseRockSmash runs
+ * it after a rock breaks, and branches on VAR_RESULT to decide whether a wild
+ * mon appeared (the script then waits for the battle before releasing the
+ * field). src/wild_encounter.c is linked, so this is the real body. */
+static u16 NativeSpecial_RockSmashWildEncounter(void)
+{
+    RockSmashWildEncounter();
+    return 0;
+}
+
 
 /* src/party_menu_specials.c: ChoosePartyMon. Starts the party menu in
  * CHOOSE_SINGLE_MON mode and stops the field until the player picks a slot;
@@ -538,6 +541,7 @@ u16 (*const gSpecials[])(void) = {
     [150] = NativeSpecial_SetHiddenItemFlag,
     [158] = NativeSpecial_ChangePokemonNickname,
     [159] = NativeSpecial_ChoosePartyMon,
+    [171] = NativeSpecial_RockSmashWildEncounter,
     [199] = NativeSpecial_TryFieldPoisonWhiteOut,
     [200] = NativeSpecial_SetCB2WhiteOut,
     [212] = NativeSpecial_GetPokedexCount,
