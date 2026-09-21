@@ -442,6 +442,14 @@ PREPROC_SRCS := src/title_screen.c \
                 src/shop.c \
                 src/buy_menu_helpers.c \
                 src/dynamic_placeholder_text_util.c \
+                src/trainer_see.c \
+                src/fldeff_cut.c \
+                src/fldeff_dig.c \
+                src/fldeff_rocksmash.c \
+                src/fldeff_strength.c \
+                src/fldeff_teleport.c \
+                src/fldeff_sweetscent.c \
+                src/fldeff_softboiled.c \
                 src/evolution_scene.c \
                 src/evolution_graphics.c
 
