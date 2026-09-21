@@ -37,6 +37,11 @@ extern const struct WildPokemonHeader gWildMonHeaders[];
 
 void DisableWildEncounters(bool8 disabled);
 bool8 StandardWildEncounter(u32 currMetatileAttrs, u16 previousMetaTileBehavior);
+// Rock-smash encounter roll. The field-move script EventScript_UseRockSmash
+// runs this through special 171 and branches on VAR_RESULT, which the real body
+// (src/wild_encounter.c) writes. Declared here rather than hand-written at the
+// call site: a guessed prototype compiles and links silently (fix #57).
+void RockSmashWildEncounter(void);
 bool8 SweetScentWildEncounter(void);
 bool8 DoesCurrentMapHaveFishingMons(void);
 void FishingWildEncounter(u8 rod);
