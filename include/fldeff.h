@@ -1,11 +1,18 @@
 #ifndef GUARD_FLDEFF_H
 #define GUARD_FLDEFF_H
 
-#define FLDEFF_CALL_FUNC_IN_DATA() ((void (*)(void))(((u16)gTasks[taskId].data[8] << 16) | (u16)gTasks[taskId].data[9]))();
+// The pending field-effect callback lives in the task's data[8], which is 32
+// bytes in total. The GBA stored the 32-bit address across two s16 slots; on a
+// 64-bit host that keeps only half of it, so the callback (a .text pointer well
+// above 4 GiB) would be jumped into truncated (fix #66's class). The whole
+// pointer goes through SetPointerTaskArg/GetPointerTaskArg (fix #26) at index
+// 8, which writes sizeof(void *) bytes from data[8] -- inside the array, and
+// clear of every field these tasks use (the show-mon task keeps no other data).
+#define FLDEFF_CALL_FUNC_IN_DATA() \
+((void (*)(void))GetPointerTaskArg(taskId, 8))();
 
-#define FLDEFF_SET_FUNC_TO_DATA(func)                     \
-gTasks[taskId].data[8] = (u32)func >> 16;                 \
-gTasks[taskId].data[9] = (u32)func;
+#define FLDEFF_SET_FUNC_TO_DATA(func) \
+SetPointerTaskArg(taskId, 8, (void *)(uintptr_t)(func));
 
 extern struct MapPosition gPlayerFacingPosition;
 
