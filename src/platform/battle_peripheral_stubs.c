@@ -131,10 +131,6 @@ s32 CanRegisterMonForTradingBoard(struct RfuGameCompatibilityData rfuPlayer,
     return FALSE;
 }
 
-void ChooseMonForSoftboiled(u8 taskId)
-{
-    (void)taskId;
-}
 
 /* Easy Chat screen UI is a peripheral path; the word/string helpers are real
    now that src/easy_chat.c is linked. */
@@ -205,14 +201,13 @@ void ReducePlayerPartyToThree(void) {}
 
 void SetTeachyTvControllerModeToResume(void) {}
 
-bool8 SetUpFieldMove_Cut(void) { return FALSE; }
-bool8 SetUpFieldMove_Dig(void) { return FALSE; }
+/* SetUpFieldMove_Flash is the one that stays: flash is not a FLDEFF_USE_*
+ * effect (there is no such id and no animateflash/setflashlevel command in
+ * tools/gen_map_data.py), and the real body sits behind #ifndef PORTABLE in the
+ * already-linked src/fldeff_flash.c. The other seven come from the
+ * src/fldeff_{cut,dig,rocksmash,strength,teleport,sweetscent,softboiled}.c
+ * sources linked with them (fix #8). */
 bool8 SetUpFieldMove_Flash(void) { return FALSE; }
-bool8 SetUpFieldMove_RockSmash(void) { return FALSE; }
-bool8 SetUpFieldMove_SoftBoiled(void) { return FALSE; }
-bool8 SetUpFieldMove_Strength(void) { return FALSE; }
-bool8 SetUpFieldMove_SweetScent(void) { return FALSE; }
-bool8 SetUpFieldMove_Teleport(void) { return FALSE; }
 
 /* ShowPokemonSummaryScreen/ShowSelectMovePokemonSummaryScreen used to be inert
  * stubs here: opening POKéMON in the START menu, choosing a mon and picking
@@ -221,7 +216,6 @@ bool8 SetUpFieldMove_Teleport(void) { return FALSE; }
  * stayed there. src/pokemon_summary_screen.c is linked now (PREPROC_SRCS). */
 
 
-void Task_TryUseSoftboiledOnPartyMon(u8 taskId) { (void)taskId; }
 u8 TrySavingData(u8 saveType) { (void)saveType; return 0; }
 
 struct PlayerPCItemPageStruct gPlayerPcMenuManager = {0};
