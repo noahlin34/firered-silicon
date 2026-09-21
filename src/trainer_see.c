@@ -232,23 +232,36 @@ static u8 CheckPathBetweenTrainerAndPlayer(struct ObjectEvent *trainerObj, u8 ap
     return 0;
 }
 
+// Task slots. The trainer's ObjectEvent pointer is NOT kept in data[]: pret
+// packs it into tTrainerObjHi/tTrainerObjLo (two 16-bit slots = 32 bits), which
+// is a whole GBA address and half a host one. `gObjectEvents` lives at
+// 0x1_008da5d8 here, so the truncated read faults on the first dereference
+// (fix #26's class, and #66 for the same pack-and-rebuild in battle anim code).
+// It goes in a task-keyed side table instead, which leaves every other data[]
+// slot at its pret offset -- the reveal-trainer task below genuinely uses
+// data[7], so the pointer cannot simply take more slots there.
 #define tFuncId             data[0]
-#define tTrainerObjHi       data[1]
-#define tTrainerObjLo       data[2]
 #define tTrainerRange       data[3]
 #define tOutOfAshSpriteId   data[4]
 #define tData5              data[5]
 
-#define TaskGetTrainerObj(dest, task) do { \
-    (dest) = (struct ObjectEvent *)(((task)->tTrainerObjHi << 16) | ((u16)(task)->tTrainerObjLo)); \
-} while (0)
+static struct ObjectEvent *sTaskTrainerObj[NUM_TASKS];
+
+static void SetTaskTrainerObj(struct Task *task, struct ObjectEvent *trainerObj)
+{
+    sTaskTrainerObj[task - gTasks] = trainerObj;
+}
+
+static struct ObjectEvent *GetTaskTrainerObj(struct Task *task)
+{
+    return sTaskTrainerObj[task - gTasks];
+}
 
 static void TrainerApproachPlayer(struct ObjectEvent * trainerObj, u8 approachDistance)
 {
     u8 taskId = CreateTask(Task_RunTrainerSeeFuncList, 80);
     struct Task *task = &gTasks[taskId];
-    task->tTrainerObjHi = ((uintptr_t)trainerObj) >> 16;
-    task->tTrainerObjLo = (uintptr_t)trainerObj;
+    SetTaskTrainerObj(task, trainerObj);
     task->tTrainerRange = approachDistance;
 }
 
@@ -264,7 +277,7 @@ static void Task_RunTrainerSeeFuncList(u8 taskId)
 {
     struct Task *task = &gTasks[taskId];
     struct ObjectEvent * trainerObj;
-    TaskGetTrainerObj(trainerObj, task);
+    trainerObj = GetTaskTrainerObj(task);
 
     if (!trainerObj->active)
     {
@@ -508,8 +521,9 @@ static bool8 TrainerSeeFunc_OffscreenAboveTrainerCameraObjMoveDown(u8 taskId, st
 #undef tData5
 #undef tOutOfAshSpriteId
 #undef tTrainerRange
-#undef tTrainerObjLo
-#undef tTrainerObjHi
+/* The reveal-trainer task keeps its data[7] flag at pret's offset; only the
+ * trainer pointer moved out of data[] (see sTaskTrainerObj above). data[1..2]
+ * are now unused here, which is what the packed halves used to occupy. */
 #undef tFuncId
 
 static void Task_RevealTrainer_RunTrainerSeeFuncList(u8 taskId)
@@ -517,8 +531,7 @@ static void Task_RevealTrainer_RunTrainerSeeFuncList(u8 taskId)
     struct Task *task = &gTasks[taskId];
     struct ObjectEvent * trainerObj;
 
-    // another objEvent loaded into by loadword?
-    LoadWordFromTwoHalfwords((u16 *)&task->data[1], (u32 *)&trainerObj);
+    trainerObj = GetTaskTrainerObj(task);
     if (!task->data[7])
     {
         ObjectEventClearHeldMovement(trainerObj);
@@ -539,7 +552,8 @@ static void Task_RevealTrainer_RunTrainerSeeFuncList(u8 taskId)
 
 void MovementAction_RevealTrainer_RunTrainerSeeFuncList(struct ObjectEvent *var)
 {
-    StoreWordInTwoHalfwords((u16 *)&gTasks[CreateTask(Task_RevealTrainer_RunTrainerSeeFuncList, 0)].data[1], (u32)var);
+    u8 taskId = CreateTask(Task_RevealTrainer_RunTrainerSeeFuncList, 0);
+    SetTaskTrainerObj(&gTasks[taskId], var);
 }
 
 void EndTrainerApproach(void)
