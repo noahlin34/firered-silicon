@@ -10,6 +10,8 @@
  * field-effect id; a palette or sheet operand is an object. */
 extern u32 FldEff_BerryTreeGrowthSparkle(void);
 extern u32 FldEff_DestroyDeoxysRock(void);
+extern u32 FldEff_DoubleExclMarkIcon(void);
+extern u32 FldEff_ExclamationMarkIcon1(void);
 extern u32 FldEff_FieldMoveShowMon(void);
 extern u32 FldEff_FieldMoveShowMonInit(void);
 extern u32 FldEff_FlyIn(void);
@@ -18,12 +20,22 @@ extern u32 FldEff_MoveDeoxysRock(void);
 extern u32 FldEff_NpcFlyOut(void);
 extern u32 FldEff_PhotoFlash(void);
 extern u32 FldEff_PokeballTrail(void);
+extern u32 FldEff_QuestionMarkIcon(void);
 extern u32 FldEff_Shadow(void);
+extern u32 FldEff_SmileyFaceIcon(void);
 extern u32 FldEff_SurfBlob(void);
+extern u32 FldEff_SweetScent(void);
+extern u32 FldEff_UseCutOnGrass(void);
+extern u32 FldEff_UseCutOnTree(void);
+extern u32 FldEff_UseDig(void);
 extern u32 FldEff_UseDive(void);
+extern u32 FldEff_UseRockSmash(void);
+extern u32 FldEff_UseStrength(void);
 extern u32 FldEff_UseSurf(void);
+extern u32 FldEff_UseTeleport(void);
 extern u32 FldEff_UseVsSeeker(void);
 extern u32 FldEff_UseWaterfall(void);
+extern u32 FldEff_XIcon(void);
 extern u32 ShowMountainDisguiseFieldEffect(void);
 extern u32 ShowSandDisguiseFieldEffect(void);
 extern u32 ShowTreeDisguiseFieldEffect(void);
@@ -31,6 +43,7 @@ extern u32 ShowTreeDisguiseFieldEffect(void);
 extern const struct SpritePalette FldEff_Ash;
 extern const struct SpritePalette FldEff_BikeTireTracks;
 extern const struct SpritePalette FldEff_Bubbles;
+extern const struct SpritePalette FldEff_CutGrass;
 extern const struct SpritePalette FldEff_DeepSandFootprints;
 extern const struct SpritePalette FldEff_Dust;
 extern const struct SpritePalette FldEff_FeetInFlowingWater;
@@ -55,6 +68,7 @@ extern const struct SpritePalette FldEff_UnusedGrass;
 extern const struct SpritePalette FldEff_UnusedGrass2;
 extern const struct SpritePalette FldEff_UnusedSand;
 extern const struct SpritePalette FldEff_UnusedWaterSurfacing;
+extern const struct SpritePalette gFldEffPalette_CutGrass;
 extern const struct SpritePalette gSpritePalette_Ash;
 extern const struct SpritePalette gSpritePalette_GeneralFieldEffect0;
 extern const struct SpritePalette gSpritePalette_GeneralFieldEffect1;
@@ -69,6 +83,9 @@ extern const struct SpritePalette gSpritePalette_SmallSparkle;
  * misclassified operand cannot alias a real symbol. */
 const void *const gNativeFieldEffectPtrs[] = {
     NULL,
+    &FldEff_ExclamationMarkIcon1,
+    &FldEff_UseCutOnGrass,
+    &FldEff_UseCutOnTree,
     &FldEff_Shadow,
     &gSpritePalette_GeneralFieldEffect1,
     &FldEff_TallGrass,
@@ -99,26 +116,37 @@ const void *const gNativeFieldEffectPtrs[] = {
     &FldEff_NpcFlyOut,
     &FldEff_FlyOut,
     &FldEff_FlyIn,
+    &FldEff_QuestionMarkIcon,
     &FldEff_FeetInFlowingWater,
     &FldEff_BikeTireTracks,
     &ShowSandDisguiseFieldEffect,
+    &FldEff_UseRockSmash,
+    &FldEff_UseDig,
     &FldEff_SandPile,
+    &FldEff_UseStrength,
     &FldEff_ShortGrass,
     &FldEff_HotSpringsWater,
     &FldEff_UseWaterfall,
     &FldEff_UseDive,
     &gSpritePalette_Pokeball,
     &FldEff_PokeballTrail,
+    &FldEff_XIcon,
     &gSpritePalette_Ash,
     &FldEff_PopOutOfAsh,
     &FldEff_LavaridgeGymWarp,
+    &FldEff_SweetScent,
     &FldEff_Bubbles,
     &gSpritePalette_SmallSparkle,
     &FldEff_Sparkle,
+    &gFldEffPalette_CutGrass,
+    &FldEff_CutGrass,
     &FldEff_FieldMoveShowMonInit,
     &gSpritePalette_HofMonitor,
     &FldEff_HallOfFameRecord,
+    &FldEff_UseTeleport,
+    &FldEff_SmileyFaceIcon,
     &FldEff_UseVsSeeker,
+    &FldEff_DoubleExclMarkIcon,
     &FldEff_MoveDeoxysRock,
     &FldEff_DestroyDeoxysRock,
     &FldEff_PhotoFlash,
@@ -128,9 +156,9 @@ const void *const gNativeFieldEffectPtrs[] = {
  * This is the real definition: the all-NULL stub that used to live in
  * src/platform/overworld_stubs.c is deleted (fix #8). */
 const u8 *const gFieldEffectScriptPointers[FLDEFF_COUNT] = {
-    [FLDEFF_EXCLAMATION_MARK_ICON] = NULL,
-    [FLDEFF_USE_CUT_ON_GRASS] = NULL,
-    [FLDEFF_USE_CUT_ON_TREE] = NULL,
+    [FLDEFF_EXCLAMATION_MARK_ICON] = gFldEffScript_ExclamationMarkIcon,
+    [FLDEFF_USE_CUT_ON_GRASS] = gFldEffScript_UseCutOnGrass,
+    [FLDEFF_USE_CUT_ON_TREE] = gFldEffScript_UseCutOnTree,
     [FLDEFF_SHADOW] = gFldEffScript_Shadow,
     [FLDEFF_TALL_GRASS] = gFldEffScript_TallGrass,
     [FLDEFF_RIPPLE] = gFldEffScript_Ripple,
@@ -161,40 +189,40 @@ const u8 *const gFieldEffectScriptPointers[FLDEFF_COUNT] = {
     [FLDEFF_NPCFLY_OUT] = gFldEffScript_NpcflyOut,
     [FLDEFF_FLY_OUT] = gFldEffScript_FlyOut,
     [FLDEFF_FLY_IN] = gFldEffScript_FlyIn,
-    [FLDEFF_QUESTION_MARK_ICON] = NULL,
+    [FLDEFF_QUESTION_MARK_ICON] = gFldEffScript_QuestionMarkIcon,
     [FLDEFF_FEET_IN_FLOWING_WATER] = gFldEffScript_FeetInFlowingWater,
     [FLDEFF_BIKE_TIRE_TRACKS] = gFldEffScript_BikeTireTracks,
     [FLDEFF_SAND_DISGUISE] = gFldEffScript_SandDisguise,
-    [FLDEFF_USE_ROCK_SMASH] = NULL,
-    [FLDEFF_USE_DIG] = NULL,
+    [FLDEFF_USE_ROCK_SMASH] = gFldEffScript_UseRockSmash,
+    [FLDEFF_USE_DIG] = gFldEffScript_UseDig,
     [FLDEFF_SAND_PILE] = gFldEffScript_SandPile,
-    [FLDEFF_USE_STRENGTH] = NULL,
+    [FLDEFF_USE_STRENGTH] = gFldEffScript_UseStrength,
     [FLDEFF_SHORT_GRASS] = gFldEffScript_ShortGrass,
     [FLDEFF_HOT_SPRINGS_WATER] = gFldEffScript_HotSpringsWater,
     [FLDEFF_USE_WATERFALL] = gFldEffScript_UseWaterfall,
     [FLDEFF_USE_DIVE] = gFldEffScript_UseDive,
     [FLDEFF_POKEBALL] = gFldEffScript_Pokeball,
-    [FLDEFF_X_ICON] = NULL,
+    [FLDEFF_X_ICON] = gFldEffScript_XIcon,
     [FLDEFF_NOP_47] = gFldEffScript_Nop47,
     [FLDEFF_NOP_48] = gFldEffScript_Nop48,
     [FLDEFF_POP_OUT_OF_ASH] = gFldEffScript_PopOutOfAsh,
     [FLDEFF_LAVARIDGE_GYM_WARP] = gFldEffScript_LavaridgeGymWarp,
-    [FLDEFF_SWEET_SCENT] = NULL,
+    [FLDEFF_SWEET_SCENT] = gFldEffScript_SweetScent,
     [FLDEFF_SAND_PILLAR] = gFldEffScript_SandPillar,
     [FLDEFF_BUBBLES] = gFldEffScript_Bubbles,
     [FLDEFF_SPARKLE] = gFldEffScript_Sparkle,
     [FLDEFF_SECRET_POWER_CAVE] = gFldEffScript_SecretPowerCave,
     [FLDEFF_SECRET_POWER_TREE] = gFldEffScript_SecretPowerTree,
     [FLDEFF_SECRET_POWER_SHRUB] = gFldEffScript_SecretPowerShrub,
-    [FLDEFF_CUT_GRASS] = NULL,
+    [FLDEFF_CUT_GRASS] = gFldEffScript_CutGrass,
     [FLDEFF_FIELD_MOVE_SHOW_MON_INIT] = gFldEffScript_FieldMoveShowMonInit,
     [FLDEFF_USE_FLY_ANCIENT_TOMB] = gFldEffScript_UseFlyAncientTomb,
     [FLDEFF_PCTURN_ON] = gFldEffScript_PcturnOn,
     [FLDEFF_HALL_OF_FAME_RECORD] = gFldEffScript_HallOfFameRecord,
-    [FLDEFF_USE_TELEPORT] = NULL,
-    [FLDEFF_SMILEY_FACE_ICON] = NULL,
+    [FLDEFF_USE_TELEPORT] = gFldEffScript_UseTeleport,
+    [FLDEFF_SMILEY_FACE_ICON] = gFldEffScript_SmileyFaceIcon,
     [FLDEFF_USE_VS_SEEKER] = gFldEffScript_UseVsSeeker,
-    [FLDEFF_DOUBLE_EXCL_MARK_ICON] = NULL,
+    [FLDEFF_DOUBLE_EXCL_MARK_ICON] = gFldEffScript_DoubleExclMarkIcon,
     [FLDEFF_MOVE_DEOXYS_ROCK] = gFldEffScript_MoveDeoxysRock,
     [FLDEFF_DESTROY_DEOXYS_ROCK] = gFldEffScript_DestroyDeoxysRock,
     [FLDEFF_PHOTO_FLASH] = gFldEffScript_PhotoFlash,
