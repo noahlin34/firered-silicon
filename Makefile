@@ -491,17 +491,27 @@ BATTLE_SCRIPT_SOURCES := $(wildcard data/battle_scripts_*.s data/battle_anim_scr
 # readers), so it must not run when nothing it reads has changed. It used to be
 # `.PHONY`, which made EVERY `make` -- including a no-op one -- regenerate the
 # battle scripts and recompile everything downstream: measured 10.64 s for a
-# build with nothing to do, versus 0.31 s with the generator skipped. That is
-# the same trap fix #54 records for the split anim sheets. The phony name stays
-# as the documented regenerate entry point; the real work hangs off a stamp.
+# build with nothing to do, versus 0.31 s with the generator skipped. The
+# generated battle data is tracked, so clean only needs to recreate the stamp
+# when all outputs are already newer than their inputs.
+BATTLE_DATA_OUTPUTS := src/data/battle/battle_data.h src/data/battle/anim_data.h \
+                       src/data/battle/ai_data.h src/data/battle/ptr_table.c
+# The phony name stays as the documented regenerate entry point; the real work
+# hangs off a stamp.
 BATTLE_SCRIPTS_STAMP := $(OBJ_DIR)/.battle-scripts.stamp
 
 battle-scripts: $(BATTLE_SCRIPTS_STAMP)
 
 $(BATTLE_SCRIPTS_STAMP): $(BATTLE_SCRIPT_SOURCES)
-	@python3 tools/gen_battle_data.py
-	@mkdir -p $(dir $@)
-	@touch $@
+	@stale=0; \
+	for output in $(BATTLE_DATA_OUTPUTS); do \
+	    if [ ! -f "$$output" ]; then stale=1; break; fi; \
+	    for input in $(BATTLE_SCRIPT_SOURCES); do \
+	        if [ "$$input" -nt "$$output" ]; then stale=1; break 2; fi; \
+	    done; \
+	done; \
+	if [ $$stale -ne 0 ]; then python3 tools/gen_battle_data.py; fi; \
+	mkdir -p $(dir $@); touch $@
 
 # ---------------------------------------------------------------------------
 # The three generators with no rule of their own: map/script data, field-effect
