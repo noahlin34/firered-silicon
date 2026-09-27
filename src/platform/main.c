@@ -7,6 +7,7 @@
 #include <SDL.h>
 #include "global.h"
 #include "platform/platform.h"
+#include "platform/metrics.h"
 #include "global.fieldmap.h"
 #include "field_effect.h"
 #include "constants/event_bg.h"
@@ -24,7 +25,12 @@
 #include "constants/items.h"
 #include "constants/maps.h"
 #include "constants/map_groups.h"
-#include "global.fieldmap.h"
+
+// Metrics flags, collected during argument parsing and applied afterwards so the
+// flags are order-independent (--metrics-csv may precede --metrics).
+static bool sMetricsEnabled;
+static double sMetricsWindowSeconds = 1.0;
+static const char *sMetricsCsvPath;
 
 static void CrashHandler(int sig)
 {
@@ -109,6 +115,38 @@ int main(int argc, char **argv)
             if (i + 1 < argc)
                 gPlatformDevPanelKeySequence = argv[++i];
         }
+        else if (strcmp(argv[i], "--metrics") == 0)
+        {
+            sMetricsEnabled = true;
+        }
+        else if (strcmp(argv[i], "--metrics-window") == 0)
+        {
+            // Seconds per reporting window. Applied after the loop, so the flag
+            // is order-independent with --metrics.
+            if (i + 1 < argc)
+                sMetricsWindowSeconds = atof(argv[++i]);
+        }
+        else if (strcmp(argv[i], "--metrics-csv") == 0)
+        {
+            if (i + 1 < argc)
+                sMetricsCsvPath = argv[++i];
+        }
+    }
+
+    // Metrics are configured here, after every flag is known, so the flags are
+    // order-independent. Platform_Init has already run, which is what installs
+    // the clock the module measures with.
+    if (sMetricsEnabled)
+    {
+        Platform_MetricsSetEnabled(true);
+        Platform_MetricsSetWindowSeconds(sMetricsWindowSeconds);
+        if (sMetricsCsvPath != NULL && !Platform_MetricsOpenCsv(sMetricsCsvPath))
+            fprintf(stderr, "[Metrics] could not open %s for writing; continuing without CSV\n",
+                    sMetricsCsvPath);
+        atexit(Platform_MetricsReport);
+        printf("[Metrics] enabled: one window line per %.2fs%s, run summary at exit.\n",
+               sMetricsWindowSeconds,
+               sMetricsCsvPath != NULL ? " plus per-frame CSV" : "");
     }
 
     // The destination table walks gMapGroups and the map layouts, which the
