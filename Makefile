@@ -9,7 +9,7 @@ PREPROC := tools/preproc/preproc
 # machines or when diagnosing a dependency issue. GNU Make 3.81 does not expose
 # command-line `-jN` while parsing the makefile, so the variable is the
 # portable override for both the top-level build and its sub-makes.
-BUILD_JOBS ?= 10
+BUILD_JOBS ?= 9
 MAKEFLAGS += -j$(BUILD_JOBS)
 
 
