@@ -7,7 +7,7 @@ PREPROC := tools/preproc/preproc
 # A bare native build uses the available build parallelism by default. Explicit
 # `make -jN`/`--jobs=N` still wins, so callers can cap it for constrained
 # machines or force `-j1` when diagnosing a dependency issue.
-BUILD_JOBS ?= 8
+BUILD_JOBS ?= 10
 ifneq ($(filter -j% --jobs=%,$(MAKEFLAGS)),)
 else
 MAKEFLAGS += -j$(BUILD_JOBS)
