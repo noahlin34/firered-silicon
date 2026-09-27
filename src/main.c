@@ -19,6 +19,7 @@
 #include "title_screen.h"
 #ifdef PORTABLE
 #include "platform/platform.h"
+#include "platform/metrics.h"
 int printf(const char *, ...);
 void exit(int);
 int gEngineMaxFrames = 0;
@@ -193,6 +194,12 @@ void AgbMain()
 
     for (;;)
     {
+        // The frame's own boundaries. MetricsFrameEnd sits at the bottom of
+        // WaitForVBlank (after presentation), so a frame's total is exactly one
+        // pass over this loop; the phase times sum against it.
+        Platform_MetricsFrameBegin();
+        Platform_MetricsBegin(METRICS_PHASE_LOGIC);
+
         ReadKeys();
 
         if (gSoftResetDisabled == FALSE
@@ -229,6 +236,8 @@ void AgbMain()
 
         PlayTimeCounter_Update();
         MapMusicMain();
+
+        Platform_MetricsEnd(METRICS_PHASE_LOGIC);
         WaitForVBlank();
     }
 }
@@ -425,6 +434,7 @@ static void VBlankIntr(void)
 #if !defined(NDEBUG) || REVISION >= 0xA
     sVcountBeforeSound = REG_VCOUNT;
 #endif
+    Platform_MetricsBegin(METRICS_PHASE_AUDIO);
     m4aSoundMain();
 #if !defined(NDEBUG) || REVISION >= 0xA
     sVcountAfterSound = REG_VCOUNT;
@@ -440,6 +450,7 @@ static void VBlankIntr(void)
      * device stays silent. */
     Platform_SubmitAudioFrame(&gSoundInfo);
 #endif
+    Platform_MetricsEnd(METRICS_PHASE_AUDIO);
 
     TryReceiveLinkBattleData();
     Random();
@@ -500,7 +511,9 @@ static void WaitForVBlank(void)
     while (!(gMain.intrCheck & INTR_FLAG_VBLANK))
         ;
 #else
+    Platform_MetricsBegin(METRICS_PHASE_INPUT);
     Platform_UpdateInput();
+    Platform_MetricsEnd(METRICS_PHASE_INPUT);
     if (gEngineMaxFrames > 0 && !gPlatformSkipIntro)
     {
         if (sEngineFrameCount >= 5 && sEngineFrameCount <= 10)
@@ -549,12 +562,20 @@ static void WaitForVBlank(void)
             REG_KEYINPUT &= ~(1 << 0); // A to interact with NES in bedroom
     }
     REG_VCOUNT = 160; // Start of VBlank
+    Platform_MetricsBegin(METRICS_PHASE_VBLANK);
     VBlankIntr();
+    Platform_MetricsEnd(METRICS_PHASE_VBLANK);
     // The developer panel paints before presenting so a warp it requests takes
     // effect on the next frame's script context -- the same ordering the engine
     // gives ScrCmd_warp, and never mid-frame.
+    Platform_MetricsBegin(METRICS_PHASE_PANEL);
     Platform_DevPanelUpdate();
+    Platform_MetricsEnd(METRICS_PHASE_PANEL);
+    // Idle, PPU and present are timed inside Platform_RenderAndPresent, which
+    // owns the pacer and the renderer; the frame closes after it, so the frame
+    // total is exactly one pass over this loop.
     Platform_RenderAndPresent();
+    Platform_MetricsFrameEnd();
     if (gEngineMaxFrames > 0 && ++sEngineFrameCount >= gEngineMaxFrames)
     {
         printf("[Engine] Reached %d frames in boot test! Saving screenshot...\n", sEngineFrameCount);
