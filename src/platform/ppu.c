@@ -4,9 +4,9 @@
 #include <stdbool.h>
 
 #include "global.h"
-#include "main.h"
 #include "platform/platform.h"
 #include "platform/ppu.h"
+#include "platform/metrics.h"
 
 #define mosaicBGEffectX     (REG_MOSAIC & 0xF)
 #define mosaicBGEffectY     ((REG_MOSAIC >> 4) & 0xF)
@@ -439,6 +439,11 @@ static void DrawSprites(struct scanlineData *scanline, uint16_t vcount, bool win
         // entirely instead of being clipped at the top edge.
         if ((int32_t)vcount >= y - half_height && (int32_t)vcount < y + half_height)
         {
+            // One sample per sprite per scanline is exactly what the loop below
+            // iterates, so the count is proportional to sprite render cost.
+            Platform_MetricsAddGauge(METRICS_GAUGE_SPRITE_SCANLINES, 1);
+            if (isAffine)
+                Platform_MetricsAddGauge(METRICS_GAUGE_AFFINE_SPRITE_SCANLINES, 1);
             int local_y = (oam->mosaic == 1) ? applySpriteVerticalMosaicEffect(vcount) - y : (int)vcount - y;
             bool flipX = !isAffine && ((oam->matrixNum >> 3) & 1);
             bool flipY = !isAffine && ((oam->matrixNum >> 4) & 1);
