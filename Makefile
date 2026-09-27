@@ -879,14 +879,12 @@ test-list: $(TARGET_TESTS)
 
 RM_ASSET_EXTS := 1bpp 4bpp 8bpp gbapal lz rl hwlatfont fwlatfont fwjpnfont
 
-# find(1) per extension rather than one -name each: `-o` binds looser than the
-# implicit -print, so a single find command would need parentheses around the
-# whole predicate list to behave.
+# One parenthesized find expression scans the source tree once; repeated
+# extension scans made `make clean` pay for the same directory walk nine times.
+RM_ASSET_FIND_NAMES := $(foreach ext,$(RM_ASSET_EXTS),-name "*.$(ext)" -o) -false
 define RM_DERIVED_ASSETS
-	@for ext in $(RM_ASSET_EXTS); do \
-	    find . -path ./build -prune -o -name "*.$$ext" -type f -print0 \
-	        | xargs -0 rm -f; \
-	done
+	@find . -path ./build -prune -o \( $(RM_ASSET_FIND_NAMES) \) -type f -print0 \
+	    | xargs -0 rm -f
 	@rm -f $(SOUND_ASSETS)
 	@rm -f data/layouts/layouts.inc data/layouts/layouts_table.inc \
 	       data/maps/connections.inc data/maps/events.inc \
