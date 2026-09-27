@@ -4,6 +4,15 @@ PREPROC := tools/preproc/preproc
 # Including spritesheet_rules.mk below defines concrete targets; keep `all` as
 # the default goal rather than the first rule from that file.
 .DEFAULT_GOAL := all
+# A bare native build uses the available build parallelism by default. Explicit
+# `make -jN`/`--jobs=N` still wins, so callers can cap it for constrained
+# machines or force `-j1` when diagnosing a dependency issue.
+BUILD_JOBS ?= 8
+ifneq ($(filter -j% --jobs=%,$(MAKEFLAGS)),)
+else
+MAKEFLAGS += -j$(BUILD_JOBS)
+endif
+
 
 # Top-left FPS overlay in the SDL2 window (src/platform/sdl2.c). Release builds:
 #   rm -f build/native/platform/sdl2.o && make FPS_OVERLAY=0
@@ -587,16 +596,18 @@ $(SOUND_DATA_STAMP): $(SOUND_DATA_SOURCES) | $(MID2AGB)
 #
 # So the large list is never a prerequisite in the top-level graph. The objects
 # depend on this one real-file stamp, and the stamp's recipe drives both asset
-# phases through sub-makes. `-j1` is required there: the sub-make inherits
-# MAKEFLAGS, so a parallel sub-make reproduces the same spin internally.
+# phases through sub-makes. The bounded batches are safe for parallel sub-makes;
+# an unpartitioned list is not (GNU Make 3.81 recurses indefinitely above 1178
+# prerequisites).
+
 ASSET_STAMP := $(OBJ_DIR)/.assets.stamp
 
 # Keep asset conversion parallel without handing GNU Make 3.81 one enormous
 # prerequisite list. A derived-asset list above 1178 entries makes its
 # dependency walk recurse indefinitely under `-j`; bounded batches preserve
 # the real file graph while allowing independent converters to overlap.
-ASSET_JOBS ?= 8
 ASSET_BATCH_SIZE ?= 512
+
 DERIVED_ASSETS := $(INCBIN_ASSETS) $(SOUND_ASSETS)
 ASSET_BATCH_COUNT := $(shell python3 -c 'n=$(words $(DERIVED_ASSETS)); s=$(ASSET_BATCH_SIZE); print((n + s - 1) // s)')
 ASSET_BATCHES := $(shell python3 -c 'print(" ".join(str(n) for n in range(1, $(ASSET_BATCH_COUNT) + 1)))')
@@ -611,8 +622,8 @@ endef
 $(foreach batch,$(ASSET_BATCHES),$(eval $(call DERIVED_ASSET_BATCH_RULE,$(batch))))
 
 $(ASSET_STAMP): $(GEN_HEADERS) | $(GFX) $(PREPROC) $(WAV2AGB)
-	@$(MAKE) -s -j$(ASSET_JOBS) -f $(firstword $(MAKEFILE_LIST)) derived-assets
-	@$(MAKE) -s -j$(ASSET_JOBS) -f $(firstword $(MAKEFILE_LIST)) assets
+	@$(MAKE) -s -f $(firstword $(MAKEFILE_LIST)) derived-assets
+	@$(MAKE) -s -f $(firstword $(MAKEFILE_LIST)) assets
 	@mkdir -p $(dir $@)
 	@touch $@
 
