@@ -561,26 +561,51 @@ MAP_DATA_STAMP := $(OBJ_DIR)/.map-data.stamp
 FIELD_EFFECT_DATA_STAMP := $(OBJ_DIR)/.field-effect-data.stamp
 SOUND_DATA_STAMP := $(OBJ_DIR)/.sound-data.stamp
 
+# Generated data is tracked, unlike the stamp files. Check the tracked outputs
+# before rerunning a generator after `make clean`; source edits still invalidate
+# the output by mtime, while an unchanged clean build only recreates the stamp.
+MAP_DATA_OUTPUTS := src/data/maps_data.h src/data/layouts_data.h
+FIELD_EFFECT_DATA_OUTPUTS := src/data/field_effects/scripts_data.h src/data/field_effects/ptr_table.c
+SOUND_DATA_OUTPUTS := src/data/sound/song_data.h src/data/sound/sound_data.c src/data/sound/voice_data.h
+
 # One phony entry point that runs all three, matching `battle-scripts`.
 generated-data: $(MAP_DATA_STAMP) $(FIELD_EFFECT_DATA_STAMP) $(SOUND_DATA_STAMP)
 
 # `gen_map_data.py` refuses to write a degraded header, so a missing
 # $(GEN_HEADERS) fails the build here instead of shipping sDummyScript.
 $(MAP_DATA_STAMP): $(MAP_DATA_SOURCES) | $(GEN_HEADERS)
-	@python3 tools/gen_map_data.py
-	@mkdir -p $(dir $@)
-	@touch $@
+	@stale=0; \
+	for output in $(MAP_DATA_OUTPUTS); do \
+	    if [ ! -f "$$output" ]; then stale=1; break; fi; \
+	    for input in $(MAP_DATA_SOURCES); do \
+	        if [ "$$input" -nt "$$output" ]; then stale=1; break 2; fi; \
+	    done; \
+	done; \
+	if [ $$stale -ne 0 ]; then python3 tools/gen_map_data.py; fi; \
+	mkdir -p $(dir $@); touch $@
 
 $(FIELD_EFFECT_DATA_STAMP): $(FIELD_EFFECT_DATA_SOURCES) | $(GEN_HEADERS)
-	@python3 tools/gen_field_effect_data.py
-	@mkdir -p $(dir $@)
-	@touch $@
+	@stale=0; \
+	for output in $(FIELD_EFFECT_DATA_OUTPUTS); do \
+	    if [ ! -f "$$output" ]; then stale=1; break; fi; \
+	    for input in $(FIELD_EFFECT_DATA_SOURCES); do \
+	        if [ "$$input" -nt "$$output" ]; then stale=1; break 2; fi; \
+	    done; \
+	done; \
+	if [ $$stale -ne 0 ]; then python3 tools/gen_field_effect_data.py; fi; \
+	mkdir -p $(dir $@); touch $@
 
 # Needs tools/mid2agb, which the `tools` target builds.
 $(SOUND_DATA_STAMP): $(SOUND_DATA_SOURCES) | $(MID2AGB)
-	@python3 tools/gen_sound_data.py
-	@mkdir -p $(dir $@)
-	@touch $@
+	@stale=0; \
+	for output in $(SOUND_DATA_OUTPUTS); do \
+	    if [ ! -f "$$output" ]; then stale=1; break; fi; \
+	    for input in $(SOUND_DATA_SOURCES); do \
+	        if [ "$$input" -nt "$$output" ]; then stale=1; break 2; fi; \
+	    done; \
+	done; \
+	if [ $$stale -ne 0 ]; then python3 tools/gen_sound_data.py; fi; \
+	mkdir -p $(dir $@); touch $@
 
 # The ordering edge the objects need, and the fix for a make pathology worth
 # understanding before touching this file.
