@@ -4,7 +4,7 @@ PREPROC := tools/preproc/preproc
 # Including spritesheet_rules.mk below defines concrete targets; keep `all` as
 # the default goal rather than the first rule from that file.
 .DEFAULT_GOAL := all
-# A bare native build uses ten-way scheduling by default. Override
+# A bare native build uses the configured default scheduling. Override
 # `BUILD_JOBS` (for example, `make BUILD_JOBS=1`) to cap it for constrained
 # machines or when diagnosing a dependency issue. GNU Make 3.81 does not expose
 # command-line `-jN` while parsing the makefile, so the variable is the
