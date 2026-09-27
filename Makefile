@@ -605,7 +605,7 @@ ASSET_STAMP := $(OBJ_DIR)/.assets.stamp
 # prerequisite list. A derived-asset list above 1178 entries makes its
 # dependency walk recurse indefinitely under `-j`; bounded batches preserve
 # the real file graph while allowing independent converters to overlap.
-ASSET_BATCH_SIZE ?= 512
+ASSET_BATCH_SIZE ?= 384
 
 DERIVED_ASSETS := $(INCBIN_ASSETS) $(SOUND_ASSETS)
 ASSET_BATCH_COUNT := $(shell python3 -c 'n=$(words $(DERIVED_ASSETS)); s=$(ASSET_BATCH_SIZE); print((n + s - 1) // s)')
