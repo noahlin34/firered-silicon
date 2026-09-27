@@ -179,6 +179,15 @@ const char *Test_ScriptDump(const u8 *script, int maxBytes);
 extern int gHarnessAudioSubmits;    // vblanks the engine handed audio to the platform
 extern long gHarnessAudioMagnitude; // largest non-silent magnitude in a handoff
 
+// --- metrics clock (tests/platform_host.c) ----------------------------------
+// A synthetic clock for tests that want to observe the metrics module. It
+// advances a fixed step per read, so phase durations are deterministic rather
+// than machine-dependent -- the harness has no pacer and no real clock. Reset it
+// before installing it so a test starts from a known tick.
+#define HARNESS_METRICS_TICKS_PER_SECOND 1000000ULL
+extern uint64_t Harness_MetricsClock(void);
+void Harness_MetricsClockReset(void);
+
 // --- structural pixel checks (tests/util.c) ---------------------------------
 // The PPU is a pure function of engine memory and takes the framebuffer as a
 // parameter, so tests render into their own buffer. Prefer engine state; use
