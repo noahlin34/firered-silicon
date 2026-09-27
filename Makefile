@@ -591,16 +591,35 @@ $(SOUND_DATA_STAMP): $(SOUND_DATA_SOURCES) | $(MID2AGB)
 # MAKEFLAGS, so a parallel sub-make reproduces the same spin internally.
 ASSET_STAMP := $(OBJ_DIR)/.assets.stamp
 
+# Keep asset conversion parallel without handing GNU Make 3.81 one enormous
+# prerequisite list. A derived-asset list above 1178 entries makes its
+# dependency walk recurse indefinitely under `-j`; bounded batches preserve
+# the real file graph while allowing independent converters to overlap.
+ASSET_JOBS ?= 8
+ASSET_BATCH_SIZE ?= 512
+DERIVED_ASSETS := $(INCBIN_ASSETS) $(SOUND_ASSETS)
+ASSET_BATCH_COUNT := $(shell python3 -c 'n=$(words $(DERIVED_ASSETS)); s=$(ASSET_BATCH_SIZE); print((n + s - 1) // s)')
+ASSET_BATCHES := $(shell python3 -c 'print(" ".join(str(n) for n in range(1, $(ASSET_BATCH_COUNT) + 1)))')
+ASSET_BATCH_TARGETS := $(ASSET_BATCHES:%=derived-assets-%)
+
+define DERIVED_ASSET_BATCH_RULE
+.PHONY: derived-assets-$(1)
+derived-assets-$(1): $(wordlist $(shell expr \( $(1) - 1 \) \* $(ASSET_BATCH_SIZE) + 1),$(shell expr $(1) \* $(ASSET_BATCH_SIZE)),$(DERIVED_ASSETS))
+	@:
+endef
+
+$(foreach batch,$(ASSET_BATCHES),$(eval $(call DERIVED_ASSET_BATCH_RULE,$(batch))))
+
 $(ASSET_STAMP): $(GEN_HEADERS) | $(GFX) $(PREPROC) $(WAV2AGB)
-	@$(MAKE) -s -j1 -f $(firstword $(MAKEFILE_LIST)) derived-assets
-	@$(MAKE) -s -j1 -f $(firstword $(MAKEFILE_LIST)) assets
+	@$(MAKE) -s -j$(ASSET_JOBS) -f $(firstword $(MAKEFILE_LIST)) derived-assets
+	@$(MAKE) -s -j$(ASSET_JOBS) -f $(firstword $(MAKEFILE_LIST)) assets
 	@mkdir -p $(dir $@)
 	@touch $@
 
-# The rule-driven half of the asset set: every INCBIN the sources reach that the
-# aggregates do not already list. Only ever built through the stamp above.
+# The rule-driven half of the asset set: every INCBIN the sources reach that
+# the aggregates do not already list. Only ever built through the stamp above.
 .PHONY: derived-assets
-derived-assets: $(INCBIN_ASSETS) $(SOUND_ASSETS)
+derived-assets: $(ASSET_BATCH_TARGETS)
 	@:
 
 # `make assets` generates the rest. This is the documented "generate the assets
