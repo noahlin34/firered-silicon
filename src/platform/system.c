@@ -1,5 +1,6 @@
 #include "global.h"
 #include "platform/platform.h"
+#include "platform/metrics.h"
 #include "load_save.h"
 // Simulated GBA hardware memory spaces.
 //
@@ -112,6 +113,8 @@ void Platform_RunHBlankDma(void)
 
         for (uint32_t n = 0; n < count; n++)
         {
+            Platform_MetricsAddGauge(METRICS_GAUGE_HBLANK_DMA, 1);
+
             if (unit == 4)
                 *(uint32_t *)ch->dest = *(const uint32_t *)ch->src;
             else
