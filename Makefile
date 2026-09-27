@@ -456,6 +456,10 @@ PREPROC_SRCS := src/title_screen.c \
 
 OBJ_DIR := build/native
 OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PLATFORM_SRCS) $(ENGINE_SRCS) $(PREPROC_SRCS))
+# Schedule the largest generated-asset translation units early in parallel builds.
+PREPROC_BUILD_FIRST := $(filter src/graphics.c src/data.c src/data/sound/sound_data.c,$(PREPROC_SRCS))
+BUILD_OBJS := $(patsubst src/%.c,$(OBJ_DIR)/%.o,$(PREPROC_BUILD_FIRST) $(filter-out $(PREPROC_BUILD_FIRST),$(PREPROC_SRCS)) $(PLATFORM_SRCS) $(ENGINE_SRCS))
+
 
 TARGET := firered-native
 
@@ -707,8 +711,9 @@ $(foreach src,$(PREPROC_SRCS),$(eval $(call PREPROC_RULE,$(patsubst src/%.c,%,$(
 # semantics.
 $(OBJS): | $(ASSET_STAMP) $(BATTLE_SCRIPTS_STAMP) $(MAP_DATA_STAMP) $(FIELD_EFFECT_DATA_STAMP) $(SOUND_DATA_STAMP)
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
+$(TARGET): $(BUILD_OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $@
+
 
 run: $(TARGET)
 	./$(TARGET)
@@ -727,6 +732,8 @@ TEST_SRCS := $(wildcard tests/*.c)
 TEST_OBJS := $(patsubst tests/%.c,$(OBJ_DIR)/tests/%.o,$(TEST_SRCS))
 TEST_EXCLUDED := $(OBJ_DIR)/platform/sdl2.o $(OBJ_DIR)/platform/dev_panel.o $(OBJ_DIR)/platform/main.o
 TEST_ENGINE_OBJS := $(filter-out $(TEST_EXCLUDED),$(OBJS))
+TEST_ENGINE_BUILD_OBJS := $(filter-out $(TEST_EXCLUDED),$(BUILD_OBJS))
+
 
 # _XOPEN_SOURCE must precede every system header, so it cannot be set from inside
 # the harness headers -- it is a compile flag. ucontext.h (frame.c) needs it.
@@ -803,7 +810,7 @@ $(OBJ_DIR)/tests/%.o: tests/%.c $(TEST_SCRIPT_OPS) | $(ASSET_STAMP)
 	@mkdir -p $(dir $@)
 	$(CC) $(TEST_CFLAGS) $(DEPFLAGS) -MT $@ -c -o $@ $<
 
-$(TARGET_TESTS): $(TEST_ENGINE_OBJS) FORCE | $(TEST_OBJS)
+$(TARGET_TESTS): $(TEST_ENGINE_BUILD_OBJS) FORCE | $(TEST_OBJS)
 	@mkdir -p $(dir $(TEST_OBJ_LIST))
 	@for o in $(OBJ_DIR)/tests/*.o; do \
 	    [ -e "$$o" ] || continue; \
