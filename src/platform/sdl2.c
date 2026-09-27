@@ -8,6 +8,7 @@
 #include "gba/m4a_internal.h"
 #include "platform/platform.h"
 #include "platform/ppu.h"
+#include "platform/metrics.h"
 static SDL_Window *sWindow = NULL;
 static SDL_Renderer *sRenderer = NULL;
 static SDL_Texture *sTexture = NULL;
@@ -97,6 +98,11 @@ static void AudioCallback(void *userdata, Uint8 *stream, int len)
         }
         else
         {
+            /* The queue ran dry: the device gets silence rather than a
+             * stretched last frame. Counted because a queue that ever starves
+             * is the difference between "audio is choppy" and "the mixer is
+             * producing silence", and the two have different causes. */
+            Platform_MetricsAddCounter(METRICS_COUNTER_AUDIO_UNDERRUNS, 1);
             out[i * 2 + 0] = 0;
             out[i * 2 + 1] = 0;
         }
@@ -146,6 +152,9 @@ void Platform_SubmitAudioFrame(const struct SoundInfo *soundInfo)
                                       sAudioResampled,
                                       AUDIO_RESAMPLE_MAX_FRAMES);
 
+    Platform_MetricsAddCounter(METRICS_COUNTER_AUDIO_IN_FRAMES, (uint32_t)samples * 2);
+    Platform_MetricsAddCounter(METRICS_COUNTER_AUDIO_OUT_FRAMES, (uint32_t)written);
+
     SDL_LockMutex(sAudioLock);
     for (i = 0; i < written; i++)
     {
@@ -160,6 +169,9 @@ void Platform_SubmitAudioFrame(const struct SoundInfo *soundInfo)
         sAudioHead = (sAudioHead + 1) % AUDIO_QUEUE_FRAMES;
         sAudioCount++;
     }
+    /* The queue depth is a low-water mark: what matters is whether it ever
+     * reaches zero, not its average. */
+    Platform_MetricsSetGauge(METRICS_GAUGE_AUDIO_QUEUE_MIN, (uint32_t)sAudioCount);
     SDL_UnlockMutex(sAudioLock);
 }
 
@@ -227,8 +239,14 @@ static void WaitForFrameDeadline(void)
 
     sNextFrameDeadline += sFrameTicks;
     // A pause or slow frame must not create a backlog of fast catch-up ticks.
+    // Reaching this branch means the frame overran its deadline, so it is
+    // counted: overruns classify the frame, resyncs say how many frames were
+    // actually abandoned rather than merely late.
     if (sNextFrameDeadline <= now)
+    {
         sNextFrameDeadline = now + sFrameTicks;
+        Platform_MetricsAddCounter(METRICS_COUNTER_PACER_RESYNCS, 1);
+    }
 }
 
 // 15-bit BGR color framebuffer (240 x 160)
@@ -306,44 +324,66 @@ static void HandleKeyEvent(SDL_Keycode key, bool pressed)
 }
 
 #ifdef FPS_OVERLAY
-// ---- Top-left FPS overlay ----------------------------------------------------
-// Development aid: release builds compile it out with FPS_OVERLAY=0 (see
-// the Makefile). Sampled at presentation time so it reports frames the player
+// ---- Top-left development overlay --------------------------------------------
+// Development aid: release builds compile it out with FPS_OVERLAY=0 (see the
+// Makefile). Sampled at presentation time so it reports frames the player
 // actually sees, independent of the engine's internal frame pacing.
+//
+// Two things are drawn, and both live outside sFramebuffer so a screenshot stays
+// byte-identical and overlay-free:
+//   line 0  FPS, the presented-frame rate (always)
+//   lines 1+  the metrics summary, one line per phase and the busiest gauges,
+//             only when --metrics enabled the module
+#include "platform/font5x7.h"
+
 static double sTicksPerSecond;
 static double sFpsWindowStart;
 static uint32_t sFpsWindowFrames;
 static int sFpsValue; // -1 until the first full sample window elapses
 
+// How often the overlay's metrics text is rebuilt. The counters it reads are
+// updated once per window by the module, so redrawing faster would only burn
+// glyph loops; this matches the module's own 0.5 s default cadence closely.
 #define FPS_SAMPLE_WINDOW_SECONDS 0.5
-#define FPS_GLYPH_WIDTH   5
-#define FPS_GLYPH_HEIGHT  7
-#define FPS_GLYPH_SPACING 1
+#define OVERLAY_FONT_W   FONT5X7_WIDTH
+#define OVERLAY_FONT_H   FONT5X7_HEIGHT
+#define OVERLAY_ADVANCE  FONT5X7_ADVANCE
+#define OVERLAY_LINES    6
 
-// 5x7 glyphs; each row byte uses bit 4 for the leftmost column.
-struct FpsGlyph
+static void OverlayGlyph(int x, int y, char ch, int scale)
 {
-    char ch;
-    uint8_t rows[FPS_GLYPH_HEIGHT];
-};
+    const uint8_t *rows;
+    int row, column;
 
-static const struct FpsGlyph sFpsGlyphs[] =
+    if (ch < FONT5X7_FIRST || ch > FONT5X7_LAST)
+        ch = '?';
+    rows = gFont5x7[(int)ch - FONT5X7_FIRST];
+
+    for (row = 0; row < FONT5X7_HEIGHT; row++)
+    {
+        for (column = 0; column < FONT5X7_WIDTH; column++)
+        {
+            SDL_Rect pixel;
+
+            if (!(rows[row] & (1 << (FONT5X7_WIDTH - 1 - column))))
+                continue;
+
+            pixel.x = x + column * scale;
+            pixel.y = y + row * scale;
+            pixel.w = scale;
+            pixel.h = scale;
+            SDL_RenderFillRect(sRenderer, &pixel);
+        }
+    }
+}
+
+static void OverlayText(int x, int y, const char *text, int scale)
 {
-    { '0', { 0x0E, 0x11, 0x13, 0x15, 0x19, 0x11, 0x0E } },
-    { '1', { 0x04, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x0E } },
-    { '2', { 0x0E, 0x11, 0x01, 0x02, 0x04, 0x08, 0x1F } },
-    { '3', { 0x1F, 0x02, 0x04, 0x02, 0x01, 0x11, 0x0E } },
-    { '4', { 0x02, 0x06, 0x0A, 0x12, 0x1F, 0x02, 0x02 } },
-    { '5', { 0x1F, 0x10, 0x1E, 0x01, 0x01, 0x11, 0x0E } },
-    { '6', { 0x06, 0x08, 0x10, 0x1E, 0x11, 0x11, 0x0E } },
-    { '7', { 0x1F, 0x01, 0x02, 0x04, 0x08, 0x08, 0x08 } },
-    { '8', { 0x0E, 0x11, 0x11, 0x0E, 0x11, 0x11, 0x0E } },
-    { '9', { 0x0E, 0x11, 0x11, 0x0F, 0x01, 0x02, 0x0C } },
-    { 'F', { 0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x10 } },
-    { 'P', { 0x1E, 0x11, 0x11, 0x1E, 0x10, 0x10, 0x10 } },
-    { 'S', { 0x0F, 0x10, 0x10, 0x0E, 0x01, 0x01, 0x1E } },
-    { '-', { 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00 } },
-};
+    int i;
+
+    for (i = 0; text[i] != '\0'; i++)
+        OverlayGlyph(x + i * FONT5X7_ADVANCE * scale, y, text[i], scale);
+}
 
 static void UpdateFpsCounter(void)
 {
@@ -363,59 +403,76 @@ static void UpdateFpsCounter(void)
     }
 }
 
+// The metrics lines. Built from the module's last completed window: it is the
+// same aggregate the stdout window line reports, so the HUD and the log never
+// disagree about what the frame cost. Empty when --metrics is off, which keeps
+// a default build's overlay to one line.
+static int BuildMetricsLines(char lines[OVERLAY_LINES][64])
+{
+    const struct MetricsSummary *m = Platform_MetricsSummary();
+
+    if (m == NULL || m->frames == 0)
+        return 0;
+
+    snprintf(lines[0], 64, "%.2fms  idle %d%%", m->frameMs, (int)(m->idlePercent + 0.5));
+    snprintf(lines[1], 64, "ppu %.2f  pres %.2f  vbl %.2f",
+             m->phaseMs[METRICS_PHASE_PPU], m->phaseMs[METRICS_PHASE_PRESENT],
+             m->phaseMs[METRICS_PHASE_VBLANK]);
+    snprintf(lines[2], 64, "sprites %u  drawn %u  affine %u",
+             m->gauges[METRICS_GAUGE_SPRITES], m->gauges[METRICS_GAUGE_SPRITE_SCANLINES],
+             m->gauges[METRICS_GAUGE_AFFINE_SPRITE_SCANLINES]);
+    snprintf(lines[3], 64, "heap %uK free %uK",
+             m->gauges[METRICS_GAUGE_HEAP_USED] / 1024,
+             m->gauges[METRICS_GAUGE_HEAP_LARGEST_FREE] / 1024);
+    snprintf(lines[4], 64, "audio q %u under %u",
+             m->gauges[METRICS_GAUGE_AUDIO_QUEUE_MIN], (uint32_t)m->audioUnderrunsPerFrame);
+    snprintf(lines[5], 64, "over %u  p95 %.2f", m->overruns, m->p95Ms);
+
+    return OVERLAY_LINES;
+}
+
 // Drawn in logical (240x160) renderer space, after the GBA framebuffer, so the
 // overlay never lands in the engine framebuffer or saved screenshots.
 static void DrawFpsOverlay(void)
 {
-    char text[16];
-    SDL_Rect pixel;
-    size_t i;
-    int textWidth;
-    const int originX = 2;
-    const int originY = 2;
+    char fps[16];
+    char metrics[OVERLAY_LINES][64];
+    int metricLines;
+    int lineHeight = (FONT5X7_HEIGHT + 1);
+    int maxChars = 0;
+    int width;
+    int i;
 
     if (sFpsValue < 0)
-        snprintf(text, sizeof(text), "FPS ---");
+        snprintf(fps, sizeof(fps), "FPS ---");
     else
-        snprintf(text, sizeof(text), "FPS %d", sFpsValue);
+        snprintf(fps, sizeof(fps), "FPS %d", sFpsValue);
 
-    textWidth = ((int)strlen(text) * (FPS_GLYPH_WIDTH + FPS_GLYPH_SPACING)) - FPS_GLYPH_SPACING;
+    metricLines = BuildMetricsLines(metrics);
 
-    SDL_Rect background = { originX - 1, originY - 1, textWidth + 2, FPS_GLYPH_HEIGHT + 2 };
+    // One backing bar sized to the widest line, so the text stays legible over
+    // any scene without a per-line rectangle.
+    maxChars = (int)strlen(fps);
+    for (i = 0; i < metricLines; i++)
+    {
+        int n = (int)strlen(metrics[i]);
+        if (n > maxChars)
+            maxChars = n;
+    }
+    width = maxChars * FONT5X7_ADVANCE;
+
     SDL_SetRenderDrawBlendMode(sRenderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(sRenderer, 0, 0, 0, 160);
-    SDL_RenderFillRect(sRenderer, &background);
+    {
+        SDL_Rect background = { 1, 1, width + 2,
+                                (metricLines + 1) * lineHeight };
+        SDL_RenderFillRect(sRenderer, &background);
+    }
 
     SDL_SetRenderDrawColor(sRenderer, 255, 255, 255, 255);
-    for (i = 0; text[i] != '\0'; i++)
-    {
-        size_t glyph;
-        int x = originX + (int)i * (FPS_GLYPH_WIDTH + FPS_GLYPH_SPACING);
-
-        for (glyph = 0; glyph < ARRAY_COUNT(sFpsGlyphs); glyph++)
-        {
-            int row, column;
-
-            if (sFpsGlyphs[glyph].ch != text[i])
-                continue;
-
-            for (row = 0; row < FPS_GLYPH_HEIGHT; row++)
-            {
-                for (column = 0; column < FPS_GLYPH_WIDTH; column++)
-                {
-                    if (!(sFpsGlyphs[glyph].rows[row] & (1 << (FPS_GLYPH_WIDTH - 1 - column))))
-                        continue;
-
-                    pixel.x = x + column;
-                    pixel.y = originY + row;
-                    pixel.w = 1;
-                    pixel.h = 1;
-                    SDL_RenderFillRect(sRenderer, &pixel);
-                }
-            }
-            break;
-        }
-    }
+    OverlayText(2, 2, fps, 1);
+    for (i = 0; i < metricLines; i++)
+        OverlayText(2, 2 + (i + 1) * lineHeight, metrics[i], 1);
 
     SDL_SetRenderDrawBlendMode(sRenderer, SDL_BLENDMODE_NONE);
 }
@@ -505,6 +562,11 @@ int Platform_Init(int argc, char **argv)
 #endif
     sNextFrameDeadline = 0.0;
 
+    // Metrics read this same counter, so the reported frame time is measured
+    // with the clock the pacer uses -- not a second, unrelated time source.
+    Platform_MetricsSetClock((uint64_t (*)(void))SDL_GetPerformanceCounter,
+                             (uint64_t)frequency);
+
     sRunning = true;
     return 0;
 }
@@ -568,9 +630,21 @@ void Platform_PresentFrame(const uint16_t *framebuffer)
 
 void Platform_RenderAndPresent(void)
 {
+    // Idle, PPU and present are three separate phases of the frame budget and
+    // this function is where all three happen: the pacer owns the sleep and the
+    // renderer owns the upload. The engine's frame loop closes its frame around
+    // this call rather than around its own body.
+    Platform_MetricsBegin(METRICS_PHASE_IDLE);
     WaitForFrameDeadline();
+    Platform_MetricsEnd(METRICS_PHASE_IDLE);
+
+    Platform_MetricsBegin(METRICS_PHASE_PPU);
     PPU_RenderFrame(sFramebuffer);
+    Platform_MetricsEnd(METRICS_PHASE_PPU);
+
+    Platform_MetricsBegin(METRICS_PHASE_PRESENT);
     Platform_PresentFrame(sFramebuffer);
+    Platform_MetricsEnd(METRICS_PHASE_PRESENT);
 }
 
 void Platform_SaveScreenshot(const char *filename)
