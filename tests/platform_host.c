@@ -102,6 +102,38 @@ void Platform_SubmitAudioFrame(const struct SoundInfo *soundInfo)
         gHarnessAudioMagnitude = sum;
 }
 
+// --- metrics clock ----------------------------------------------------------
+// The engine's frame loop times its phases with a clock the platform installs,
+// and sdl2.o -- which installs SDL's performance counter -- is not in this
+// binary. Without a clock the metrics module stays inert, which is the right
+// default (a test that never asks for metrics must not measure anything), but it
+// also means an engine test cannot observe the module at all.
+//
+// So the harness supplies a synthetic clock that advances by a fixed step on
+// every read. Per-read rather than per-frame deliberately: a per-frame step
+// reads the same value at both ends of every phase, so every phase would measure
+// zero -- the one thing these tests exist to check. Per-read gives each phase a
+// non-zero, identical, deterministic duration, so "the phases are consistent
+// with the frame" is checkable without depending on how fast the test machine
+// is. Tests install it explicitly; the default stays inert.
+#define HARNESS_METRICS_TICKS_PER_SECOND 1000000ULL
+#define HARNESS_METRICS_STEP 100ULL   /* 100 us per read at 1 tick = 1 us */
+
+static uint64_t sHarnessTicks;
+
+uint64_t Harness_MetricsClock(void)
+{
+    uint64_t now = sHarnessTicks;
+
+    sHarnessTicks += HARNESS_METRICS_STEP;
+    return now;
+}
+
+void Harness_MetricsClockReset(void)
+{
+    sHarnessTicks = 0;
+}
+
 // --- crash reporting --------------------------------------------------------
 // A crashing test is reported with the faulting address and a symbolized frame,
 // then the process exits with a reserved code the runner attributes to the test.
