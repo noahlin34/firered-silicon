@@ -1,4 +1,5 @@
 #include "global.h"
+#include "platform/metrics.h"
 
 static void *sHeapStart;
 static u32 sHeapSize;
@@ -192,22 +193,70 @@ void InitHeap(void *heapStart, u32 heapSize)
 
 void *Alloc(u32 size)
 {
-    return AllocInternal(sHeapStart, size);
+    void *mem = AllocInternal(sHeapStart, size);
+
+    Platform_MetricsAddCounter(METRICS_COUNTER_ALLOCS, 1);
+    return mem;
 }
 
 void *AllocZeroed(u32 size)
 {
-    return AllocZeroedInternal(sHeapStart, size);
+    void *mem = AllocZeroedInternal(sHeapStart, size);
+
+    Platform_MetricsAddCounter(METRICS_COUNTER_ALLOCS, 1);
+    return mem;
 }
 
 void Free(void *pointer)
 {
+    Platform_MetricsAddCounter(METRICS_COUNTER_FREES, 1);
     FreeInternal(sHeapStart, pointer);
 }
 
 bool32 CheckMemBlock(void *pointer)
 {
     return CheckMemBlockInternal(sHeapStart, pointer);
+}
+
+/* Heap gauges are sampled once per frame rather than per allocation: walking the
+ * block list is O(blocks) and would dominate the allocator's own cost at the
+ * call sites. The block struct is private to this file, which is why the walk
+ * lives here and not in src/platform/metrics.c. */
+void Platform_MetricsSampleHeap(void)
+{
+    struct MemBlock *head = (struct MemBlock *)sHeapStart;
+    struct MemBlock *pos;
+    uint32_t used = 0;
+    uint32_t largestFree = 0;
+    uint32_t blocks = 0;
+
+    if (!Platform_MetricsIsEnabled() || sHeapStart == NULL)
+        return;
+
+    pos = head;
+    do
+    {
+        blocks++;
+        if (pos->flag)
+            used += pos->size;
+        else if (pos->size > largestFree)
+            largestFree = pos->size;
+
+        pos = pos->next;
+    } while (pos != head && pos != NULL);
+
+    Platform_MetricsSetGauge(METRICS_GAUGE_HEAP_USED, used);
+    Platform_MetricsSetGauge(METRICS_GAUGE_HEAP_LARGEST_FREE, largestFree);
+    Platform_MetricsSetGauge(METRICS_GAUGE_HEAP_BLOCKS, blocks);
+
+    /* High-water mark: the module keeps no per-gauge history, so the peak is
+     * tracked here from the run's own reading. */
+    {
+        static uint32_t sHeapHighWater;
+        if (used > sHeapHighWater)
+            sHeapHighWater = used;
+        Platform_MetricsSetGauge(METRICS_GAUGE_HEAP_HIGH_WATER, sHeapHighWater);
+    }
 }
 
 bool32 CheckHeap()
